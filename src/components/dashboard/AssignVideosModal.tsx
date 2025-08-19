@@ -32,6 +32,27 @@ interface AssignVideosModalProps {
   onAssignmentComplete: () => void;
 }
 
+// Utility function to compare sets
+function areSetEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
+  if (set1.size !== set2.size) return false;
+  for (const item of set1) {
+    if (!set2.has(item)) return false;
+  }
+  return true;
+}
+
+// Utility to compare deadline maps by YYYY-MM-DD
+function areDeadlineMapsEqual(a: Map<string, Date>, b: Map<string, Date>): boolean {
+  if (a.size !== b.size) return false;
+  const toKey = (d: Date) => d.toISOString().slice(0, 10);
+  for (const [key, value] of a.entries()) {
+    const other = b.get(key);
+    if (!other) return false;
+    if (toKey(value) !== toKey(other)) return false;
+  }
+  return true;
+}
+
 export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   open,
   onOpenChange,
@@ -402,24 +423,3 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     </Dialog>
   );
 };
-
-// Utility function to compare sets
-function areSetEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
-  if (set1.size !== set2.size) return false;
-  for (const item of set1) {
-    if (!set2.has(item)) return false;
-  }
-  return true;
-}
-
-// Utility to compare deadline maps by YYYY-MM-DD
-function areDeadlineMapsEqual(a: Map<string, Date>, b: Map<string, Date>): boolean {
-  if (a.size !== b.size) return false;
-  const toKey = (d: Date) => d.toISOString().slice(0, 10);
-  for (const [key, value] of a.entries()) {
-    const other = b.get(key);
-    if (!other) return false;
-    if (toKey(value) !== toKey(other)) return false;
-  }
-  return true;
-}
