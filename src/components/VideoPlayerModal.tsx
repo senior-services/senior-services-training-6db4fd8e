@@ -77,9 +77,6 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
                   Quiz Available
                 </Badge>
               )}
-              <Badge variant={video.type === 'Required' ? 'default' : 'outline'}>
-                {video.type}
-              </Badge>
             </div>
 
             {video.description && (
