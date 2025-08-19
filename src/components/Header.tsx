@@ -29,7 +29,7 @@ export const Header = ({ userRole, userName, userEmail, overallProgress, onLogou
             />
             <div>
               <h1 className="text-xl font-bold text-primary">
-                Senior Services Training Portal
+                Employee Training Portal
               </h1>
               <p className="text-sm text-muted-foreground">{subtitle}</p>
             </div>
