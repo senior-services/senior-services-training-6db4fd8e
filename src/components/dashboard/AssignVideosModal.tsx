@@ -134,8 +134,8 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-2xl h-[80vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Video className="w-5 h-5" />
             Assign Videos to{' '}
@@ -156,7 +156,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col">
           {loading ? (
             <div className="space-y-4 py-4">
               <LoadingSkeleton lines={1} className="h-16" />
@@ -165,7 +165,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between py-2 flex-shrink-0">
+              <div className="flex items-center justify-between py-2 flex-shrink-0 border-b">
                 <div className="flex items-center gap-2">
                   <Badge variant={selectedCount > 0 ? "default" : "secondary"}>
                     {selectedCount} video{selectedCount !== 1 ? 's' : ''} selected
@@ -196,8 +196,8 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-3 pb-4">
+              <ScrollArea className="flex-1 mt-4">
+                <div className="space-y-3 pr-4">
                   {videos.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
