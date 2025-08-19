@@ -102,53 +102,6 @@ export const EmployeeDashboard = ({ userName, userEmail, onLogout, onPlayVideo }
           </p>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Required Training</CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">
-                {completedRequired}/{totalRequired}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                completed modules
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Overall Progress</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">
-                {overallProgress}%
-              </div>
-              <p className="text-xs text-muted-foreground">
-                of required training
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Hours Completed</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">
-                2.5
-              </div>
-              <p className="text-xs text-muted-foreground">
-                training hours this month
-              </p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Training Content */}
         <Tabs defaultValue="required" className="space-y-6">
