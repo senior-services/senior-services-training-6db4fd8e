@@ -228,7 +228,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                         <div
                           key={video.id}
                           className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
-                            isSelected ? 'bg-primary/5 border-primary/20' : 'hover:bg-muted/50'
+                            isSelected ? 'bg-primary/5 border-primary/20' : ''
                           }`}
                         >
                           <input
@@ -298,15 +298,15 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                     variant="outline"
                                     size="sm"
                                     className={cn(
-                                      "w-[140px] justify-start text-left font-normal",
+                                      "w-[180px] justify-start text-left font-normal",
                                       !videoDeadlines.get(video.id) && "text-muted-foreground"
                                     )}
                                   >
                                     <CalendarIcon className="mr-2 h-3 w-3" />
                                     {videoDeadlines.get(video.id) ? (
-                                      format(videoDeadlines.get(video.id)!, "PPP")
+                                      format(videoDeadlines.get(video.id)!, "MMM dd, yyyy")
                                     ) : (
-                                      <span className="text-xs">Pick date</span>
+                                      <span className="text-xs">Pick due date</span>
                                     )}
                                   </Button>
                                 </PopoverTrigger>
