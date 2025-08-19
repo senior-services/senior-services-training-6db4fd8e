@@ -164,7 +164,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
             <Table aria-label="Training videos management table">
               <TableHeader>
                 <TableRow>
-                  <TableHead>
+                  <TableHead className="whitespace-nowrap">
                     <Button
                       variant="ghost"
                       className="font-semibold p-0 h-auto hover:bg-transparent"
@@ -182,7 +182,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-center">
+                  <TableHead className="text-center whitespace-nowrap">
                     <Button
                       variant="ghost"
                       className="font-semibold p-0 h-auto hover:bg-transparent"
@@ -197,8 +197,8 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-center">Quiz</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-center whitespace-nowrap">Quiz</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
