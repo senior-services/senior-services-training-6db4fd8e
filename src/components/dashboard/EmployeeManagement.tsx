@@ -142,7 +142,6 @@ export const EmployeeManagement: React.FC = () => {
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Employee</TableHead>
                   <TableHead className="whitespace-nowrap">Email</TableHead>
-                  <TableHead className="whitespace-nowrap">Domain</TableHead>
                   <TableHead className="text-center whitespace-nowrap">Assigned Videos</TableHead>
                   <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
@@ -150,7 +149,7 @@ export const EmployeeManagement: React.FC = () => {
               <TableBody>
                 {employees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-12">
+                    <TableCell colSpan={4} className="text-center py-12">
                       <div className="space-y-3">
                         <UserPlus className="w-12 h-12 text-muted-foreground mx-auto" />
                         <div>
@@ -185,11 +184,6 @@ export const EmployeeManagement: React.FC = () => {
                           <Mail className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm">{employee.email}</span>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs">
-                          {employee.domain}
-                        </Badge>
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge variant="secondary">

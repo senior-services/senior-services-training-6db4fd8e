@@ -2,7 +2,6 @@ export interface Employee {
   id: string;
   email?: string;
   full_name?: string;
-  domain?: string;
   created_at: string;
   updated_at: string;
 }
