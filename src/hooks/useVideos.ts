@@ -135,6 +135,7 @@ export const useVideos = (): UseVideosReturn => {
         video_url: videoData.url || null,
         video_file_name: videoData.file?.name || null,
         type: 'Optional',
+        has_quiz: false,
         assigned_to: 0,
         completion_rate: 0,
         created_at: new Date().toISOString(),

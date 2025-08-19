@@ -24,22 +24,54 @@ export const videoService = {
    */
   async getAll(): Promise<ApiResult<Video[]>> {
     try {
-      const { data, error } = await supabase
+      // First get all videos
+      const { data: videos, error: videosError } = await supabase
         .from(DB_CONFIG.TABLES.VIDEOS)
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching videos:', error);
+      if (videosError) {
+        console.error('Error fetching videos:', videosError);
         return {
           data: null,
-          error: error.message || ERROR_MESSAGES.VIDEO.LOAD_FAILED,
+          error: videosError.message || ERROR_MESSAGES.VIDEO.LOAD_FAILED,
           success: false,
         };
       }
 
+      // Get assignment counts for all videos
+      const { data: assignmentCounts, error: countError } = await supabase
+        .from('video_assignments')
+        .select('video_id')
+        .then(({ data, error }) => {
+          if (error) return { data: null, error };
+          
+          // Count assignments per video
+          const counts = new Map();
+          data?.forEach(assignment => {
+            counts.set(assignment.video_id, (counts.get(assignment.video_id) || 0) + 1);
+          });
+          
+          return { data: counts, error: null };
+        });
+
+      if (countError) {
+        console.error('Error fetching assignment counts:', countError);
+        return {
+          data: null,
+          error: countError.message || ERROR_MESSAGES.VIDEO.LOAD_FAILED,
+          success: false,
+        };
+      }
+
+      // Update videos with actual assignment counts
+      const videosWithCounts = videos?.map(video => ({
+        ...video,
+        assigned_to: assignmentCounts?.get(video.id) || 0
+      })) || [];
+
       return {
-        data: data as Video[],
+        data: videosWithCounts as Video[],
         error: null,
         success: true,
       };
