@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogIn, Mail, Shield, User } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
-import logoImage from "@/assets/senior-services-logo.png";
+
 
 export const Auth = () => {
   const [email, setEmail] = useState('');
@@ -65,7 +65,7 @@ export const Auth = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center">
-          <img src={logoImage} alt="Senior Services for South Sound" className="mx-auto h-16 w-auto mb-4" />
+          <img src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" alt="Senior Services for South Sound" className="mx-auto h-16 w-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-2">Training Portal</h1>
           <p className="text-white/90">
             Sign in to access your training dashboard

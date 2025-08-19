@@ -22,7 +22,7 @@ export const Header = ({ userRole, userName, userEmail, overallProgress, onLogou
           {/* Left Side - Logo and Title */}
           <div className="flex items-center space-x-4">
             <img 
-              src="/lovable-uploads/004b8e9d-75f8-4dc3-a163-f517428d9881.png" 
+              src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" 
               alt="Senior Services for South Sound" 
               className="h-12 w-auto object-cover"
               style={{ objectPosition: 'left center' }}
