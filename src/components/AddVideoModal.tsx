@@ -190,7 +190,7 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
                         <FileVideo className="w-5 h-5 text-success" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-success-foreground">{selectedFile.name}</p>
+                        <p className="text-sm font-medium text-foreground">{selectedFile.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • Ready to upload
                         </p>
