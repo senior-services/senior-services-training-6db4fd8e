@@ -42,6 +42,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [assignedVideoIds, setAssignedVideoIds] = useState<Set<string>>(new Set());
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(new Set());
   const [videoDeadlines, setVideoDeadlines] = useState<Map<string, Date>>(new Map());
+  const [calendarOpen, setCalendarOpen] = useState<Map<string, boolean>>(new Map());
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -108,6 +109,15 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       }
       return newDeadlines;
     });
+    
+    // Auto-close calendar after date selection
+    if (date) {
+      setCalendarOpen(prev => {
+        const newOpen = new Map(prev);
+        newOpen.set(videoId, false);
+        return newOpen;
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -151,6 +161,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const handleClose = () => {
     setSelectedVideoIds(new Set(assignedVideoIds));
     setVideoDeadlines(new Map()); // Clear deadlines on close
+    setCalendarOpen(new Map()); // Clear calendar open states on close
     onOpenChange(false);
   };
 
@@ -238,7 +249,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             onChange={(e) => 
                               handleVideoToggle(video.id, e.target.checked)
                             }
-                            className="mt-1 flex-shrink-0 w-4 h-4 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                            className="mt-1 flex-shrink-0 w-4 h-4 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary hover:border-primary/60 hover:bg-primary/5 transition-colors cursor-pointer"
                           />
                           
                           <div className="flex-1 min-w-0">
@@ -292,7 +303,16 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                           {/* Calendar Picker - Only show when video is selected */}
                           {isSelected && (
                             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                              <Popover>
+                              <Popover 
+                                open={calendarOpen.get(video.id) || false}
+                                onOpenChange={(open) => {
+                                  setCalendarOpen(prev => {
+                                    const newOpen = new Map(prev);
+                                    newOpen.set(video.id, open);
+                                    return newOpen;
+                                  });
+                                }}
+                              >
                                 <PopoverTrigger asChild>
                                   <Button
                                     variant="outline"
