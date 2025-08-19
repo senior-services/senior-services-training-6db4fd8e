@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Users, Video, BookOpen, Settings, Plus, Edit, Trash2, Play } from "lucide-react";
 import { AddVideoModal, VideoFormData } from "@/components/AddVideoModal";
+import { EditVideoModal, VideoData } from "@/components/EditVideoModal";
 import { VideoPlayerModal } from "@/components/VideoPlayerModal";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,21 +26,12 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type VideoData = {
-  id: string;
-  title: string;
-  description?: string;
-  type: string;
-  assigned_to: number;
-  completion_rate: number;
-  has_quiz: boolean;
-  created_at: string;
-};
-
 export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboardProps) => {
   const [isAddVideoModalOpen, setIsAddVideoModalOpen] = useState(false);
+  const [isEditVideoModalOpen, setIsEditVideoModalOpen] = useState(false);
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
+  const [editingVideo, setEditingVideo] = useState<VideoData | null>(null);
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -169,6 +161,84 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
     }
     
     setIsAddVideoModalOpen(false);
+  };
+
+  // Handle editing a video
+  const handleEditVideo = (video: VideoData) => {
+    setEditingVideo(video);
+    setIsEditVideoModalOpen(true);
+  };
+
+  // Handle updating video
+  const handleUpdateVideo = async (videoId: string, updates: { title: string; description: string }) => {
+    try {
+      const { error } = await supabase
+        .from('videos')
+        .update({
+          title: updates.title,
+          description: updates.description,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', videoId);
+
+      if (error) {
+        console.error('Error updating video:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update video. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Video Updated",
+          description: "Video details have been successfully updated.",
+        });
+        
+        // Refresh the videos list
+        fetchVideos();
+      }
+    } catch (error) {
+      console.error('Error updating video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update video. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle deleting video
+  const handleDeleteVideo = async (videoId: string) => {
+    try {
+      const { error } = await supabase
+        .from('videos')
+        .delete()
+        .eq('id', videoId);
+
+      if (error) {
+        console.error('Error deleting video:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete video. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Video Deleted",
+          description: "Video has been permanently removed from the library.",
+        });
+        
+        // Refresh the videos list
+        fetchVideos();
+      }
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete video. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -328,7 +398,11 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end space-x-2">
-                              <Button variant="outline" size="sm">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleEditVideo(video)}
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
                               <Button variant="outline" size="sm">
@@ -373,6 +447,14 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
         open={isAddVideoModalOpen}
         onOpenChange={setIsAddVideoModalOpen}
         onSave={handleAddVideo}
+      />
+      
+      <EditVideoModal
+        open={isEditVideoModalOpen}
+        onOpenChange={setIsEditVideoModalOpen}
+        video={editingVideo}
+        onSave={handleUpdateVideo}
+        onDelete={handleDeleteVideo}
       />
       
       <VideoPlayerModal
