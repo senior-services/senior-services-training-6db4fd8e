@@ -311,15 +311,10 @@ export const EmployeeManagement: React.FC = () => {
                                     <Play className="w-3 h-3 text-muted-foreground" />
                                   </div>
                                   
-                                  <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-sm">
+                                  <div className="flex-1 min-w-0 w-1/2">
+                                    <div className="font-medium text-sm line-clamp-2">
                                       {assignment.video_title || 'Untitled Video'}
                                     </div>
-                                    {assignment.video_description && (
-                                      <p className="text-xs text-muted-foreground line-clamp-1">
-                                        {assignment.video_description}
-                                      </p>
-                                    )}
                                   </div>
                                 </div>
                                 
@@ -329,7 +324,7 @@ export const EmployeeManagement: React.FC = () => {
                                     return (
                                       <Badge 
                                         variant={badgeProps.variant}
-                                        className={`text-xs ${badgeProps.className}`}
+                                        className={`text-xs whitespace-nowrap ${badgeProps.className}`}
                                       >
                                         {badgeProps.text}
                                       </Badge>
@@ -339,11 +334,6 @@ export const EmployeeManagement: React.FC = () => {
                                   <div className="flex items-center gap-1 text-muted-foreground">
                                     <XCircle className="w-3 h-3" />
                                     <span>Not completed</span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-1 text-muted-foreground">
-                                    <HelpCircle className="w-3 h-3" />
-                                    <span>No quiz</span>
                                   </div>
                                 </div>
                               </div>
