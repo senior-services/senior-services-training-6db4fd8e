@@ -10,7 +10,7 @@ export class EmployeeService {
       .from('employees')
       .select(`
         *,
-        video_assignments!inner(count)
+        video_assignments(count)
       `)
       .order('created_at', { ascending: false });
 
