@@ -7,7 +7,7 @@ import { Landing } from "./pages/Landing";
 import { Auth } from "./pages/Auth";
 import { EmployeeDashboard } from "./pages/EmployeeDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
-import NotFound from "./pages/NotFound";
+import { NotFound } from "./pages/NotFound";
 import { useAuth } from "./hooks/useAuth";
 import { useUserRole } from "./hooks/useUserRole";
 
