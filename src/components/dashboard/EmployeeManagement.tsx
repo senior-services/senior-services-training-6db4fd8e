@@ -183,11 +183,10 @@ export const EmployeeManagement: React.FC = () => {
                   <AccordionItem 
                     key={employee.id} 
                     value={employee.id}
-                    className={`group ${!hasVideos ? "opacity-60" : ""}`}
+                    className="group"
                   >
                     <AccordionTrigger 
                       className="[&>svg]:hidden" // Hide default chevron
-                      disabled={!hasVideos}
                     >
                     <div className="flex items-center justify-between w-full hover:bg-muted/50">
                       {/* Left side: Chevron + Employee info */}
