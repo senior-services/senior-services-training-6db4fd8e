@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogIn, Mail } from "lucide-react";
+import { LogIn, Mail, Shield, User } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import logoImage from "@/assets/senior-services-logo.png";
 
@@ -32,6 +32,31 @@ export const Auth = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     await signInWithGoogle();
+    setIsLoading(false);
+  };
+
+  // Test login functions
+  const handleTestAdminLogin = async () => {
+    setEmail('admin@gmail.com');
+    setPassword('admin123');
+    setIsLoading(true);
+    await signIn('admin@gmail.com', 'admin123');
+    setIsLoading(false);
+  };
+
+  const handleTestEmployeeLogin = async () => {
+    setEmail('test@gmail.com');
+    setPassword('test123');
+    setIsLoading(true);
+    
+    // Try to sign in, if fails, create the account first
+    const result = await signIn('test@gmail.com', 'test123');
+    if (!result || result.error) {
+      // Account doesn't exist, create it
+      await signUp('test@gmail.com', 'test123', 'Test Employee');
+      // Then sign in
+      await signIn('test@gmail.com', 'test123');
+    }
     setIsLoading(false);
   };
 
@@ -154,6 +179,39 @@ export const Auth = () => {
             
             <div className="mt-4 text-center text-sm text-muted-foreground">
               New employees will be automatically registered with employee access upon first login
+            </div>
+
+            {/* Development Testing Section */}
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="text-center mb-3">
+                <h3 className="font-semibold text-yellow-800 text-sm">Development Testing</h3>
+                <p className="text-xs text-yellow-700">Quick login for testing purposes</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={handleTestAdminLogin}
+                  disabled={isLoading}
+                  variant="outline"
+                  size="sm"
+                  className="border-red-200 text-red-700 hover:bg-red-50"
+                >
+                  <Shield className="w-4 h-4 mr-1" />
+                  Admin Test
+                </Button>
+                <Button
+                  onClick={handleTestEmployeeLogin}
+                  disabled={isLoading}
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  <User className="w-4 h-4 mr-1" />
+                  Employee Test
+                </Button>
+              </div>
+              <div className="mt-2 text-xs text-yellow-600 text-center">
+                Admin: admin@gmail.com | Employee: test@gmail.com
+              </div>
             </div>
           </CardContent>
         </Card>
