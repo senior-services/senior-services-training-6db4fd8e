@@ -302,47 +302,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start gap-3">
-                              {/* Video thumbnail/placeholder */}
-                              <div className="relative w-16 h-10 rounded bg-muted flex items-center justify-center flex-shrink-0">
-                                {video.thumbnail_url ? (
-                                  <img 
-                                    src={video.thumbnail_url} 
-                                    alt={video.title}
-                                    className="w-full h-full object-cover rounded"
-                                  />
-                                ) : (
-                                  <Play className="w-4 h-4 text-muted-foreground" />
-                                )}
-                              </div>
-                              
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-sm">
                                   {video.title}
-                                </div>
-                                {video.description && (
-                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                    {video.description}
-                                  </p>
-                                )}
-                                <div className="flex items-center gap-2 mt-2">
-                                  {wasOriginallyAssigned && (
-                                    <Badge 
-                                      variant={isSelected ? "default" : "secondary"} 
-                                      className="text-xs"
-                                    >
-                                      {isSelected ? (
-                                        <>
-                                          <Check className="w-3 h-3 mr-1" />
-                                          Assigned
-                                        </>
-                                      ) : (
-                                        <>
-                                          <X className="w-3 h-3 mr-1" />
-                                          Will Remove
-                                        </>
-                                      )}
-                                    </Badge>
-                                  )}
                                 </div>
                               </div>
                             </div>
@@ -366,7 +328,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                     variant="outline"
                                     size="sm"
                                     className={cn(
-                                      "w-[180px] justify-start text-left font-normal",
+                                      "w-[160px] justify-start text-left font-normal",
                                       !videoDeadlines.get(video.id) && "text-muted-foreground"
                                     )}
                                   >
