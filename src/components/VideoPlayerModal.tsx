@@ -39,6 +39,7 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
   // Extract YouTube video ID for embedding
   const getYouTubeVideoId = (url: string) => {
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    console.log('YouTube URL parsing:', { url, match, videoId: match?.[1] });
     return match ? match[1] : null;
   };
 

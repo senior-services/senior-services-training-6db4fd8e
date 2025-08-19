@@ -108,6 +108,7 @@ export const EditVideoModal = ({
   // Extract YouTube video ID for embedding
   const getYouTubeVideoId = (url: string) => {
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    console.log('YouTube URL parsing:', { url, match, videoId: match?.[1] });
     return match ? match[1] : null;
   };
 
@@ -129,25 +130,7 @@ export const EditVideoModal = ({
             <div className="space-y-3">
               <Label>Video Preview</Label>
               <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
-                {video.thumbnail_url ? (
-                  <div className="relative aspect-video bg-black">
-                    <img 
-                      src={video.thumbnail_url}
-                      alt={`${video.title} thumbnail`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <Button 
-                        variant="secondary" 
-                        size="lg"
-                        onClick={() => video.video_url && window.open(video.video_url, '_blank')}
-                        className="rounded-full"
-                      >
-                        <Play className="w-6 h-6" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : isYouTubeUrl && youtubeVideoId ? (
+                {isYouTubeUrl && youtubeVideoId ? (
                   <div className="aspect-video bg-black rounded-lg overflow-hidden">
                     <iframe
                       width="100%"

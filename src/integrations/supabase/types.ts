@@ -70,6 +70,7 @@ export type Database = {
           description: string | null
           has_quiz: boolean
           id: string
+          thumbnail_url: string | null
           title: string
           type: string
           updated_at: string
@@ -83,6 +84,7 @@ export type Database = {
           description?: string | null
           has_quiz?: boolean
           id?: string
+          thumbnail_url?: string | null
           title: string
           type?: string
           updated_at?: string
@@ -96,6 +98,7 @@ export type Database = {
           description?: string | null
           has_quiz?: boolean
           id?: string
+          thumbnail_url?: string | null
           title?: string
           type?: string
           updated_at?: string
