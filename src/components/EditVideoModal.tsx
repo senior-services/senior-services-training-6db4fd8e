@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, FileVideo, Trash2, Plus, X, GripVertical } from "lucide-react";
+import { Play, FileVideo, Trash2, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -280,6 +280,8 @@ export const EditVideoModal = ({
     try {
       setIsSaving(true);
       
+      let quizId: string;
+      
       if (quiz) {
         // Update existing quiz
         const { error: quizError } = await supabase
@@ -299,6 +301,7 @@ export const EditVideoModal = ({
           .eq('quiz_id', quiz.id);
 
         if (deleteError) throw deleteError;
+        quizId = quiz.id;
       } else {
         // Create new quiz
         const { data: newQuiz, error: quizError } = await supabase
@@ -322,6 +325,7 @@ export const EditVideoModal = ({
         };
         
         setQuiz(formattedQuiz);
+        quizId = newQuiz.id;
       }
 
       // Insert questions and options
@@ -330,7 +334,7 @@ export const EditVideoModal = ({
         const { data: newQuestion, error: questionError } = await supabase
           .from('quiz_questions')
           .insert({
-            quiz_id: quiz?.id || (await supabase.from('quizzes').select('id').eq('video_id', video.id).single()).data?.id,
+            quiz_id: quizId,
             question_text: question.question_text,
             question_type: question.question_type,
             order_index: i,
@@ -462,15 +466,15 @@ export const EditVideoModal = ({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
-          <DialogHeader>
+          <DialogHeader className="shrink-0">
             <DialogTitle>Edit Training Video</DialogTitle>
             <DialogDescription>
               Preview, edit details, or manage this training video.
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+            <TabsList className="grid w-full grid-cols-2 shrink-0">
               <TabsTrigger value="video">Video Info</TabsTrigger>
               <TabsTrigger value="quiz" className="relative">
                 Quiz
@@ -482,141 +486,143 @@ export const EditVideoModal = ({
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="video" className="flex-1 overflow-y-auto space-y-6 p-1 mt-4">
-              {/* Video Preview Section */}
-              <div className="space-y-3">
-                <Label>Video Preview</Label>
-                <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
-                  {isYouTubeUrl && youtubeVideoId ? (
-                    <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={`https://www.youtube.com/embed/${youtubeVideoId}`}
-                        title={video.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        className="w-full h-full"
-                      />
-                    </div>
-                  ) : video.video_url && !isYouTubeUrl && !isDriveUrl ? (
-                    <div className="relative aspect-video bg-black">
-                      <video 
-                        className="w-full h-full object-cover"
-                        controls
-                        preload="metadata"
-                      >
-                        <source src={video.video_url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  ) : isYouTubeUrl ? (
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
-                      <div className="text-center space-y-2">
-                        <Play className="w-8 h-8 text-muted-foreground mx-auto" />
-                        <p className="text-sm text-muted-foreground">YouTube Video</p>
-                        <p className="text-xs text-muted-foreground truncate max-w-[300px]">
-                          {video.video_url}
-                        </p>
-                        {video.video_url && (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => window.open(video.video_url!, '_blank')}
-                          >
-                            <Play className="w-4 h-4 mr-2" />
-                            Open Video
-                          </Button>
-                        )}
+            <TabsContent value="video" className="flex-1 overflow-y-auto p-1 mt-4 data-[state=active]:flex data-[state=active]:flex-col">
+              <div className="space-y-6">
+                {/* Video Preview Section */}
+                <div className="space-y-3">
+                  <Label>Video Preview</Label>
+                  <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
+                    {isYouTubeUrl && youtubeVideoId ? (
+                      <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+                          title={video.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          className="w-full h-full"
+                        />
                       </div>
-                    </div>
-                  ) : isDriveUrl ? (
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
-                      <div className="text-center space-y-2">
-                        <FileVideo className="w-8 h-8 text-muted-foreground mx-auto" />
-                        <p className="text-sm text-muted-foreground">Google Drive Video</p>
-                        <p className="text-xs text-muted-foreground truncate max-w-[300px]">
-                          {video.video_url}
-                        </p>
-                        {video.video_url && (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => window.open(video.video_url!, '_blank')}
-                          >
-                            <Play className="w-4 h-4 mr-2" />
-                            Open Video
-                          </Button>
-                        )}
+                    ) : video.video_url && !isYouTubeUrl && !isDriveUrl ? (
+                      <div className="relative aspect-video bg-black">
+                        <video 
+                          className="w-full h-full object-cover"
+                          controls
+                          preload="metadata"
+                        >
+                          <source src={video.video_url} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
                       </div>
-                    </div>
-                  ) : isFileUpload ? (
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
-                      <div className="text-center space-y-2">
-                        <FileVideo className="w-8 h-8 text-muted-foreground mx-auto" />
-                        <p className="text-sm text-muted-foreground">Uploaded Video File</p>
-                        <p className="text-xs text-muted-foreground">
-                          {video.video_file_name}
-                        </p>
+                    ) : isYouTubeUrl ? (
+                      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
+                        <div className="text-center space-y-2">
+                          <Play className="w-8 h-8 text-muted-foreground mx-auto" />
+                          <p className="text-sm text-muted-foreground">YouTube Video</p>
+                          <p className="text-xs text-muted-foreground truncate max-w-[300px]">
+                            {video.video_url}
+                          </p>
+                          {video.video_url && (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => window.open(video.video_url!, '_blank')}
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Open Video
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
-                      <div className="text-center space-y-2">
-                        <FileVideo className="w-8 h-8 text-muted-foreground mx-auto" />
-                        <p className="text-sm text-muted-foreground">Video source not available</p>
+                    ) : isDriveUrl ? (
+                      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
+                        <div className="text-center space-y-2">
+                          <FileVideo className="w-8 h-8 text-muted-foreground mx-auto" />
+                          <p className="text-sm text-muted-foreground">Google Drive Video</p>
+                          <p className="text-xs text-muted-foreground truncate max-w-[300px]">
+                            {video.video_url}
+                          </p>
+                          {video.video_url && (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => window.open(video.video_url!, '_blank')}
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Open Video
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ) : isFileUpload ? (
+                      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
+                        <div className="text-center space-y-2">
+                          <FileVideo className="w-8 h-8 text-muted-foreground mx-auto" />
+                          <p className="text-sm text-muted-foreground">Uploaded Video File</p>
+                          <p className="text-xs text-muted-foreground">
+                            {video.video_file_name}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
+                        <div className="text-center space-y-2">
+                          <FileVideo className="w-8 h-8 text-muted-foreground mx-auto" />
+                          <p className="text-sm text-muted-foreground">Video source not available</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Title Section */}
-              <div className="space-y-2">
-                <Label htmlFor="edit-title">Video Title</Label>
-                <Input 
-                  id="edit-title" 
-                  value={title} 
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter video title..."
-                />
-              </div>
+                {/* Title Section */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-title">Video Title</Label>
+                  <Input 
+                    id="edit-title" 
+                    value={title} 
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter video title..."
+                  />
+                </div>
 
-              {/* Description Section */}
-              <div className="space-y-2">
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea 
-                  id="edit-description" 
-                  value={description} 
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter video description..."
-                  rows={4}
-                />
-              </div>
+                {/* Description Section */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Description</Label>
+                  <Textarea 
+                    id="edit-description" 
+                    value={description} 
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter video description..."
+                    rows={4}
+                  />
+                </div>
 
-              {/* Video Info */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="space-y-1">
-                  <p className="font-medium text-muted-foreground">Type</p>
-                  <p className="text-foreground">{video.type}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="font-medium text-muted-foreground">Has Quiz</p>
-                  <p className="text-foreground">{video.has_quiz ? 'Yes' : 'No'}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="font-medium text-muted-foreground">Assigned To</p>
-                  <p className="text-foreground">{video.assigned_to} employees</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="font-medium text-muted-foreground">Completion Rate</p>
-                  <p className="text-foreground">{video.completion_rate}%</p>
+                {/* Video Info */}
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-1">
+                    <p className="font-medium text-muted-foreground">Type</p>
+                    <p className="text-foreground">{video.type}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-medium text-muted-foreground">Has Quiz</p>
+                    <p className="text-foreground">{video.has_quiz ? 'Yes' : 'No'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-medium text-muted-foreground">Assigned To</p>
+                    <p className="text-foreground">{video.assigned_to} employees</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-medium text-muted-foreground">Completion Rate</p>
+                    <p className="text-foreground">{video.completion_rate}%</p>
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="quiz" className="flex-1 flex flex-col space-y-4 mt-4">
+            <TabsContent value="quiz" className="flex-1 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col mt-4">
               {loadingQuiz ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="space-y-2 text-center">
@@ -625,187 +631,189 @@ export const EditVideoModal = ({
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 overflow-y-auto space-y-4">
-                  {/* Quiz Header */}
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-2 flex-1">
-                      <Label htmlFor="quiz-title">Quiz Title</Label>
-                      <Input
-                        id="quiz-title"
-                        value={quizTitle}
-                        onChange={(e) => setQuizTitle(e.target.value)}
-                        placeholder="Enter quiz title..."
+                <div className="flex-1 overflow-y-auto">
+                  <div className="space-y-4 p-1">
+                    {/* Quiz Header */}
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-2 flex-1">
+                        <Label htmlFor="quiz-title">Quiz Title</Label>
+                        <Input
+                          id="quiz-title"
+                          value={quizTitle}
+                          onChange={(e) => setQuizTitle(e.target.value)}
+                          placeholder="Enter quiz title..."
+                        />
+                      </div>
+                      {quiz && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={deleteQuiz}
+                          disabled={isDeleting}
+                          className="ml-4"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          {isDeleting ? 'Deleting...' : 'Delete Quiz'}
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="quiz-description">Quiz Description</Label>
+                      <Textarea
+                        id="quiz-description"
+                        value={quizDescription}
+                        onChange={(e) => setQuizDescription(e.target.value)}
+                        placeholder="Enter quiz description..."
+                        rows={2}
                       />
                     </div>
-                    {quiz && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={deleteQuiz}
-                        disabled={isDeleting}
-                        className="ml-4"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        {isDeleting ? 'Deleting...' : 'Delete Quiz'}
-                      </Button>
-                    )}
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="quiz-description">Quiz Description</Label>
-                    <Textarea
-                      id="quiz-description"
-                      value={quizDescription}
-                      onChange={(e) => setQuizDescription(e.target.value)}
-                      placeholder="Enter quiz description..."
-                      rows={2}
-                    />
-                  </div>
+                    {/* Questions */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-lg font-medium">Questions</h4>
+                        <Button onClick={addQuestion} size="sm">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Question
+                        </Button>
+                      </div>
 
-                  {/* Questions */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-lg font-medium">Questions</h4>
-                      <Button onClick={addQuestion} size="sm">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Question
-                      </Button>
-                    </div>
+                      {questions.length === 0 ? (
+                        <Card>
+                          <CardContent className="p-6 text-center">
+                            <p className="text-muted-foreground">No questions added yet.</p>
+                            <p className="text-sm text-muted-foreground mt-1">Click "Add Question" to get started.</p>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <div className="space-y-4">
+                          {questions.map((question, questionIndex) => (
+                            <Card key={question.id}>
+                              <CardHeader>
+                                <div className="flex justify-between items-start">
+                                  <CardTitle className="text-base">Question {questionIndex + 1}</CardTitle>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeQuestion(questionIndex)}
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="space-y-4">
+                                {/* Question Text */}
+                                <div className="space-y-2">
+                                  <Label>Question Text</Label>
+                                  <Textarea
+                                    value={question.question_text}
+                                    onChange={(e) => updateQuestion(questionIndex, { question_text: e.target.value })}
+                                    placeholder="Enter your question..."
+                                    rows={2}
+                                  />
+                                </div>
 
-                    {questions.length === 0 ? (
-                      <Card>
-                        <CardContent className="p-6 text-center">
-                          <p className="text-muted-foreground">No questions added yet.</p>
-                          <p className="text-sm text-muted-foreground mt-1">Click "Add Question" to get started.</p>
-                        </CardContent>
-                      </Card>
-                    ) : (
-                      <div className="space-y-4">
-                        {questions.map((question, questionIndex) => (
-                          <Card key={question.id}>
-                            <CardHeader>
-                              <div className="flex justify-between items-start">
-                                <CardTitle className="text-base">Question {questionIndex + 1}</CardTitle>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeQuestion(questionIndex)}
-                                >
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                              {/* Question Text */}
-                              <div className="space-y-2">
-                                <Label>Question Text</Label>
-                                <Textarea
-                                  value={question.question_text}
-                                  onChange={(e) => updateQuestion(questionIndex, { question_text: e.target.value })}
-                                  placeholder="Enter your question..."
-                                  rows={2}
-                                />
-                              </div>
+                                {/* Question Type */}
+                                <div className="space-y-2">
+                                  <Label>Question Type</Label>
+                                  <Select
+                                    value={question.question_type}
+                                    onValueChange={(value: 'multiple_choice' | 'single_choice' | 'true_false') => 
+                                      updateQuestion(questionIndex, { question_type: value })
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="single_choice">Single Choice</SelectItem>
+                                      <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                                      <SelectItem value="true_false">True/False</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
 
-                              {/* Question Type */}
-                              <div className="space-y-2">
-                                <Label>Question Type</Label>
-                                <Select
-                                  value={question.question_type}
-                                  onValueChange={(value: 'multiple_choice' | 'single_choice' | 'true_false') => 
-                                    updateQuestion(questionIndex, { question_type: value })
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="single_choice">Single Choice</SelectItem>
-                                    <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-                                    <SelectItem value="true_false">True/False</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
+                                {/* Options */}
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-center">
+                                    <Label>Answer Options</Label>
+                                    {question.question_type !== 'true_false' && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => addOption(questionIndex)}
+                                      >
+                                        <Plus className="w-3 h-3 mr-2" />
+                                        Add Option
+                                      </Button>
+                                    )}
+                                  </div>
 
-                              {/* Options */}
-                              <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                  <Label>Answer Options</Label>
-                                  {question.question_type !== 'true_false' && (
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => addOption(questionIndex)}
-                                    >
-                                      <Plus className="w-3 h-3 mr-2" />
-                                      Add Option
-                                    </Button>
+                                  <div className="space-y-2">
+                                    {question.options.map((option, optionIndex) => (
+                                      <div key={option.id} className="flex items-center space-x-2">
+                                        <Checkbox
+                                          checked={option.is_correct}
+                                          onCheckedChange={(checked) =>
+                                            updateOption(questionIndex, optionIndex, { is_correct: !!checked })
+                                          }
+                                        />
+                                        <Input
+                                          value={option.option_text}
+                                          onChange={(e) =>
+                                            updateOption(questionIndex, optionIndex, { option_text: e.target.value })
+                                          }
+                                          placeholder="Enter option text..."
+                                          className="flex-1"
+                                          disabled={question.question_type === 'true_false'}
+                                        />
+                                        {question.question_type !== 'true_false' && question.options.length > 2 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => removeOption(questionIndex, optionIndex)}
+                                          >
+                                            <X className="w-4 h-4" />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  {question.question_type === 'single_choice' && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Select one correct answer
+                                    </p>
+                                  )}
+                                  {question.question_type === 'multiple_choice' && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Select all correct answers
+                                    </p>
                                   )}
                                 </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
-                                <div className="space-y-2">
-                                  {question.options.map((option, optionIndex) => (
-                                    <div key={option.id} className="flex items-center space-x-2">
-                                      <Checkbox
-                                        checked={option.is_correct}
-                                        onCheckedChange={(checked) =>
-                                          updateOption(questionIndex, optionIndex, { is_correct: !!checked })
-                                        }
-                                      />
-                                      <Input
-                                        value={option.option_text}
-                                        onChange={(e) =>
-                                          updateOption(questionIndex, optionIndex, { option_text: e.target.value })
-                                        }
-                                        placeholder="Enter option text..."
-                                        className="flex-1"
-                                        disabled={question.question_type === 'true_false'}
-                                      />
-                                      {question.question_type !== 'true_false' && question.options.length > 2 && (
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => removeOption(questionIndex, optionIndex)}
-                                        >
-                                          <X className="w-4 h-4" />
-                                        </Button>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-
-                                {question.question_type === 'single_choice' && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Select one correct answer
-                                  </p>
-                                )}
-                                {question.question_type === 'multiple_choice' && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Select all correct answers
-                                  </p>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                    {/* Save Quiz Button */}
+                    {questions.length > 0 && (
+                      <div className="pt-4 border-t">
+                        <Button onClick={saveQuiz} disabled={isSaving} className="w-full">
+                          {isSaving ? 'Saving Quiz...' : 'Save Quiz'}
+                        </Button>
                       </div>
                     )}
                   </div>
-
-                  {/* Save Quiz Button */}
-                  {questions.length > 0 && (
-                    <div className="pt-4 border-t">
-                      <Button onClick={saveQuiz} disabled={isSaving} className="w-full">
-                        {isSaving ? 'Saving Quiz...' : 'Save Quiz'}
-                      </Button>
-                    </div>
-                  )}
                 </div>
               )}
             </TabsContent>
           </Tabs>
 
-          <DialogFooter className="flex justify-between">
+          <DialogFooter className="flex justify-between shrink-0">
             <Button 
               variant="link" 
               onClick={() => setShowDeleteDialog(true)}
