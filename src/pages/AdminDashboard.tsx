@@ -12,10 +12,6 @@ import { VideoPlayerModal } from "@/components/VideoPlayerModal";
 import { EmployeeManagement } from "@/components/dashboard/EmployeeManagement";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-// Fixed duplicate import issue - force cache refresh
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { 
   Table, 
   TableBody, 
@@ -67,13 +63,6 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
   const [deleteConfirmVideo, setDeleteConfirmVideo] = useState<VideoData | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Testing states for form controls
-  const [testCheckboxes, setTestCheckboxes] = useState({
-    option1: false,
-    option2: true,
-    option3: false
-  });
-  const [testRadio, setTestRadio] = useState("default");
 
   // Mock data - will be replaced with real data from Supabase
   const employees = [
@@ -343,115 +332,6 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
       
       <main className="container mx-auto px-4 py-6">
         <div className="space-y-6">
-          {/* Carbon Design System Form Controls Testing */}
-          <Card className="p-6 bg-muted/20 border-dashed">
-            <CardHeader className="px-0 pt-0">
-              <CardTitle className="text-lg">Carbon Design System Testing</CardTitle>
-              <CardDescription>Testing checkbox and radio button components</CardDescription>
-            </CardHeader>
-            <CardContent className="px-0 pb-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Checkbox Group */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-sm">Checkbox Group (Multi-select)</h4>
-                  <div className="checkbox-group space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="checkbox1"
-                        checked={testCheckboxes.option1}
-                        onCheckedChange={(checked) => 
-                          setTestCheckboxes(prev => ({ ...prev, option1: checked as boolean }))
-                        }
-                      />
-                      <Label htmlFor="checkbox1" className="text-sm font-normal cursor-pointer">
-                        Compact 24px - Unchecked by default
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="checkbox2"
-                        checked={testCheckboxes.option2}
-                        onCheckedChange={(checked) => 
-                          setTestCheckboxes(prev => ({ ...prev, option2: checked as boolean }))
-                        }
-                      />
-                      <Label htmlFor="checkbox2" className="text-sm font-normal cursor-pointer">
-                        Short 32px - Pre-checked
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="checkbox3"
-                        checked={testCheckboxes.option3}
-                        onCheckedChange={(checked) => 
-                          setTestCheckboxes(prev => ({ ...prev, option3: checked as boolean }))
-                        }
-                      />
-                      <Label htmlFor="checkbox3" className="text-sm font-normal cursor-pointer">
-                        Default 48px - Another option
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Checkbox id="checkbox-disabled" disabled />
-                      <Label htmlFor="checkbox-disabled" className="text-sm font-normal text-muted-foreground cursor-not-allowed">
-                        Disabled state checkbox
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Radio Group */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-sm">Radio Group (Single-select)</h4>
-                  <RadioGroup 
-                    value={testRadio} 
-                    onValueChange={setTestRadio}
-                    className="radio-group space-y-3"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="compact" id="radio1" />
-                      <Label htmlFor="radio1" className="text-sm font-normal cursor-pointer">
-                        Compact 24px
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="short" id="radio2" />
-                      <Label htmlFor="radio2" className="text-sm font-normal cursor-pointer">
-                        Short 32px
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="default" id="radio3" />
-                      <Label htmlFor="radio3" className="text-sm font-normal cursor-pointer">
-                        Default 48px (Selected)
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="tall" id="radio4" />
-                      <Label htmlFor="radio4" className="text-sm font-normal cursor-pointer">
-                        Tall 64px
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="disabled" id="radio-disabled" disabled />
-                      <Label htmlFor="radio-disabled" className="text-sm font-normal text-muted-foreground cursor-not-allowed">
-                        Disabled state
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-              </div>
-              
-              {/* Current Values Display */}
-              <div className="mt-6 p-4 bg-background border rounded-lg">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Current Values:</p>
-                <div className="text-xs space-y-1">
-                  <p><strong>Checkboxes:</strong> {Object.entries(testCheckboxes).filter(([_, checked]) => checked).map(([key]) => key).join(', ') || 'None selected'}</p>
-                  <p><strong>Radio:</strong> {testRadio}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
             <Tabs defaultValue="videos" className="w-full">
               <TabsList className="grid w-full grid-cols-3">

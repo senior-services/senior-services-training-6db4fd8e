@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Video, Users, Play, Check, X } from 'lucide-react';
@@ -215,13 +215,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             isSelected ? 'bg-primary/5 border-primary/20' : 'hover:bg-muted/50'
                           }`}
                         >
-                          <Checkbox
+                          <input
+                            type="checkbox"
                             id={`video-${video.id}`}
                             checked={isSelected}
-                            onCheckedChange={(checked) => 
-                              handleVideoToggle(video.id, checked as boolean)
+                            onChange={(e) => 
+                              handleVideoToggle(video.id, e.target.checked)
                             }
-                            className="mt-1 flex-shrink-0"
+                            className="mt-1 flex-shrink-0 w-4 h-4 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary"
                           />
                           
                           <div className="flex-1 min-w-0">
