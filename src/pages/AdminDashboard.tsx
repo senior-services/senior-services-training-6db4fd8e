@@ -152,42 +152,72 @@ const [isDeleting, setIsDeleting] = useState(false);
 
   const handleAddVideo = async (videoData: VideoFormData): Promise<void> => {
     try {
-      const { error } = await supabase
-        .from('videos')
-        .insert({
-          title: videoData.title || 'Untitled Video',
-          description: videoData.description,
-          video_url: videoData.url,
-          video_file_name: videoData.file?.name,
-          type: 'Optional' // Default type, can be updated later
-        });
+      let insertedError: any = null;
 
-      if (error) {
-        console.error('Error adding video:', error);
+      // If a file is provided, upload it to Supabase Storage and insert record with file name
+      if (videoData.file) {
+        const fileName = `${Date.now()}-${videoData.file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('videos')
+          .upload(fileName, videoData.file);
+
+        if (uploadError) {
+          console.error('Error uploading video file:', uploadError);
+          toast({
+            title: 'Upload Error',
+            description: 'Failed to upload the video file.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        const { error } = await supabase
+          .from('videos')
+          .insert({
+            title: videoData.title || 'Untitled Video',
+            description: videoData.description,
+            video_url: null,
+            video_file_name: fileName,
+            type: 'Optional'
+          });
+        insertedError = error;
+      } else {
+        // URL-based video
+        const { error } = await supabase
+          .from('videos')
+          .insert({
+            title: videoData.title || 'Untitled Video',
+            description: videoData.description,
+            video_url: videoData.url,
+            video_file_name: null,
+            type: 'Optional'
+          });
+        insertedError = error;
+      }
+
+      if (insertedError) {
+        console.error('Error adding video:', insertedError);
         toast({
-          title: "Error",
-          description: "Failed to add video. Please try again.",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to add video. Please try again.',
+          variant: 'destructive',
         });
       } else {
         toast({
-          title: "Video Added",
+          title: 'Video Added',
           description: `"${videoData.title || 'Video'}" has been added to the training library.`,
         });
-        
-        // Refresh the videos list
         fetchVideos();
       }
     } catch (error) {
       console.error('Error adding video:', error);
       toast({
-        title: "Error",
-        description: "Failed to add video. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add video. Please try again.',
+        variant: 'destructive',
       });
     }
   };
-
   // Handle editing a video
   const handleEditVideo = (video: VideoData) => {
     setEditingVideo(video);
@@ -473,8 +503,25 @@ const [isDeleting, setIsDeleting] = useState(false);
                                           <source src={video.video_url} type="video/mp4" />
                                         </video>
                                       );
+                                    } else if (video.video_file_name) {
+                                      const publicUrl = `https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${video.video_file_name}`;
+                                      return (
+                                        <video 
+                                          className="w-full h-full object-cover pointer-events-none"
+                                          preload="metadata"
+                                          muted
+                                          onError={(e) => {
+                                            const target = e.target as HTMLVideoElement;
+                                            target.style.display = 'none';
+                                            const fallback = target.nextElementSibling as HTMLElement;
+                                            if (fallback) fallback.classList.remove('hidden');
+                                          }}
+                                        >
+                                          <source src={publicUrl} type="video/mp4" />
+                                          <source src={publicUrl} type="video/quicktime" />
+                                        </video>
+                                      );
                                     }
-                                    return null;
                                   })()}
 
                                   {/* Fallback placeholder when no preview loads */}
