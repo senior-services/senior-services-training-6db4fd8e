@@ -191,9 +191,11 @@ export const EmployeeManagement: React.FC = () => {
                     <div className="flex items-center justify-between w-full hover:bg-muted/50">
                       {/* Left side: Chevron + Employee info */}
                       <div className="flex items-center gap-4">
-                        {/* Manual chevron on the left */}
-                        {hasVideos && (
+                        {/* Manual chevron on the left or equivalent spacing */}
+                        {hasVideos ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        ) : (
+                          <div className="w-4 h-4" /> // Empty space to maintain alignment
                         )}
                         
                         <div className="flex-1">
