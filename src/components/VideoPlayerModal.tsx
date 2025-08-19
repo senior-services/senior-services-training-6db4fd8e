@@ -30,6 +30,20 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
     hasVideoSource 
   });
 
+  // Check if it's a YouTube URL
+  const isYouTubeUrl = video.video_url && (
+    video.video_url.includes('youtube.com/watch') || 
+    video.video_url.includes('youtu.be/')
+  );
+
+  // Extract YouTube video ID for embedding
+  const getYouTubeVideoId = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  const youtubeVideoId = isYouTubeUrl && video.video_url ? getYouTubeVideoId(video.video_url) : null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh]">
@@ -46,7 +60,18 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
         <div className="space-y-6">
           {/* Video Player Area */}
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
-            {video.video_url ? (
+            {isYouTubeUrl && youtubeVideoId ? (
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+                title={video.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            ) : video.video_url ? (
               <video 
                 className="w-full h-full"
                 controls

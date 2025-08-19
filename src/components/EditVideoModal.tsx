@@ -98,9 +98,20 @@ export const EditVideoModal = ({
   if (!video) return null;
 
   // Determine video source and type
-  const isYouTubeUrl = video.video_url && video.video_url.includes('youtube.com');
+  const isYouTubeUrl = video.video_url && (
+    video.video_url.includes('youtube.com/watch') || 
+    video.video_url.includes('youtu.be/')
+  );
   const isDriveUrl = video.video_url && video.video_url.includes('drive.google.com');
   const isFileUpload = video.video_file_name;
+
+  // Extract YouTube video ID for embedding
+  const getYouTubeVideoId = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  const youtubeVideoId = isYouTubeUrl && video.video_url ? getYouTubeVideoId(video.video_url) : null;
 
   return (
     <>
@@ -135,6 +146,19 @@ export const EditVideoModal = ({
                         <Play className="w-6 h-6" />
                       </Button>
                     </div>
+                  </div>
+                ) : isYouTubeUrl && youtubeVideoId ? (
+                  <div className="aspect-video bg-black">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+                      title={video.title}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full rounded-lg"
+                    />
                   </div>
                 ) : video.video_url && !isYouTubeUrl && !isDriveUrl ? (
                   <div className="relative aspect-video bg-black">
