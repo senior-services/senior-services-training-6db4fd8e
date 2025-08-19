@@ -74,20 +74,27 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
 
   // Fetch videos from Supabase
   const fetchVideos = async () => {
+    console.log('Fetching videos...');
     try {
+      const { data: user } = await supabase.auth.getUser();
+      console.log('Current user:', user);
+      
       const { data, error } = await supabase
         .from('videos')
         .select('*')
         .order('created_at', { ascending: false });
 
+      console.log('Videos query result:', { data, error });
+
       if (error) {
         console.error('Error fetching videos:', error);
         toast({
           title: "Error",
-          description: "Failed to load videos. Please try again.",
+          description: `Failed to load videos: ${error.message}`,
           variant: "destructive",
         });
       } else {
+        console.log('Setting videos:', data);
         setVideos(data || []);
       }
     } catch (error) {
@@ -298,14 +305,31 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                   <TableBody>
                     {loading ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
-                          Loading videos...
+                        <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                          <div className="space-y-2">
+                            <p>Loading videos...</p>
+                            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ) : videos.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
-                          No videos found. Add your first video to get started.
+                        <TableCell colSpan={6} className="text-center py-12">
+                          <div className="space-y-3">
+                            <Video className="w-12 h-12 text-muted-foreground mx-auto" />
+                            <div>
+                              <h4 className="font-medium text-foreground">No videos found</h4>
+                              <p className="text-sm text-muted-foreground">Add your first video to get started with training content.</p>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setIsAddVideoModalOpen(true)}
+                            >
+                              <Plus className="w-4 h-4 mr-2" />
+                              Add First Video
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ) : (
