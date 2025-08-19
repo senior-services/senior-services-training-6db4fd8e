@@ -148,7 +148,7 @@ export const EditVideoModal = ({
                     </div>
                   </div>
                 ) : isYouTubeUrl && youtubeVideoId ? (
-                  <div className="aspect-video bg-black">
+                  <div className="aspect-video bg-black rounded-lg overflow-hidden">
                     <iframe
                       width="100%"
                       height="100%"
@@ -157,7 +157,7 @@ export const EditVideoModal = ({
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
-                      className="w-full h-full rounded-lg"
+                      className="w-full h-full"
                     />
                   </div>
                 ) : video.video_url && !isYouTubeUrl && !isDriveUrl ? (
