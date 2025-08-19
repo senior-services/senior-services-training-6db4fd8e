@@ -189,7 +189,7 @@ export const EmployeeManagement: React.FC = () => {
                       className="[&>svg]:hidden" // Hide default chevron
                       disabled={!hasVideos}
                     >
-                    <div className="flex items-center justify-between w-full px-6 py-4 hover:bg-muted/50">
+                    <div className="flex items-center justify-between w-full hover:bg-muted/50">
                       {/* Left side: Chevron + Employee info */}
                       <div className="flex items-center gap-4">
                         {/* Manual chevron on the left */}
