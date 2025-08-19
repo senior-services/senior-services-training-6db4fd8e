@@ -246,43 +246,78 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       key={video.id}
                       className="group hover:bg-muted/50 transition-colors"
                     >
-                      {/* Video title and thumbnail */}
+                       {/* Video title and preview */}
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          {/* Video thumbnail */}
-                          <div className="relative w-16 h-10 rounded-md overflow-hidden bg-muted">
-                            {video.thumbnail_url ? (
-                              <img 
-                                src={video.thumbnail_url}
-                                alt={`${video.title} thumbnail`}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  // Fallback to colored placeholder if image fails to load
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  target.nextElementSibling?.classList.remove('hidden');
-                                }}
-                              />
-                            ) : video.video_url ? (
-                              <video 
-                                className="w-full h-full object-cover"
-                                preload="metadata"
-                                muted
-                                onError={(e) => {
-                                  // Fallback to colored placeholder if video fails to load
-                                  const target = e.target as HTMLVideoElement;
-                                  target.style.display = 'none';
-                                  target.nextElementSibling?.classList.remove('hidden');
-                                }}
-                              >
-                                <source src={video.video_url} type="video/mp4" />
-                              </video>
-                            ) : null}
+                          {/* Video preview */}
+                          <div className="relative w-20 h-12 rounded-md overflow-hidden bg-muted">
+                            {(() => {
+                              // Check if it's a YouTube URL
+                              const isYouTubeUrl = video.video_url && (
+                                video.video_url.includes('youtube.com/watch') || 
+                                video.video_url.includes('youtu.be/')
+                              );
+                              
+                              // Extract YouTube video ID
+                              const getYouTubeVideoId = (url: string) => {
+                                const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+                                return match ? match[1] : null;
+                              };
+                              
+                              const youtubeVideoId = isYouTubeUrl && video.video_url ? getYouTubeVideoId(video.video_url) : null;
+                              
+                              if (isYouTubeUrl && youtubeVideoId) {
+                                return (
+                                  <iframe
+                                    width="100%"
+                                    height="100%"
+                                    src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0`}
+                                    title={video.title}
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    className="w-full h-full pointer-events-none"
+                                  />
+                                );
+                              } else if (video.video_url && !isYouTubeUrl) {
+                                return (
+                                  <video 
+                                    className="w-full h-full object-cover pointer-events-none"
+                                    preload="metadata"
+                                    muted
+                                    onError={(e) => {
+                                      // Fallback to thumbnail if video fails to load
+                                      const target = e.target as HTMLVideoElement;
+                                      target.style.display = 'none';
+                                      const fallback = target.nextElementSibling as HTMLElement;
+                                      if (fallback) fallback.classList.remove('hidden');
+                                    }}
+                                  >
+                                    <source src={video.video_url} type="video/mp4" />
+                                  </video>
+                                );
+                              } else if (video.thumbnail_url) {
+                                return (
+                                  <img 
+                                    src={video.thumbnail_url}
+                                    alt={`${video.title} thumbnail`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      // Fallback to colored placeholder if image fails to load
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const fallback = target.nextElementSibling as HTMLElement;
+                                      if (fallback) fallback.classList.remove('hidden');
+                                    }}
+                                  />
+                                );
+                              }
+                              return null;
+                            })()}
                             <div 
                               className={cn(
                                 'absolute inset-0 flex items-center justify-center',
                                 generateThumbnailColor(video.title),
-                                video.thumbnail_url || video.video_url ? 'hidden' : ''
+                                video.video_url || video.thumbnail_url ? 'hidden' : ''
                               )}
                             >
                               <Play className="w-4 h-4 text-white" aria-hidden="true" />
