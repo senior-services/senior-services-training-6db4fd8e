@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Users, Video, BookOpen, Settings, Plus, Eye, Edit, Trash2 } from "lucide-react";
+import { Users, Video, BookOpen, Settings, Plus, Edit, Trash2, Play } from "lucide-react";
 import { AddVideoModal, VideoFormData } from "@/components/AddVideoModal";
+import { VideoPlayerModal } from "@/components/VideoPlayerModal";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -37,6 +38,8 @@ type VideoData = {
 
 export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboardProps) => {
   const [isAddVideoModalOpen, setIsAddVideoModalOpen] = useState(false);
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -102,6 +105,25 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVideoThumbnailClick = (video: VideoData) => {
+    setSelectedVideo(video);
+    setIsVideoPlayerOpen(true);
+  };
+
+  // Generate thumbnail placeholder based on video title
+  const generateThumbnailColor = (title: string) => {
+    const colors = [
+      'bg-blue-500',
+      'bg-green-500', 
+      'bg-purple-500',
+      'bg-orange-500',
+      'bg-pink-500',
+      'bg-teal-500'
+    ];
+    const index = title.length % colors.length;
+    return colors[index];
   };
 
   useEffect(() => {
@@ -267,7 +289,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                       </div>
                       <div className="ml-6 flex space-x-2">
                         <Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4" />
+                          View Details
                         </Button>
                       </div>
                     </div>
@@ -333,7 +355,27 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                     ) : (
                       videos.map((video) => (
                         <TableRow key={video.id}>
-                          <TableCell className="font-medium">{video.title}</TableCell>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-3">
+                              {/* Video Thumbnail */}
+                              <div 
+                                onClick={() => handleVideoThumbnailClick(video)}
+                                className={`w-16 h-10 rounded-md flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity ${generateThumbnailColor(video.title)}`}
+                              >
+                                <Play className="w-4 h-4 text-white" />
+                              </div>
+                              
+                              {/* Video Title */}
+                              <div className="flex-1">
+                                <p className="font-medium text-foreground">{video.title}</p>
+                                {video.description && (
+                                  <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                    {video.description}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
                           <TableCell className="text-center">{video.assigned_to}</TableCell>
                           <TableCell className="text-center">
                             {video.has_quiz ? (
@@ -388,6 +430,12 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
         open={isAddVideoModalOpen}
         onOpenChange={setIsAddVideoModalOpen}
         onSave={handleAddVideo}
+      />
+      
+      <VideoPlayerModal
+        open={isVideoPlayerOpen}
+        onOpenChange={setIsVideoPlayerOpen}
+        video={selectedVideo}
       />
     </div>
   );
