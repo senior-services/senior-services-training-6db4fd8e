@@ -113,11 +113,11 @@ export const AddVideoModal = ({
                 <Label>Upload Video File</Label>
                 
                 {/* Drag & Drop Area */}
-                <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} className={cn("border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all duration-300", selectedFile ? "border-success bg-success/10 hover:bg-success/15" : isDragOver ? "border-primary bg-primary/10" : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50")}>
-                  <div className="flex flex-col items-center space-y-2">
-                    {selectedFile ? <CheckCircle className="w-6 h-6 text-success" /> : <FileVideo className={cn("w-6 h-6 transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")} />}
+                <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} className={cn("border-2 border-dashed rounded-lg p-3 cursor-pointer transition-all duration-300", selectedFile ? "border-success bg-success/10 hover:bg-success/15" : isDragOver ? "border-primary bg-primary/10" : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50")}>
+                  <div className="flex items-center space-x-4">
+                    {selectedFile ? <CheckCircle className="w-6 h-6 text-success flex-shrink-0" /> : <FileVideo className={cn("w-6 h-6 flex-shrink-0 transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")} />}
                     
-                    <div className="space-y-1">
+                    <div className="flex-1">
                       <p className="text-sm font-medium">
                         {selectedFile ? "Video uploaded successfully!" : isDragOver ? "Drop video file here" : "Drag & drop video file here"}
                       </p>
@@ -128,7 +128,7 @@ export const AddVideoModal = ({
                     
                     <Input type="file" accept="video/*" onChange={handleFileChange} className="hidden" id="fileInput" />
                     
-                    {!selectedFile && <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('fileInput')?.click()}>
+                    {!selectedFile && <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('fileInput')?.click()} className="flex-shrink-0">
                         <Upload className="w-4 h-4 mr-2" />
                         Browse Files
                       </Button>}
