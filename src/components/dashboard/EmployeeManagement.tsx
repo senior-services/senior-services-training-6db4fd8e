@@ -141,7 +141,7 @@ export const EmployeeManagement: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-semibold">Employee Video Assignements</h3>
+          <h3 className="text-xl font-semibold">Employee Video Assignments</h3>
           <p className="text-muted-foreground">
             Manage individual employees and their video assignments
           </p>
