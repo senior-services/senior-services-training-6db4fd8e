@@ -1,6 +1,12 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Play, Clock, Users } from "lucide-react";
+import { 
+  isYouTubeUrl, 
+  isGoogleDriveUrl, 
+  getYouTubeVideoId, 
+  getGoogleDriveEmbedUrl 
+} from "@/utils/videoUtils";
 
 interface VideoPlayerModalProps {
   open: boolean;
@@ -29,20 +35,12 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
     hasVideoSource 
   });
 
-  // Check if it's a YouTube URL
-  const isYouTubeUrl = video.video_url && (
-    video.video_url.includes('youtube.com/watch') || 
-    video.video_url.includes('youtu.be/')
-  );
+  // Check video URL type
+  const isYouTube = video.video_url && isYouTubeUrl(video.video_url);
+  const isGoogleDrive = video.video_url && isGoogleDriveUrl(video.video_url);
 
-  // Extract YouTube video ID for embedding
-  const getYouTubeVideoId = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
-    console.log('YouTube URL parsing:', { url, match, videoId: match?.[1] });
-    return match ? match[1] : null;
-  };
-
-  const youtubeVideoId = isYouTubeUrl && video.video_url ? getYouTubeVideoId(video.video_url) : null;
+  const youtubeVideoId = isYouTube && video.video_url ? getYouTubeVideoId(video.video_url) : null;
+  const googleDriveEmbedUrl = isGoogleDrive && video.video_url ? getGoogleDriveEmbedUrl(video.video_url) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -60,7 +58,7 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
         <div className="space-y-6">
           {/* Video Player Area */}
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
-            {isYouTubeUrl && youtubeVideoId ? (
+            {isYouTube && youtubeVideoId ? (
               <iframe
                 width="100%"
                 height="100%"
@@ -68,6 +66,16 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
                 title={video.title}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            ) : isGoogleDrive && googleDriveEmbedUrl ? (
+              <iframe
+                width="100%"
+                height="100%"
+                src={googleDriveEmbedUrl}
+                title={video.title}
+                frameBorder="0"
                 allowFullScreen
                 className="w-full h-full"
               />

@@ -457,22 +457,49 @@ const [isDeleting, setIsDeleting] = useState(false);
                                   className="relative w-16 h-10 rounded-md overflow-hidden cursor-pointer group bg-muted"
                                 >
                                   {(() => {
-                                    const isYouTubeUrl = video.video_url && (
+                                    const isYouTube = video.video_url && (
                                       video.video_url.includes('youtube.com/watch') ||
                                       video.video_url.includes('youtu.be/')
+                                    );
+                                    
+                                    const isGoogleDrive = video.video_url && (
+                                      video.video_url.includes('drive.google.com')
                                     );
                                     
                                     const getYouTubeVideoId = (url: string) => {
                                       const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
                                       return match ? match[1] : null;
                                     };
+
+                                    const getGoogleDriveFileId = (url: string) => {
+                                      const match = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)\//);
+                                      return match ? match[1] : null;
+                                    };
                                     
-                                    if (isYouTubeUrl && video.video_url) {
+                                    if (isYouTube && video.video_url) {
                                       const videoId = getYouTubeVideoId(video.video_url);
                                       if (videoId) {
                                         return (
                                           <img 
                                             src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                                            alt={`${video.title} thumbnail`}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              // Fallback to colored placeholder if thumbnail fails to load
+                                              const target = e.target as HTMLImageElement;
+                                              target.style.display = 'none';
+                                              const fallback = target.nextElementSibling as HTMLElement;
+                                              if (fallback) fallback.classList.remove('hidden');
+                                            }}
+                                          />
+                                        );
+                                      }
+                                    } else if (isGoogleDrive && video.video_url) {
+                                      const fileId = getGoogleDriveFileId(video.video_url);
+                                      if (fileId) {
+                                        return (
+                                          <img 
+                                            src={`https://drive.google.com/thumbnail?id=${fileId}&sz=w400-h300`}
                                             alt={`${video.title} thumbnail`}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
@@ -508,7 +535,7 @@ const [isDeleting, setIsDeleting] = useState(false);
                                         </div>
                                       );
                                     }
-                                    // For all other cases (uploaded files, other URLs, no source), show the colored placeholder
+                                    // For all other cases, show the colored placeholder
                                     return (
                                       <div className={`absolute inset-0 flex items-center justify-center ${generateThumbnailColor(video.title)}`}>
                                         <Play className="w-4 h-4 text-white" />
