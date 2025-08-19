@@ -28,7 +28,8 @@ import {
   CheckCircle,
   XCircle,
   HelpCircle,
-  Play
+  Play,
+  ChevronDown
 } from 'lucide-react';
 import { EmployeeService } from '@/services/employeeService';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
@@ -182,60 +183,65 @@ export const EmployeeManagement: React.FC = () => {
                   <AccordionItem 
                     key={employee.id} 
                     value={employee.id}
-                    className={!hasVideos ? "opacity-60" : ""}
+                    className={`group ${!hasVideos ? "opacity-60" : ""}`}
                   >
                     <AccordionTrigger 
-                      className={`px-6 hover:bg-muted/50 ${!hasVideos ? "cursor-default" : ""}`}
+                      className="[&>svg]:hidden" // Hide default chevron
                       disabled={!hasVideos}
                     >
-                      <div className="flex items-center justify-between w-full pr-4">
-                        {/* Employee info with accordion icon on left */}
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1">
-                            <div className="font-medium text-left">
-                              {employee.full_name || 'Unknown'}
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Mail className="w-3 h-3" />
-                              {employee.email}
-                            </div>
+                    <div className="flex items-center justify-between w-full px-6 py-4 hover:bg-muted/50">
+                      {/* Left side: Chevron + Employee info */}
+                      <div className="flex items-center gap-4">
+                        {/* Manual chevron on the left */}
+                        {hasVideos && (
+                          <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        )}
+                        
+                        <div className="flex-1">
+                          <div className="font-medium text-left">
+                            {employee.full_name || 'Unknown'}
                           </div>
-                          
-                          <div className="text-center">
-                            <Badge variant="secondary">
-                              {employee.assigned_videos_count || 0} videos
-                            </Badge>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Mail className="w-3 h-3" />
+                            {employee.email}
                           </div>
                         </div>
                         
-                        {/* Action buttons on far right */}
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAssignVideos(employee);
-                            }}
-                          >
-                            <Edit className="w-4 h-4" />
-                            <span className="sr-only">Edit Video Assignments</span>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteConfirmEmployee(employee);
-                            }}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span className="sr-only">Delete Employee</span>
-                          </Button>
+                        <div className="text-center">
+                          <Badge variant="secondary">
+                            {employee.assigned_videos_count || 0} videos
+                          </Badge>
                         </div>
                       </div>
-                    </AccordionTrigger>
+                      
+                      {/* Action buttons on far right */}
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAssignVideos(employee);
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                          <span className="sr-only">Edit Video Assignments</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirmEmployee(employee);
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span className="sr-only">Delete Employee</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
                     
                     {hasVideos && (
                       <AccordionContent className="px-6 pb-4">
