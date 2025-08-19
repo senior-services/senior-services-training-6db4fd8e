@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Link as LinkIcon } from "lucide-react";
+import { Upload, Link as LinkIcon, FileVideo } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AddVideoModalProps {
   open: boolean;
@@ -28,6 +29,7 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
     type: 'url'
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleSave = () => {
     if (!formData.title.trim()) return;
@@ -50,15 +52,37 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
       type: 'url'
     });
     setSelectedFile(null);
+    setIsDragOver(false);
     onOpenChange(false);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && file.type.startsWith('video/')) {
       setSelectedFile(file);
       setFormData(prev => ({ ...prev, type: 'file' }));
     }
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    
+    const files = event.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('video/')) {
+      setSelectedFile(files[0]);
+      setFormData(prev => ({ ...prev, type: 'file' }));
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
   };
 
   const isValid = formData.title.trim() && 
@@ -76,29 +100,6 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Title */}
-          <div className="space-y-2">
-            <Label htmlFor="title">Video Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="Enter video title..."
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Enter video description..."
-              rows={3}
-            />
-          </div>
-
           {/* Video Source */}
           <div className="space-y-3">
             <Label>Video Source</Label>
@@ -130,24 +131,97 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
                 </p>
               </TabsContent>
 
-              <TabsContent value="file" className="space-y-2 mt-4">
-                <Label htmlFor="videoFile">Upload Video File</Label>
-                <div className="flex items-center gap-4">
-                  <Input
-                    id="videoFile"
-                    type="file"
-                    accept="video/*"
-                    onChange={handleFileChange}
-                    className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
-                  />
+              <TabsContent value="file" className="space-y-3 mt-4">
+                <Label>Upload Video File</Label>
+                
+                {/* Drag & Drop Area */}
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
+                    isDragOver
+                      ? "border-primary bg-primary/10"
+                      : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
+                  )}
+                >
+                  <div className="flex flex-col items-center space-y-4">
+                    <FileVideo className={cn(
+                      "w-12 h-12 transition-colors",
+                      isDragOver ? "text-primary" : "text-muted-foreground"
+                    )} />
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">
+                        {isDragOver ? "Drop video file here" : "Drag & drop video file here"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        or click to browse files
+                      </p>
+                    </div>
+                    <Input
+                      type="file"
+                      accept="video/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="fileInput"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('fileInput')?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Browse Files
+                    </Button>
+                  </div>
                 </div>
+
                 {selectedFile && (
-                  <p className="text-sm text-muted-foreground">
-                    Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-                  </p>
+                  <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                    <FileVideo className="w-5 h-5 text-primary" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{selectedFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedFile(null)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 )}
               </TabsContent>
             </Tabs>
+          </div>
+
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title">Video Title</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="Enter video title..."
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Enter video description..."
+              rows={3}
+            />
           </div>
         </div>
 
