@@ -294,12 +294,12 @@ const [isDeleting, setIsDeleting] = useState(false);
             </p>
           </div>
 
-          <Tabs defaultValue="employees" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="employees">Employees</TabsTrigger>
-              <TabsTrigger value="videos">Videos</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="videos" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="videos">Videos</TabsTrigger>
+                <TabsTrigger value="employees">Employees</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
 
             <TabsContent value="employees" className="space-y-6">
               <div className="flex justify-between items-center">
@@ -412,9 +412,16 @@ const [isDeleting, setIsDeleting] = useState(false);
                                 {/* Video Thumbnail */}
                                 <div 
                                   onClick={() => handleVideoThumbnailClick(video)}
-                                  className={`w-16 h-10 rounded-md flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity ${generateThumbnailColor(video.title)}`}
+                                  className={`w-16 h-10 rounded-md flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity ${
+                                    video.video_url 
+                                      ? 'bg-gradient-to-br from-blue-500 to-purple-600' 
+                                      : generateThumbnailColor(video.title)
+                                  }`}
                                 >
                                   <Play className="w-4 h-4 text-white" />
+                                  {!video.video_url && (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border border-white" title="No video file" />
+                                  )}
                                 </div>
                                 
                                 {/* Video Title */}
