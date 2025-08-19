@@ -220,7 +220,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Video className="w-5 h-5" />
@@ -378,7 +378,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                     )}
                                   </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="end">
+                                <PopoverContent 
+                                  className="w-auto p-0 z-[9999]" 
+                                  align="end"
+                                  side="bottom"
+                                  sideOffset={5}
+                                  avoidCollisions={true}
+                                  collisionPadding={20}
+                                >
                                   <Calendar
                                     mode="single"
                                     selected={videoDeadlines.get(video.id)}
