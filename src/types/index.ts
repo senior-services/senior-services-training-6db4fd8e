@@ -146,7 +146,7 @@ export interface AriaProps {
   'aria-describedby'?: string;
   'aria-expanded'?: boolean;
   'aria-selected'?: boolean;
-  'aria-current'?: string | boolean;
+  'aria-current'?: boolean | 'page' | 'step' | 'location' | 'date' | 'time' | 'true' | 'false';
   'aria-modal'?: boolean;
   'aria-invalid'?: boolean;
   'aria-pressed'?: boolean;
