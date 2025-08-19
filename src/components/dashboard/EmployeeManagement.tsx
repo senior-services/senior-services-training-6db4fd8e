@@ -227,9 +227,7 @@ export const EmployeeManagement: React.FC = () => {
                     
                     {hasVideos && <AccordionContent className="px-6 pb-4">
                         <div className="space-y-3">
-                          <h4 className="font-medium text-sm text-muted-foreground mb-3">
-                            Assigned Training Videos
-                          </h4>
+                          
                           
                           {videos.length === 0 ? <p className="text-sm text-muted-foreground">Loading video assignments...</p> : <div className="space-y-0">
                               {videos.map((assignment, index) => <div key={assignment.video_id || index} className="flex items-center justify-between py-2 border-b last:border-b-0 border-border/50">
