@@ -112,7 +112,7 @@ export const EditVideoModal = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+          <div className="flex-1 overflow-y-auto space-y-6 p-1">
             {/* Video Preview Section */}
             <div className="space-y-3">
               <Label>Video Preview</Label>

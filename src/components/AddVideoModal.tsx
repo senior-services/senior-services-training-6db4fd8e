@@ -91,7 +91,7 @@ export const AddVideoModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+        <div className="flex-1 overflow-y-auto space-y-4 p-1">
           {/* Video Source */}
           <div className="space-y-2">
             <Label>Video Source</Label>
