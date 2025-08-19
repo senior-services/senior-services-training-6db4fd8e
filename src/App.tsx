@@ -19,6 +19,16 @@ const App = () => {
   const isAuthenticated = !!user;
   const loading = authLoading || (isAuthenticated && (roleLoading || role === null));
 
+  // Debug logging
+  console.log('App Debug:', {
+    user: user?.email,
+    isAuthenticated,
+    role,
+    authLoading,
+    roleLoading,
+    loading
+  });
+
   const handleLogout = () => {
     signOut();
   };
