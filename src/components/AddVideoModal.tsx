@@ -7,13 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, Link as LinkIcon, FileVideo, CheckCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
 interface AddVideoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (videoData: VideoFormData) => void;
 }
-
 export interface VideoFormData {
   title: string;
   description: string;
@@ -21,8 +19,11 @@ export interface VideoFormData {
   file?: File;
   url?: string;
 }
-
-export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps) => {
+export const AddVideoModal = ({
+  open,
+  onOpenChange,
+  onSave
+}: AddVideoModalProps) => {
   const [formData, setFormData] = useState<VideoFormData>({
     title: '',
     description: '',
@@ -30,19 +31,15 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-
   const handleSave = () => {
     if (formData.type === 'file' && !selectedFile) return;
     if (formData.type === 'url' && !formData.url?.trim()) return;
-
     onSave({
       ...formData,
       file: selectedFile || undefined
     });
-    
     handleClose();
   };
-
   const handleClose = () => {
     setFormData({
       title: '',
@@ -53,41 +50,38 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
     setIsDragOver(false);
     onOpenChange(false);
   };
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith('video/')) {
       setSelectedFile(file);
-      setFormData(prev => ({ ...prev, type: 'file' }));
+      setFormData(prev => ({
+        ...prev,
+        type: 'file'
+      }));
     }
   };
-
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
-    
     const files = event.dataTransfer.files;
     if (files.length > 0 && files[0].type.startsWith('video/')) {
       setSelectedFile(files[0]);
-      setFormData(prev => ({ ...prev, type: 'file' }));
+      setFormData(prev => ({
+        ...prev,
+        type: 'file'
+      }));
     }
   };
-
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(true);
   };
-
   const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
   };
-
-  const isValid = ((formData.type === 'file' && selectedFile) || 
-     (formData.type === 'url' && formData.url?.trim()));
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+  const isValid = formData.type === 'file' && selectedFile || formData.type === 'url' && formData.url?.trim();
+  return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Add Training Video</DialogTitle>
@@ -100,10 +94,10 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
           {/* Video Source */}
           <div className="space-y-3">
             <Label>Video Source</Label>
-            <Tabs 
-              value={formData.type} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as 'file' | 'url' }))}
-            >
+            <Tabs value={formData.type} onValueChange={value => setFormData(prev => ({
+            ...prev,
+            type: value as 'file' | 'url'
+          }))}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="file" className="flex items-center gap-2">
                   <Upload className="w-4 h-4" />
@@ -119,69 +113,29 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
                 <Label>Upload Video File</Label>
                 
                 {/* Drag & Drop Area */}
-                <div
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-300",
-                    selectedFile
-                      ? "border-success bg-success/10 hover:bg-success/15"
-                      : isDragOver
-                        ? "border-primary bg-primary/10"
-                        : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
-                  )}
-                >
+                <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} className={cn("border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-300", selectedFile ? "border-success bg-success/10 hover:bg-success/15" : isDragOver ? "border-primary bg-primary/10" : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50")}>
                   <div className="flex flex-col items-center space-y-3">
-                    {selectedFile ? (
-                      <CheckCircle className="w-8 h-8 text-success" />
-                    ) : (
-                      <FileVideo className={cn(
-                        "w-8 h-8 transition-colors",
-                        isDragOver ? "text-primary" : "text-muted-foreground"
-                      )} />
-                    )}
+                    {selectedFile ? <CheckCircle className="w-8 h-8 text-success" /> : <FileVideo className={cn("w-8 h-8 transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")} />}
                     
                     <div className="space-y-1">
                       <p className="text-sm font-medium">
-                        {selectedFile 
-                          ? "Video uploaded successfully!" 
-                          : isDragOver 
-                            ? "Drop video file here" 
-                            : "Drag & drop video file here"
-                        }
+                        {selectedFile ? "Video uploaded successfully!" : isDragOver ? "Drop video file here" : "Drag & drop video file here"}
                       </p>
-                      {!selectedFile && (
-                        <p className="text-xs text-muted-foreground">
+                      {!selectedFile && <p className="text-xs text-muted-foreground">
                           or click to browse files
-                        </p>
-                      )}
+                        </p>}
                     </div>
                     
-                    <Input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      id="fileInput"
-                    />
+                    <Input type="file" accept="video/*" onChange={handleFileChange} className="hidden" id="fileInput" />
                     
-                    {!selectedFile && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => document.getElementById('fileInput')?.click()}
-                      >
+                    {!selectedFile && <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('fileInput')?.click()}>
                         <Upload className="w-4 h-4 mr-2" />
                         Browse Files
-                      </Button>
-                    )}
+                      </Button>}
                   </div>
                 </div>
 
-                {selectedFile && (
-                  <div className="flex items-center justify-between p-4 bg-success/5 border border-success/20 rounded-lg">
+                {selectedFile && <div className="flex items-center justify-between p-4 bg-success/5 border border-success/20 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-success/10 rounded-lg">
                         <FileVideo className="w-5 h-5 text-success" />
@@ -195,28 +149,19 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
                     </div>
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="w-5 h-5 text-success" />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedFile(null)}
-                        className="text-muted-foreground hover:text-foreground"
-                      >
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedFile(null)} className="text-muted-foreground hover:text-foreground">
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </TabsContent>
 
               <TabsContent value="url" className="space-y-2 mt-4">
                 <Label htmlFor="videoUrl">Video URL</Label>
-                <Input
-                  id="videoUrl"
-                  value={formData.url || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                  placeholder="https://youtube.com/watch?v=... or https://drive.google.com/..."
-                />
+                <Input id="videoUrl" value={formData.url || ''} onChange={e => setFormData(prev => ({
+                ...prev,
+                url: e.target.value
+              }))} placeholder="https://youtube.com/watch?v=... or https://drive.google.com/..." />
                 <p className="text-xs text-muted-foreground">
                   Supports YouTube and Google Drive video links
                 </p>
@@ -226,25 +171,21 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
 
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Video Title (Optional)</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="Enter video title... (optional)"
-            />
+            <Label htmlFor="title">Video Title</Label>
+            <Input id="title" value={formData.title} onChange={e => setFormData(prev => ({
+            ...prev,
+            title: e.target.value
+          }))} placeholder="Enter video title... (optional)" />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Enter video description... (optional)"
-              rows={3}
-            />
+            <Label htmlFor="description">Description
+          </Label>
+            <Textarea id="description" value={formData.description} onChange={e => setFormData(prev => ({
+            ...prev,
+            description: e.target.value
+          }))} placeholder="Enter video description... (optional)" rows={3} />
           </div>
         </div>
 
@@ -257,6 +198,5 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
