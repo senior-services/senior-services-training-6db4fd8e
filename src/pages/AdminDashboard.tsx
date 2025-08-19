@@ -42,6 +42,7 @@ type VideoData = {
   description: string | null;
   video_url: string | null;
   video_file_name: string | null;
+  thumbnail_url?: string | null;
   type: string;
   assigned_to: number;
   completion_rate: number;
@@ -409,19 +410,67 @@ const [isDeleting, setIsDeleting] = useState(false);
                           <TableRow key={video.id}>
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-3">
-                                {/* Video Thumbnail */}
+                                {/* Video Preview (thumbnail area) */}
                                 <div 
                                   onClick={() => handleVideoThumbnailClick(video)}
-                                  className={`w-16 h-10 rounded-md flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity ${
-                                    video.video_url 
-                                      ? 'bg-gradient-to-br from-blue-500 to-purple-600' 
-                                      : generateThumbnailColor(video.title)
-                                  }`}
+                                  className="relative w-16 h-10 rounded-md overflow-hidden cursor-pointer group"
                                 >
-                                  <Play className="w-4 h-4 text-white" />
+                                  {(() => {
+                                    const isYouTubeUrl = video.video_url && (
+                                      video.video_url.includes('youtube.com/watch') ||
+                                      video.video_url.includes('youtu.be/')
+                                    );
+                                    const getYouTubeVideoId = (url: string) => {
+                                      const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+                                      return match ? match[1] : null;
+                                    };
+                                    const youtubeVideoId = isYouTubeUrl && video.video_url ? getYouTubeVideoId(video.video_url) : null;
+
+                                    if (isYouTubeUrl && youtubeVideoId) {
+                                      return (
+                                        <iframe
+                                          width="100%"
+                                          height="100%"
+                                          src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0`}
+                                          title={video.title}
+                                          frameBorder="0"
+                                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                          className="w-full h-full pointer-events-none"
+                                        />
+                                      );
+                                    } else if (video.video_url && !isYouTubeUrl) {
+                                      return (
+                                        <video 
+                                          className="w-full h-full object-cover pointer-events-none"
+                                          preload="metadata"
+                                          muted
+                                        >
+                                          <source src={video.video_url} type="video/mp4" />
+                                        </video>
+                                      );
+                                    } else if (video.thumbnail_url) {
+                                      return (
+                                        <img 
+                                          src={video.thumbnail_url}
+                                          alt={`${video.title} thumbnail`}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      );
+                                    }
+                                    return null;
+                                  })()}
+
+                                  {/* Fallback placeholder when no preview */}
+                                  <div className={`absolute inset-0 flex items-center justify-center ${video.video_url || video.thumbnail_url ? 'hidden' : 'bg-gradient-to-br from-blue-500 to-purple-600'}`}>
+                                    <Play className="w-4 h-4 text-white" />
+                                  </div>
+
                                   {!video.video_url && (
                                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border border-white" title="No video file" />
                                   )}
+
+                                  {/* Hover overlay */}
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                                 </div>
                                 
                                 {/* Video Title */}
