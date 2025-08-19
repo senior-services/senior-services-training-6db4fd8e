@@ -199,50 +199,46 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
               </div>
             </div>
 
-            <Card>
-              <CardContent>
-                <div className="space-y-6">
-                  {employees.map((employee) => (
-                    <div key={employee.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <h4 className="font-medium text-foreground">{employee.name}</h4>
-                            <p className="text-sm text-muted-foreground">{employee.email}</p>
-                          </div>
-                          <Badge 
-                            variant={
-                              employee.status === 'completed' ? 'default' :
-                              employee.status === 'on-track' ? 'secondary' : 'destructive'
-                            }
-                          >
-                            {employee.status === 'completed' ? 'Completed' :
-                             employee.status === 'on-track' ? 'On Track' : 'Behind Schedule'}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="flex-1">
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>Progress</span>
-                              <span>{employee.requiredProgress}%</span>
-                            </div>
-                            <Progress value={employee.requiredProgress} className="h-2" />
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {employee.completedVideos}/{employee.totalVideos} videos
-                          </div>
-                        </div>
+            <div className="space-y-6">
+              {employees.map((employee) => (
+                <div key={employee.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 className="font-medium text-foreground">{employee.name}</h4>
+                        <p className="text-sm text-muted-foreground">{employee.email}</p>
                       </div>
-                      <div className="ml-6 flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
+                      <Badge 
+                        variant={
+                          employee.status === 'completed' ? 'default' :
+                          employee.status === 'on-track' ? 'secondary' : 'destructive'
+                        }
+                      >
+                        {employee.status === 'completed' ? 'Completed' :
+                         employee.status === 'on-track' ? 'On Track' : 'Behind Schedule'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-1">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Progress</span>
+                          <span>{employee.requiredProgress}%</span>
+                        </div>
+                        <Progress value={employee.requiredProgress} className="h-2" />
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {employee.completedVideos}/{employee.totalVideos} videos
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  <div className="ml-6 flex space-x-2">
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="videos" className="space-y-6">
