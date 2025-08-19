@@ -26,7 +26,7 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
   const [formData, setFormData] = useState<VideoFormData>({
     title: '',
     description: '',
-    type: 'url'
+    type: 'file'
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -49,7 +49,7 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
     setFormData({
       title: '',
       description: '',
-      type: 'url'
+      type: 'file'
     });
     setSelectedFile(null);
     setIsDragOver(false);
@@ -91,7 +91,7 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Add Training Video</DialogTitle>
           <DialogDescription>
@@ -99,7 +99,7 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6 pr-2">
           {/* Video Source */}
           <div className="space-y-3">
             <Label>Video Source</Label>
@@ -108,28 +108,15 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
               onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as 'file' | 'url' }))}
             >
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="url" className="flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4" />
-                  URL
-                </TabsTrigger>
                 <TabsTrigger value="file" className="flex items-center gap-2">
                   <Upload className="w-4 h-4" />
                   File Upload
                 </TabsTrigger>
+                <TabsTrigger value="url" className="flex items-center gap-2">
+                  <LinkIcon className="w-4 h-4" />
+                  URL
+                </TabsTrigger>
               </TabsList>
-
-              <TabsContent value="url" className="space-y-2 mt-4">
-                <Label htmlFor="videoUrl">Video URL</Label>
-                <Input
-                  id="videoUrl"
-                  value={formData.url || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                  placeholder="https://youtube.com/watch?v=... or https://drive.google.com/..."
-                />
-                <p className="text-xs text-muted-foreground">
-                  Supports YouTube and Google Drive video links
-                </p>
-              </TabsContent>
 
               <TabsContent value="file" className="space-y-3 mt-4">
                 <Label>Upload Video File</Label>
@@ -140,18 +127,18 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   className={cn(
-                    "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
+                    "border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors",
                     isDragOver
                       ? "border-primary bg-primary/10"
                       : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
                   )}
                 >
-                  <div className="flex flex-col items-center space-y-4">
+                  <div className="flex flex-col items-center space-y-3">
                     <FileVideo className={cn(
-                      "w-12 h-12 transition-colors",
+                      "w-8 h-8 transition-colors",
                       isDragOver ? "text-primary" : "text-muted-foreground"
                     )} />
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <p className="text-sm font-medium">
                         {isDragOver ? "Drop video file here" : "Drag & drop video file here"}
                       </p>
@@ -197,6 +184,19 @@ export const AddVideoModal = ({ open, onOpenChange, onSave }: AddVideoModalProps
                     </Button>
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="url" className="space-y-2 mt-4">
+                <Label htmlFor="videoUrl">Video URL</Label>
+                <Input
+                  id="videoUrl"
+                  value={formData.url || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                  placeholder="https://youtube.com/watch?v=... or https://drive.google.com/..."
+                />
+                <p className="text-xs text-muted-foreground">
+                  Supports YouTube and Google Drive video links
+                </p>
               </TabsContent>
             </Tabs>
           </div>
