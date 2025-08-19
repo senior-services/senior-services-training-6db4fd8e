@@ -29,7 +29,8 @@ import {
   XCircle,
   HelpCircle,
   Play,
-  ChevronDown
+  ChevronDown,
+  User
 } from 'lucide-react';
 import { EmployeeService } from '@/services/employeeService';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
@@ -235,7 +236,7 @@ export const EmployeeManagement: React.FC = () => {
                     <AccordionTrigger 
                       className="[&>svg]:hidden" // Hide default chevron
                     >
-                    <div className="flex items-center justify-between w-full hover:bg-muted/50">
+                    <div className="flex items-center justify-between w-full">
                       {/* Left side: Chevron + Employee info */}
                       <div className="flex items-center gap-4">
                         {/* Manual chevron on the left or equivalent spacing */}
@@ -246,7 +247,8 @@ export const EmployeeManagement: React.FC = () => {
                         )}
                         
                         <div className="flex-1">
-                          <div className="font-medium text-left">
+                          <div className="flex items-center gap-2 font-medium text-left">
+                            <User className="w-3 h-3" />
                             {employee.full_name || 'Unknown'}
                           </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
