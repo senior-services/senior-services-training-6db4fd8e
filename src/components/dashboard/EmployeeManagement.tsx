@@ -37,7 +37,7 @@ import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
 import { AddEmployeeModal } from './AddEmployeeModal';
 import { AssignVideosModal } from './AssignVideosModal';
-import { format } from 'date-fns';
+import { format, differenceInDays, isPast } from 'date-fns';
 
 export const EmployeeManagement: React.FC = () => {
   const [employees, setEmployees] = useState<EmployeeWithAssignments[]>([]);
@@ -124,7 +124,54 @@ export const EmployeeManagement: React.FC = () => {
     }
   };
 
-  
+  // Helper function to get deadline badge props
+  const getDeadlineBadge = (dueDate: string | null, isCompleted: boolean = false) => {
+    if (isCompleted) {
+      return {
+        variant: "default" as const,
+        className: "bg-green-800 text-white hover:bg-green-800",
+        text: "Completed"
+      };
+    }
+
+    if (!dueDate) {
+      return {
+        variant: "secondary" as const,
+        className: "",
+        text: "No deadline"
+      };
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+    
+    const daysUntilDue = differenceInDays(due, today);
+    
+    if (isPast(due) && daysUntilDue < 0) {
+      return {
+        variant: "default" as const,
+        className: "bg-red-800 text-white hover:bg-red-800",
+        text: "Overdue"
+      };
+    }
+    
+    if (daysUntilDue <= 5) {
+      return {
+        variant: "default" as const,
+        className: "bg-orange-700 text-white hover:bg-orange-700",
+        text: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`
+      };
+    }
+    
+    return {
+      variant: "default" as const,
+      className: "bg-gray-700 text-white hover:bg-gray-700",
+      text: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`
+    };
+  };
 
   return (
     <div className="space-y-6">
@@ -277,14 +324,17 @@ export const EmployeeManagement: React.FC = () => {
                                 </div>
                                 
                                 <div className="flex items-center gap-4 text-xs">
-                                  <div className="flex items-center gap-1 text-muted-foreground">
-                                    <Clock className="w-3 h-3" />
-                                    <span>
-                                      {assignment.due_date
-                                        ? `Due ${format(new Date(assignment.due_date), 'MMM d, yyyy')}`
-                                        : 'No deadline'}
-                                    </span>
-                                  </div>
+                                  {(() => {
+                                    const badgeProps = getDeadlineBadge(assignment.due_date, false); // TODO: Add completion tracking
+                                    return (
+                                      <Badge 
+                                        variant={badgeProps.variant}
+                                        className={`text-xs ${badgeProps.className}`}
+                                      >
+                                        {badgeProps.text}
+                                      </Badge>
+                                    );
+                                  })()}
                                   
                                   <div className="flex items-center gap-1 text-muted-foreground">
                                     <XCircle className="w-3 h-3" />
