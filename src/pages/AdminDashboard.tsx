@@ -181,15 +181,6 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
       />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-foreground mb-2">
-            Administrator Dashboard
-          </h2>
-          <p className="text-muted-foreground">
-            Manage training content, track employee progress, and oversee the learning portal.
-          </p>
-        </div>
 
 
         {/* Main Content */}
