@@ -36,6 +36,7 @@ const AppContent = () => {
   };
 
   const handlePlayVideo = (videoId: string) => {
+    console.log('Navigate to video page:', videoId);
     navigate(`/video/${videoId}`);
   };
 
