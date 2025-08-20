@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Auth } from "./pages/Auth";
 import { EmployeeDashboard } from "./pages/EmployeeDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { VideoPage } from "./pages/VideoPage";
 import { NotFound } from "./pages/NotFound";
 import { useAuth } from "./hooks/useAuth";
 import { useUserRole } from "./hooks/useUserRole";
@@ -34,8 +35,7 @@ const App = () => {
   };
 
   const handlePlayVideo = (videoId: string) => {
-    console.log('Playing video:', videoId);
-    // TODO: Implement video player
+    window.location.href = `/video/${videoId}`;
   };
 
   if (loading) {
@@ -97,6 +97,10 @@ const App = () => {
                   <Navigate to="/auth" replace />
                 )
               } 
+            />
+            <Route 
+              path="/video/:videoId" 
+              element={<VideoPage />} 
             />
             <Route path="*" element={<NotFound />} />
           </Routes>

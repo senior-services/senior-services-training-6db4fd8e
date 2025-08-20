@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import { ChevronDown, LogOut, User } from "lucide-react";
+import { Link } from "react-router-dom";
 // Using uploaded logo image
 
 interface HeaderProps {
@@ -21,18 +22,20 @@ export const Header = ({ userRole, userName, userEmail, overallProgress, onLogou
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
           <div className="flex items-center space-x-4">
-            <img 
-              src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" 
-              alt="Senior Services for South Sound" 
-              className="h-12 w-auto object-cover"
-              style={{ objectPosition: 'left center' }}
-            />
-            <div>
-              <h1 className="text-xl font-bold text-primary">
-                Employee Training Portal
-              </h1>
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
-            </div>
+            <Link to="/dashboard" className="flex items-center space-x-4 hover:opacity-80 transition-opacity">
+              <img 
+                src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" 
+                alt="Senior Services for South Sound" 
+                className="h-12 w-auto object-cover"
+                style={{ objectPosition: 'left center' }}
+              />
+              <div>
+                <h1 className="text-xl font-bold text-primary">
+                  Employee Training Portal
+                </h1>
+                <p className="text-sm text-muted-foreground">{subtitle}</p>
+              </div>
+            </Link>
           </div>
 
           {/* Center - Overall Progress (Employee Only) */}

@@ -212,4 +212,27 @@ export class EmployeeService {
     if (error) throw error;
     return data;
   }
+
+  static async getVideoById(videoId: string): Promise<Video | null> {
+    try {
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('id', videoId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching video:', error);
+        throw error;
+      }
+
+      return {
+        ...data,
+        type: data.type as VideoType
+      };
+    } catch (error) {
+      console.error('Error in getVideoById:', error);
+      throw error;
+    }
+  }
 }
