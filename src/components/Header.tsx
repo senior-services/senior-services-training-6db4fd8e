@@ -12,23 +12,23 @@ interface HeaderProps {
   overallProgress?: number;
   onLogout: () => void;
 }
-
-export const Header = ({ userRole, userName, userEmail, overallProgress, onLogout }: HeaderProps) => {
+export const Header = ({
+  userRole,
+  userName,
+  userEmail,
+  overallProgress,
+  onLogout
+}: HeaderProps) => {
   const subtitle = userRole === 'admin' ? 'Administrator Dashboard' : 'Employee Portal';
-
-  return (
-    <header className="bg-background border-b border-border shadow-sm">
+  return <header className="bg-background border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
           <div className="flex items-center space-x-4">
             <Link to="/dashboard" className="flex items-center space-x-4 hover:opacity-80 transition-opacity">
-              <img 
-                src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" 
-                alt="Senior Services for South Sound" 
-                className="h-12 w-auto object-cover"
-                style={{ objectPosition: 'left center' }}
-              />
+              <img src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" alt="Senior Services for South Sound" className="h-12 w-auto object-cover" style={{
+              objectPosition: 'left center'
+            }} />
               <div>
                 <h1 className="text-xl font-bold text-primary">
                   Employee Training Portal
@@ -39,8 +39,7 @@ export const Header = ({ userRole, userName, userEmail, overallProgress, onLogou
           </div>
 
           {/* Center - Overall Progress (Employee Only) */}
-          {userRole === 'employee' && overallProgress !== undefined && (
-            <div className="hidden md:flex items-center space-x-3 flex-1 max-w-md mx-8">
+          {userRole === 'employee' && overallProgress !== undefined && <div className="hidden md:flex items-center space-x-3 flex-1 max-w-md mx-8">
               <span className="text-sm font-medium text-foreground whitespace-nowrap">
                 Overall Progress:
               </span>
@@ -50,14 +49,13 @@ export const Header = ({ userRole, userName, userEmail, overallProgress, onLogou
               <span className="text-sm font-semibold text-primary whitespace-nowrap">
                 {overallProgress}%
               </span>
-            </div>
-          )}
+            </div>}
 
           {/* Right Side - User Info and Menu */}
           <div className="flex items-center space-x-3">
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-foreground">{userName}</p>
-              <p className="text-xs text-muted-foreground">{userEmail}</p>
+              
             </div>
             
             <DropdownMenu>
@@ -84,8 +82,7 @@ export const Header = ({ userRole, userName, userEmail, overallProgress, onLogou
         </div>
 
         {/* Mobile Progress Bar */}
-        {userRole === 'employee' && overallProgress !== undefined && (
-          <div className="md:hidden mt-4 flex items-center space-x-3">
+        {userRole === 'employee' && overallProgress !== undefined && <div className="md:hidden mt-4 flex items-center space-x-3">
             <span className="text-sm font-medium text-foreground">
               Progress:
             </span>
@@ -95,9 +92,7 @@ export const Header = ({ userRole, userName, userEmail, overallProgress, onLogou
             <span className="text-sm font-semibold text-primary">
               {overallProgress}%
             </span>
-          </div>
-        )}
+          </div>}
       </div>
-    </header>
-  );
+    </header>;
 };
