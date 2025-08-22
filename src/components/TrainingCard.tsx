@@ -120,26 +120,51 @@ export const TrainingCard = ({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium text-primary">{video.progress}%</span>
-          </div>
-          <Progress value={video.progress} className="h-2" />
-        </div>
-
-        {/* Video Info */}
+        {/* Video Info with Circular Progress */}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center space-x-1">
-            <Clock className="w-4 h-4" />
-            <span>{video.duration}</span>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <Clock className="w-4 h-4" />
+              <span>{video.duration}</span>
+            </div>
+            
+            {video.isRequired && video.deadline && <div className="flex items-center space-x-1">
+                <Calendar className="w-4 h-4" />
+                <span>Due {video.deadline}</span>
+              </div>}
           </div>
           
-          {video.isRequired && video.deadline && <div className="flex items-center space-x-1">
-              <Calendar className="w-4 h-4" />
-              <span>Due {video.deadline}</span>
-            </div>}
+          {/* Circular Progress */}
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-muted-foreground">Progress</span>
+            <div className="relative w-12 h-12">
+              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-muted/20"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  fill="transparent"
+                  d="M18 2.0845
+                    A 15.9155 15.9155 0 0 1 18 33.9155
+                    A 15.9155 15.9155 0 0 1 18 2.0845"
+                />
+                <path
+                  className="text-primary"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeDasharray={`${video.progress}, 100`}
+                  strokeLinecap="round"
+                  fill="transparent"
+                  d="M18 2.0845
+                    A 15.9155 15.9155 0 0 1 18 33.9155
+                    A 15.9155 15.9155 0 0 1 18 2.0845"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-xs font-medium text-primary">{video.progress}%</span>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
 
