@@ -85,8 +85,18 @@ export const TrainingCard = ({
         
         {/* Play Button Overlay */}
         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button type="button" size="lg" asChild className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg">
-            <Link to={`/video/${video.id}`} aria-label={`Play ${video.title}`}>
+          <Button 
+            type="button" 
+            size="lg" 
+            asChild 
+            className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg"
+            onClick={() => console.log('Play button clicked for video:', video.id)}
+          >
+            <Link 
+              to={`/video/${video.id}`} 
+              aria-label={`Play ${video.title}`}
+              onClick={() => console.log('Link clicked, navigating to:', `/video/${video.id}`)}
+            >
               <Play className="w-6 h-6 ml-1" />
             </Link>
           </Button>
@@ -162,8 +172,18 @@ export const TrainingCard = ({
       </CardContent>
 
       <CardFooter>
-        <Button type="button" className="w-full" variant={isCompleted ? "secondary" : "default"} asChild>
-          <Link to={`/video/${video.id}`} className="w-full">
+        <Button 
+          type="button" 
+          className="w-full" 
+          variant={isCompleted ? "secondary" : "default"} 
+          asChild
+          onClick={() => console.log('Footer button clicked for video:', video.id)}
+        >
+          <Link 
+            to={`/video/${video.id}`} 
+            className="w-full"
+            onClick={() => console.log('Footer link clicked, navigating to:', `/video/${video.id}`)}
+          >
             {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
           </Link>
         </Button>

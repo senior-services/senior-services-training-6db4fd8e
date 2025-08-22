@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Auth } from "./pages/Auth";
 import { EmployeeDashboard } from "./pages/EmployeeDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
@@ -28,7 +28,8 @@ const AppContent = () => {
     role,
     authLoading,
     roleLoading,
-    loading
+    loading,
+    currentPath: window.location.pathname
   });
 
   const handleLogout = () => {
@@ -109,9 +110,9 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <HashRouter>
           <AppContent />
-        </BrowserRouter>
+        </HashRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
