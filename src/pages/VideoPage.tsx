@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { EmployeeService } from "@/services/employeeService";
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +16,9 @@ export const VideoPage = () => {
   const { videoId } = useParams<{ videoId: string }>();
   const [video, setVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const { role } = useUserRole(user);
@@ -41,6 +45,15 @@ export const VideoPage = () => {
       setLoading(false);
     }
   };
+
+  const handleVideoProgress = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = event.currentTarget;
+    const progressPercent = (video.currentTime / video.duration) * 100;
+    setProgress(Math.round(progressPercent));
+  };
+
+  const handleVideoPlay = () => setIsPlaying(true);
+  const handleVideoPause = () => setIsPlaying(false);
 
   const renderVideoPlayer = (video: Video) => {
     const videoUrl = video.video_url;
@@ -95,11 +108,15 @@ export const VideoPage = () => {
     return (
       <div className="aspect-video">
         <video
+          ref={videoRef}
           src={videoSrc}
           title={video.title}
           className="w-full h-full rounded-lg"
           controls
           preload="metadata"
+          onTimeUpdate={handleVideoProgress}
+          onPlay={handleVideoPlay}
+          onPause={handleVideoPause}
         >
           Your browser does not support the video tag.
         </video>
@@ -170,9 +187,52 @@ export const VideoPage = () => {
         {/* Video Information */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">{video.title || 'Untitled Video'}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-2xl">{video.title || 'Untitled Video'}</CardTitle>
+              
+              {/* Circular Progress Indicator */}
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-muted-foreground">Progress</span>
+                <div className="relative w-16 h-16">
+                  <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-muted/20"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="transparent"
+                      d="M18 2.0845
+                        A 15.9155 15.9155 0 0 1 18 33.9155
+                        A 15.9155 15.9155 0 0 1 18 2.0845"
+                    />
+                    <path
+                      className="text-primary transition-all duration-300"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeDasharray={`${progress}, 100`}
+                      strokeLinecap="round"
+                      fill="transparent"
+                      d="M18 2.0845
+                        A 15.9155 15.9155 0 0 1 18 33.9155
+                        A 15.9155 15.9155 0 0 1 18 2.0845"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-medium text-primary">{progress}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
+            {/* Linear Progress Bar */}
+            <div className="mb-6">
+              <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                <span>Video Progress</span>
+                <span>{progress}% Complete</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+            
             {video.description && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Description</h3>
