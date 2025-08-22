@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Calendar, Clock, Play } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { format, differenceInDays, isPast } from 'date-fns';
 import videoPlaceholder from "@/assets/video-placeholder.jpg";
@@ -29,7 +29,7 @@ export const TrainingCard = ({
   onPlay,
   className
 }: TrainingCardProps) => {
-  // Helper function to get deadline badge props (copied from EmployeeManagement)
+  const navigate = useNavigate();
   const getDeadlineBadge = (dueDate: string | null, isCompleted: boolean = false) => {
     if (isCompleted) {
       return {
@@ -88,17 +88,13 @@ export const TrainingCard = ({
           <Button 
             type="button" 
             size="lg" 
-            asChild 
             className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg"
-            onClick={() => console.log('Play button clicked for video:', video.id)}
+            onClick={() => {
+              console.log('Play button clicked for video:', video.id);
+              navigate(`/video/${video.id}`);
+            }}
           >
-            <Link 
-              to={`/video/${video.id}`} 
-              aria-label={`Play ${video.title}`}
-              onClick={() => console.log('Link clicked, navigating to:', `/video/${video.id}`)}
-            >
-              <Play className="w-6 h-6 ml-1" />
-            </Link>
+            <Play className="w-6 h-6 ml-1" />
           </Button>
         </div>
 
@@ -175,17 +171,13 @@ export const TrainingCard = ({
         <Button 
           type="button" 
           className="w-full" 
-          variant={isCompleted ? "secondary" : "default"} 
-          asChild
-          onClick={() => console.log('Footer button clicked for video:', video.id)}
+          variant={isCompleted ? "secondary" : "default"}
+          onClick={() => {
+            console.log('Footer button clicked for video:', video.id);
+            navigate(`/video/${video.id}`);
+          }}
         >
-          <Link 
-            to={`/video/${video.id}`} 
-            className="w-full"
-            onClick={() => console.log('Footer link clicked, navigating to:', `/video/${video.id}`)}
-          >
-            {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
-          </Link>
+          {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
         </Button>
       </CardFooter>
     </Card>;
