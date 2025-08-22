@@ -30,6 +30,11 @@ export const TrainingCard = ({
 }: TrainingCardProps) => {
   console.log('TrainingCard received video:', video.title, 'Due date:', video.dueDate);
 
+  const handleVideoClick = (videoId: string) => {
+    console.log('TrainingCard: Video clicked:', videoId);
+    onPlay(videoId);
+  };
+
   // Helper function to get deadline badge props (copied from EmployeeManagement)
   const getDeadlineBadge = (dueDate: string | null, isCompleted: boolean = false) => {
     console.log('getDeadlineBadge called with:', dueDate, isCompleted);
@@ -94,7 +99,7 @@ export const TrainingCard = ({
         
         {/* Play Button Overlay */}
         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button type="button" size="lg" onClick={() => onPlay(video.id)} className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg">
+          <Button type="button" size="lg" onClick={() => handleVideoClick(video.id)} className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg">
             <Play className="w-6 h-6 ml-1" />
           </Button>
         </div>
@@ -169,7 +174,7 @@ export const TrainingCard = ({
       </CardContent>
 
       <CardFooter>
-        <Button type="button" onClick={() => onPlay(video.id)} className="w-full" variant={isCompleted ? "secondary" : "default"}>
+        <Button type="button" onClick={() => handleVideoClick(video.id)} className="w-full" variant={isCompleted ? "secondary" : "default"}>
           {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
         </Button>
       </CardFooter>
