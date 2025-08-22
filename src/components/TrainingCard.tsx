@@ -89,10 +89,12 @@ export const TrainingCard = ({
             type="button" 
             size="lg" 
             className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg"
-            onClick={() => {
-              console.log('Play button clicked for video:', video.id);
-              navigate(`/video/${video.id}`);
-            }}
+          onClick={() => {
+            console.log('Play button clicked for video:', video.id);
+            console.log('About to navigate to:', `/video/${video.id}`);
+            navigate(`/video/${video.id}`);
+            console.log('Navigate called');
+          }}
           >
             <Play className="w-6 h-6 ml-1" />
           </Button>
@@ -174,7 +176,9 @@ export const TrainingCard = ({
           variant={isCompleted ? "secondary" : "default"}
           onClick={() => {
             console.log('Footer button clicked for video:', video.id);
+            console.log('About to navigate to:', `/video/${video.id}`);
             navigate(`/video/${video.id}`);
+            console.log('Navigate called');
           }}
         >
           {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
