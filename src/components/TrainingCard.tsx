@@ -29,16 +29,8 @@ export const TrainingCard = ({
   onPlay,
   className
 }: TrainingCardProps) => {
-  console.log('TrainingCard received video:', video.title, 'Due date:', video.dueDate);
-
-  const handleVideoClick = (videoId: string) => {
-    console.log('TrainingCard: Video clicked:', videoId);
-    onPlay(videoId);
-  };
-
   // Helper function to get deadline badge props (copied from EmployeeManagement)
   const getDeadlineBadge = (dueDate: string | null, isCompleted: boolean = false) => {
-    console.log('getDeadlineBadge called with:', dueDate, isCompleted);
     if (isCompleted) {
       return {
         variant: "default" as const,
@@ -47,7 +39,6 @@ export const TrainingCard = ({
       };
     }
     if (!dueDate) {
-      console.log('No due date, returning null');
       return null; // Don't show badge if no due date
     }
     const today = new Date();
@@ -55,11 +46,6 @@ export const TrainingCard = ({
     const due = new Date(dueDate);
     due.setHours(0, 0, 0, 0);
     const daysUntilDue = differenceInDays(due, today);
-    console.log('Date calculations:', {
-      today,
-      due,
-      daysUntilDue
-    });
     if (isPast(due) && daysUntilDue < 0) {
       return {
         variant: "default" as const,
@@ -87,7 +73,6 @@ export const TrainingCard = ({
   const isCompleted = video.progress === 100;
   const hasStarted = video.progress > 0;
   const badgeProps = video.isRequired ? getDeadlineBadge(video.dueDate, isCompleted) : null;
-  console.log('Badge props:', badgeProps);
   return <Card className={cn('training-card group relative overflow-hidden', className)}>
       {/* Video Thumbnail */}
       <div className="relative">
