@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Calendar, Clock, Play } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { format, differenceInDays, isPast } from 'date-fns';
 import videoPlaceholder from "@/assets/video-placeholder.jpg";
@@ -99,9 +100,11 @@ export const TrainingCard = ({
         
         {/* Play Button Overlay */}
         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button type="button" size="lg" onClick={() => handleVideoClick(video.id)} className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg">
-            <Play className="w-6 h-6 ml-1" />
-          </Button>
+          <Link to={`/video/${video.id}`} onClick={(e) => e.stopPropagation()} className="rounded-full">
+            <Button type="button" size="lg" className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg">
+              <Play className="w-6 h-6 ml-1" />
+            </Button>
+          </Link>
         </div>
 
         {/* Progress Overlay */}
@@ -174,9 +177,11 @@ export const TrainingCard = ({
       </CardContent>
 
       <CardFooter>
-        <Button type="button" onClick={() => handleVideoClick(video.id)} className="w-full" variant={isCompleted ? "secondary" : "default"}>
-          {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
-        </Button>
+        <Link to={`/video/${video.id}`} className="w-full" onClick={(e) => e.stopPropagation()}>
+          <Button type="button" className="w-full" variant={isCompleted ? "secondary" : "default"}>
+            {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
+          </Button>
+        </Link>
       </CardFooter>
     </Card>;
 };
