@@ -157,7 +157,14 @@ export function useAuth() {
       
       // If there's a session_not_found error, we should still consider it a successful logout
       // because the user is effectively logged out already
-      if (error && !error.message?.includes('session_not_found') && !error.message?.includes('Session not found')) {
+      const isSessionError = error && (
+        error.message?.includes('session_not_found') || 
+        error.message?.includes('Session not found') ||
+        error.message?.includes('Session from session_id claim in JWT does not exist') ||
+        (error as any).__isAuthError
+      );
+      
+      if (error && !isSessionError) {
         console.error('Sign out error:', error);
         toast.error('Failed to sign out');
         return;
@@ -170,15 +177,28 @@ export function useAuth() {
         loading: false,
       });
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign out error:', error);
-      // Even if there's an error, clear the local state to ensure user appears logged out
+      
+      // Check if it's a session-related error (AuthSessionMissingError, etc.)
+      const isSessionError = 
+        error.name === 'AuthSessionMissingError' ||
+        error.message?.includes('Auth session missing') ||
+        error.message?.includes('session_not_found') ||
+        error.message?.includes('Session not found') ||
+        error.message?.includes('Session from session_id claim in JWT does not exist');
+      
+      // Clear local state regardless - user should appear logged out
       setState({
         session: null,
         user: null,
         loading: false,
       });
-      toast.error('Failed to sign out');
+      
+      // Only show error toast if it's not a session-related error
+      if (!isSessionError) {
+        toast.error('Failed to sign out');
+      }
     }
   };
 
