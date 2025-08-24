@@ -4,7 +4,7 @@
  * Provides comprehensive training video information with proper ARIA support
  */
 
-import React, { memo, useMemo, useCallback, useState } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,9 +66,6 @@ export const TrainingCard = memo<TrainingCardProps>(({
   className,
   priority = false
 }) => {
-  // State for expanding description
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-
   // Sanitize video data for security
   const sanitizedVideo = useMemo(() => ({
     ...video,
@@ -166,17 +163,6 @@ export const TrainingCard = memo<TrainingCardProps>(({
     handleKeyPress(event, handlePlay);
   }, [handlePlay]);
 
-  // Toggle description expansion
-  const handleToggleDescription = useOptimizedCallback((event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent triggering video play
-    setIsDescriptionExpanded(!isDescriptionExpanded);
-    announceToScreenReader(
-      isDescriptionExpanded 
-        ? "Description collapsed" 
-        : "Description expanded to show full text"
-    );
-  }, [isDescriptionExpanded]);
-
   // Image error handler for accessibility
   const handleImageError = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
     event.currentTarget.src = videoPlaceholder;
@@ -220,27 +206,10 @@ export const TrainingCard = memo<TrainingCardProps>(({
             </CardTitle>
             {sanitizedVideo.isRequired}
           </div>
+          {sanitizedVideo.description && <CardDescription className="line-clamp-2">
+              {sanitizedVideo.description}
+            </CardDescription>}
         </CardHeader>
-
-        {/* Video Description - Outside CardHeader to match button width */}
-        {sanitizedVideo.description && (
-          <div className="px-6 pb-4">
-            <button
-              onClick={handleToggleDescription}
-              className="text-left w-full focus:outline-none focus:ring-2 focus:ring-ring rounded"
-              aria-expanded={isDescriptionExpanded}
-              aria-label={`${isDescriptionExpanded ? 'Collapse' : 'Expand'} video description`}
-            >
-              <p 
-                className={`text-sm text-muted-foreground transition-all duration-200 ${
-                  isDescriptionExpanded ? '' : 'line-clamp-2'
-                } hover:text-foreground cursor-pointer m-0 p-0`}
-              >
-                {sanitizedVideo.description}
-              </p>
-            </button>
-          </div>
-        )}
 
         {/* Enhanced Action Button */}
         <CardFooter className="flex-none">
