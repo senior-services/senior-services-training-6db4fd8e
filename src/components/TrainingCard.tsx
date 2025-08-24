@@ -219,11 +219,6 @@ export const TrainingCard = memo<TrainingCardProps>(({
                 <Clock className="w-4 h-4" aria-hidden="true" />
                 <span>{sanitizedVideo.duration}</span>
               </div>
-              
-              {sanitizedVideo.isRequired && sanitizedVideo.deadline && <div className="flex items-center space-x-1" aria-label={`Due ${sanitizedVideo.deadline}`}>
-                  <Calendar className="w-4 h-4" aria-hidden="true" />
-                  <span>Due {sanitizedVideo.deadline}</span>
-                </div>}
             </div>
             
             {/* Enhanced Circular Progress Indicator */}
