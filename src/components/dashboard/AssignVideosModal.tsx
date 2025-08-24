@@ -120,14 +120,21 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       const newSet = new Set(prev);
       if (checked) {
         newSet.add(videoId);
+        // When a video is selected for assignment, automatically mark it as Required
+        setVideos(prevVideos => prevVideos.map(v => 
+          v.id === videoId ? { ...v, type: 'Required' } : v
+        ));
       } else {
         newSet.delete(videoId);
-        // Remove deadline when video is unselected
+        // Remove deadline when video is unselected and mark as Optional
         setVideoDeadlines(prev => {
           const newDeadlines = new Map(prev);
           newDeadlines.delete(videoId);
           return newDeadlines;
         });
+        setVideos(prevVideos => prevVideos.map(v => 
+          v.id === videoId ? { ...v, type: 'Optional' } : v
+        ));
       }
       return newSet;
     });
@@ -325,31 +332,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             </div>
 
                              <div className="flex items-center gap-4">
-                               {/* Required Toggle - Only show when video is selected */}
-                               {isSelected && (
-                                 <div className="flex items-center gap-2">
-                                   <input
-                                     type="checkbox"
-                                     id={`required-${video.id}`}
-                                     checked={video.type === 'Required'}
-                                     onChange={(e) => {
-                                       // Update video type based on assignment
-                                       const newType = e.target.checked ? 'Required' : 'Optional';
-                                       setVideos(prev => prev.map(v => 
-                                         v.id === video.id ? { ...v, type: newType } : v
-                                       ));
-                                     }}
-                                     className="flex-shrink-0 w-3 h-3 rounded border border-gray-300 text-primary focus:ring-1 focus:ring-primary"
-                                   />
-                                   <label 
-                                     htmlFor={`required-${video.id}`}
-                                     className="text-xs text-muted-foreground cursor-pointer"
-                                   >
-                                     Required
-                                   </label>
-                                 </div>
-                               )}
-
                                {/* Calendar Picker - Only show when video is selected */}
                                {isSelected && (
                                 <Popover 
