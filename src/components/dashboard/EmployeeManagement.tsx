@@ -245,35 +245,6 @@ export const EmployeeManagement: React.FC = () => {
                                         </Badge>;
                         })()}
                                     
-                                    <div className="flex items-center gap-2">
-                                      <div className="relative w-8 h-8">
-                                        <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 36 36">
-                                          <path
-                                            className="text-muted/30"
-                                            stroke="currentColor"
-                                            strokeWidth="3"
-                                            fill="transparent"
-                                            d="M18 2.0845
-                                              a 15.9155 15.9155 0 0 1 0 31.831
-                                              a 15.9155 15.9155 0 0 1 0 -31.831"
-                                          />
-                                          <path
-                                            className="text-primary"
-                                            stroke="currentColor"
-                                            strokeWidth="3"
-                                            strokeDasharray={`${0}, 100`} // TODO: Replace with actual progress
-                                            strokeLinecap="round"
-                                            fill="transparent"
-                                            d="M18 2.0845
-                                              a 15.9155 15.9155 0 0 1 0 31.831
-                                              a 15.9155 15.9155 0 0 1 0 -31.831"
-                                          />
-                                        </svg>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                          <span className="text-xs font-medium text-foreground">0%</span>
-                                        </div>
-                                      </div>
-                                    </div>
                                   </div>
                                 </div>)}
                             </div>}
