@@ -144,61 +144,56 @@ export class EmployeeService {
   static async getAssignedVideosByEmail(email: string): Promise<{ video: Video; assignment: any }[]> {
     console.log('getAssignedVideosByEmail called with email:', email);
     
-    // First find the employee by email
-    const { data: employee, error: employeeError } = await supabase
-      .from('employees')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
+    try {
+      // Direct query approach - use inner join to ensure both assignment and video exist
+      const { data: assignments, error: assignmentError } = await supabase
+        .from('video_assignments')
+        .select(`
+          id, due_date, created_at, employee_id,
+          videos!inner (
+            id, title, description, video_url, thumbnail_url, 
+            type, created_at, updated_at, assigned_to, 
+            completion_rate, video_file_name, has_quiz
+          )
+        `);
 
-    console.log('Employee lookup result:', { employee, employeeError });
+      console.log('Direct assignments result:', { assignments, assignmentError });
 
-    if (employeeError || !employee) {
-      console.log('No employee found for email:', email, 'Error:', employeeError);
-      return [];
-    }
-
-    // Get videos assigned to this employee with assignment details
-    const { data: assignments, error: assignmentError } = await supabase
-      .from('video_assignments')
-      .select(`
-        *,
-        videos (*)
-      `)
-      .eq('employee_id', employee.id);
-
-    console.log('Video assignments result:', { assignments, assignmentError });
-
-    if (assignmentError) {
-      console.error('Error fetching video assignments:', assignmentError);
-      return [];
-    }
-
-    // Return videos with their assignment data
-    const result = assignments?.map(assignment => ({
-      video: {
-        id: assignment.videos?.id || '',
-        title: assignment.videos?.title || '',
-        description: assignment.videos?.description || '',
-        video_url: assignment.videos?.video_url || '',
-        thumbnail_url: assignment.videos?.thumbnail_url || '',
-        type: assignment.videos?.type as VideoType || 'Optional',
-        created_at: assignment.videos?.created_at || '',
-        updated_at: assignment.videos?.updated_at || '',
-        assigned_to: assignment.videos?.assigned_to || 0,
-        completion_rate: assignment.videos?.completion_rate || 0,
-        video_file_name: assignment.videos?.video_file_name || null,
-        has_quiz: assignment.videos?.has_quiz || false
-      },
-      assignment: {
-        due_date: assignment.due_date,
-        assigned_at: assignment.created_at,
-        assignment_id: assignment.id
+      if (assignmentError) {
+        console.error('Error fetching video assignments:', assignmentError);
+        return [];
       }
-    })).filter(item => item.video.id) || [];
-    
-    console.log('Final result for getAssignedVideosByEmail:', result);
-    return result;
+
+      // Return videos with their assignment data
+      const result = assignments?.map(assignment => ({
+        video: {
+          id: assignment.videos.id,
+          title: assignment.videos.title || '',
+          description: assignment.videos.description || '',
+          video_url: assignment.videos.video_url || '',
+          thumbnail_url: assignment.videos.thumbnail_url || '',
+          type: assignment.videos.type as VideoType || 'Optional',
+          created_at: assignment.videos.created_at || '',
+          updated_at: assignment.videos.updated_at || '',
+          assigned_to: assignment.videos.assigned_to || 0,
+          completion_rate: assignment.videos.completion_rate || 0,
+          video_file_name: assignment.videos.video_file_name || null,
+          has_quiz: assignment.videos.has_quiz || false
+        },
+        assignment: {
+          due_date: assignment.due_date,
+          assigned_at: assignment.created_at,
+          assignment_id: assignment.id
+        }
+      })).filter(item => item.video.id) || [];
+      
+      console.log('Final result for getAssignedVideosByEmail:', result);
+      return result;
+      
+    } catch (error) {
+      console.error('Error in getAssignedVideosByEmail:', error);
+      return [];
+    }
   }
 
   // Delete employee
