@@ -533,6 +533,23 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           
           {/* Video Controls */}
           <div className="flex items-center gap-2 mt-3" role="toolbar" aria-label="Video controls">
+            {(() => {
+              const hasUnknownDuration = !video?.duration_seconds || video.duration_seconds <= 0;
+              const shouldShowButton = !isCompleted && (progress >= 85 || (hasUnknownDuration && progress >= 30));
+              console.log('Mark Complete Button Debug:', { 
+                videoTitle: video?.title,
+                isCompleted, 
+                wasEverCompleted, 
+                progress, 
+                hasUnknownDuration,
+                duration: video?.duration_seconds,
+                shouldShowButton,
+                progressThreshold: hasUnknownDuration ? 30 : 85,
+                videoUrl: video?.video_url,
+                fileName: video?.video_file_name
+              });
+              return null;
+            })()}
             {(isCompleted || wasEverCompleted) ? (
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle className="w-5 h-5" aria-hidden="true" />
