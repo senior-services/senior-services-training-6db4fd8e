@@ -211,30 +211,6 @@ export const TrainingCard = memo<TrainingCardProps>(({
             </CardDescription>}
         </CardHeader>
 
-        <CardContent className="space-y-3 flex-1 pb-0">
-          {/* Bottom section with duration, progress bar, and percentage */}
-          <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <Clock className="w-4 h-4" aria-hidden="true" />
-              <span>{sanitizedVideo.duration}</span>
-            </div>
-            
-            {/* Horizontal Progress Bar */}
-            <div className="flex-1 mx-3" role="progressbar" aria-label={ariaLabels.progress} aria-valuenow={sanitizedVideo.progress} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className={`h-full transition-all duration-300 ${sanitizedVideo.progress >= 100 ? 'bg-green-500' : 'bg-primary'}`}
-                  style={{ width: `${sanitizedVideo.progress}%` }}
-                />
-              </div>
-            </div>
-            
-            <span className="font-medium text-foreground">
-              {sanitizedVideo.progress}%
-            </span>
-          </div>
-        </CardContent>
-
         {/* Enhanced Action Button */}
         <CardFooter className="flex-none">
           <Button className="w-full min-h-touch" variant={trainingStatus.isCompleted ? "secondary" : "default"} onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
