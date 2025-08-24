@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { BookOpen, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { EmployeeService } from "@/services/employeeService";
+import { supabase } from "@/integrations/supabase/client";
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
 import type { Video } from "@/types";
@@ -84,7 +85,20 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       setLoading(true);
       setError(null);
       
+      console.log('Loading videos for email:', userEmail);
+      
+      // Debug: Check if this email exists in employees table
+      const { data: employeeCheck } = await supabase
+        .from('employees')
+        .select('id, email, full_name')
+        .eq('email', userEmail)
+        .single();
+      
+      console.log('Employee check result:', employeeCheck);
+      
       const videoData = await EmployeeService.getAssignedVideosByEmail(userEmail);
+      console.log('Video data result:', videoData);
+      
       setAssignedVideoData(videoData);
       
       // Announce successful load to screen readers
@@ -254,8 +268,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
               <h1 id="dashboard-heading" className="text-3xl font-bold text-foreground">
                 Welcome back, {sanitizedUserData.firstName}!
               </h1>
-              
-              {/* Training Status Indicator */}
+              {/* Debug info - remove in production */}
+              <div className="text-xs text-muted-foreground">
+                Email: {userEmail} | Videos: {assignedVideoData.length}
+              </div>
               {trainingData.stats.overallStatus === 'completed' && (
                 <Badge className="bg-success text-success-foreground border-success" aria-label="All required training completed">
                   <CheckCircle className="w-4 h-4 mr-1" aria-hidden="true" />
