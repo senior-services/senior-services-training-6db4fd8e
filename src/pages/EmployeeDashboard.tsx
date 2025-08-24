@@ -209,7 +209,15 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   // Error boundary fallback
   if (error) {
     return <div className="min-h-screen bg-muted/30">
-        <Header userRole="employee" userName={sanitizedUserData.displayName} userEmail={userEmail} overallProgress={trainingData.stats.overallProgress} onLogout={onLogout} />
+        <Header 
+          userRole="employee" 
+          userName={sanitizedUserData.displayName} 
+          userEmail={userEmail} 
+          overallProgress={trainingData.stats.overallProgress}
+          completedItems={trainingData.stats.requiredComplete}
+          totalItems={trainingData.stats.totalRequired}
+          onLogout={onLogout} 
+        />
         
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="error-heading">
           <div className="text-center py-12">
@@ -228,7 +236,15 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   }
   return <ErrorBoundary>
       <div className="min-h-screen bg-muted/30">
-        <Header userRole="employee" userName={sanitizedUserData.displayName} userEmail={userEmail} overallProgress={trainingData.stats.overallProgress} onLogout={onLogout} />
+        <Header 
+          userRole="employee" 
+          userName={sanitizedUserData.displayName} 
+          userEmail={userEmail} 
+          overallProgress={trainingData.stats.overallProgress}
+          completedItems={trainingData.stats.requiredComplete}
+          totalItems={trainingData.stats.totalRequired}
+          onLogout={onLogout} 
+        />
         
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="dashboard-heading">
           {/* Skip Navigation Link for Accessibility */}
