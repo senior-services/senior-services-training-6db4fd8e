@@ -18,36 +18,58 @@ export function useAuth() {
 
   useEffect(() => {
     let mounted = true;
+    let initialSessionHandled = false;
 
-    // Set up auth state listener first
+    // Check for existing session first
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!mounted) return;
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        setState({
+          session,
+          user: session?.user ?? null,
+          loading: false,
+        });
+        
+        initialSessionHandled = true;
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+        if (mounted) {
+          setState({
+            session: null,
+            user: null,
+            loading: false,
+          });
+        }
+      }
+    };
+
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!mounted) return;
         
-        setState(prev => ({
+        // Skip INITIAL_SESSION if we already handled it
+        if (event === 'INITIAL_SESSION' && initialSessionHandled) {
+          return;
+        }
+        
+        setState({
           session,
           user: session?.user ?? null,
-          // Keep loading true during INITIAL_SESSION; switch to false for subsequent events
-          loading: event === 'INITIAL_SESSION' ? prev.loading : false,
-        }));
+          loading: false,
+        });
 
         if (event === 'SIGNED_OUT') {
           toast.success('Successfully signed out');
         }
       }
     );
-
-    // Then check for existing session only if we haven't gotten one yet
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!mounted) return;
-      
-      setState(prev => ({
-        session,
-        user: session?.user ?? null,
-        loading: false,
-      }));
-    };
 
     getInitialSession();
 
