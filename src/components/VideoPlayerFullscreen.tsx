@@ -265,7 +265,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setProgress(100);
     setIsCompleted(true);
     await updateProgressToDatabase(100);
-  }, [updateProgressToDatabase]);
+    // Ensure parent components update immediately
+    onProgressUpdate?.(100);
+  }, [updateProgressToDatabase, onProgressUpdate]);
 
   /**
    * Manual completion handler with proper error handling
@@ -290,6 +292,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         setProgress(100);
         setIsCompleted(true);
         await updateProgressToDatabase(100);
+        onProgressUpdate?.(100);
         
         toast({
           title: "Training Completed! 🎉",
@@ -409,6 +412,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 if (progressPercent >= 95) {
                   setIsCompleted(true);
                   updateProgressToDatabase(100);
+                  onProgressUpdate?.(100);
                   if (progressIntervalRef.current) {
                     clearInterval(progressIntervalRef.current);
                   }
@@ -454,6 +458,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 if (progressPercent >= 95) {
                   setIsCompleted(true);
                   updateProgressToDatabase(100);
+                  onProgressUpdate?.(100);
                   if (progressIntervalRef.current) {
                     clearInterval(progressIntervalRef.current);
                   }
