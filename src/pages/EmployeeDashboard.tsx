@@ -133,17 +133,11 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       .filter(item => item.video.type === 'Required')
       .map(item => transformToTrainingVideo(item.video, item.assignment));
 
-    const optionalVideos = assignedVideoData
-      .filter(item => item.video.type !== 'Required')
-      .map(item => transformToTrainingVideo(item.video, item.assignment));
-
-    console.log('Filtered videos - Required:', requiredVideos.length, 'Optional:', optionalVideos.length);
+    console.log('Required videos:', requiredVideos.length);
     console.log('Required videos:', requiredVideos);
-    console.log('Optional videos:', optionalVideos);
 
     // Calculate comprehensive training statistics
-    const allVideos = [...requiredVideos, ...optionalVideos];
-    const stats = calculateTrainingProgress(allVideos);
+    const stats = calculateTrainingProgress(requiredVideos);
     
     // Determine overall status for accessibility announcements
     let overallStatus: TrainingStats['overallStatus'] = 'on-track';
@@ -165,7 +159,6 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
     return {
       required: requiredVideos,
-      optional: optionalVideos,
       stats: {
         ...stats,
         overallStatus
@@ -175,8 +168,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
   // Enhanced video play handler with accessibility
   const handleVideoPlay = useOptimizedCallback((videoId: string) => {
-    const video = trainingData.required.find(v => v.id === videoId) || 
-                  trainingData.optional.find(v => v.id === videoId);
+    const video = trainingData.required.find(v => v.id === videoId);
     
     if (video) {
       const announcement = `Opening ${video.title}. ${getStatusAnnouncement(
@@ -188,7 +180,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     }
     
     onPlayVideo(videoId);
-  }, [trainingData.required, trainingData.optional, onPlayVideo]);
+  }, [trainingData.required, onPlayVideo]);
 
   // Load videos on component mount
   useEffect(() => {
@@ -353,59 +345,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             )}
           </section>
 
-          {/* Optional Training Section */}
-          <section 
-            className="mb-12" 
-            aria-labelledby="optional-training-heading"
-            role="region"
-          >
-            <header className="flex items-center gap-3 mb-4">
-              <h2 id="optional-training-heading" className="text-2xl font-semibold">
-                Optional Training
-              </h2>
-              <Badge 
-                variant="secondary" 
-                className="text-base px-3 py-1"
-                aria-label={`${trainingData.optional.length} optional training modules assigned`}
-              >
-                {trainingData.optional.length}
-              </Badge>
-            </header>
-            <p className="text-muted-foreground mb-6 text-lg">
-              Explore these additional modules to expand your skills.
-            </p>
-            {loading ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="Loading optional training assignments">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <LoadingSkeleton key={index} lines={1} className="h-64" />
-                ))}
-              </div>
-            ) : trainingData.optional.length === 0 ? (
-              <div className="text-center py-12" role="status" aria-live="polite">
-                <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
-                <h3 className="text-xl font-medium mb-2">No Optional Training Assigned</h3>
-                <p className="text-muted-foreground">
-                  You don't have any optional training videos at this time.
-                </p>
-              </div>
-            ) : (
-              <div 
-                className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-                role="grid"
-                aria-label="Optional training videos"
-              >
-                {trainingData.optional.map((video) => (
-                  <TrainingCard
-                    key={video.id}
-                    video={video}
-                    onPlay={handleVideoPlay}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-
-          </main>
+        </main>
       </div>
     </ErrorBoundary>
   );
