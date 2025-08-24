@@ -4,11 +4,13 @@ import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { Play, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { EmployeeService } from "@/services/employeeService";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import type { Video } from "@/types";
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveEmbedUrl } from "@/utils/videoUtils";
+
 interface VideoPlayerFullscreenProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -27,16 +29,19 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isWatching, setIsWatching] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
   const progressIntervalRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
   const { toast } = useToast();
+
   useEffect(() => {
     const load = async () => {
       if (!open || !videoId) {
         setProgress(0);
         setIsCompleted(false);
+        setIsWatching(false);
         return;
       }
       setLoading(true);
@@ -45,6 +50,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         setVideo(v);
         setProgress(0);
         setIsCompleted(false);
+        setIsWatching(false);
       } catch (e) {
         console.error('Failed to load video for modal:', e);
       } finally {
@@ -79,7 +85,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }
   }, [user?.email, videoId, isCompleted, toast]);
 
-  // Handle video progress updates
+  // Handle video progress updates for HTML5 videos
   const handleVideoProgress = useCallback((event: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = event.currentTarget;
     if (!video.duration) return;
@@ -96,8 +102,35 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     progressUpdateTimeoutRef.current = setTimeout(() => {
       updateProgressToDatabase(progressPercent);
     }, 2000); // Update database every 2 seconds
-
   }, [updateProgressToDatabase, onProgressUpdate]);
+
+  // Manual completion handler
+  const handleMarkComplete = useCallback(async () => {
+    if (!video || !user?.email) return;
+    
+    try {
+      setProgress(100);
+      setIsCompleted(true);
+      await updateProgressToDatabase(100);
+      
+      toast({
+        title: "Training Completed! 🎉",
+        description: "You've successfully completed this training video.",
+      });
+    } catch (error) {
+      console.error('Failed to mark video as complete:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save completion status.",
+        variant: "destructive",
+      });
+    }
+  }, [video, user?.email, updateProgressToDatabase, toast]);
+
+  // Toggle watching state for progress tracking
+  const handleWatchingToggle = useCallback(() => {
+    setIsWatching(prev => !prev);
+  }, []);
 
   // Cleanup timeout and intervals on unmount
   useEffect(() => {
@@ -118,17 +151,23 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = undefined;
       }
+      setIsWatching(false);
     }
   }, [open, videoId]);
+
   const content = useMemo(() => {
     if (!video) return null;
     const videoUrl = video.video_url;
     const fileName = video.video_file_name;
+    
     if (!videoUrl && !fileName) {
-      return <div className="w-full h-full flex items-center justify-center bg-muted">
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-muted">
           <p className="text-muted-foreground">Video not available</p>
-        </div>;
+        </div>
+      );
     }
+    
     if (videoUrl && isYouTubeUrl(videoUrl)) {
       const id = getYouTubeVideoId(videoUrl);
       if (id) {
@@ -145,31 +184,29 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 clearInterval(progressIntervalRef.current);
               }
               
-              // Simple progress simulation for YouTube videos
-              let currentTime = 0;
+              // More realistic progress tracking - only when user indicates they're watching
+              let watchTime = 0;
               const duration = 900; // 15 minutes in seconds (estimated)
               
               progressIntervalRef.current = setInterval(() => {
-                currentTime += 1; // Simulate 1 second of progress every second (real-time)
-                const progressPercent = Math.min(100, Math.round((currentTime / duration) * 100));
-                setProgress(progressPercent);
-                onProgressUpdate?.(progressPercent);
-                
-                if (progressPercent >= 100) {
-                  if (progressIntervalRef.current) {
-                    clearInterval(progressIntervalRef.current);
-                    progressIntervalRef.current = undefined;
+                // Only advance progress if user has indicated they're watching
+                if (isWatching) {
+                  watchTime += 1;
+                  const progressPercent = Math.min(90, Math.round((watchTime / duration) * 100)); // Cap at 90% for manual completion
+                  setProgress(progressPercent);
+                  onProgressUpdate?.(progressPercent);
+                  
+                  if (watchTime % 30 === 0) { // Update database every 30 seconds of watch time
+                    updateProgressToDatabase(progressPercent);
                   }
-                  updateProgressToDatabase(100);
-                } else if (currentTime % 10 === 0) { // Update database every 10 seconds
-                  updateProgressToDatabase(progressPercent);
                 }
-              }, 1000); // Update every second
+              }, 1000); // Check every second
             }}
           />
         );
       }
     }
+    
     if (videoUrl && isGoogleDriveUrl(videoUrl)) {
       const embedUrl = getGoogleDriveEmbedUrl(videoUrl);
       if (embedUrl) {
@@ -180,29 +217,25 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             className="w-full h-full" 
             allowFullScreen 
             onLoad={() => {
-              // Clean up any existing interval
+              // Clean up any existing interval  
               if (progressIntervalRef.current) {
                 clearInterval(progressIntervalRef.current);
               }
               
-              // Simple progress simulation for Google Drive videos
-              let currentTime = 0;
+              // Similar tracking for Google Drive videos
+              let watchTime = 0;
               const duration = 900; // 15 minutes in seconds (estimated)
               
               progressIntervalRef.current = setInterval(() => {
-                currentTime += 1; // Real-time progress
-                const progressPercent = Math.min(100, Math.round((currentTime / duration) * 100));
-                setProgress(progressPercent);
-                onProgressUpdate?.(progressPercent);
-                
-                if (progressPercent >= 100) {
-                  if (progressIntervalRef.current) {
-                    clearInterval(progressIntervalRef.current);
-                    progressIntervalRef.current = undefined;
+                if (isWatching) {
+                  watchTime += 1;
+                  const progressPercent = Math.min(90, Math.round((watchTime / duration) * 100)); // Cap at 90% for manual completion
+                  setProgress(progressPercent);
+                  onProgressUpdate?.(progressPercent);
+                  
+                  if (watchTime % 30 === 0) {
+                    updateProgressToDatabase(progressPercent);
                   }
-                  updateProgressToDatabase(100);
-                } else if (currentTime % 10 === 0) { // Update database every 10 seconds
-                  updateProgressToDatabase(progressPercent);
                 }
               }, 1000);
             }}
@@ -210,8 +243,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         );
       }
     }
+    
     const src = videoUrl || (fileName ? `https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${fileName}` : undefined);
-    return <video 
+    return (
+      <video 
         ref={videoRef}
         className="w-full h-full object-fill" 
         controls 
@@ -220,9 +255,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       >
         {src && <source src={src} type="video/mp4" />}
         Your browser does not support the video tag.
-      </video>;
-  }, [video, onProgressUpdate, updateProgressToDatabase]);
-  return <Dialog open={open} onOpenChange={onOpenChange}>
+      </video>
+    );
+  }, [video, onProgressUpdate, updateProgressToDatabase, isWatching, handleVideoProgress]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-6 overflow-hidden shadow-2xl">
         <DialogHeader className="pb-4 border-b">
           <div className="flex items-center justify-between">
@@ -230,24 +268,62 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               <Play className="w-5 h-5 text-primary" />
               {video?.title || 'Training Video'}
             </DialogTitle>
-            {isCompleted && (
-              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Completed
-              </Badge>
-            )}
+            <div className="flex items-center gap-3">
+              {isCompleted && (
+                <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                  Completed
+                </Badge>
+              )}
+            </div>
           </div>
+          
           {progress > 0 && (
             <div className="mt-3">
               <Progress value={progress} className="h-2" />
+              <p className="text-sm text-muted-foreground mt-1">{progress}% complete</p>
             </div>
           )}
+          
+          {/* Video Controls */}
+          <div className="flex items-center gap-2 mt-3">
+            {!isCompleted && (
+              <>
+                <Button
+                  variant={isWatching ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleWatchingToggle}
+                  className="flex items-center gap-2"
+                >
+                  {isWatching ? "📺 Watching" : "▶️ Start Watching"}
+                </Button>
+                
+                {progress >= 80 && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleMarkComplete}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Mark Complete
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </DialogHeader>
+        
         <div className="w-full h-[calc(90vh-8rem)] bg-black rounded-lg overflow-hidden shadow-inner">
-          {loading ? <div className="w-full h-full flex items-center justify-center">
+          {loading ? (
+            <div className="w-full h-full flex items-center justify-center">
               <LoadingSkeleton lines={1} className="w-32 h-32" />
-            </div> : <div className="w-full h-full flex items-center justify-center">{content}</div>}
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">{content}</div>
+          )}
         </div>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
