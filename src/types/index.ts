@@ -40,6 +40,7 @@ export interface Video {
   has_quiz: boolean;
   assigned_to: number;
   completion_rate: number;
+  duration_seconds: number;
   created_at: string;
   updated_at: string;
 }

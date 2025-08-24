@@ -138,6 +138,7 @@ export const useVideos = (): UseVideosReturn => {
         has_quiz: false,
         assigned_to: 0,
         completion_rate: 0,
+        duration_seconds: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

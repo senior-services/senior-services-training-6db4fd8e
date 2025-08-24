@@ -197,6 +197,7 @@ export class EmployeeService {
             updated_at: video.updated_at || '',
             assigned_to: video.assigned_to || 0,
             completion_rate: assignmentData.progress_percent || 0, // Use real progress from DB
+            duration_seconds: video.duration_seconds || 0,
             video_file_name: video.video_file_name || null,
             has_quiz: video.has_quiz || false
           },

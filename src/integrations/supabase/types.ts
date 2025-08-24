@@ -293,6 +293,7 @@ export type Database = {
           completion_rate: number
           created_at: string
           description: string | null
+          duration_seconds: number | null
           has_quiz: boolean
           id: string
           thumbnail_url: string | null
@@ -307,6 +308,7 @@ export type Database = {
           completion_rate?: number
           created_at?: string
           description?: string | null
+          duration_seconds?: number | null
           has_quiz?: boolean
           id?: string
           thumbnail_url?: string | null
@@ -321,6 +323,7 @@ export type Database = {
           completion_rate?: number
           created_at?: string
           description?: string | null
+          duration_seconds?: number | null
           has_quiz?: boolean
           id?: string
           thumbnail_url?: string | null

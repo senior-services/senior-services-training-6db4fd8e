@@ -17,7 +17,7 @@ import type { Video } from "@/types";
 
 // Enhanced utility imports
 import { sanitizeText, createSafeDisplayName, validateUserRole } from "@/utils/security";
-import { announceToScreenReader, getStatusAnnouncement } from "@/utils/accessibility";
+import { announceToScreenReader, getStatusAnnouncement, formatDurationSeconds } from "@/utils/accessibility";
 import { calculateTrainingProgress, useOptimizedMemo, useOptimizedCallback, usePerformanceMonitor } from "@/utils/performance";
 
 /**
@@ -106,8 +106,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       title: sanitizeText(video.title || 'Untitled Video'),
       description: sanitizeText(video.description || ''),
       thumbnail: video.thumbnail_url || 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=400&h=300&fit=crop',
-      duration: '15 min',
-      // TODO: Add actual duration field to database
+      duration: formatDurationSeconds(video.duration_seconds || 0),
+      
       progress: Math.max(0, Math.min(100, assignment?.progress_percent || 0)),
       // Use real progress from assignment
       isRequired: video.type === 'Required',

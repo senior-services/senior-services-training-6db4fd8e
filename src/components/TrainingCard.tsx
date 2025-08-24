@@ -215,7 +215,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
           {/* Video Information with Enhanced Accessibility */}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1" aria-label={`Duration: ${formatDuration(15)}`}>
+              <div className="flex items-center space-x-1" aria-label={`Duration: ${sanitizedVideo.duration}`}>
                 <Clock className="w-4 h-4" aria-hidden="true" />
                 <span>{sanitizedVideo.duration}</span>
               </div>
