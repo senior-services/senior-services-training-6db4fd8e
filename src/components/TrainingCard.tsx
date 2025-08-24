@@ -211,7 +211,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
             </CardDescription>}
         </CardHeader>
 
-        <CardContent className="space-y-4 flex-1">
+        <CardContent className="space-y-2 flex-1 pb-2">
           {/* Video Information with Enhanced Accessibility */}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center space-x-4">
