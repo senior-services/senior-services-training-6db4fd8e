@@ -262,32 +262,22 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] p-6 overflow-y-auto shadow-2xl">
-        {/* Video Player - Completely Separate */}
-        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner mb-6">
-          {loading ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <LoadingSkeleton lines={1} className="w-32 h-32" />
-            </div>
-          ) : (
-            <div className="w-full h-full">{content}</div>
-          )}
-        </div>
-
-        {/* Title, Description and Controls - Below Video */}
-        <div className="space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold flex items-center gap-3 mb-3">
+        <DialogHeader className="pb-4 border-b flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="flex items-center gap-3">
                 <Play className="w-5 h-5 text-primary" />
                 {video?.title || 'Training Video'}
-              </h2>
+              </DialogTitle>
               {video?.description && video.description.trim() && (
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  {video.description}
-                </p>
+                <div className="pt-2 pb-1">
+                  <p className="text-sm text-muted-foreground font-normal leading-relaxed">
+                    {video.description}
+                  </p>
+                </div>
               )}
             </div>
-            <div className="flex items-center gap-3 ml-4">
+            <div className="flex items-center gap-3">
               {isCompleted && (
                 <Badge variant="default" className="bg-green-600 hover:bg-green-700">
                   <CheckCircle className="w-4 h-4 mr-1" />
@@ -298,25 +288,48 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </div>
           
           {progress > 0 && (
-            <div>
+            <div className="mt-3">
               <Progress value={progress} className="h-2" />
-              <p className="text-sm text-muted-foreground mt-2">{progress}% complete</p>
+              <p className="text-sm text-muted-foreground mt-1">{progress}% complete</p>
             </div>
           )}
           
-          {/* Controls */}
-          {!isCompleted && progress >= 80 && (
-            <div className="flex items-center gap-2 pt-2">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleMarkComplete}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-              >
-                <CheckCircle className="w-4 h-4" />
-                Mark Complete
-              </Button>
+          {/* Video Controls */}
+          <div className="flex items-center gap-2 mt-3">
+            {!isCompleted && (
+              <>
+                <Button
+                  variant={isWatching ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleWatchingToggle}
+                  className="flex items-center gap-2"
+                >
+                  {isWatching ? "📺 Watching" : "▶️ Start Watching"}
+                </Button>
+                
+                {progress >= 80 && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleMarkComplete}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Mark Complete
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        </DialogHeader>
+        
+        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0">
+          {loading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <LoadingSkeleton lines={1} className="w-32 h-32" />
             </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">{content}</div>
           )}
         </div>
       </DialogContent>
