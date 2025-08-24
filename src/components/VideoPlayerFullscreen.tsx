@@ -33,6 +33,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
   const progressIntervalRef = useRef<NodeJS.Timeout>();
+  const ytPlayerRef = useRef<any>(null);
+  const ytProgressIntervalRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -222,28 +224,25 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 clearInterval(progressIntervalRef.current);
               }
               
-              // More realistic progress tracking - only when user indicates they're watching
-              let watchTime = 0;
-              const duration = 900; // 15 minutes in seconds (estimated)
+              // Progress tracking using known duration when available
+              const duration = (video.duration_seconds && video.duration_seconds > 0) ? video.duration_seconds : 600; // fallback 10 min
+              let watchTime = Math.round((progress / 100) * duration);
               
               progressIntervalRef.current = setInterval(() => {
-                // Only advance progress if user has indicated they're watching
-                if (isWatching) {
-                  watchTime += 1;
-                  const progressPercent = Math.round((watchTime / duration) * 100);
-                  setProgress(progressPercent);
-                  onProgressUpdate?.(progressPercent);
-                  
-                  // Auto-complete when reaching 100%
-                  if (progressPercent >= 100) {
-                    setIsCompleted(true);
-                    updateProgressToDatabase(100);
-                    if (progressIntervalRef.current) {
-                      clearInterval(progressIntervalRef.current);
-                    }
-                  } else if (watchTime % 30 === 0) { // Update database every 30 seconds of watch time
-                    updateProgressToDatabase(progressPercent);
+                watchTime += 1;
+                const progressPercent = Math.min(100, Math.round((watchTime / duration) * 100));
+                setProgress(progressPercent);
+                onProgressUpdate?.(progressPercent);
+                
+                // Auto-complete when reaching 100%
+                if (progressPercent >= 100) {
+                  setIsCompleted(true);
+                  updateProgressToDatabase(100);
+                  if (progressIntervalRef.current) {
+                    clearInterval(progressIntervalRef.current);
                   }
+                } else if (watchTime % 30 === 0) { // Update database every 30 seconds of watch time
+                  updateProgressToDatabase(progressPercent);
                 }
               }, 1000); // Check every second
             }}
@@ -268,26 +267,23 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               }
               
               // Similar tracking for Google Drive videos
-              let watchTime = 0;
-              const duration = 900; // 15 minutes in seconds (estimated)
+              const duration = (video.duration_seconds && video.duration_seconds > 0) ? video.duration_seconds : 600;
+              let watchTime = Math.round((progress / 100) * duration);
               
               progressIntervalRef.current = setInterval(() => {
-                if (isWatching) {
-                  watchTime += 1;
-                  const progressPercent = Math.round((watchTime / duration) * 100);
-                  setProgress(progressPercent);
-                  onProgressUpdate?.(progressPercent);
-                  
-                  // Auto-complete when reaching 100%
-                  if (progressPercent >= 100) {
-                    setIsCompleted(true);
-                    updateProgressToDatabase(100);
-                    if (progressIntervalRef.current) {
-                      clearInterval(progressIntervalRef.current);
-                    }
-                  } else if (watchTime % 30 === 0) {
-                    updateProgressToDatabase(progressPercent);
+                watchTime += 1;
+                const progressPercent = Math.min(100, Math.round((watchTime / duration) * 100));
+                setProgress(progressPercent);
+                onProgressUpdate?.(progressPercent);
+                
+                if (progressPercent >= 100) {
+                  setIsCompleted(true);
+                  updateProgressToDatabase(100);
+                  if (progressIntervalRef.current) {
+                    clearInterval(progressIntervalRef.current);
                   }
+                } else if (watchTime % 30 === 0) {
+                  updateProgressToDatabase(progressPercent);
                 }
               }, 1000);
             }}
@@ -310,7 +306,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         Your browser does not support the video tag.
       </video>
     );
-  }, [video, onProgressUpdate, updateProgressToDatabase, isWatching, handleVideoProgress]);
+  }, [video, onProgressUpdate, updateProgressToDatabase, progress, handleVideoProgress]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
