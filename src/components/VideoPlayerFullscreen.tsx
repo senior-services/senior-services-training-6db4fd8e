@@ -509,7 +509,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             </div>
             
             <div className="flex items-center gap-3 mr-8">
-              {/* Completion indicators removed as requested */}
+              {isCompleted && (
+                <div className="flex items-center gap-2 text-success">
+                  <CheckCircle className="w-5 h-5" aria-hidden="true" />
+                  <span className="font-medium">Completed</span>
+                </div>
+              )}
             </div>
           </div>
           
@@ -541,7 +546,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               </>
             )}
             
-            {/* Training completed message removed as requested */}
+            {isCompleted && (
+              <div className="flex items-center gap-2 text-success">
+                <CheckCircle className="w-5 h-5" aria-hidden="true" />
+                <span className="font-medium">Training Completed!</span>
+              </div>
+            )}
           </div>
         </DialogHeader>
         
