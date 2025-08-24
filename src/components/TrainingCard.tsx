@@ -211,28 +211,27 @@ export const TrainingCard = memo<TrainingCardProps>(({
             </CardDescription>}
         </CardHeader>
 
-        <CardContent className="space-y-2 flex-1 pb-2">
-          {/* Video Information with Enhanced Accessibility */}
-          <div className="flex items-center justify-start text-sm text-muted-foreground">
-            {/* Enhanced Circular Progress Indicator */}
-            <div className="flex items-center space-x-2">
-              <span className="text-xs text-muted-foreground">Progress</span>
-              <div className="relative w-12 h-12" role="progressbar" aria-label={ariaLabels.progress} aria-valuenow={sanitizedVideo.progress} aria-valuemin={0} aria-valuemax={100}>
-                <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
-                  <path className="text-muted/20" stroke="currentColor" strokeWidth="3" fill="transparent" d="M18 2.0845 A 15.9155 15.9155 0 0 1 18 33.9155 A 15.9155 15.9155 0 0 1 18 2.0845" />
-                   <path className={`transition-all duration-300 ${sanitizedVideo.progress >= 100 ? 'text-green-500' : 'text-primary'}`} stroke="currentColor" strokeWidth="3" strokeDasharray={`${sanitizedVideo.progress}, 100`} strokeLinecap="round" fill="transparent" d="M18 2.0845 A 15.9155 15.9155 0 0 1 18 33.9155 A 15.9155 15.9155 0 0 1 18 2.0845" />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {sanitizedVideo.progress >= 100 ? (
-                    <CheckCircle className={`w-4 h-4 text-green-500`} aria-hidden="true" />
-                  ) : (
-                    <span className="text-xs font-medium text-primary" aria-hidden="true">
-                      {sanitizedVideo.progress}%
-                    </span>
-                  )}
-                </div>
+        <CardContent className="space-y-3 flex-1 pb-0">
+          {/* Bottom section with duration, progress bar, and percentage */}
+          <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+            <div className="flex items-center space-x-1">
+              <Clock className="w-4 h-4" aria-hidden="true" />
+              <span>{sanitizedVideo.duration}</span>
+            </div>
+            
+            {/* Horizontal Progress Bar */}
+            <div className="flex-1 mx-3" role="progressbar" aria-label={ariaLabels.progress} aria-valuenow={sanitizedVideo.progress} aria-valuemin={0} aria-valuemax={100}>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-300 ${sanitizedVideo.progress >= 100 ? 'bg-green-500' : 'bg-primary'}`}
+                  style={{ width: `${sanitizedVideo.progress}%` }}
+                />
               </div>
             </div>
+            
+            <span className="font-medium text-foreground">
+              {sanitizedVideo.progress}%
+            </span>
           </div>
         </CardContent>
 
