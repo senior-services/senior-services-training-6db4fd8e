@@ -509,12 +509,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             </div>
             
             <div className="flex items-center gap-3 mr-8">
-              {isCompleted && (
-                <div className="flex items-center gap-2 text-success">
-                  <CheckCircle className="w-5 h-5" aria-hidden="true" />
-                  <span className="font-medium">Completed</span>
-                </div>
-              )}
             </div>
           </div>
           
