@@ -175,8 +175,21 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       .map(item => transformToTrainingVideo(item.video, item.assignment));
     
     // Separate completed and incomplete required videos
-    const requiredVideos = allRequiredVideos.filter(video => video.progress < 100);
+    const incompleteVideos = allRequiredVideos.filter(video => video.progress < 100);
     const completedVideos = allRequiredVideos.filter(video => video.progress >= 100);
+    
+    // Sort incomplete videos by due date (soonest first)
+    const requiredVideos = incompleteVideos.sort((a, b) => {
+      // Videos without due dates go to the end
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      
+      // Sort by due date (earliest first)
+      const dateA = new Date(a.dueDate);
+      const dateB = new Date(b.dueDate);
+      return dateA.getTime() - dateB.getTime();
+    });
     
     logger.info('Training progress calculated', {
       requiredIncomplete: requiredVideos.length,
