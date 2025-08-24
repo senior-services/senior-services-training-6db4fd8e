@@ -346,45 +346,6 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             )}
           </section>
 
-          {/* Optional Training Section (if any) */}
-          {trainingData.optional.length > 0 && (
-            <section 
-              className="mb-12" 
-              aria-labelledby="optional-training-heading"
-              role="region"
-            >
-              <header className="flex items-center gap-3 mb-4">
-                <h2 id="optional-training-heading" className="text-2xl font-semibold">
-                  Additional Training
-                </h2>
-                <Badge 
-                  variant="outline" 
-                  className="text-base px-3 py-1"
-                  aria-label={`${trainingData.optional.length} optional training modules available`}
-                >
-                  {trainingData.optional.length}
-                </Badge>
-              </header>
-              
-              <p className="text-muted-foreground mb-6 text-lg">
-                Enhance your skills with these additional training opportunities.
-              </p>
-              
-              <div 
-                className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-                role="grid"
-                aria-label="Optional training videos"
-              >
-                {trainingData.optional.map((video) => (
-                  <TrainingCard
-                    key={video.id}
-                    video={video}
-                    onPlay={handleVideoPlay}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
         </main>
       </div>
     </ErrorBoundary>
