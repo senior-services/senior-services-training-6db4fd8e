@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { TrainingCard, TrainingVideo } from "@/components/TrainingCard";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { BookOpen, Clock, CheckCircle2 } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { EmployeeService } from "@/services/employeeService";
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
@@ -58,13 +57,9 @@ export const EmployeeDashboard = ({ userName, userEmail, onLogout, onPlayVideo }
     status: video.video_url ? undefined : ('warning' as const) // Mark videos without URLs as warning
   });
 
-  // Separate videos by type
+  // Filter required videos only
   const requiredVideos = assignedVideoData
     .filter(item => item.video.type === 'Required')
-    .map(item => transformToTrainingVideo(item.video, item.assignment));
-
-  const optionalVideos = assignedVideoData
-    .filter(item => item.video.type === 'Optional')
     .map(item => transformToTrainingVideo(item.video, item.assignment));
 
   const overallProgress = requiredVideos.length > 0 
@@ -131,39 +126,6 @@ export const EmployeeDashboard = ({ userName, userEmail, onLogout, onPlayVideo }
           )}
         </div>
 
-        {/* Optional Training Section */}
-        <div>
-          <div className="flex items-center gap-3 mb-4">
-            <h3 className="text-xl font-semibold">Optional Training Videos</h3>
-            <Badge variant="outline">
-              {optionalVideos.length}
-            </Badge>
-          </div>
-          <p className="text-muted-foreground mb-6">
-            Enhance your skills with these additional training resources.
-          </p>
-          {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <LoadingSkeleton lines={1} className="h-64" />
-              <LoadingSkeleton lines={1} className="h-64" />
-            </div>
-          ) : optionalVideos.length === 0 ? (
-            <div className="text-center py-12">
-              <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No optional videos available at the moment.</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {optionalVideos.map((video) => (
-                <TrainingCard
-                  key={video.id}
-                  video={video}
-                  onPlay={onPlayVideo}
-                />
-              ))}
-            </div>
-          )}
-        </div>
       </main>
     </div>
   );
