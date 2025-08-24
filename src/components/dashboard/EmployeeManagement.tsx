@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, User } from 'lucide-react';
+import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, User, RefreshCw } from 'lucide-react';
 import { EmployeeService } from '@/services/employeeService';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
@@ -26,7 +26,12 @@ export const EmployeeManagement: React.FC = () => {
   } = useToast();
   useEffect(() => {
     loadEmployees();
+    
+    // Auto-refresh every 30 seconds to show latest completion status
+    const interval = setInterval(loadEmployees, 30000);
+    return () => clearInterval(interval);
   }, []);
+  
   const loadEmployees = async () => {
     try {
       setLoading(true);
@@ -146,10 +151,16 @@ export const EmployeeManagement: React.FC = () => {
             Manage individual employees and their video assignments
           </p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Employee
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={loadEmployees} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={() => setShowAddModal(true)}>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add Employee
+          </Button>
+        </div>
       </div>
 
       {/* Individual Employees Table */}
