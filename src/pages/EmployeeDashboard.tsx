@@ -264,7 +264,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             
             
             
-            {loading ? <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="Loading training assignments">
+            {loading ? <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" aria-label="Loading training assignments">
                 {Array.from({
               length: 6
             }).map((_, index) => <LoadingSkeleton key={index} lines={1} className="h-64" />)}
@@ -274,7 +274,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                 <p className="text-muted-foreground">
                   You don't have any required training videos assigned at this time.
                 </p>
-              </div> : <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="grid" aria-label="Required training videos">
+              </div> : <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" role="grid" aria-label="Required training videos">
                 {trainingData.required.map((video, index) => <TrainingCard key={video.id} video={video} onPlay={handleVideoPlay} priority={index < 3} // Prioritize first 3 cards for performance
             />)}
               </div>}
