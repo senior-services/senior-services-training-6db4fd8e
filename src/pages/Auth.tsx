@@ -45,17 +45,17 @@ export const Auth = () => {
   };
 
   const handleTestEmployeeLogin = async () => {
-    setEmail('test@gmail.com');
+    setEmail('jane.doe@southsoundseniors.org');
     setPassword('test123');
     setIsLoading(true);
     
     // Try to sign in, if fails, create the account first
-    const result = await signIn('test@gmail.com', 'test123');
+    const result = await signIn('jane.doe@southsoundseniors.org', 'test123');
     if (!result || result.error) {
       // Account doesn't exist, create it
-      await signUp('test@gmail.com', 'test123', 'Test Employee');
+      await signUp('jane.doe@southsoundseniors.org', 'test123', 'Test Employee');
       // Then sign in
-      await signIn('test@gmail.com', 'test123');
+      await signIn('jane.doe@southsoundseniors.org', 'test123');
     }
     setIsLoading(false);
   };
@@ -210,7 +210,7 @@ export const Auth = () => {
                 </Button>
               </div>
               <div className="mt-2 text-xs text-yellow-600 text-center">
-                Admin: admin@gmail.com | Employee: test@gmail.com
+                Admin: admin@gmail.com | Employee: jane.doe@southsoundseniors.org
               </div>
             </div>
           </CardContent>
