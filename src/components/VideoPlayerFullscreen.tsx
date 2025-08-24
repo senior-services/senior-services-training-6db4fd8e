@@ -207,6 +207,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             completionTime: new Date().toISOString()
           });
 
+          // Notify parent about completion
+          onProgressUpdate?.(100);
+
           toast({
             title: "Video Completed! 🎉",
             description: "You've successfully completed this training video."

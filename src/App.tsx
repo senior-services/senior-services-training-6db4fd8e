@@ -122,7 +122,13 @@ const AppContent = () => {
           timestamp: new Date().toISOString(),
           source: 'AppContent_callback'
         });
-          // The progress is already being saved to the database by the VideoPlayerFullscreen component
+          
+          // Trigger a page refresh when video is completed to immediately update the dashboard
+          if (progress >= 100) {
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000); // Small delay to ensure database update completes
+          }
         }}
       />
     </>
