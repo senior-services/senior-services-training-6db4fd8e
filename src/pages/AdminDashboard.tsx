@@ -361,14 +361,13 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                         <TableHeader>
                           <TableRow>
                             <TableHead>Title</TableHead>
-                            <TableHead className="text-center">Assigned To</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                     <TableBody>
                       {loading ? (
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center py-12 text-muted-foreground">
+                          <TableCell colSpan={2} className="text-center py-12 text-muted-foreground">
                             <div className="space-y-2">
                               <p>Loading videos...</p>
                               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -377,7 +376,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                         </TableRow>
                       ) : videos.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center py-12">
+                          <TableCell colSpan={2} className="text-center py-12">
                             <div className="space-y-3">
                               <Video className="w-12 h-12 text-muted-foreground mx-auto" />
                               <div>
@@ -519,7 +518,6 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className="text-center">{video.assigned_to}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end space-x-2">
                                 <Button 
