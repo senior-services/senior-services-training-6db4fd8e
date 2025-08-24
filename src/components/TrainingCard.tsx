@@ -1,12 +1,43 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Calendar, Clock, Play } from "lucide-react";
-import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
+/**
+ * Enhanced TrainingCard Component for the Senior Services Training Portal
+ * Implements accessibility, security, and performance best practices
+ * Provides comprehensive training video information with proper ARIA support
+ */
+
+import React, { memo, useMemo, useCallback } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Calendar, Clock, Play, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { format, differenceInDays, isPast } from 'date-fns';
-import videoPlaceholder from "@/assets/video-placeholder.jpg";
+
+// Enhanced utility imports
+import { 
+  sanitizeText,
+  createSafeDisplayName 
+} from '@/utils/security';
+import { 
+  getTrainingCardAriaLabel,
+  getProgressAriaLabel,
+  getStatusAnnouncement,
+  handleKeyPress,
+  formatDuration,
+  announceToScreenReader
+} from '@/utils/accessibility';
+import { 
+  useOptimizedCallback, 
+  useOptimizedMemo 
+} from '@/utils/performance';
+
+// Import optimized image loading
+import videoPlaceholder from '@/assets/video-placeholder.jpg';
+
+/**
+ * Enhanced TrainingVideo interface with comprehensive type safety
+ */
 export interface TrainingVideo {
   id: string;
   title: string;
@@ -16,168 +47,350 @@ export interface TrainingVideo {
   progress: number;
   isRequired?: boolean;
   deadline?: string;
-  dueDate?: string | null; // Added due date field
+  dueDate?: string | null;
   status?: 'overdue' | 'warning' | 'upcoming' | 'completed';
 }
+
+/**
+ * Props interface for TrainingCard component
+ */
 interface TrainingCardProps {
   video: TrainingVideo;
   onPlay: (videoId: string) => void;
   className?: string;
+  priority?: boolean; // For performance optimization
 }
-export const TrainingCard = ({
+
+/**
+ * Status badge configuration with enhanced accessibility
+ */
+interface BadgeConfig {
+  variant: 'default';
+  className: string;
+  text: string;
+  ariaLabel: string;
+}
+
+/**
+ * Enhanced TrainingCard component with accessibility, security, and performance optimizations
+ */
+export const TrainingCard = memo<TrainingCardProps>(({
   video,
   onPlay,
-  className
-}: TrainingCardProps) => {
-  
-  const getDeadlineBadge = (dueDate: string | null, isCompleted: boolean = false) => {
-    if (isCompleted) {
-      return {
-        variant: "default" as const,
-        className: "bg-green-800 text-white hover:bg-green-800",
-        text: "Completed"
-      };
-    }
-    if (!dueDate) {
-      return null; // Don't show badge if no due date
-    }
+  className,
+  priority = false
+}) => {
+  // Sanitize video data for security
+  const sanitizedVideo = useMemo(() => ({
+    ...video,
+    title: sanitizeText(video.title || 'Untitled Video'),
+    description: sanitizeText(video.description || ''),
+    thumbnail: video.thumbnail || videoPlaceholder
+  }), [video]);
+
+  // Calculate training status and progress
+  const trainingStatus = useOptimizedMemo(() => {
+    const isCompleted = sanitizedVideo.progress === 100;
+    const hasStarted = sanitizedVideo.progress > 0;
+    
+    return {
+      isCompleted,
+      hasStarted,
+      statusText: isCompleted ? 'Completed' : hasStarted ? 'In Progress' : 'Not Started'
+    };
+  }, [sanitizedVideo.progress]);
+
+  // Calculate due date status with comprehensive logic
+  const dueDateInfo = useOptimizedMemo(() => {
+    if (!sanitizedVideo.dueDate) return null;
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const due = new Date(dueDate);
+    const due = new Date(sanitizedVideo.dueDate);
     due.setHours(0, 0, 0, 0);
     const daysUntilDue = differenceInDays(due, today);
+
+    if (trainingStatus.isCompleted) {
+      return {
+        variant: 'default' as const,
+        className: 'bg-success text-success-foreground hover:bg-success border-success',
+        text: 'Completed',
+        ariaLabel: 'Training completed successfully',
+        priority: 'low' as const
+      };
+    }
+
     if (isPast(due) && daysUntilDue < 0) {
       return {
-        variant: "default" as const,
-        className: "bg-red-800 text-white hover:bg-red-800",
-        text: "Overdue"
+        variant: 'default' as const,
+        className: 'bg-destructive text-destructive-foreground hover:bg-destructive border-destructive',
+        text: 'Overdue',
+        ariaLabel: `Training is overdue by ${Math.abs(daysUntilDue)} days`,
+        priority: 'high' as const
       };
     }
+
     if (daysUntilDue === 0) {
       return {
-        variant: "default" as const,
-        className: "bg-orange-700 text-white hover:bg-orange-700",
-        text: "Due in 0 days"
+        variant: 'default' as const,
+        className: 'bg-warning text-warning-foreground hover:bg-warning border-warning',
+        text: 'Due Today',
+        ariaLabel: 'Training is due today',
+        priority: 'high' as const
       };
     }
-    if (daysUntilDue <= 30) {
-      // Show badges for dates within 30 days
+
+    if (daysUntilDue <= 7) {
       return {
-        variant: "default" as const,
-        className: "bg-gray-700 text-white hover:bg-gray-700",
-        text: `Due in ${daysUntilDue} days`
+        variant: 'default' as const,
+        className: 'bg-muted text-muted-foreground hover:bg-muted border-muted-foreground',
+        text: `Due in ${daysUntilDue} days`,
+        ariaLabel: `Training is due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`,
+        priority: 'medium' as const
       };
     }
-    return null; // Don't show badge for far future dates
-  };
-  const isCompleted = video.progress === 100;
-  const hasStarted = video.progress > 0;
-  const badgeProps = video.isRequired ? getDeadlineBadge(video.dueDate, isCompleted) : null;
-  return <Card className={cn('training-card group relative overflow-hidden', className)}>
-      {/* Video Thumbnail */}
-      <div className="relative">
-        <Link to={`/video/${video.id}`} target="_blank" rel="noopener noreferrer" aria-label={`Open ${video.title}`}>
-          <img src={video.thumbnail || videoPlaceholder} alt={video.title} className="w-full h-48 object-cover" />
-        </Link>
-        {/* Due Date Badge Overlay */}
-        {badgeProps && <Badge variant={badgeProps.variant} className={cn('absolute top-2 right-2 text-xs font-medium shadow-lg z-10', badgeProps.className)}>
-            {badgeProps.text}
-          </Badge>}
-        
-        {/* Play Button Overlay */}
-        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <Button 
-            type="button" 
-            size="lg" 
-            className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg pointer-events-auto"
-            asChild
+
+    if (daysUntilDue <= 30) {
+      return {
+        variant: 'default' as const,
+        className: 'bg-muted text-muted-foreground hover:bg-muted border-muted-foreground',
+        text: `Due in ${daysUntilDue} days`,
+        ariaLabel: `Training is due in ${daysUntilDue} days`,
+        priority: 'low' as const
+      };
+    }
+
+    return null;
+  }, [sanitizedVideo.dueDate, trainingStatus.isCompleted]);
+
+  // Generate comprehensive ARIA labels
+  const ariaLabels = useOptimizedMemo(() => ({
+    card: getTrainingCardAriaLabel(
+      sanitizedVideo.title,
+      sanitizedVideo.progress,
+      sanitizedVideo.isRequired || false,
+      sanitizedVideo.dueDate
+    ),
+    progress: getProgressAriaLabel(sanitizedVideo.progress, sanitizedVideo.title),
+    playButton: `Play ${sanitizedVideo.title} video. ${trainingStatus.statusText}.`,
+    actionButton: trainingStatus.isCompleted 
+      ? `Review ${sanitizedVideo.title}` 
+      : trainingStatus.hasStarted 
+        ? `Continue ${sanitizedVideo.title}` 
+        : `Start ${sanitizedVideo.title} training`
+  }), [sanitizedVideo, trainingStatus]);
+
+  // Optimized callback for play action
+  const handlePlay = useOptimizedCallback(() => {
+    onPlay(sanitizedVideo.id);
+    
+    // Announce action to screen readers
+    const announcement = getStatusAnnouncement(
+      sanitizedVideo.progress,
+      sanitizedVideo.isRequired || false,
+      sanitizedVideo.dueDate
+    );
+    announceToScreenReader(`Opening video: ${sanitizedVideo.title}. ${announcement}`);
+  }, [sanitizedVideo.id, sanitizedVideo.title, sanitizedVideo.progress, sanitizedVideo.isRequired, sanitizedVideo.dueDate, onPlay]);
+
+  // Keyboard navigation handler
+  const handleCardKeyPress = useOptimizedCallback((event: React.KeyboardEvent) => {
+    handleKeyPress(event, handlePlay);
+  }, [handlePlay]);
+
+  // Image error handler for accessibility
+  const handleImageError = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.src = videoPlaceholder;
+    event.currentTarget.alt = `${sanitizedVideo.title} - Video thumbnail unavailable`;
+  }, [sanitizedVideo.title]);
+
+  return (
+    <article 
+      className={cn('training-card group relative overflow-hidden focus-within:ring-2 focus-within:ring-ring', className)}
+      aria-label={ariaLabels.card}
+      role="article"
+    >
+      <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg">
+        {/* Video Thumbnail with Enhanced Accessibility */}
+        <header className="relative">
+          <Link 
+            to={`/video/${sanitizedVideo.id}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            aria-label={ariaLabels.playButton}
+            className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg"
           >
-            <Link to={`/video/${video.id}`} target="_blank" rel="noopener noreferrer" aria-label={`Play ${video.title}`}>
-              <Play className="w-6 h-6 ml-1" />
-            </Link>
-          </Button>
-        </div>
+            <img 
+              src={sanitizedVideo.thumbnail}
+              alt={`${sanitizedVideo.title} - Training video thumbnail`}
+              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+              loading={priority ? "eager" : "lazy"}
+              onError={handleImageError}
+            />
+          </Link>
 
-        {/* Progress Overlay */}
-        {hasStarted && <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
-            <div className="h-full bg-primary transition-all duration-300" style={{
-          width: `${video.progress}%`
-        }} />
-          </div>}
-      </div>
+          {/* Due Date Badge with Enhanced Accessibility */}
+          {dueDateInfo && (
+            <Badge 
+              variant={dueDateInfo.variant}
+              className={cn(
+                'absolute top-3 right-3 text-xs font-medium shadow-lg z-10 border-2',
+                dueDateInfo.className
+              )}
+              aria-label={dueDateInfo.ariaLabel}
+              role="status"
+            >
+              {dueDateInfo.priority === 'high' && (
+                <AlertCircle className="w-3 h-3 mr-1" aria-hidden="true" />
+              )}
+              {dueDateInfo.text}
+            </Badge>
+          )}
+          
+          {/* Play Button Overlay with Enhanced Accessibility */}
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button 
+              size="lg" 
+              className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg"
+              asChild
+              aria-label={ariaLabels.playButton}
+            >
+              <Link 
+                to={`/video/${sanitizedVideo.id}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onKeyDown={handleCardKeyPress}
+              >
+                <Play className="w-6 h-6 ml-1" aria-hidden="true" />
+                <span className="sr-only">{ariaLabels.playButton}</span>
+              </Link>
+            </Button>
+          </div>
 
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-lg leading-tight line-clamp-2">
-            {video.title}
-          </CardTitle>
-          {video.isRequired}
-        </div>
-        <CardDescription className="line-clamp-2">
-          {video.description}
-        </CardDescription>
-      </CardHeader>
+          {/* Progress Overlay with Accessibility */}
+          {trainingStatus.hasStarted && (
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-1 bg-black/20"
+              role="progressbar"
+              aria-label={ariaLabels.progress}
+              aria-valuenow={sanitizedVideo.progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div 
+                className="h-full bg-primary transition-all duration-500 ease-out" 
+                style={{ width: `${sanitizedVideo.progress}%` }}
+              />
+            </div>
+          )}
+        </header>
 
-      <CardContent className="space-y-4">
-        {/* Video Info with Circular Progress */}
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <Clock className="w-4 h-4" />
-              <span>{video.duration}</span>
+        {/* Card Content with Semantic HTML */}
+        <CardHeader className="pb-3 flex-none">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="text-lg leading-tight line-clamp-2">
+              {sanitizedVideo.title}
+            </CardTitle>
+            {sanitizedVideo.isRequired && (
+              <Badge 
+                variant="secondary" 
+                className="shrink-0 text-xs"
+                aria-label="Required training"
+              >
+                Required
+              </Badge>
+            )}
+          </div>
+          {sanitizedVideo.description && (
+            <CardDescription className="line-clamp-2">
+              {sanitizedVideo.description}
+            </CardDescription>
+          )}
+        </CardHeader>
+
+        <CardContent className="space-y-4 flex-1">
+          {/* Video Information with Enhanced Accessibility */}
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1" aria-label={`Duration: ${formatDuration(15)}`}>
+                <Clock className="w-4 h-4" aria-hidden="true" />
+                <span>{sanitizedVideo.duration}</span>
+              </div>
+              
+              {sanitizedVideo.isRequired && sanitizedVideo.deadline && (
+                <div className="flex items-center space-x-1" aria-label={`Due ${sanitizedVideo.deadline}`}>
+                  <Calendar className="w-4 h-4" aria-hidden="true" />
+                  <span>Due {sanitizedVideo.deadline}</span>
+                </div>
+              )}
             </div>
             
-            {video.isRequired && video.deadline && <div className="flex items-center space-x-1">
-                <Calendar className="w-4 h-4" />
-                <span>Due {video.deadline}</span>
-              </div>}
-          </div>
-          
-          {/* Circular Progress */}
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-muted-foreground">Progress</span>
-            <div className="relative w-12 h-12">
-              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
-                <path
-                  className="text-muted/20"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  fill="transparent"
-                  d="M18 2.0845
-                    A 15.9155 15.9155 0 0 1 18 33.9155
-                    A 15.9155 15.9155 0 0 1 18 2.0845"
-                />
-                <path
-                  className="text-primary"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeDasharray={`${video.progress}, 100`}
-                  strokeLinecap="round"
-                  fill="transparent"
-                  d="M18 2.0845
-                    A 15.9155 15.9155 0 0 1 18 33.9155
-                    A 15.9155 15.9155 0 0 1 18 2.0845"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-medium text-primary">{video.progress}%</span>
+            {/* Enhanced Circular Progress Indicator */}
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-muted-foreground">Progress</span>
+              <div 
+                className="relative w-12 h-12"
+                role="progressbar"
+                aria-label={ariaLabels.progress}
+                aria-valuenow={sanitizedVideo.progress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <svg 
+                  className="w-12 h-12 transform -rotate-90" 
+                  viewBox="0 0 36 36"
+                  aria-hidden="true"
+                >
+                  <path
+                    className="text-muted/20"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="transparent"
+                    d="M18 2.0845 A 15.9155 15.9155 0 0 1 18 33.9155 A 15.9155 15.9155 0 0 1 18 2.0845"
+                  />
+                  <path
+                    className="text-primary transition-all duration-300"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeDasharray={`${sanitizedVideo.progress}, 100`}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    d="M18 2.0845 A 15.9155 15.9155 0 0 1 18 33.9155 A 15.9155 15.9155 0 0 1 18 2.0845"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-medium text-primary" aria-hidden="true">
+                    {sanitizedVideo.progress}%
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </CardContent>
+        </CardContent>
 
-      <CardFooter>
-        <Button 
-          type="button" 
-          className="w-full" 
-          variant={isCompleted ? "secondary" : "default"}
-          asChild
-        >
-          <Link to={`/video/${video.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${isCompleted ? "Review" : hasStarted ? "Continue" : "Start"} ${video.title}`}>
-            {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>;
-};
+        {/* Enhanced Action Button */}
+        <CardFooter className="flex-none">
+          <Button 
+            className="w-full min-h-touch" 
+            variant={trainingStatus.isCompleted ? "secondary" : "default"}
+            asChild
+            aria-label={ariaLabels.actionButton}
+          >
+            <Link 
+              to={`/video/${sanitizedVideo.id}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onKeyDown={handleCardKeyPress}
+            >
+              {trainingStatus.isCompleted ? "Review Training" : 
+               trainingStatus.hasStarted ? "Continue Training" : "Start Training"}
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    </article>
+  );
+});
+
+// Set display name for debugging
+TrainingCard.displayName = 'TrainingCard';

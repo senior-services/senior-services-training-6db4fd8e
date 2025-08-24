@@ -332,3 +332,117 @@ export const ensureMinimumTouchTarget = (element: HTMLElement): boolean => {
   
   return meetsWidth && meetsHeight;
 };
+
+/**
+ * Calculates training progress efficiently
+ */
+export const calculateProgressPercentage = (current: number, total: number): number => {
+  if (total === 0) return 0;
+  return Math.round((current / total) * 100);
+};
+
+/**
+ * Formats duration in an accessible, human-readable format
+ * Includes proper screen reader announcements
+ */
+export const formatDuration = (minutes: number): string => {
+  if (minutes < 60) {
+    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+  }
+  
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  
+  if (remainingMinutes === 0) {
+    return `${hours} hour${hours !== 1 ? 's' : ''}`;
+  }
+  
+  return `${hours} hour${hours !== 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
+};
+
+/**
+ * Generates comprehensive ARIA labels for training cards
+ */
+export const getTrainingCardAriaLabel = (
+  title: string, 
+  progress: number, 
+  isRequired: boolean, 
+  dueDate?: string | null
+): string => {
+  let label = `Training video: ${title}. Progress: ${progress} percent complete.`;
+  
+  if (isRequired) {
+    label += ' This is required training.';
+  }
+  
+  if (dueDate) {
+    label += ` Due date: ${new Date(dueDate).toLocaleDateString()}.`;
+  }
+  
+  if (progress === 100) {
+    label += ' Completed.';
+  } else if (progress > 0) {
+    label += ' In progress.';
+  } else {
+    label += ' Not started.';
+  }
+  
+  return label;
+};
+
+/**
+ * Generates ARIA labels for progress indicators
+ */
+export const getProgressAriaLabel = (progress: number, title?: string): string => {
+  const baseLabel = `Progress: ${progress} percent complete`;
+  return title ? `${title} - ${baseLabel}` : baseLabel;
+};
+
+/**
+ * Creates accessible status announcements for screen readers
+ */
+export const getStatusAnnouncement = (
+  progress: number,
+  isRequired: boolean,
+  dueDate?: string | null
+): string => {
+  let announcement = '';
+  
+  if (progress === 100) {
+    announcement = 'Training completed successfully.';
+  } else if (progress > 0) {
+    announcement = `Training in progress. ${progress} percent complete.`;
+  } else {
+    announcement = 'Training not started.';
+  }
+  
+  if (isRequired && dueDate) {
+    const due = new Date(dueDate);
+    const today = new Date();
+    const daysUntilDue = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilDue < 0) {
+      announcement += ' This required training is overdue.';
+    } else if (daysUntilDue === 0) {
+      announcement += ' This required training is due today.';
+    } else if (daysUntilDue <= 7) {
+      announcement += ` This required training is due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}.`;
+    }
+  }
+  
+  return announcement;
+};
+
+/**
+ * Keyboard navigation helper for interactive elements
+ */
+export const handleKeyPress = (
+  event: React.KeyboardEvent,
+  callback: () => void,
+  keys: string[] = ['Enter', ' ']
+): void => {
+  if (keys.includes(event.key)) {
+    event.preventDefault();
+    callback();
+  }
+};
