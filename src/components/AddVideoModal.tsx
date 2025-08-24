@@ -209,7 +209,7 @@ export const AddVideoModal = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t">
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
