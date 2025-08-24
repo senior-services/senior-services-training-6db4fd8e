@@ -34,7 +34,6 @@ export const AddVideoModal = ({
   const handleSave = async () => {
     if (formData.type === 'file' && !selectedFile) return;
     if (formData.type === 'url' && !formData.url?.trim()) return;
-    
     await onSave({
       ...formData,
       file: selectedFile || undefined
@@ -114,8 +113,7 @@ export const AddVideoModal = ({
                 <Label>Upload Video File</Label>
                 
                 {/* Drag & Drop Area - only show when no file selected */}
-                {!selectedFile && (
-                  <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} className={cn("border-2 border-dashed rounded-lg p-3 cursor-pointer transition-all duration-300", isDragOver ? "border-primary bg-primary/10" : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50")}>
+                {!selectedFile && <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} className={cn("border-2 border-dashed rounded-lg p-3 cursor-pointer transition-all duration-300", isDragOver ? "border-primary bg-primary/10" : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50")}>
                     <div className="flex items-center space-x-4">
                       <FileVideo className={cn("w-6 h-6 flex-shrink-0 transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")} />
                       
@@ -135,12 +133,10 @@ export const AddVideoModal = ({
                         Browse Files
                       </Button>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Success message - only show when file selected */}
-                {selectedFile && (
-                  <div className="border-2 border-dashed border-success rounded-lg p-3 bg-success/10">
+                {selectedFile && <div className="border-2 border-dashed border-success rounded-lg p-3 bg-success/10">
                     <div className="flex items-center space-x-4">
                       <CheckCircle className="w-6 h-6 text-success flex-shrink-0" />
                       <div className="flex-1">
@@ -149,12 +145,10 @@ export const AddVideoModal = ({
                         </p>
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* File details - only show when file selected */}
-                {selectedFile && (
-                  <div className="flex items-center justify-between p-3 bg-success/5 border border-success/20 rounded-lg">
+                {selectedFile && <div className="flex items-center justify-between p-3 bg-success/5 border border-success/20 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="p-1.5 bg-success/10 rounded-lg">
                         <FileVideo className="w-4 h-4 text-success" />
@@ -172,8 +166,7 @@ export const AddVideoModal = ({
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </TabsContent>
 
               <TabsContent value="url" className="space-y-2 mt-4">
@@ -182,9 +175,7 @@ export const AddVideoModal = ({
                 ...prev,
                 url: e.target.value
               }))} placeholder="https://youtube.com/watch?v=... or https://drive.google.com/..." />
-                <p className="text-xs text-muted-foreground">
-                  Supports YouTube and Google Drive video links
-                </p>
+                <p className="text-xs text-muted-foreground">Supports YouTube or Google Drive URL. For Drive, change General access to Anyone with the link and set permission to Viewer (not Restricted).</p>
               </TabsContent>
             </Tabs>
           </div>
