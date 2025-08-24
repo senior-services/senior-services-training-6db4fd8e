@@ -50,8 +50,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           <iframe 
             src={`https://www.youtube.com/embed/${id}`} 
             title={video.title} 
-            className="w-auto h-auto max-w-full max-h-full" 
-            style={{ aspectRatio: '16/9' }}
+            className="w-full h-full" 
             allowFullScreen 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
           />
@@ -65,15 +64,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           <iframe 
             src={embedUrl} 
             title={video.title} 
-            className="w-auto h-auto max-w-full max-h-full" 
-            style={{ aspectRatio: '16/9' }}
+            className="w-full h-full" 
             allowFullScreen 
           />
         );
       }
     }
     const src = videoUrl || (fileName ? `https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${fileName}` : undefined);
-    return <video className="w-auto h-auto max-w-full max-h-full object-contain" controls preload="metadata">
+    return <video className="w-full h-full object-fill" controls preload="metadata">
         {src && <source src={src} type="video/mp4" />}
         Your browser does not support the video tag.
       </video>;
