@@ -76,7 +76,7 @@ export const TrainingCard = ({
   return <Card className={cn('training-card group relative overflow-hidden', className)}>
       {/* Video Thumbnail */}
       <div className="relative">
-        <Link to={`/video/${video.id}`} aria-label={`Open ${video.title}`}>
+        <Link to={`/video/${video.id}`} target="_blank" rel="noopener noreferrer" aria-label={`Open ${video.title}`}>
           <img src={video.thumbnail || videoPlaceholder} alt={video.title} className="w-full h-48 object-cover" />
         </Link>
         {/* Due Date Badge Overlay */}
@@ -92,7 +92,7 @@ export const TrainingCard = ({
             className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg pointer-events-auto"
             asChild
           >
-            <Link to={`/video/${video.id}`} aria-label={`Play ${video.title}`}>
+            <Link to={`/video/${video.id}`} target="_blank" rel="noopener noreferrer" aria-label={`Play ${video.title}`}>
               <Play className="w-6 h-6 ml-1" />
             </Link>
           </Button>
@@ -174,7 +174,7 @@ export const TrainingCard = ({
           variant={isCompleted ? "secondary" : "default"}
           asChild
         >
-          <Link to={`/video/${video.id}`} aria-label={`${isCompleted ? "Review" : hasStarted ? "Continue" : "Start"} ${video.title}`}>
+          <Link to={`/video/${video.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${isCompleted ? "Review" : hasStarted ? "Continue" : "Start"} ${video.title}`}>
             {isCompleted ? "Review" : hasStarted ? "Continue" : "Start Training"}
           </Link>
         </Button>
