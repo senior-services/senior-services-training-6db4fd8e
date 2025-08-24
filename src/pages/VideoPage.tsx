@@ -20,7 +20,7 @@ export const VideoPage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { role } = useUserRole(user);
   const location = useLocation();
 
@@ -129,12 +129,12 @@ export const VideoPage = () => {
     );
   };
 
-  // Redirect if not authenticated
-  if (!user) {
+  // Redirect if not authenticated (but wait for auth loading to complete)
+  if (!authLoading && !user) {
     return <Navigate to="/auth" replace />;
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-muted/30">
         <div className="container mx-auto px-4 py-8">
