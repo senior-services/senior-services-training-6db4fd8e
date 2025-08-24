@@ -522,12 +522,16 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           
           {/* Video Controls */}
           <div className="flex items-center gap-2 mt-3" role="toolbar" aria-label="Video controls">
+            {(() => {
+              console.log('Video Controls Debug:', { isCompleted, wasEverCompleted, progress, showButton: !isCompleted && progress >= 95 });
+              return null;
+            })()}
             {(isCompleted || wasEverCompleted) ? (
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium">Training Completed!</span>
               </div>
-            ) : (!isCompleted && progress >= 99) && (
+            ) : (!isCompleted && progress >= 95) ? (
               <Button 
                 variant="default" 
                 size="sm" 
@@ -537,7 +541,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 <CheckCircle className="w-4 h-4" aria-hidden="true" />
                 Mark Complete
               </Button>
-            )}
+            ) : null}
           </div>
         </DialogHeader>
         
