@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Calendar, Clock, Play, AlertCircle } from 'lucide-react';
-
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { format, differenceInDays, isPast } from 'date-fns';
 
@@ -213,11 +213,12 @@ export const TrainingCard = memo<TrainingCardProps>(({
       <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg">
         {/* Video Thumbnail with Enhanced Accessibility */}
         <header className="relative">
-          <button 
-            type="button"
-            onClick={handlePlay}
+          <Link 
+            to={`/video/${sanitizedVideo.id}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
             aria-label={ariaLabels.playButton}
-            className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg w-full text-left"
+            className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg"
           >
             <img 
               src={sanitizedVideo.thumbnail}
@@ -226,7 +227,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
               loading={priority ? "eager" : "lazy"}
               onError={handleImageError}
             />
-          </button>
+          </Link>
 
           {/* Due Date Badge with Enhanced Accessibility */}
           {dueDateInfo && (
@@ -251,12 +252,18 @@ export const TrainingCard = memo<TrainingCardProps>(({
             <Button 
               size="lg" 
               className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg"
-              onClick={handlePlay}
-              onKeyDown={handleCardKeyPress}
+              asChild
               aria-label={ariaLabels.playButton}
             >
-              <Play className="w-6 h-6 ml-1" aria-hidden="true" />
-              <span className="sr-only">{ariaLabels.playButton}</span>
+              <Link 
+                to={`/video/${sanitizedVideo.id}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onKeyDown={handleCardKeyPress}
+              >
+                <Play className="w-6 h-6 ml-1" aria-hidden="true" />
+                <span className="sr-only">{ariaLabels.playButton}</span>
+              </Link>
             </Button>
           </div>
 
@@ -366,12 +373,18 @@ export const TrainingCard = memo<TrainingCardProps>(({
           <Button 
             className="w-full min-h-touch" 
             variant={trainingStatus.isCompleted ? "secondary" : "default"}
-            onClick={handlePlay}
-            onKeyDown={handleCardKeyPress}
+            asChild
             aria-label={ariaLabels.actionButton}
           >
-            {trainingStatus.isCompleted ? "Review Training" : 
-             trainingStatus.hasStarted ? "Continue Training" : "Start Training"}
+            <Link 
+              to={`/video/${sanitizedVideo.id}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onKeyDown={handleCardKeyPress}
+            >
+              {trainingStatus.isCompleted ? "Review Training" : 
+               trainingStatus.hasStarted ? "Continue Training" : "Start Training"}
+            </Link>
           </Button>
         </CardFooter>
       </Card>
