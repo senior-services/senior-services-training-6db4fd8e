@@ -220,23 +220,27 @@ export const TrainingCard = memo<TrainingCardProps>(({
             </CardTitle>
             {sanitizedVideo.isRequired}
           </div>
-          {sanitizedVideo.description && (
+        </CardHeader>
+
+        {/* Video Description - Outside CardHeader to match button width */}
+        {sanitizedVideo.description && (
+          <div className="px-6 pb-4">
             <button
               onClick={handleToggleDescription}
-              className="text-left w-full focus:outline-none focus:ring-2 focus:ring-ring rounded -mx-0 mt-2"
+              className="text-left w-full focus:outline-none focus:ring-2 focus:ring-ring rounded"
               aria-expanded={isDescriptionExpanded}
               aria-label={`${isDescriptionExpanded ? 'Collapse' : 'Expand'} video description`}
             >
-              <CardDescription 
-                className={`transition-all duration-200 m-0 p-0 ${
+              <p 
+                className={`text-sm text-muted-foreground transition-all duration-200 ${
                   isDescriptionExpanded ? '' : 'line-clamp-2'
-                } hover:text-foreground cursor-pointer`}
+                } hover:text-foreground cursor-pointer m-0 p-0`}
               >
                 {sanitizedVideo.description}
-              </CardDescription>
+              </p>
             </button>
-          )}
-        </CardHeader>
+          </div>
+        )}
 
         {/* Enhanced Action Button */}
         <CardFooter className="flex-none">
