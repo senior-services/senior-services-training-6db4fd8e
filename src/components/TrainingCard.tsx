@@ -172,8 +172,8 @@ export const TrainingCard = memo<TrainingCardProps>(({
       <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg">
         {/* Video Thumbnail with Enhanced Accessibility */}
         <header className="relative">
-          <button type="button" onClick={handlePlay} aria-label={ariaLabels.playButton} className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg w-full text-left">
-            <img src={sanitizedVideo.thumbnail} alt={`${sanitizedVideo.title} - Training video thumbnail`} className="w-full aspect-video object-cover bg-muted transition-transform duration-300 group-hover:scale-105" loading={priority ? "eager" : "lazy"} onError={handleImageError} />
+          <button type="button" onClick={handlePlay} aria-label={ariaLabels.playButton} className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg w-full text-left overflow-hidden">
+            <img src={sanitizedVideo.thumbnail} alt={`${sanitizedVideo.title} - Training video thumbnail`} className="w-full aspect-video object-cover bg-muted transition-transform duration-300 group-hover:scale-105 rounded-lg" loading={priority ? "eager" : "lazy"} onError={handleImageError} />
           </button>
 
           {/* Due Date Badge with Enhanced Accessibility */}
