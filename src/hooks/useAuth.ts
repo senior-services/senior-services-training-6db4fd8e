@@ -24,11 +24,12 @@ export function useAuth() {
       (event, session) => {
         if (!mounted) return;
         
-        setState({
+        setState(prev => ({
           session,
           user: session?.user ?? null,
-          loading: false,
-        });
+          // Keep loading true during INITIAL_SESSION; switch to false for subsequent events
+          loading: event === 'INITIAL_SESSION' ? prev.loading : false,
+        }));
 
         if (event === 'SIGNED_OUT') {
           toast.success('Successfully signed out');
