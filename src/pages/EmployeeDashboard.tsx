@@ -101,12 +101,27 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
   // Enhanced video data transformation with security and accessibility
   const transformToTrainingVideo = useOptimizedCallback((video: Video, assignment?: any): TrainingVideo => {
+    // Simple duration formatter (inline to fix runtime error)
+    const formatSeconds = (seconds: number): string => {
+      if (seconds === 0) return '0 minutes';
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) {
+        return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+      }
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      if (remainingMinutes === 0) {
+        return `${hours} hour${hours !== 1 ? 's' : ''}`;
+      }
+      return `${hours} hour${hours !== 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
+    };
+
     return {
       id: video.id,
       title: sanitizeText(video.title || 'Untitled Video'),
       description: sanitizeText(video.description || ''),
       thumbnail: video.thumbnail_url || 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=400&h=300&fit=crop',
-      duration: formatDurationSeconds(video.duration_seconds || 0),
+      duration: formatSeconds(video.duration_seconds || 0),
       
       progress: Math.max(0, Math.min(100, assignment?.progress_percent || 0)),
       // Use real progress from assignment
