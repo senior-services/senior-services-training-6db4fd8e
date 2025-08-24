@@ -104,6 +104,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }, 2000); // Update database every 2 seconds
   }, [updateProgressToDatabase, onProgressUpdate]);
 
+  // Handle video completion for HTML5 videos
+  const handleVideoEnded = useCallback(async () => {
+    setProgress(100);
+    setIsCompleted(true);
+    await updateProgressToDatabase(100);
+  }, [updateProgressToDatabase]);
+
   // Manual completion handler
   const handleMarkComplete = useCallback(async () => {
     if (!video || !user?.email) return;
@@ -192,11 +199,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 // Only advance progress if user has indicated they're watching
                 if (isWatching) {
                   watchTime += 1;
-                  const progressPercent = Math.min(90, Math.round((watchTime / duration) * 100)); // Cap at 90% for manual completion
+                  const progressPercent = Math.round((watchTime / duration) * 100);
                   setProgress(progressPercent);
                   onProgressUpdate?.(progressPercent);
                   
-                  if (watchTime % 30 === 0) { // Update database every 30 seconds of watch time
+                  // Auto-complete when reaching 100%
+                  if (progressPercent >= 100) {
+                    setIsCompleted(true);
+                    updateProgressToDatabase(100);
+                    if (progressIntervalRef.current) {
+                      clearInterval(progressIntervalRef.current);
+                    }
+                  } else if (watchTime % 30 === 0) { // Update database every 30 seconds of watch time
                     updateProgressToDatabase(progressPercent);
                   }
                 }
@@ -229,11 +243,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               progressIntervalRef.current = setInterval(() => {
                 if (isWatching) {
                   watchTime += 1;
-                  const progressPercent = Math.min(90, Math.round((watchTime / duration) * 100)); // Cap at 90% for manual completion
+                  const progressPercent = Math.round((watchTime / duration) * 100);
                   setProgress(progressPercent);
                   onProgressUpdate?.(progressPercent);
                   
-                  if (watchTime % 30 === 0) {
+                  // Auto-complete when reaching 100%
+                  if (progressPercent >= 100) {
+                    setIsCompleted(true);
+                    updateProgressToDatabase(100);
+                    if (progressIntervalRef.current) {
+                      clearInterval(progressIntervalRef.current);
+                    }
+                  } else if (watchTime % 30 === 0) {
                     updateProgressToDatabase(progressPercent);
                   }
                 }
@@ -252,6 +273,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         controls 
         preload="metadata"
         onTimeUpdate={handleVideoProgress}
+        onEnded={handleVideoEnded}
       >
         {src && <source src={src} type="video/mp4" />}
         Your browser does not support the video tag.
