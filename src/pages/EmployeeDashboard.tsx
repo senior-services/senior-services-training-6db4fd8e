@@ -140,7 +140,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     console.log('Optional videos:', optionalVideos);
 
     // Calculate comprehensive training statistics
-    const stats = calculateTrainingProgress(requiredVideos);
+    const allVideos = [...requiredVideos, ...optionalVideos];
+    const stats = calculateTrainingProgress(allVideos);
     
     // Determine overall status for accessibility announcements
     let overallStatus: TrainingStats['overallStatus'] = 'on-track';
