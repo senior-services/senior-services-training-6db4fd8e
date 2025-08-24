@@ -82,19 +82,20 @@ export const VideoPage = () => {
 
   const handleVideoProgress = (event: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = event.currentTarget;
-    if (!video.duration) return;
+    if (!video.duration || video.currentTime < 0) return;
 
-    const progressPercent = Math.round((video.currentTime / video.duration) * 100);
+    // Use Math.floor for more conservative progress tracking
+    const progressPercent = Math.min(100, Math.max(0, Math.floor((video.currentTime / video.duration) * 100)));
     setProgress(progressPercent);
 
-    // Debounce database updates
+    // Debounce database updates with shorter interval for better accuracy
     if (progressUpdateTimeoutRef.current) {
       clearTimeout(progressUpdateTimeoutRef.current);
     }
 
     progressUpdateTimeoutRef.current = setTimeout(() => {
       updateProgressToDatabase(progressPercent);
-    }, 2000); // Update database every 2 seconds
+    }, 1000); // Reduced to 1 second for better responsiveness
   };
 
   // Cleanup timeout on unmount
@@ -106,8 +107,18 @@ export const VideoPage = () => {
     };
   }, []);
 
+  // Add video play handler
   const handleVideoPlay = () => setIsPlaying(true);
-  const handleVideoPause = () => setIsPlaying(false);
+
+  // Add progress saving on pause to prevent losing progress
+  const handleVideoPause = () => {
+    setIsPlaying(false);
+    if (progressUpdateTimeoutRef.current) {
+      clearTimeout(progressUpdateTimeoutRef.current);
+      // Immediately save progress when paused
+      updateProgressToDatabase(progress);
+    }
+  };
 
   const renderVideoPlayer = (video: Video) => {
     const videoUrl = video.video_url;

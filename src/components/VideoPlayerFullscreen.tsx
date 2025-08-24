@@ -238,19 +238,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
    */
   const handleVideoProgress = useCallback((event: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = event.currentTarget;
-    if (!video.duration) return;
+    if (!video.duration || video.currentTime < 0) return;
     
-    const progressPercent = Math.round((video.currentTime / video.duration) * 100);
+    // Use Math.floor for more conservative and accurate progress tracking
+    const progressPercent = Math.min(100, Math.max(0, Math.floor((video.currentTime / video.duration) * 100)));
     setProgress(progressPercent);
     onProgressUpdate?.(progressPercent);
 
-    // Debounce database updates to prevent excessive API calls
+    // Debounce database updates with shorter interval for better accuracy
     if (progressUpdateTimeoutRef.current) {
       clearTimeout(progressUpdateTimeoutRef.current);
     }
     progressUpdateTimeoutRef.current = setTimeout(() => {
       updateProgressToDatabase(progressPercent);
-    }, 2000); // Update database every 2 seconds
+    }, 1000); // Reduced to 1 second for better responsiveness
   }, [updateProgressToDatabase, onProgressUpdate]);
 
   /**
@@ -396,19 +397,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               
               progressIntervalRef.current = setInterval(() => {
                 watchTime += 1;
-                const progressPercent = Math.min(100, Math.round((watchTime / duration) * 100));
+                // More accurate progress calculation for YouTube videos
+                const progressPercent = Math.min(100, Math.max(0, Math.floor((watchTime / duration) * 100)));
                 setProgress(progressPercent);
                 onProgressUpdate?.(progressPercent);
 
-                // Auto-complete when reaching 100%
-                if (progressPercent >= 100) {
+                // Auto-complete when reaching 95% for YouTube videos (accounting for ads/buffering)
+                if (progressPercent >= 95) {
                   setIsCompleted(true);
                   updateProgressToDatabase(100);
                   if (progressIntervalRef.current) {
                     clearInterval(progressIntervalRef.current);
                   }
-                } else if (watchTime % 30 === 0) {
-                  // Update database every 30 seconds of watch time
+                } else if (watchTime % 15 === 0) {
+                  // Update database every 15 seconds for better accuracy
                   updateProgressToDatabase(progressPercent);
                 }
               }, 1000); // Check every second
@@ -440,17 +442,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               
               progressIntervalRef.current = setInterval(() => {
                 watchTime += 1;
-                const progressPercent = Math.min(100, Math.round((watchTime / duration) * 100));
+                // More accurate progress calculation for Google Drive videos  
+                const progressPercent = Math.min(100, Math.max(0, Math.floor((watchTime / duration) * 100)));
                 setProgress(progressPercent);
                 onProgressUpdate?.(progressPercent);
                 
-                if (progressPercent >= 100) {
+                // Auto-complete when reaching 95% for embedded videos
+                if (progressPercent >= 95) {
                   setIsCompleted(true);
                   updateProgressToDatabase(100);
                   if (progressIntervalRef.current) {
                     clearInterval(progressIntervalRef.current);
                   }
-                } else if (watchTime % 30 === 0) {
+                } else if (watchTime % 15 === 0) {
+                  // Update database every 15 seconds for better accuracy
                   updateProgressToDatabase(progressPercent);
                 }
               }, 1000);
