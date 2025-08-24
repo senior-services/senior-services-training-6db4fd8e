@@ -39,7 +39,7 @@ export const Header = ({
           </div>
 
           {/* Center - Overall Progress (Employee Only) */}
-          {userRole === 'employee' && overallProgress !== undefined && <div className="hidden md:flex flex-col flex-1 max-w-md mx-8">
+          {userRole === 'employee' && overallProgress !== undefined && <div className="hidden md:flex flex-col w-[120px] mx-8">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-muted-foreground">
                   Overall Progress
