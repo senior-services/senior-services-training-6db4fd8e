@@ -115,7 +115,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       description: sanitizeText(video.description || ''),
       thumbnail: video.thumbnail_url || 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=400&h=300&fit=crop',
       duration: '15 min', // TODO: Add actual duration field to database
-      progress: Math.max(0, Math.min(100, video.completion_rate || 0)), // Ensure valid range
+      progress: Math.max(0, Math.min(100, assignment?.progress_percent || 0)), // Use real progress from assignment
       isRequired: video.type === 'Required',
       deadline: assignment?.due_date ? new Date(assignment.due_date).toLocaleDateString() : undefined,
       dueDate: assignment?.due_date || null,

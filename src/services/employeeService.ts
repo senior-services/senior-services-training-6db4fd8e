@@ -4,8 +4,32 @@ import type { Video, VideoType } from '@/types';
 
 export class EmployeeService {
   
-  // Get all employees with their assignment counts
+  // Get all employees with their assignment counts using optimized batch loading
   static async getEmployees(): Promise<EmployeeWithAssignments[]> {
+    try {
+      const { data: employeeBatch, error } = await supabase
+        .rpc('get_all_employee_assignments');
+
+      if (error) throw error;
+      
+      return employeeBatch?.map((emp: any) => ({
+        id: emp.employee_id,
+        email: emp.employee_email,
+        full_name: emp.employee_full_name,
+        created_at: '', // Will be populated by individual employee query if needed
+        updated_at: '', // Will be populated by individual employee query if needed
+        assigned_videos_count: Array.isArray(emp.assignments) ? emp.assignments.length : 0,
+        assignments: emp.assignments || []
+      })) || [];
+    } catch (error) {
+      console.error('Error in optimized getEmployees:', error);
+      // Fallback to original method if new method fails
+      return this.getEmployeesLegacy();
+    }
+  }
+
+  // Legacy method as fallback
+  private static async getEmployeesLegacy(): Promise<EmployeeWithAssignments[]> {
     const { data: employees, error } = await supabase
       .from('employees')
       .select(`
@@ -145,7 +169,7 @@ export class EmployeeService {
     console.log('getAssignedVideosByEmail called with email:', email);
     
     try {
-      // Use the database function that bypasses RLS complexity
+      // Use the database function that includes progress data
       const { data: assignments, error } = await supabase
         .rpc('get_user_video_assignments', { user_email: email });
 
@@ -172,14 +196,16 @@ export class EmployeeService {
             created_at: video.created_at || '',
             updated_at: video.updated_at || '',
             assigned_to: video.assigned_to || 0,
-            completion_rate: video.completion_rate || 0,
+            completion_rate: assignmentData.progress_percent || 0, // Use real progress from DB
             video_file_name: video.video_file_name || null,
             has_quiz: video.has_quiz || false
           },
           assignment: {
             due_date: assignmentData.due_date,
             assigned_at: assignmentData.assigned_at,
-            assignment_id: assignmentData.assignment_id
+            assignment_id: assignmentData.assignment_id,
+            progress_percent: assignmentData.progress_percent || 0,
+            completed_at: assignmentData.completed_at
           }
         };
       }) || [];
@@ -190,6 +216,59 @@ export class EmployeeService {
     } catch (error) {
       console.error('Error in getAssignedVideosByEmail:', error);
       return [];
+    }
+  }
+
+  // Update video progress for an employee
+  static async updateVideoProgress(
+    employeeId: string, 
+    videoId: string, 
+    progressPercent: number,
+    completedAt?: Date
+  ): Promise<void> {
+    try {
+      const { error } = await supabase
+        .rpc('update_video_progress', {
+          p_employee_id: employeeId,
+          p_video_id: videoId,
+          p_progress_percent: Math.max(0, Math.min(100, progressPercent)), // Ensure valid range
+          p_completed_at: completedAt?.toISOString() || null
+        });
+
+      if (error) {
+        console.error('Error updating video progress:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error in updateVideoProgress:', error);
+      throw error;
+    }
+  }
+
+  // Update progress by employee email (for employee dashboard)
+  static async updateVideoProgressByEmail(
+    email: string, 
+    videoId: string, 
+    progressPercent: number,
+    completedAt?: Date
+  ): Promise<void> {
+    try {
+      // First get the employee ID from email
+      const { data: employee, error: employeeError } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('email', email)
+        .single();
+
+      if (employeeError || !employee) {
+        console.error('Error finding employee by email:', employeeError);
+        throw new Error('Employee not found');
+      }
+
+      await this.updateVideoProgress(employee.id, videoId, progressPercent, completedAt);
+    } catch (error) {
+      console.error('Error in updateVideoProgressByEmail:', error);
+      throw error;
     }
   }
 

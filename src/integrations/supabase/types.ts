@@ -242,6 +242,51 @@ export type Database = {
           },
         ]
       }
+      video_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          employee_id: string
+          id: string
+          progress_percent: number
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          employee_id: string
+          id?: string
+          progress_percent?: number
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          employee_id?: string
+          id?: string
+          progress_percent?: number
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_progress_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_progress_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           assigned_to: number
@@ -292,6 +337,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_all_employee_assignments: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          assignments: Json
+          employee_email: string
+          employee_full_name: string
+          employee_id: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -309,6 +363,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      update_video_progress: {
+        Args: {
+          p_completed_at?: string
+          p_employee_id: string
+          p_progress_percent: number
+          p_video_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

@@ -33,17 +33,15 @@ export const EmployeeManagement: React.FC = () => {
       const data = await EmployeeService.getEmployees();
       setEmployees(data);
 
-      // Load video assignments for each employee
+      // Load video assignments for each employee - now data comes pre-loaded from batch function
       const videoMap = new Map();
       for (const employee of data) {
-        if (employee.assigned_videos_count && employee.assigned_videos_count > 0) {
-          try {
-            const assignments = await EmployeeService.getEmployeeAssignments(employee.id);
-            videoMap.set(employee.id, assignments);
-          } catch (error) {
-            console.error(`Error loading videos for employee ${employee.id}:`, error);
-            videoMap.set(employee.id, []);
-          }
+        // Use pre-loaded assignments from the optimized batch function
+        if (employee.assignments && Array.isArray(employee.assignments)) {
+          videoMap.set(employee.id, employee.assignments);
+        } else {
+          // Fallback for employees without assignments
+          videoMap.set(employee.id, []);
         }
       }
       setEmployeeVideos(videoMap);
@@ -97,7 +95,9 @@ export const EmployeeManagement: React.FC = () => {
   };
 
   // Helper function to get deadline badge props
-  const getDeadlineBadge = (dueDate: string | null, isCompleted: boolean = false) => {
+  const getDeadlineBadge = (dueDate: string | null, progressPercent: number = 0) => {
+    const isCompleted = progressPercent >= 100;
+    
     if (isCompleted) {
       return {
         variant: "default" as const,
@@ -237,15 +237,15 @@ export const EmployeeManagement: React.FC = () => {
                                     </div>
                                   </div>
                                   
-                                  <div className="flex items-center gap-4 text-xs">
-                                    {(() => {
-                          const badgeProps = getDeadlineBadge(assignment.due_date, false); // TODO: Add completion tracking
+                                   <div className="flex items-center gap-4 text-xs">
+                                     {(() => {
+                          const badgeProps = getDeadlineBadge(assignment.due_date, assignment.progress_percent || 0);
                           return <Badge variant={badgeProps.variant} className={`text-xs whitespace-nowrap ${badgeProps.className}`}>
                                           {badgeProps.text}
                                         </Badge>;
                         })()}
-                                    
-                                  </div>
+                                     
+                                   </div>
                                 </div>)}
                             </div>}
                         </div>
