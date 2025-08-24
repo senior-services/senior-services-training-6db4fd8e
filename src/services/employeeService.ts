@@ -273,6 +273,39 @@ export class EmployeeService {
     }
   }
 
+  // Get video progress by employee email
+  static async getVideoProgressByEmail(email: string, videoId: string): Promise<{ progress_percent: number; completed_at?: string } | null> {
+    try {
+      // First get the employee ID from email
+      const { data: employee, error: employeeError } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('email', email)
+        .single();
+
+      if (employeeError || !employee) {
+        return null;
+      }
+
+      // Get the video progress
+      const { data: progress, error: progressError } = await supabase
+        .from('video_progress')
+        .select('progress_percent, completed_at')
+        .eq('employee_id', employee.id)
+        .eq('video_id', videoId)
+        .single();
+
+      if (progressError || !progress) {
+        return null;
+      }
+
+      return progress;
+    } catch (error) {
+      console.error('Error in getVideoProgressByEmail:', error);
+      return null;
+    }
+  }
+
   // Delete employee
   static async deleteEmployee(employeeId: string): Promise<void> {
     const { error } = await supabase

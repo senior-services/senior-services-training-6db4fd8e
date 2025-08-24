@@ -48,8 +48,27 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       try {
         const v = await EmployeeService.getVideoById(videoId);
         setVideo(v);
-        setProgress(0);
-        setIsCompleted(false);
+        
+        // Check if video is already completed by fetching progress
+        if (user?.email) {
+          try {
+            const progressData = await EmployeeService.getVideoProgressByEmail(user.email, videoId);
+            if (progressData && progressData.progress_percent >= 100) {
+              setProgress(100);
+              setIsCompleted(true);
+            } else {
+              setProgress(progressData?.progress_percent || 0);
+              setIsCompleted(false);
+            }
+          } catch (error) {
+            console.log('No existing progress found, starting fresh');
+            setProgress(0);
+            setIsCompleted(false);
+          }
+        } else {
+          setProgress(0);
+          setIsCompleted(false);
+        }
         setIsWatching(false);
       } catch (e) {
         console.error('Failed to load video for modal:', e);
@@ -58,7 +77,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       }
     };
     load();
-  }, [open, videoId]);
+  }, [open, videoId, user?.email]);
 
   // Debounced progress update to database
   const updateProgressToDatabase = useCallback(async (progressPercent: number) => {
@@ -284,6 +303,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] p-6 overflow-y-auto shadow-2xl">
+        <DialogDescription className="sr-only">
+          Training video player for {video?.title || 'training content'}
+        </DialogDescription>
         <DialogHeader className="pb-4 border-b flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
@@ -301,7 +323,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             </div>
             <div className="flex items-center gap-3">
               {isCompleted && (
-                <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-white">
                   <CheckCircle className="w-4 h-4 mr-1" />
                   Completed
                 </Badge>
