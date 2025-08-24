@@ -262,6 +262,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] p-6 overflow-y-auto shadow-2xl">
+        {/* Video Player First */}
+        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 mb-4">
+          {loading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <LoadingSkeleton lines={1} className="w-32 h-32" />
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">{content}</div>
+          )}
+        </div>
+
+        {/* Title and Description Below Video */}
         <DialogHeader className="pb-4 border-b flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
@@ -294,44 +306,21 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             </div>
           )}
           
-          {/* Video Controls */}
+          {/* Simplified Controls - Only Mark Complete Button */}
           <div className="flex items-center gap-2 mt-3">
-            {!isCompleted && (
-              <>
-                <Button
-                  variant={isWatching ? "default" : "outline"}
-                  size="sm"
-                  onClick={handleWatchingToggle}
-                  className="flex items-center gap-2"
-                >
-                  {isWatching ? "📺 Watching" : "▶️ Start Watching"}
-                </Button>
-                
-                {progress >= 80 && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleMarkComplete}
-                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Mark Complete
-                  </Button>
-                )}
-              </>
+            {!isCompleted && progress >= 80 && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleMarkComplete}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Mark Complete
+              </Button>
             )}
           </div>
         </DialogHeader>
-        
-        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0">
-          {loading ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <LoadingSkeleton lines={1} className="w-32 h-32" />
-            </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">{content}</div>
-          )}
-        </div>
       </DialogContent>
     </Dialog>
   );
