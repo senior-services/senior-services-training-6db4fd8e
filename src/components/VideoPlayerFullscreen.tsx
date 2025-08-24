@@ -261,8 +261,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-6 overflow-hidden shadow-2xl">
-        <DialogHeader className="pb-4 border-b">
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] p-6 overflow-y-auto shadow-2xl">
+        <DialogHeader className="pb-4 border-b flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="flex items-center gap-3">
@@ -323,13 +323,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="w-full h-[calc(90vh-8rem)] bg-black rounded-lg overflow-hidden shadow-inner">
+        <div className="w-full min-h-[60vh] bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0">
           {loading ? (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-full flex items-center justify-center min-h-[400px]">
               <LoadingSkeleton lines={1} className="w-32 h-32" />
             </div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center">{content}</div>
+            <div className="w-full min-h-[400px] flex items-center justify-center">{content}</div>
           )}
         </div>
       </DialogContent>
