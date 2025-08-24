@@ -46,17 +46,36 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     if (videoUrl && isYouTubeUrl(videoUrl)) {
       const id = getYouTubeVideoId(videoUrl);
       if (id) {
-        return <iframe src={`https://www.youtube.com/embed/${id}`} title={video.title} className="w-full h-full max-w-full max-h-full object-contain" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />;
+        return (
+          <div className="w-full h-full aspect-video">
+            <iframe 
+              src={`https://www.youtube.com/embed/${id}`} 
+              title={video.title} 
+              className="w-full h-full" 
+              allowFullScreen 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            />
+          </div>
+        );
       }
     }
     if (videoUrl && isGoogleDriveUrl(videoUrl)) {
       const embedUrl = getGoogleDriveEmbedUrl(videoUrl);
       if (embedUrl) {
-        return <iframe src={embedUrl} title={video.title} className="w-full h-full max-w-full max-h-full object-contain" allowFullScreen />;
+        return (
+          <div className="w-full h-full aspect-video">
+            <iframe 
+              src={embedUrl} 
+              title={video.title} 
+              className="w-full h-full" 
+              allowFullScreen 
+            />
+          </div>
+        );
       }
     }
     const src = videoUrl || (fileName ? `https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${fileName}` : undefined);
-    return <video className="w-full h-full max-w-full max-h-full object-contain" controls preload="metadata">
+    return <video className="w-full h-full object-contain" controls preload="metadata">
         {src && <source src={src} type="video/mp4" />}
         Your browser does not support the video tag.
       </video>;
