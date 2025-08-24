@@ -49,6 +49,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         userName={userName}
         userEmail={userEmail}
         overallProgress={overallProgress}
+        completedItems={0}
+        totalItems={0}
         onLogout={onLogout}
       />
 

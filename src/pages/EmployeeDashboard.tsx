@@ -133,12 +133,17 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   // Enhanced training data processing with comprehensive statistics
   const trainingData = useOptimizedMemo(() => {
     console.log('Processing training data, assignedVideoData:', assignedVideoData);
-    const requiredVideos = assignedVideoData.filter(item => item.video.type === 'Required').map(item => transformToTrainingVideo(item.video, item.assignment));
-    console.log('Required videos:', requiredVideos.length);
-    console.log('Required videos:', requiredVideos);
+    const allRequiredVideos = assignedVideoData.filter(item => item.video.type === 'Required').map(item => transformToTrainingVideo(item.video, item.assignment));
+    
+    // Separate completed and incomplete required videos
+    const requiredVideos = allRequiredVideos.filter(video => video.progress < 100);
+    const completedVideos = allRequiredVideos.filter(video => video.progress >= 100);
+    
+    console.log('Required videos (incomplete):', requiredVideos.length);
+    console.log('Completed videos:', completedVideos.length);
 
-    // Calculate comprehensive training statistics
-    const stats = calculateTrainingProgress(requiredVideos);
+    // Calculate comprehensive training statistics using all required videos
+    const stats = calculateTrainingProgress(allRequiredVideos);
 
     // Determine overall status for accessibility announcements
     let overallStatus: TrainingStats['overallStatus'] = 'on-track';
@@ -159,6 +164,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     }
     return {
       required: requiredVideos,
+      completed: completedVideos,
       stats: {
         ...stats,
         overallStatus
@@ -168,13 +174,13 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
   // Enhanced video play handler with accessibility
   const handleVideoPlay = useOptimizedCallback((videoId: string) => {
-    const video = trainingData.required.find(v => v.id === videoId);
+    const video = trainingData.required.find(v => v.id === videoId) || trainingData.completed.find(v => v.id === videoId);
     if (video) {
       const announcement = `Opening ${video.title}. ${getStatusAnnouncement(video.progress, video.isRequired || false, video.dueDate)}`;
       announceToScreenReader(announcement);
     }
     onPlayVideo(videoId);
-  }, [trainingData.required, onPlayVideo]);
+  }, [trainingData.required, trainingData.completed, onPlayVideo]);
 
   // Callback to refresh training data when progress is updated
   const handleProgressUpdate = (progress: number) => {
@@ -286,10 +292,17 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
           {/* Required Training Section with Enhanced Accessibility */}
           <section id="main-content" className="mb-12" aria-labelledby="required-training-heading" role="region">
-            
-            
-            
-            
+            <div className="flex items-center justify-between mb-6">
+              <h2 id="required-training-heading" className="text-2xl font-semibold text-foreground flex items-center">
+                <Clock className="w-6 h-6 text-primary mr-3" aria-hidden="true" />
+                Required Training
+              </h2>
+              {trainingData.required.length > 0 && (
+                <Badge variant="outline">
+                  {trainingData.required.length} pending
+                </Badge>
+              )}
+            </div>
             {loading ? <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" aria-label="Loading training assignments">
                 {Array.from({
               length: 6
@@ -305,6 +318,32 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             />)}
               </div>}
           </section>
+
+          {/* Completed Training Section */}
+          {trainingData.completed.length > 0 && (
+            <section className="mb-12" aria-labelledby="completed-training-heading" role="region">
+              <div className="flex items-center justify-between mb-6">
+                <h2 id="completed-training-heading" className="text-2xl font-semibold text-foreground flex items-center">
+                  <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
+                  Completed Training
+                </h2>
+                <Badge className="bg-success/10 text-success border-success/20">
+                  {trainingData.completed.length} completed
+                </Badge>
+              </div>
+              
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" role="grid" aria-label="Completed training videos">
+                {trainingData.completed.map((video, index) => (
+                  <TrainingCard 
+                    key={video.id} 
+                    video={video} 
+                    onPlay={handleVideoPlay} 
+                    priority={false}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
 
         </main>
       </div>

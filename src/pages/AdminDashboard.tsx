@@ -327,6 +327,8 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
         userName={userName}
         userEmail={userEmail}
         onLogout={onLogout}
+        completedItems={0}
+        totalItems={0}
       />
       
       <main className="container mx-auto px-4 py-6">
