@@ -535,7 +535,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           <div className="flex items-center gap-2 mt-3" role="toolbar" aria-label="Video controls">
             {(() => {
               const hasUnknownDuration = !video?.duration_seconds || video.duration_seconds <= 0;
-              const shouldShowButton = !isCompleted && (progress >= 85 || (hasUnknownDuration && progress >= 30));
+              const shouldShowButton = !isCompleted && (progress >= 75 || (hasUnknownDuration && progress >= 20));
               console.log('Mark Complete Button Debug:', { 
                 videoTitle: video?.title,
                 isCompleted, 
@@ -544,7 +544,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 hasUnknownDuration,
                 duration: video?.duration_seconds,
                 shouldShowButton,
-                progressThreshold: hasUnknownDuration ? 30 : 85,
+                progressThreshold: hasUnknownDuration ? 20 : 75,
                 videoUrl: video?.video_url,
                 fileName: video?.video_file_name
               });
@@ -555,7 +555,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 <CheckCircle className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium">Training Completed!</span>
               </div>
-            ) : (!isCompleted && (progress >= 85 || ((!video?.duration_seconds || video.duration_seconds <= 0) && progress >= 30))) ? (
+            ) : (!isCompleted && (progress >= 75 || ((!video?.duration_seconds || video.duration_seconds <= 0) && progress >= 20))) ? (
               <Button 
                 variant="default" 
                 size="sm" 
