@@ -51,15 +51,12 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
             {video.title}
           </DialogTitle>
           {video.description && (
-            <div className="pt-2">
-              <p className="text-sm text-muted-foreground leading-relaxed">
+            <div className="pt-1 pb-2">
+              <p className="text-sm text-muted-foreground font-normal">
                 {video.description}
               </p>
             </div>
           )}
-          <DialogDescription>
-            Watch training video and track your progress
-          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">
