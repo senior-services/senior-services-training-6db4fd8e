@@ -230,7 +230,7 @@ export const EmployeeManagement: React.FC = () => {
                           
                           
                           {videos.length === 0 ? <p className="text-sm text-muted-foreground">Loading video assignments...</p> : <div className="space-y-0">
-                              {videos.map((assignment, index) => <div key={assignment.video_id || index} className="flex items-center justify-between py-2 border-b last:border-b-0 border-border/50">
+                              {videos.map((assignment, index) => <div key={assignment.video_id || index} className="flex items-center justify-between py-1 border-b last:border-b-0 border-border/50">
                                   <div className="flex-1 min-w-0 w-1/2">
                                     <div className="font-medium text-sm line-clamp-2">
                                       {assignment.video_title || 'Untitled Video'}
