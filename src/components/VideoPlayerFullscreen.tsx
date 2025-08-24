@@ -323,13 +323,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="w-full min-h-[60vh] bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0">
+        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0">
           {loading ? (
-            <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+            <div className="w-full h-full flex items-center justify-center">
               <LoadingSkeleton lines={1} className="w-32 h-32" />
             </div>
           ) : (
-            <div className="w-full min-h-[400px] flex items-center justify-center">{content}</div>
+            <div className="w-full h-full flex items-center justify-center">{content}</div>
           )}
         </div>
       </DialogContent>
