@@ -159,7 +159,7 @@ export const EditVideoModal = ({
             </Tabs>
           </div>
 
-          <DialogFooter className="flex justify-between items-center shrink-0 border-t pt-4">
+          <DialogFooter className="flex items-center shrink-0 border-t pt-4">
             <Button variant="link" onClick={() => setDeleteDialogOpen(true)} className="text-destructive hover:text-destructive p-0 h-auto font-normal">
               <Trash2 className="w-4 h-4 mr-2" />
               Delete Video
