@@ -263,15 +263,14 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 
+                      <div 
                         id={`employee-${employee.id}-name`}
-                        className="font-medium text-foreground"
+                        className="flex items-center gap-3 font-medium text-foreground"
                       >
-                        {employee.name}
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        {employee.email}
-                      </p>
+                        <span>{employee.name}</span>
+                        <span className="text-muted-foreground">|</span>
+                        <span className="text-sm text-muted-foreground font-normal">{employee.email}</span>
+                      </div>
                     </div>
                     
                     <div className="flex items-center space-x-3">
