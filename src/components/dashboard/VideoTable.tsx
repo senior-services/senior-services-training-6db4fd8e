@@ -254,10 +254,10 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       className="group hover:bg-muted/50 transition-colors"
                     >
                        {/* Video title and preview */}
-                      <TableCell className="!py-1">
-                        <div className="flex items-center gap-2">
+                      <TableCell className="py-1.5">
+                        <div className="flex items-center gap-3">
                           {/* Video preview */}
-                          <div className="relative w-16 h-9 rounded-md overflow-hidden bg-muted">
+                          <div className="relative w-20 h-12 rounded-md overflow-hidden bg-muted">
                             {(() => {
                               // Check if it's a YouTube URL
                               const isYouTubeUrl = video.video_url && (
@@ -356,14 +356,14 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       </TableCell>
 
                       {/* Assigned employees count */}
-                      <TableCell className="text-center !py-1">
+                      <TableCell className="text-center py-2">
                         <span className="font-medium">
                           {video.assigned_to}
                         </span>
                       </TableCell>
 
                       {/* Quiz status */}
-                      <TableCell className="text-center !py-1">
+                      <TableCell className="text-center py-2">
                         {video.has_quiz ? (
                           <Badge variant="default" className="text-xs">
                             Quiz
@@ -375,7 +375,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                         )}
                       </TableCell>
                       {/* Action buttons */}
-                      <TableCell className="text-right !py-1">
+                      <TableCell className="text-right py-2">
                         <div 
                           className="flex justify-end space-x-2"
                           role="group"
