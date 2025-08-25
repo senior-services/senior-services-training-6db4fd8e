@@ -223,10 +223,10 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-12">
                       <div className="space-y-3">
-                        <VideoIcon 
-                          className="w-12 h-12 text-muted-foreground mx-auto" 
-                          aria-hidden="true"
-                        />
+                    <VideoIcon 
+                      className="w-12 h-12 text-muted-foreground mx-auto" 
+                      aria-hidden="true"
+                    />
                         <div>
                           <h4 className="font-medium text-foreground">
                             No videos found
@@ -254,7 +254,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       className="group hover:bg-muted/50 transition-colors"
                     >
                        {/* Video title and preview */}
-                      <TableCell className="py-2">
+                      <TableCell className="py-1.5">
                         <div className="flex items-center gap-3">
                           {/* Video preview */}
                           <div className="relative w-20 h-12 rounded-md overflow-hidden bg-muted">
