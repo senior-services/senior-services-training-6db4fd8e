@@ -255,9 +255,9 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                     >
                        {/* Video title and preview */}
                       <TableCell className="py-1">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           {/* Video preview */}
-                          <div className="relative w-20 h-12 rounded-md overflow-hidden bg-muted">
+                          <div className="relative w-16 h-9 rounded-md overflow-hidden bg-muted">
                             {(() => {
                               // Check if it's a YouTube URL
                               const isYouTubeUrl = video.video_url && (
