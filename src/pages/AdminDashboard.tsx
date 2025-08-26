@@ -10,6 +10,7 @@ import { AddVideoModal, VideoFormData } from "@/components/AddVideoModal";
 import { EditVideoModal } from "@/components/EditVideoModal";
 import { VideoPlayerModal } from "@/components/VideoPlayerModal";
 import { EmployeeManagement } from "@/components/dashboard/EmployeeManagement";
+import { AdminManagement } from "@/components/dashboard/AdminManagement";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { EmployeeService } from "@/services/employeeService";
@@ -796,25 +797,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-6 mt-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-semibold">System Settings</h3>
-                  <p className="text-muted-foreground">Configure portal settings and manage user permissions</p>
-                </div>
-              </div>
-
-              <Card>
-                <CardContent className="space-y-6">
-                  <div className="text-center py-12">
-                    <Settings className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h4 className="font-medium text-foreground mb-2">Settings Panel</h4>
-                    <p className="text-muted-foreground mb-4">
-                      Advanced settings and user management features will be available here
-                    </p>
-                    <Button variant="outline">Coming Soon</Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <AdminManagement />
             </TabsContent>
           </Tabs>
         </div>
