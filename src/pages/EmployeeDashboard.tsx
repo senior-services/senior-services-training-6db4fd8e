@@ -411,9 +411,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                 <AccordionItem value="completed-training" className="border-0">
                   <AccordionTrigger 
                     id="completed-training-heading"
-                    className="text-left px-0 py-4 hover:no-underline data-[state=open]:pb-2"
+                    className="text-left px-0 py-4 hover:no-underline data-[state=open]:pb-2 [&>svg]:hidden"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 w-full">
+                      <ChevronDown className="w-8 h-8 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
                       <h2 className="text-2xl font-semibold text-foreground flex items-center">
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
                         Completed Training
