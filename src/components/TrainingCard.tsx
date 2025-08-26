@@ -4,7 +4,7 @@
  * Provides comprehensive training video information with proper ARIA support
  */
 
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback, useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +16,7 @@ import { format, differenceInDays, isPast } from 'date-fns';
 import { sanitizeText, createSafeDisplayName } from '@/utils/security';
 import { getTrainingCardAriaLabel, getStatusAnnouncement, handleKeyPress, announceToScreenReader } from '@/utils/accessibility';
 import { useOptimizedCallback, useOptimizedMemo } from '@/utils/performance';
-import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeThumbnail, getGoogleDriveThumbnail } from '@/utils/videoUtils';
+import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveFileId } from '@/utils/videoUtils';
 
 // Import optimized image loading
 import videoPlaceholder from '@/assets/video-placeholder.jpg';
@@ -69,29 +69,54 @@ export const TrainingCard = memo<TrainingCardProps>(({
   className,
   priority = false
 }) => {
-  // Sanitize video data for security and generate proper thumbnails
-  const sanitizedVideo = useMemo(() => {
-    // Priority: thumbnail_url > thumbnail > generated from video_url > placeholder
-    let thumbnail = video.thumbnail_url || video.thumbnail || videoPlaceholder;
-    
-    // If no thumbnail is available, try to generate one based on video URL
-    if (!video.thumbnail_url && !video.thumbnail && video.video_url) {
-      if (isYouTubeUrl(video.video_url)) {
-        const youtubeThumbnail = getYouTubeThumbnail(video.video_url);
-        if (youtubeThumbnail) thumbnail = youtubeThumbnail;
-      } else if (isGoogleDriveUrl(video.video_url)) {
-        const googleDriveThumbnail = getGoogleDriveThumbnail(video.video_url);
-        if (googleDriveThumbnail) thumbnail = googleDriveThumbnail;
+  // Sanitize basic fields
+  const sanitizedVideo = useMemo(() => ({
+    ...video,
+    title: sanitizeText(video.title || 'Untitled Video'),
+    description: sanitizeText(video.description || ''),
+  }), [video]);
+
+  // Build robust thumbnail candidate list with fallbacks
+  const thumbnailCandidates = useOptimizedMemo(() => {
+    const sources: string[] = [];
+    if (video.thumbnail_url) sources.push(video.thumbnail_url);
+    if (video.thumbnail) sources.push(video.thumbnail);
+
+    if (video.video_url) {
+      const url = video.video_url;
+      if (isYouTubeUrl(url)) {
+        const id = getYouTubeVideoId(url);
+        if (id) {
+          sources.push(
+            `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
+            `https://img.youtube.com/vi/${id}/sddefault.jpg`,
+            `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+            `https://img.youtube.com/vi/${id}/mqdefault.jpg`,
+            `https://img.youtube.com/vi/${id}/default.jpg`
+          );
+        }
+      } else if (isGoogleDriveUrl(url)) {
+        const id = getGoogleDriveFileId(url);
+        if (id) {
+          sources.push(
+            `https://drive.google.com/thumbnail?id=${id}&sz=w800-h600`,
+            `https://lh3.googleusercontent.com/d/${id}=w800-h600`
+          );
+        }
       }
     }
 
-    return {
-      ...video,
-      title: sanitizeText(video.title || 'Untitled Video'),
-      description: sanitizeText(video.description || ''),
-      thumbnail
-    };
+    // Always end with our local placeholder
+    sources.push(videoPlaceholder);
+
+    // Remove duplicates and falsy values
+    return Array.from(new Set(sources.filter(Boolean)));
   }, [video]);
+
+  const [thumbIndex, setThumbIndex] = useState(0);
+  useEffect(() => {
+    setThumbIndex(0);
+  }, [thumbnailCandidates]);
 
   // Calculate training status and progress
   const trainingStatus = useOptimizedMemo(() => {
@@ -181,17 +206,16 @@ export const TrainingCard = memo<TrainingCardProps>(({
     handleKeyPress(event, handlePlay);
   }, [handlePlay]);
 
-  // Image error handler for accessibility
+  // Image error handler with progressive fallback across candidates
   const handleImageError = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    event.currentTarget.src = videoPlaceholder;
-    event.currentTarget.alt = `${sanitizedVideo.title} - Video thumbnail unavailable`;
-  }, [sanitizedVideo.title]);
+    setThumbIndex((prev) => (prev + 1 < thumbnailCandidates.length ? prev + 1 : prev));
+  }, [thumbnailCandidates]);
   return <article className={cn('training-card group relative overflow-hidden focus-within:ring-2 focus-within:ring-ring', className)} aria-label={ariaLabels.card} role="article">
       <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg">
         {/* Video Thumbnail with Enhanced Accessibility */}
         <header className="relative">
           <button type="button" onClick={handlePlay} aria-label={ariaLabels.playButton} className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg w-full text-left overflow-hidden">
-            <img src={sanitizedVideo.thumbnail} alt={`${sanitizedVideo.title} - Training video thumbnail`} className="w-full aspect-video object-cover bg-muted transition-transform duration-300 group-hover:scale-105 rounded-lg" loading={priority ? "eager" : "lazy"} onError={handleImageError} />
+            <img src={thumbnailCandidates[thumbIndex]} alt={`${sanitizedVideo.title} - Training video thumbnail`} className="w-full aspect-video object-cover bg-muted transition-transform duration-300 group-hover:scale-105 rounded-lg" loading={priority ? "eager" : "lazy"} onError={handleImageError} />
           </button>
 
           {/* Due Date Badge and Completion Badge with Enhanced Accessibility */}
