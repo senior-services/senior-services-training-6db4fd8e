@@ -650,7 +650,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           )}
           
           {/* Completion Overlay */}
-          {showCompletionOverlay && progress >= 100 && (
+          {showCompletionOverlay && progress >= 100 && !wasEverCompleted && (
             <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-10 animate-fade-in">
               <div className="bg-card rounded-xl p-8 max-w-md mx-4 text-center shadow-xl border animate-scale-in">
                 <div className="mb-4">
