@@ -9,27 +9,46 @@ export interface AdminUser {
 
 export class AdminService {
   /**
-   * Get all admin users by joining profiles with user_roles
+   * Get all admin users by manually joining the data
    */
   static async getAdmins(): Promise<AdminUser[]> {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select(`
-        id,
-        email,
-        full_name,
-        created_at,
-        user_roles!inner(role)
-      `)
-      .eq('user_roles.role', 'admin')
-      .order('created_at', { ascending: false });
+    // First get all admin user IDs
+    const { data: adminRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('user_id')
+      .eq('role', 'admin');
 
-    if (error) {
-      console.error('Error fetching admins:', error);
-      throw error;
+    if (rolesError) {
+      console.error('Error fetching admin roles:', rolesError);
+      throw rolesError;
     }
 
-    return data || [];
+    if (!adminRoles || adminRoles.length === 0) {
+      return [];
+    }
+
+    // Get admin user IDs
+    const adminUserIds = adminRoles.map(role => role.user_id);
+
+    // Get profiles for these users
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('user_id, email, full_name, created_at')
+      .in('user_id', adminUserIds)
+      .order('created_at', { ascending: false });
+
+    if (profilesError) {
+      console.error('Error fetching admin profiles:', profilesError);
+      throw profilesError;
+    }
+
+    // Map the data to match our interface
+    return (profiles || []).map(profile => ({
+      id: profile.user_id,
+      email: profile.email,
+      full_name: profile.full_name,
+      created_at: profile.created_at
+    }));
   }
 
   /**
@@ -41,7 +60,7 @@ export class AdminService {
       .from('profiles')
       .select('user_id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     if (profileError || !profile) {
       throw new Error('User not found. The user must sign up first before being made an admin.');
@@ -53,7 +72,7 @@ export class AdminService {
       .select('id')
       .eq('user_id', profile.user_id)
       .eq('role', 'admin')
-      .single();
+      .maybeSingle();
 
     if (existingRole) {
       throw new Error('User is already an admin.');
