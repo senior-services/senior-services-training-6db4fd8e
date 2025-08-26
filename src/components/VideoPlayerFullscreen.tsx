@@ -538,7 +538,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               const isEmbedded = !!url && (isYouTubeUrl(url) || isGoogleDriveUrl(url));
               const hasUnknownDuration = !video?.duration_seconds || video.duration_seconds <= 0;
               const useLowThreshold = isEmbedded || hasUnknownDuration;
-              const threshold = useLowThreshold ? 20 : 75;
+              const threshold = useLowThreshold ? 98 : 98;
               const shouldShowButton = !isCompleted && progress >= threshold;
               console.log('Mark Complete Button Debug:', { 
                 videoTitle: video?.title,
@@ -562,7 +562,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               const url = video?.video_url || '';
               const isEmbedded = !!url && (isYouTubeUrl(url) || isGoogleDriveUrl(url));
               const hasUnknownDuration = !video?.duration_seconds || video.duration_seconds <= 0;
-              const threshold = (isEmbedded || hasUnknownDuration) ? 20 : 75;
+              const threshold = (isEmbedded || hasUnknownDuration) ? 98 : 98;
               return progress >= threshold;
             })()) ? (
               <Button 
