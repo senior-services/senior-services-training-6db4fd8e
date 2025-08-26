@@ -27,14 +27,14 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap px-4 py-3 text-base font-medium transition-all duration-200 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg",
-      // Inactive state styling
-      "bg-muted/50 text-muted-foreground shadow-sm hover:bg-muted/80 hover:text-foreground",
-      // Active state styling  
-      "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:font-semibold data-[state=active]:border data-[state=active]:border-border/20",
+      "relative inline-flex items-center justify-center whitespace-nowrap px-4 py-3 text-base font-medium transition-all duration-200 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+      // Inactive state styling - gray background, lower z-index
+      "bg-muted text-muted-foreground z-10",
+      // Active state styling - white background, elevated above inactive tabs
+      "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:font-semibold data-[state=active]:z-20 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-border/30",
       // Badge styling for different states
       "[&>span]:data-[state=active]:bg-primary [&>span]:data-[state=active]:text-primary-foreground",
-      "[&>span]:bg-muted [&>span]:text-muted-foreground",
+      "[&>span]:bg-muted-foreground [&>span]:text-background",
       className
     )}
     {...props}
