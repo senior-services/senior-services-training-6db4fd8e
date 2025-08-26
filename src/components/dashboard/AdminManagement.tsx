@@ -4,6 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserPlus, Trash2, Shield, Mail, Crown } from 'lucide-react';
@@ -149,44 +157,52 @@ export const AdminManagement: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="divide-y">
-              {admins.map((admin) => (
-                <div key={admin.id} className="flex items-center justify-between p-4 hover:bg-muted/30">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Crown className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Date Added</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {admins.map((admin) => (
+                  <TableRow key={admin.id}>
+                    <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <span className="font-medium">{admin.full_name || 'Unknown'}</span>
-                        <Badge variant="secondary" className="bg-primary/10 text-primary">
-                          Admin
-                        </Badge>
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Crown className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <span>{admin.full_name || 'Unknown'}</span>
+                          <Badge variant="secondary" className="ml-2 bg-primary/10 text-primary text-xs">
+                            Admin
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Mail className="w-3 h-3" />
-                        {admin.email}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Added {format(new Date(admin.created_at), 'MMM d, yyyy')}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setDeleteConfirmAdmin(admin)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span className="sr-only">Remove Admin</span>
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      {admin.email}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {format(new Date(admin.created_at), 'MMM d, yyyy')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setDeleteConfirmAdmin(admin)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="sr-only">Remove Admin</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>

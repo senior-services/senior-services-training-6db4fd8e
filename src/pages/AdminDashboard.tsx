@@ -614,7 +614,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                 <CardContent className="p-0">
                   <Table>
                         <TableHeader>
-                          <TableRow>
+                          <TableRow className="bg-muted/50">
                             <TableHead>Title</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
