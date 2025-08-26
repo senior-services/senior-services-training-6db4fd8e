@@ -582,7 +582,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
               <EmployeeManagement />
             </TabsContent>
 
-            <TabsContent value="videos" className="space-y-6">
+            <TabsContent value="videos" className="space-y-6 mt-6">
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-xl font-semibold">Training Videos</h3>
