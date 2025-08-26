@@ -26,9 +26,9 @@ export const Header = ({
               <img src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" alt="Senior Services for South Sound" className="h-12 w-auto object-cover" style={{
               objectPosition: 'left center'
             }} />
-              <div className="hidden sm:block">
+              <div>
                 <h1 className="text-xl font-bold text-primary">Learning Hub</h1>
-                <p className="text-sm text-muted-foreground">Employee Dashboard</p>
+                <p className="text-sm text-muted-foreground hidden sm:block">Employee Dashboard</p>
               </div>
             </Link>
           </div>
