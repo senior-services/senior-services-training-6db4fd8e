@@ -185,51 +185,54 @@ export const EmployeeManagement: React.FC = () => {
               {employees.map(employee => {
             const hasVideos = (employee.assigned_videos_count || 0) > 0;
             const videos = employeeVideos.get(employee.id) || [];
-            return <AccordionItem key={employee.id} value={employee.id} className="group data-[state=open]:bg-muted/60 overflow-hidden border-0">
-                    <AccordionTrigger className="[&>svg]:hidden py-2 px-6 hover:bg-muted/30 data-[state=open]:hover:bg-transparent w-full max-w-full [&[data-state=closed]>[data-orientation=vertical]]:ml-0" // Ensure no negative left margin
+            return <AccordionItem key={employee.id} value={employee.id} className="group data-[state=open]:bg-muted/60 overflow-hidden">
+                    <AccordionTrigger className="[&>svg]:hidden py-2 px-4 hover:bg-muted/30 data-[state=open]:hover:bg-transparent" // Hide default chevron, add horizontal padding, contain hover state
               >
-                    <div className="flex items-center justify-between w-full min-w-0">
+                    <div className="flex items-center justify-between w-full">
                       {/* Left side: Chevron + Employee info */}
-                      <div className="flex items-center gap-4 flex-1 min-w-0 overflow-hidden">
+                      <div className="flex items-center gap-4">
                         {/* Manual chevron on the left or equivalent spacing */}
                         {hasVideos ? <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" /> : <div className="w-4 h-4" /> // Empty space to maintain alignment
                     }
                         
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 text-left flex-wrap">
+                          <div className="flex items-center gap-3 text-left">
                             <span className="font-medium">{employee.full_name || 'Unknown'}</span>
                             <span className="text-muted-foreground">|</span>
                             <span className="text-sm text-muted-foreground">{employee.email}</span>
-                            
-                            {/* Badges moved here - right after email */}
-                            <Badge className="bg-muted text-muted-foreground hover:bg-muted">
-                              {employee.assigned_videos_count || 0} videos
-                            </Badge>
-                            
-                            {(() => {
-                              const videos = employeeVideos.get(employee.id) || [];
-                              const overdueCount = videos.filter(assignment => {
-                                if (!assignment.due_date || assignment.progress_percent >= 100) return false;
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
-                                const due = new Date(assignment.due_date);
-                                due.setHours(0, 0, 0, 0);
-                                const daysUntilDue = differenceInDays(due, today);
-                                return isPast(due) && daysUntilDue < 0;
-                              }).length;
-                              
-                              return overdueCount > 0 ? (
-                                <Badge className="bg-destructive text-destructive-foreground hover:bg-destructive">
-                                  {overdueCount} video{overdueCount !== 1 ? 's' : ''} overdue
-                                </Badge>
-                              ) : null;
-                            })()}
                           </div>
                         </div>
+                        
+                         <div className="text-center">
+                           <div className="flex items-center gap-2 justify-center">
+                             <Badge className="bg-muted text-muted-foreground hover:bg-muted">
+                               {employee.assigned_videos_count || 0} videos
+                             </Badge>
+                             
+                             {(() => {
+                               const videos = employeeVideos.get(employee.id) || [];
+                               const overdueCount = videos.filter(assignment => {
+                                 if (!assignment.due_date || assignment.progress_percent >= 100) return false;
+                                 const today = new Date();
+                                 today.setHours(0, 0, 0, 0);
+                                 const due = new Date(assignment.due_date);
+                                 due.setHours(0, 0, 0, 0);
+                                 const daysUntilDue = differenceInDays(due, today);
+                                 return isPast(due) && daysUntilDue < 0;
+                               }).length;
+                               
+                               return overdueCount > 0 ? (
+                                 <Badge className="bg-destructive text-destructive-foreground hover:bg-destructive">
+                                   {overdueCount} video{overdueCount !== 1 ? 's' : ''} overdue
+                                 </Badge>
+                               ) : null;
+                             })()}
+                           </div>
+                         </div>
                       </div>
                       
                       {/* Action buttons on far right */}
-                      <div className="flex gap-2 flex-shrink-0">
+                      <div className="flex gap-2">
                           <Button variant="outline" size="sm" onClick={e => {
                       e.stopPropagation();
                       handleAssignVideos(employee);
