@@ -12,7 +12,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "flex w-full items-center justify-start gap-8 p-0 bg-transparent",
+      "flex w-full items-center justify-start gap-12 p-0 bg-transparent border-b border-border",
       className
     )}
     {...props}
@@ -27,14 +27,16 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "relative inline-flex items-center justify-center whitespace-nowrap px-4 py-3 text-base font-medium transition-all duration-200 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-      // Inactive state styling - gray background, lower z-index
-      "bg-muted text-muted-foreground z-10",
-      // Active state styling - white background, elevated above inactive tabs
-      "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:font-semibold data-[state=active]:z-20 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-border/30",
-      // Badge styling for different states
+      "relative inline-flex items-center justify-center whitespace-nowrap px-0 py-4 text-sm font-medium transition-all duration-200 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+      // Inactive state - light gray text
+      "text-muted-foreground hover:text-foreground",
+      // Active state - dark text with blue bottom border
+      "data-[state=active]:text-foreground data-[state=active]:font-semibold",
+      // Blue underline for active tab
+      "data-[state=active]:after:content-[''] data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-0.5 data-[state=active]:after:bg-primary",
+      // Badge styling
       "[&>span]:data-[state=active]:bg-primary [&>span]:data-[state=active]:text-primary-foreground",
-      "[&>span]:bg-muted-foreground [&>span]:text-background",
+      "[&>span]:bg-muted [&>span]:text-muted-foreground",
       className
     )}
     {...props}
