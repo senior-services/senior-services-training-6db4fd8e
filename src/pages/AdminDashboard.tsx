@@ -581,17 +581,11 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
               <TabsList className="w-full">
                 <TabsTrigger value="videos" className="gap-2">
                   Videos
-                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-2 text-xs font-medium rounded-full transition-colors">
-                    {videos.length}
-                  </span>
                 </TabsTrigger>
                 <TabsTrigger value="employees" className="gap-2">
                   Employees  
-                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-2 text-xs font-medium rounded-full transition-colors">
-                    {employeeCount}
-                  </span>
                 </TabsTrigger>
-                <TabsTrigger value="settings">Admin Access</TabsTrigger>
+                <TabsTrigger value="settings">Admins</TabsTrigger>
               </TabsList>
 
             <TabsContent value="employees" className="space-y-6 mt-6">

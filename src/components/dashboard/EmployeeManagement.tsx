@@ -201,7 +201,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Username</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Videos Assigned</TableHead>
                   <TableHead>Videos Overdue</TableHead>
