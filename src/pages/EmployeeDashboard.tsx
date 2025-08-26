@@ -165,7 +165,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       isRequired: video.type === 'Required',
       deadline: assignment?.due_date ? new Date(assignment.due_date).toLocaleDateString() : undefined,
       dueDate: assignment?.due_date || null,
-      status: !video.video_url && !video.video_file_name ? 'warning' as const : undefined
+      status: !video.video_url && !video.video_file_name ? 'warning' as const : undefined,
+      video_url: video.video_url,
+      thumbnail_url: video.thumbnail_url,
+      video_file_name: video.video_file_name
     };
   }, [userEmail]);
 
