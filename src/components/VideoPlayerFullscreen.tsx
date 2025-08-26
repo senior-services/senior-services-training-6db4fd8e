@@ -421,28 +421,45 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 clearInterval(progressIntervalRef.current);
               }
 
-              // Progress tracking using estimated duration
-              const duration = video.duration_seconds && video.duration_seconds > 0 ? video.duration_seconds : 600; // fallback 10 min
-              let watchTime = Math.round((progress / 100) * duration);
+              // Enhanced progress tracking for YouTube videos
+              const estimatedDuration = video.duration_seconds && video.duration_seconds > 0 ? video.duration_seconds : 1800; // 30 min fallback
+              let watchTime = Math.round((progress / 100) * estimatedDuration);
+              let consecutiveProgressChecks = 0;
+              let lastProgressPercent = progress;
               
               progressIntervalRef.current = setInterval(() => {
                 watchTime += 1;
-                // More accurate progress calculation for YouTube videos
-                const progressPercent = Math.min(100, Math.max(0, Math.floor((watchTime / duration) * 100)));
-                setProgress(progressPercent);
-                onProgressUpdate?.(progressPercent);
-
-                // Stop interval at 100% and show completion overlay
-                if (progressPercent >= 100) {
+                const progressPercent = Math.min(100, Math.max(0, Math.floor((watchTime / estimatedDuration) * 100)));
+                
+                // Enhanced completion detection for YouTube videos
+                if (progressPercent === lastProgressPercent) {
+                  consecutiveProgressChecks++;
+                } else {
+                  consecutiveProgressChecks = 0;
+                  lastProgressPercent = progressPercent;
+                }
+                
+                // If progress hasn't changed for 30+ seconds and we're past 90%, likely completed
+                const likelyCompleted = consecutiveProgressChecks > 30 && progressPercent >= 90;
+                const actuallyCompleted = progressPercent >= 100;
+                
+                if (likelyCompleted || actuallyCompleted) {
+                  setProgress(100);
                   setShowCompletionOverlay(true);
+                  onProgressUpdate?.(100);
                   if (progressIntervalRef.current) {
                     clearInterval(progressIntervalRef.current);
                   }
-                } else if (watchTime % 15 === 0) {
-                  // Update database every 15 seconds for better accuracy
-                  updateProgressToDatabase(progressPercent);
+                } else {
+                  setProgress(progressPercent);
+                  onProgressUpdate?.(progressPercent);
+                  
+                  if (watchTime % 15 === 0) {
+                    // Update database every 15 seconds for better accuracy
+                    updateProgressToDatabase(progressPercent);
+                  }
                 }
-              }, 1000); // Check every second
+              }, 1000);
             }}
           />
         );
@@ -465,26 +482,43 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 clearInterval(progressIntervalRef.current);
               }
 
-              // Similar tracking for Google Drive videos
-              const duration = video.duration_seconds && video.duration_seconds > 0 ? video.duration_seconds : 600;
-              let watchTime = Math.round((progress / 100) * duration);
+              // Enhanced tracking for Google Drive videos
+              const estimatedDuration = video.duration_seconds && video.duration_seconds > 0 ? video.duration_seconds : 1800; // 30 min fallback
+              let watchTime = Math.round((progress / 100) * estimatedDuration);
+              let consecutiveProgressChecks = 0;
+              let lastProgressPercent = progress;
               
               progressIntervalRef.current = setInterval(() => {
                 watchTime += 1;
-                // More accurate progress calculation for Google Drive videos  
-                const progressPercent = Math.min(100, Math.max(0, Math.floor((watchTime / duration) * 100)));
-                setProgress(progressPercent);
-                onProgressUpdate?.(progressPercent);
+                const progressPercent = Math.min(100, Math.max(0, Math.floor((watchTime / estimatedDuration) * 100)));
                 
-                // Stop interval at 100% and show completion overlay
-                if (progressPercent >= 100) {
+                // Enhanced completion detection for Google Drive videos
+                if (progressPercent === lastProgressPercent) {
+                  consecutiveProgressChecks++;
+                } else {
+                  consecutiveProgressChecks = 0;
+                  lastProgressPercent = progressPercent;
+                }
+                
+                // If progress hasn't changed for 30+ seconds and we're past 90%, likely completed
+                const likelyCompleted = consecutiveProgressChecks > 30 && progressPercent >= 90;
+                const actuallyCompleted = progressPercent >= 100;
+                
+                if (likelyCompleted || actuallyCompleted) {
+                  setProgress(100);
                   setShowCompletionOverlay(true);
+                  onProgressUpdate?.(100);
                   if (progressIntervalRef.current) {
                     clearInterval(progressIntervalRef.current);
                   }
-                } else if (watchTime % 15 === 0) {
-                  // Update database every 15 seconds for better accuracy
-                  updateProgressToDatabase(progressPercent);
+                } else {
+                  setProgress(progressPercent);
+                  onProgressUpdate?.(progressPercent);
+                  
+                  if (watchTime % 15 === 0) {
+                    // Update database every 15 seconds for better accuracy
+                    updateProgressToDatabase(progressPercent);
+                  }
                 }
               }, 1000);
             }}
