@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, User, RefreshCw } from 'lucide-react';
 import { EmployeeService } from '@/services/employeeService';
@@ -166,11 +173,14 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
       {/* Individual Employees Table */}
       <Card>
         <CardContent className="p-0">
-          {loading ? <div className="p-6 space-y-4">
+          {loading ? (
+            <div className="p-6 space-y-4">
               <LoadingSkeleton lines={1} className="h-12" />
               <LoadingSkeleton lines={1} className="h-12" />
               <LoadingSkeleton lines={1} className="h-12" />
-            </div> : employees.length === 0 ? <div className="text-center py-12">
+            </div>
+          ) : employees.length === 0 ? (
+            <div className="text-center py-12">
               <div className="space-y-3">
                 <UserPlus className="w-12 h-12 text-muted-foreground mx-auto" />
                 <div>
@@ -186,104 +196,74 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                   Add First Employee
                 </Button>
               </div>
-            </div> : <Accordion type="multiple" className="w-full">
-              {employees.map(employee => {
-            const hasVideos = (employee.assigned_videos_count || 0) > 0;
-            const videos = employeeVideos.get(employee.id) || [];
-            return <AccordionItem key={employee.id} value={employee.id} className="group data-[state=open]:bg-muted/60 overflow-hidden">
-                    <AccordionTrigger className="[&>svg]:hidden py-2 px-4 hover:bg-muted/30 data-[state=open]:hover:bg-transparent" // Hide default chevron, add horizontal padding, contain hover state
-              >
-                    <div className="flex items-center justify-between w-full">
-                      {/* Left side: Chevron + Employee info */}
-                      <div className="flex items-center gap-4">
-                        {/* Manual chevron on the left or equivalent spacing */}
-                        {hasVideos ? <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" /> : <div className="w-4 h-4" /> // Empty space to maintain alignment
-                    }
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 text-left">
-                            <span className="font-medium">{employee.full_name || 'Unknown'}</span>
-                            <span className="text-muted-foreground">|</span>
-                            <span className="text-sm text-muted-foreground">{employee.email}</span>
-                          </div>
-                        </div>
-                        
-                         <div className="text-center">
-                           <div className="flex items-center gap-2 justify-center">
-                             <Badge className="bg-muted text-muted-foreground hover:bg-muted">
-                               {employee.assigned_videos_count || 0} videos
-                             </Badge>
-                             
-                             {(() => {
-                               const videos = employeeVideos.get(employee.id) || [];
-                               const overdueCount = videos.filter(assignment => {
-                                 if (!assignment.due_date || assignment.progress_percent >= 100) return false;
-                                 const today = new Date();
-                                 today.setHours(0, 0, 0, 0);
-                                 const due = new Date(assignment.due_date);
-                                 due.setHours(0, 0, 0, 0);
-                                 const daysUntilDue = differenceInDays(due, today);
-                                 return isPast(due) && daysUntilDue < 0;
-                               }).length;
-                               
-                               return overdueCount > 0 ? (
-                                 <Badge className="bg-destructive text-destructive-foreground hover:bg-destructive">
-                                   {overdueCount} video{overdueCount !== 1 ? 's' : ''} overdue
-                                 </Badge>
-                               ) : null;
-                             })()}
-                           </div>
-                         </div>
-                      </div>
-                      
-                      {/* Action buttons on far right */}
-                      <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={e => {
-                      e.stopPropagation();
-                      handleAssignVideos(employee);
-                    }}>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Username</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Videos Assigned</TableHead>
+                  <TableHead>Videos Overdue</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {employees.map(employee => {
+                  const videos = employeeVideos.get(employee.id) || [];
+                  const overdueCount = videos.filter(assignment => {
+                    if (!assignment.due_date || assignment.progress_percent >= 100) return false;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const due = new Date(assignment.due_date);
+                    due.setHours(0, 0, 0, 0);
+                    const daysUntilDue = differenceInDays(due, today);
+                    return isPast(due) && daysUntilDue < 0;
+                  }).length;
+
+                  return (
+                    <TableRow key={employee.id}>
+                      <TableCell className="font-medium">
+                        {employee.full_name || 'Unknown'}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {employee.email}
+                      </TableCell>
+                      <TableCell>
+                        {employee.assigned_videos_count || 0}
+                      </TableCell>
+                      <TableCell>
+                        <span className={overdueCount > 0 ? "text-destructive font-medium" : "text-muted-foreground"}>
+                          {overdueCount}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleAssignVideos(employee)}
+                          >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </Button>
-                        <Button variant="outline" size="sm" onClick={e => {
-                      e.stopPropagation();
-                      setDeleteConfirmEmployee(employee);
-                    }} className="text-destructive hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                          <span className="sr-only">Delete Employee</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                    
-                    {hasVideos && <AccordionContent className="px-4 pb-4">
-                        <div className="space-y-3">
-                          
-                          
-                          {videos.length === 0 ? <p className="text-sm text-muted-foreground">Loading video assignments...</p> : <div className="space-y-0">
-                              {videos.map((assignment, index) => <div key={assignment.video_id || index} className="flex items-center justify-between py-1 border-b last:border-b-0 border-border/50">
-                                  <div className="flex-1 min-w-0 w-1/2">
-                                    <div className="font-medium text-sm line-clamp-2">
-                                      {assignment.video_title || 'Untitled Video'}
-                                    </div>
-                                  </div>
-                                  
-                                   <div className="flex items-center gap-4 text-xs">
-                                     {(() => {
-                          const badgeProps = getDeadlineBadge(assignment.due_date, assignment.progress_percent || 0);
-                          return <Badge variant={badgeProps.variant} className={`text-xs whitespace-nowrap ${badgeProps.className}`}>
-                                          {badgeProps.text}
-                                        </Badge>;
-                        })()}
-                                     
-                                   </div>
-                                </div>)}
-                            </div>}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setDeleteConfirmEmployee(employee)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span className="sr-only">Delete Employee</span>
+                          </Button>
                         </div>
-                      </AccordionContent>}
-                  </AccordionItem>;
-          })}
-            </Accordion>}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
