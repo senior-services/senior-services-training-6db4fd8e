@@ -186,7 +186,7 @@ export const EmployeeManagement: React.FC = () => {
             const hasVideos = (employee.assigned_videos_count || 0) > 0;
             const videos = employeeVideos.get(employee.id) || [];
             return <AccordionItem key={employee.id} value={employee.id} className="group data-[state=open]:bg-muted/60 overflow-hidden">
-                    <AccordionTrigger className="[&>svg]:hidden py-2 px-4 hover:bg-muted/30 data-[state=open]:hover:bg-transparent w-full max-w-full" // Hide default chevron, add horizontal padding, contain hover state, constrain width
+                    <AccordionTrigger className="[&>svg]:hidden py-2 px-6 hover:bg-muted/30 data-[state=open]:hover:bg-transparent w-full max-w-full" // Increased horizontal padding to px-6 for better balance
               >
                     <div className="flex items-center justify-between w-full min-w-0">
                       {/* Left side: Chevron + Employee info */}
@@ -196,39 +196,36 @@ export const EmployeeManagement: React.FC = () => {
                     }
                         
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 text-left">
+                          <div className="flex items-center gap-3 text-left flex-wrap">
                             <span className="font-medium">{employee.full_name || 'Unknown'}</span>
                             <span className="text-muted-foreground">|</span>
                             <span className="text-sm text-muted-foreground">{employee.email}</span>
+                            
+                            {/* Badges moved here - right after email */}
+                            <Badge className="bg-muted text-muted-foreground hover:bg-muted">
+                              {employee.assigned_videos_count || 0} videos
+                            </Badge>
+                            
+                            {(() => {
+                              const videos = employeeVideos.get(employee.id) || [];
+                              const overdueCount = videos.filter(assignment => {
+                                if (!assignment.due_date || assignment.progress_percent >= 100) return false;
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                const due = new Date(assignment.due_date);
+                                due.setHours(0, 0, 0, 0);
+                                const daysUntilDue = differenceInDays(due, today);
+                                return isPast(due) && daysUntilDue < 0;
+                              }).length;
+                              
+                              return overdueCount > 0 ? (
+                                <Badge className="bg-destructive text-destructive-foreground hover:bg-destructive">
+                                  {overdueCount} video{overdueCount !== 1 ? 's' : ''} overdue
+                                </Badge>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
-                        
-                         <div className="text-center">
-                           <div className="flex items-center gap-2 justify-center">
-                             <Badge className="bg-muted text-muted-foreground hover:bg-muted">
-                               {employee.assigned_videos_count || 0} videos
-                             </Badge>
-                             
-                             {(() => {
-                               const videos = employeeVideos.get(employee.id) || [];
-                               const overdueCount = videos.filter(assignment => {
-                                 if (!assignment.due_date || assignment.progress_percent >= 100) return false;
-                                 const today = new Date();
-                                 today.setHours(0, 0, 0, 0);
-                                 const due = new Date(assignment.due_date);
-                                 due.setHours(0, 0, 0, 0);
-                                 const daysUntilDue = differenceInDays(due, today);
-                                 return isPast(due) && daysUntilDue < 0;
-                               }).length;
-                               
-                               return overdueCount > 0 ? (
-                                 <Badge className="bg-destructive text-destructive-foreground hover:bg-destructive">
-                                   {overdueCount} video{overdueCount !== 1 ? 's' : ''} overdue
-                                 </Badge>
-                               ) : null;
-                             })()}
-                           </div>
-                         </div>
                       </div>
                       
                       {/* Action buttons on far right */}
