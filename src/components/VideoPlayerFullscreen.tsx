@@ -351,6 +351,21 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     });
   }, [videoId]);
 
+  // Ensure YouTube IFrame API is loaded
+  const ensureYouTubeAPI = useCallback((): Promise<void> => {
+    return new Promise<void>((resolve) => {
+      const w = window as any;
+      if (w.YT && w.YT.Player) return resolve();
+      if (w._ytApiReady) return (w._ytApiReady as Promise<void>).then(() => resolve());
+      w._ytApiReady = new Promise<void>((res) => {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+        w.onYouTubeIframeAPIReady = () => { res(); resolve(); };
+      });
+    });
+  }, []);
+
   /**
    * Cleanup effect for timeouts and intervals
    * Prevents memory leaks when component unmounts
@@ -364,6 +379,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
       }
+      if (ytProgressIntervalRef.current) {
+        clearInterval(ytProgressIntervalRef.current);
+      }
+      try {
+        ytPlayerRef.current?.destroy?.();
+      } catch {}
       logger.debug('VideoPlayerFullscreen cleanup completed');
     };
   }, []);
@@ -410,56 +431,57 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       if (id) {
         return (
           <iframe 
+            id={`yt-player-${id}`}
             src={`https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${window.location.origin}`}
             title={video.title}
             className="w-full h-full"
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             onLoad={() => {
-              // Clean up any existing interval
-              if (progressIntervalRef.current) {
-                clearInterval(progressIntervalRef.current);
-              }
-
-              // Enhanced progress tracking for YouTube videos
-              const estimatedDuration = video.duration_seconds && video.duration_seconds > 0 ? video.duration_seconds : 1800; // 30 min fallback
-              let watchTime = Math.round((progress / 100) * estimatedDuration);
-              let consecutiveProgressChecks = 0;
-              let lastProgressPercent = progress;
-              
-              progressIntervalRef.current = setInterval(() => {
-                watchTime += 1;
-                const progressPercent = Math.min(100, Math.max(0, Math.floor((watchTime / estimatedDuration) * 100)));
-                
-                // Enhanced completion detection for YouTube videos
-                if (progressPercent === lastProgressPercent) {
-                  consecutiveProgressChecks++;
-                } else {
-                  consecutiveProgressChecks = 0;
-                  lastProgressPercent = progressPercent;
+              // Initialize YouTube IFrame API player and progress tracking
+              ensureYouTubeAPI().then(() => {
+                if (ytProgressIntervalRef.current) {
+                  clearInterval(ytProgressIntervalRef.current);
                 }
-                
-                // If progress hasn't changed for 30+ seconds and we're past 90%, likely completed
-                const likelyCompleted = consecutiveProgressChecks > 30 && progressPercent >= 90;
-                const actuallyCompleted = progressPercent >= 100;
-                
-                if (likelyCompleted || actuallyCompleted) {
-                  setProgress(100);
-                  setShowCompletionOverlay(true);
-                  onProgressUpdate?.(100);
-                  if (progressIntervalRef.current) {
-                    clearInterval(progressIntervalRef.current);
+                try { ytPlayerRef.current?.destroy?.(); } catch {}
+                // Create player bound to this iframe
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const YTGlobal: any = (window as any).YT;
+                ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
+                  events: {
+                    onReady: (e: any) => {
+                      ytProgressIntervalRef.current = setInterval(() => {
+                        const current = e.target.getCurrentTime ? e.target.getCurrentTime() : 0;
+                        const duration = e.target.getDuration ? e.target.getDuration() : (video.duration_seconds || 0);
+                        if (duration > 0) {
+                          const progressPercent = Math.min(100, Math.floor((current / duration) * 100));
+                          setProgress(progressPercent);
+                          onProgressUpdate?.(progressPercent);
+                          if (progressPercent >= 100) {
+                            clearInterval(ytProgressIntervalRef.current!);
+                            setShowCompletionOverlay(true);
+                            updateProgressToDatabase(100);
+                          } else if (Math.floor(current) % 15 === 0) {
+                            updateProgressToDatabase(progressPercent);
+                          }
+                        }
+                      }, 1000);
+                    },
+                    onStateChange: (e: any) => {
+                      const state = YTGlobal.PlayerState;
+                      if (e.data === state.ENDED) {
+                        setProgress(100);
+                        setShowCompletionOverlay(true);
+                        onProgressUpdate?.(100);
+                        updateProgressToDatabase(100);
+                        if (ytProgressIntervalRef.current) clearInterval(ytProgressIntervalRef.current);
+                      } else if (e.data === state.PAUSED) {
+                        updateProgressToDatabase(progress);
+                      }
+                    }
                   }
-                } else {
-                  setProgress(progressPercent);
-                  onProgressUpdate?.(progressPercent);
-                  
-                  if (watchTime % 15 === 0) {
-                    // Update database every 15 seconds for better accuracy
-                    updateProgressToDatabase(progressPercent);
-                  }
-                }
-              }, 1000);
+                });
+              });
             }}
           />
         );
