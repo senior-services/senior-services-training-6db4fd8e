@@ -186,7 +186,7 @@ export const EmployeeManagement: React.FC = () => {
             const hasVideos = (employee.assigned_videos_count || 0) > 0;
             const videos = employeeVideos.get(employee.id) || [];
             return <AccordionItem key={employee.id} value={employee.id} className="group data-[state=open]:bg-muted/60 overflow-hidden">
-                    <AccordionTrigger className="[&>svg]:hidden py-2 hover:bg-muted/30 data-[state=open]:hover:bg-transparent" // Hide default chevron, contain hover state
+                    <AccordionTrigger className="[&>svg]:hidden py-2 px-0 mx-0 hover:bg-muted/30 data-[state=open]:hover:bg-transparent" // Hide default chevron, remove padding/margin, contain hover state
               >
                     <div className="flex items-center justify-between w-full">
                       {/* Left side: Chevron + Employee info */}
