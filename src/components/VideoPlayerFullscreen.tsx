@@ -560,6 +560,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         preload="metadata"
         onTimeUpdate={handleVideoProgress}
         onEnded={handleVideoEnded}
+        tabIndex={-1}
+        onLoadedMetadata={() => {
+          // Focus on the video container when video is ready
+          const container = document.querySelector('[data-video-container]') as HTMLElement;
+          if (container && open) {
+            container.focus();
+          }
+        }}
       >
         {src && <source src={src} type="video/mp4" />}
         Your browser does not support the video tag.
@@ -572,15 +580,21 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       <DialogContent 
         className="max-w-6xl w-[95vw] max-h-[90vh] p-6 overflow-y-auto shadow-2xl"
         onOpenAutoFocus={(e) => {
-          // Prevent auto-focus to allow natural tab order
+          // Let the video container receive focus instead
           e.preventDefault();
+          setTimeout(() => {
+            const videoContainer = document.querySelector('[data-video-container]') as HTMLElement;
+            if (videoContainer) {
+              videoContainer.focus();
+            }
+          }, 100);
         }}
         aria-describedby="video-description"
       >
         <DialogDescription id="video-description" className="sr-only">
           Training video player for {video?.title || 'training content'}. 
           Use the controls below to watch the video and track your progress.
-          Press Escape key to close this dialog.
+          Press Escape key to close this dialog. Press spacebar to play or pause the video.
         </DialogDescription>
         
         <DialogHeader className="pb-4 border-b flex-shrink-0">
@@ -653,7 +667,39 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative">
+        <div 
+          className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative"
+          data-video-container
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === ' ' || e.key === 'Spacebar') {
+              e.preventDefault();
+              // Handle spacebar for different video types
+              if (videoRef.current) {
+                // Direct video element
+                if (videoRef.current.paused) {
+                  videoRef.current.play();
+                } else {
+                  videoRef.current.pause();
+                }
+              } else if (ytPlayerRef.current?.playVideo) {
+                // YouTube video
+                const playerState = (window as any).YT?.PlayerState;
+                if (playerState && ytPlayerRef.current.getPlayerState) {
+                  const state = ytPlayerRef.current.getPlayerState();
+                  if (state === playerState.PLAYING) {
+                    ytPlayerRef.current.pauseVideo();
+                  } else {
+                    ytPlayerRef.current.playVideo();
+                  }
+                }
+              }
+              // Note: Google Drive videos in iframes can't be controlled externally
+            }
+          }}
+          aria-label="Video player. Press spacebar to play or pause."
+          role="application"
+        >
           {loading ? (
             <div className="w-full h-full flex items-center justify-center">
               <LoadingSkeleton lines={1} className="w-32 h-32" />
