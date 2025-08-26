@@ -220,6 +220,10 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     border-style: solid;
   }
 
+  .bg-gradient-hero {
+    background: linear-gradient(135deg, hsl(219, 79%, 22%), hsl(206, 73%, 55%));
+  }
+
   .status-overdue {
     @apply bg-deadline-overdue text-white;
   }
