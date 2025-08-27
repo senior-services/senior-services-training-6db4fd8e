@@ -314,7 +314,6 @@ export type Database = {
           created_at: string
           description: string | null
           duration_seconds: number | null
-          has_quiz: boolean
           id: string
           thumbnail_url: string | null
           title: string
@@ -328,7 +327,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_seconds?: number | null
-          has_quiz?: boolean
           id?: string
           thumbnail_url?: string | null
           title: string
@@ -342,7 +340,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_seconds?: number | null
-          has_quiz?: boolean
           id?: string
           thumbnail_url?: string | null
           title?: string

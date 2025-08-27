@@ -157,7 +157,6 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-center whitespace-nowrap">Quiz</TableHead>
                   <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -281,19 +280,6 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                         </div>
                       </TableCell>
 
-
-                      {/* Quiz status */}
-                      <TableCell className="text-center py-2">
-                        {video.has_quiz ? (
-                          <Badge variant="default" className="text-xs">
-                            Quiz
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-xs text-muted-foreground">
-                            No Quiz
-                          </Badge>
-                        )}
-                      </TableCell>
                       {/* Action buttons */}
                       <TableCell className="text-right py-2">
                         <div 
