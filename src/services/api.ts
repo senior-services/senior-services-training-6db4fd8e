@@ -1,0 +1,477 @@
+/**
+ * Unified API Service Layer
+ * Consolidates all data operations with strict typing and consistent error handling
+ */
+
+import { supabase } from '@/integrations/supabase/client';
+import { logger, performanceTracker } from '@/utils/logger';
+import type { 
+  Video, 
+  VideoCreateData,
+  VideoUpdateData 
+} from '@/types';
+
+// Strict API response type
+interface ApiResult<T> {
+  data: T | null;
+  error: string | null;
+  success: boolean;
+}
+
+// Video assignment interface
+interface VideoAssignment {
+  id: string;
+  video_id: string;
+  employee_id: string;
+  assigned_by: string;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Employee with assignments interface
+interface EmployeeWithAssignments {
+  id: string;
+  name: string;
+  email: string;
+  requiredProgress: number;
+  completedVideos: number;
+  totalVideos: number;
+  status: 'completed' | 'on-track' | 'behind';
+  assignments: VideoAssignment[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Unified Video Operations
+ */
+export const videoOperations = {
+  async getAll(): Promise<ApiResult<Video[]>> {
+    const operation = 'video.getAll';
+    performanceTracker.start(operation);
+    
+    try {
+      // Get videos with assignment counts
+      const { data: videos, error: videosError } = await supabase
+        .from('videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (videosError) {
+        logger.error('Failed to fetch videos', { errorMessage: videosError.message });
+        return { data: null, error: videosError.message, success: false };
+      }
+
+      // Get assignment counts
+      const { data: assignmentCounts, error: countError } = await supabase
+        .from('video_assignments')
+        .select('video_id')
+        .then(({ data, error }) => {
+          if (error) return { data: null, error };
+          
+          const counts = new Map<string, number>();
+          data?.forEach(assignment => {
+            counts.set(assignment.video_id, (counts.get(assignment.video_id) || 0) + 1);
+          });
+          
+          return { data: counts, error: null };
+        });
+
+      if (countError) {
+        logger.warn('Failed to fetch assignment counts', { errorMessage: countError.message });
+      }
+
+      // Merge data
+      const videosWithCounts = videos?.map(video => ({
+        ...video,
+        assigned_to: assignmentCounts?.get(video.id) || 0
+      })) || [];
+
+      logger.info('Videos fetched successfully', { count: videosWithCounts.length });
+      return { data: videosWithCounts as Video[], error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error fetching videos', { errorMessage: String(error) });
+      return { data: null, error: 'Failed to fetch videos', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async getById(id: string): Promise<ApiResult<Video>> {
+    const operation = 'video.getById';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data, error } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        logger.error('Failed to fetch video', { videoId: id, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Video fetched successfully', { videoId: id });
+      return { data: data as Video, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error fetching video', { videoId: id, errorMessage: String(error) });
+      return { data: null, error: 'Failed to fetch video', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async create(videoData: VideoCreateData & { file?: File }): Promise<ApiResult<Video>> {
+    const operation = 'video.create';
+    performanceTracker.start(operation);
+    
+    try {
+      let video_url = videoData.video_url;
+      let video_file_name = videoData.video_file_name;
+      
+      // Handle file upload
+      if (videoData.file) {
+        const fileName = `${Date.now()}-${videoData.file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('videos')
+          .upload(fileName, videoData.file);
+
+        if (uploadError) {
+          logger.error('Failed to upload video file', { fileName, errorMessage: uploadError.message });
+          return { data: null, error: 'Failed to upload video file', success: false };
+        }
+
+        video_file_name = fileName;
+        video_url = null;
+        
+        logger.info('Video file uploaded successfully', { fileName });
+      }
+
+      const { data, error } = await supabase
+        .from('videos')
+        .insert({
+          title: videoData.title,
+          description: videoData.description,
+          video_url,
+          video_file_name,
+          type: videoData.type,
+          assigned_to: 0,
+          completion_rate: 0,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to create video', { title: videoData.title, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Video created successfully', { videoId: data.id, title: data.title });
+      return { data: data as Video, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error creating video', { title: videoData.title, errorMessage: String(error) });
+      return { data: null, error: 'Failed to create video', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async update(id: string, updates: VideoUpdateData): Promise<ApiResult<Video>> {
+    const operation = 'video.update';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data, error } = await supabase
+        .from('videos')
+        .update({
+          title: updates.title,
+          description: updates.description,
+          ...(updates.type && { type: updates.type }),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to update video', { videoId: id, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Video updated successfully', { videoId: id, title: updates.title });
+      return { data: data as Video, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error updating video', { videoId: id, errorMessage: String(error) });
+      return { data: null, error: 'Failed to update video', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async delete(id: string): Promise<ApiResult<boolean>> {
+    const operation = 'video.delete';
+    performanceTracker.start(operation);
+    
+    try {
+      const { error } = await supabase
+        .from('videos')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        logger.error('Failed to delete video', { videoId: id, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Video deleted successfully', { videoId: id });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error deleting video', { videoId: id, errorMessage: String(error) });
+      return { data: null, error: 'Failed to delete video', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  }
+};
+
+/**
+ * Unified Employee Operations
+ */
+export const employeeOperations = {
+  async getAll(): Promise<ApiResult<EmployeeWithAssignments[]>> {
+    const operation = 'employee.getAll';
+    performanceTracker.start(operation);
+    
+    try {
+      // Direct query to employees table
+      const { data: employees, error } = await supabase
+        .from('employees')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        logger.error('Failed to fetch employees', { errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      const result: EmployeeWithAssignments[] = employees?.map((emp) => ({
+        id: emp.id,
+        name: emp.full_name || emp.email?.split('@')[0] || 'Unknown',
+        email: emp.email || '',
+        requiredProgress: 0,
+        completedVideos: 0,
+        totalVideos: 0,
+        status: 'behind' as const,
+        assignments: [],
+        created_at: emp.created_at,
+        updated_at: emp.updated_at
+      })) || [];
+
+      logger.info('Employees fetched successfully', { count: result.length });
+      return { data: result, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error fetching employees', { errorMessage: String(error) });
+      return { data: null, error: 'Failed to fetch employees', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  calculateStatus(completedVideos: number, totalVideos: number): 'completed' | 'on-track' | 'behind' {
+    if (totalVideos === 0) return 'on-track';
+    const progressPercent = (completedVideos / totalVideos) * 100;
+    
+    if (progressPercent === 100) return 'completed';
+    if (progressPercent >= 75) return 'on-track';
+    return 'behind';
+  },
+
+  async add(email: string, fullName?: string): Promise<ApiResult<EmployeeWithAssignments>> {
+    const operation = 'employee.add';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .insert({
+          email: email.toLowerCase(),
+          full_name: fullName || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to add employee', { email, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      const employeeWithAssignments: EmployeeWithAssignments = {
+        id: data.id,
+        name: data.full_name || data.email?.split('@')[0] || 'Unknown',
+        email: data.email || '',
+        requiredProgress: 0,
+        completedVideos: 0,
+        totalVideos: 0,
+        status: 'behind',
+        assignments: [],
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+
+      logger.info('Employee added successfully', { employeeId: data.id, email });
+      return { data: employeeWithAssignments, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error adding employee', { email, errorMessage: String(error) });
+      return { data: null, error: 'Failed to add employee', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async delete(employeeId: string): Promise<ApiResult<boolean>> {
+    const operation = 'employee.delete';
+    performanceTracker.start(operation);
+    
+    try {
+      const { error } = await supabase
+        .from('employees')
+        .delete()
+        .eq('id', employeeId);
+
+      if (error) {
+        logger.error('Failed to delete employee', { employeeId, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Employee deleted successfully', { employeeId });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error deleting employee', { employeeId, errorMessage: String(error) });
+      return { data: null, error: 'Failed to delete employee', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  }
+};
+
+/**
+ * Unified Assignment Operations  
+ */
+export const assignmentOperations = {
+  async getByEmployee(employeeId: string): Promise<ApiResult<VideoAssignment[]>> {
+    const operation = 'assignment.getByEmployee';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data, error } = await supabase
+        .from('video_assignments')
+        .select('*')
+        .eq('employee_id', employeeId);
+
+      if (error) {
+        logger.error('Failed to fetch employee assignments', { employeeId, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Employee assignments fetched', { employeeId, count: data?.length || 0 });
+      return { data: data as VideoAssignment[], error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error fetching assignments', { employeeId, errorMessage: String(error) });
+      return { data: null, error: 'Failed to fetch assignments', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async getByEmployeeEmail(email: string): Promise<ApiResult<{ video: Video; assignment: VideoAssignment }[]>> {
+    const operation = 'assignment.getByEmployeeEmail';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data: assignments, error } = await supabase
+        .rpc('get_user_video_assignments', { user_email: email });
+
+      if (error) {
+        logger.error('Failed to fetch assignments by email (RPC)', { email, errorMessage: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      // Type-safe processing of RPC result
+      const result = Array.isArray(assignments) ? assignments.map((assignment: any) => ({
+        video: assignment.video as Video,
+        assignment: {
+          id: assignment.assignment_id,
+          video_id: assignment.video_id,
+          employee_id: assignment.employee_id,
+          assigned_by: assignment.assigned_by,
+          due_date: assignment.due_date,
+          created_at: assignment.created_at,
+          updated_at: assignment.updated_at
+        } as VideoAssignment
+      })) : [];
+
+      logger.info('Assignments fetched by email', { email, count: result.length });
+      return { data: result, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error fetching assignments by email', { email, errorMessage: String(error) });
+      return { data: null, error: 'Failed to fetch assignments', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  }
+};
+
+/**
+ * Unified Progress Operations
+ */
+export const progressOperations = {
+  async update(
+    employeeId: string, 
+    videoId: string, 
+    progressPercent: number, 
+    completedAt?: Date
+  ): Promise<ApiResult<boolean>> {
+    const operation = 'progress.update';
+    performanceTracker.start(operation);
+    
+    try {
+      const { error } = await supabase
+        .from('video_progress')
+        .upsert({
+          employee_id: employeeId,
+          video_id: videoId,
+          progress_percent: Math.max(0, Math.min(100, progressPercent)),
+          completed_at: completedAt?.toISOString() || null,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'employee_id,video_id'
+        });
+
+      if (error) {
+        logger.error('Failed to update progress', { 
+          employeeId, 
+          videoId, 
+          progressPercent, 
+          errorMessage: error.message 
+        });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Progress updated successfully', { employeeId, videoId, progressPercent });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error updating progress', { 
+        employeeId, 
+        videoId, 
+        errorMessage: String(error) 
+      });
+      return { data: null, error: 'Failed to update progress', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  }
+};
