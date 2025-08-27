@@ -148,46 +148,18 @@ export const EditVideoModal = ({
                      </div>
                    </div>
                    
-                    {/* Video Source Link */}
-                    {sourceUrl && (
-                      <div className="text-left space-y-2">
-                        {isYouTube ? (
-                          <div className="flex items-center justify-between bg-muted/50 rounded-md p-2">
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <FileVideo className="w-3 h-3 text-muted-foreground shrink-0" />
-                              <span className="text-sm text-muted-foreground truncate">YouTube Video</span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                navigator.clipboard.writeText(sourceUrl as string);
-                                toast({
-                                  title: "URL Copied",
-                                  description: "YouTube video URL copied to clipboard",
-                                });
-                              }}
-                              className="h-8 px-2"
-                            >
-                              <Copy className="w-3 h-3" />
-                              <span className="sr-only">Copy YouTube URL</span>
-                            </Button>
-                          </div>
-                        ) : (
-                          <a
-                            href={sourceUrl as string}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-muted-foreground hover:text-foreground underline inline-flex items-center gap-1"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                            {isGoogleDrive ? 'Google Drive Video' : 
-                             isFileUpload ? 'Uploaded File' : 
-                             'View Original Source'}
-                          </a>
-                        )}
+                    {/* Video Source */}
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <FileVideo className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {isYouTube ? 'YouTube Video' : 
+                           isGoogleDrive ? 'Google Drive Video' : 
+                           isFileUpload ? 'Uploaded File' : 
+                           'External Video'}
+                        </span>
                       </div>
-                    )}
+                    </div>
                  </div>
 
                 {/* Title Section */}
