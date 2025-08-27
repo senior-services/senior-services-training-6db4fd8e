@@ -74,8 +74,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [videoDeadlines, setVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [initialVideoDeadlines, setInitialVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [calendarOpen, setCalendarOpen] = useState<Map<string, boolean>>(new Map());
-  const [bulkCalendarOpen, setBulkCalendarOpen] = useState(false);
-  const [bulkDate, setBulkDate] = useState<Date>();
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
@@ -247,24 +245,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     }
   };
 
-  const handleBulkDateApply = () => {
-    if (!bulkDate) return;
-    
-    const newDeadlines = new Map(videoDeadlines);
-    selectedVideoIds.forEach(videoId => {
-      newDeadlines.set(videoId, bulkDate);
-    });
-    setVideoDeadlines(newDeadlines);
-    setBulkCalendarOpen(false);
-    setBulkDate(undefined);
-  };
-
   const closeModal = () => {
     setSelectedVideoIds(new Set(assignedVideoIds));
     setVideoDeadlines(new Map(initialVideoDeadlines));
     setCalendarOpen(new Map());
-    setBulkCalendarOpen(false);
-    setBulkDate(undefined);
     setShowDiscardDialog(false);
     onOpenChange(false);
   };
@@ -319,66 +303,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                   </div>
                 </div>
               </div>
-
-              {/* Bulk Apply Due Date - Show when multiple videos are selected */}
-              {selectedCount > 1 && (
-                <div className="py-3 px-4 bg-muted/30 border rounded-lg mt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium">
-                      Bulk Apply Due Date ({selectedCount} videos)
-                    </div>
-                    <Popover open={bulkCalendarOpen} onOpenChange={setBulkCalendarOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={cn(
-                            "w-[160px] justify-start text-left font-normal",
-                            !bulkDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-3 w-3" />
-                          {bulkDate ? (
-                            format(bulkDate, "MMM dd, yyyy")
-                          ) : (
-                            <span className="text-xs">Pick date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent 
-                        className="w-auto p-0 z-[9999]" 
-                        align="end"
-                        side="bottom"
-                        sideOffset={5}
-                        avoidCollisions={true}
-                        collisionPadding={20}
-                      >
-                        <Calendar
-                          mode="single"
-                          selected={bulkDate}
-                          onSelect={(date) => setBulkDate(date)}
-                          disabled={(date) =>
-                            date < new Date(new Date().setHours(0, 0, 0, 0))
-                          }
-                          initialFocus
-                          className="p-3 pointer-events-auto"
-                        />
-                        {bulkDate && (
-                          <div className="p-3 border-t">
-                            <Button
-                              onClick={handleBulkDateApply}
-                              size="sm"
-                              className="w-full"
-                            >
-                              Apply to All Selected
-                            </Button>
-                          </div>
-                        )}
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
-              )}
 
               <ScrollArea className="flex-1 mt-4 overflow-y-auto">
                 <div className="pr-4">
