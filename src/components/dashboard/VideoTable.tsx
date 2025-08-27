@@ -399,9 +399,9 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                               announceToScreenReader(`Delete confirmation dialog opened for video: ${video.title}`);
                             }}
                             aria-label={`Delete video: ${video.title}`}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
                           >
-                            <Trash2 className="w-4 h-4" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
