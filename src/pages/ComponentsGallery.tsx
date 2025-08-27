@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/accordion";
 import { 
   AlertDialog, 
-  AlertDialogAction, 
+  AlertDialogAction,
   AlertDialogCancel, 
   AlertDialogContent, 
   AlertDialogDescription, 
@@ -146,12 +146,14 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
     const aValue = a[sortColumn as keyof typeof a];
     const bValue = b[sortColumn as keyof typeof b];
     
+    // Handle numerical sorting for department column
     if (sortColumn === "department") {
       const aNum = parseInt(aValue);
       const bNum = parseInt(bValue);
       return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
     }
     
+    // String sorting for other columns
     if (sortDirection === "asc") {
       return aValue.localeCompare(bValue);
     } else {
@@ -222,680 +224,1050 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
             
             {/* Color Palette Section */}
             <AccordionItem value="colors">
+              <AccordionTrigger className="text-xl font-semibold">Color Palette</AccordionTrigger>
               <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    Color Palette
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">Design system color tokens and semantic colors</p>
-                  </div>
-                  <div className="p-6 space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      
-                      {/* Primary Colors */}
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase text-secondary">Primary Colors</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-primary border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Primary</div>
-                              <div className="text-xs text-muted-foreground">--primary</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-primary-light border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Primary Light</div>
-                              <div className="text-xs text-muted-foreground">--primary-light</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-primary-dark border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Primary Dark</div>
-                              <div className="text-xs text-muted-foreground">--primary-dark</div>
-                            </div>
-                          </div>
-                        </div>
+                <Card>
+                  <CardHeader>
+                    <CardDescription>Design system color tokens and semantic colors</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                {/* Primary Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Primary Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-primary border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary</div>
+                        <div className="text-xs text-muted-foreground">--primary</div>
                       </div>
-
-                      {/* Secondary Colors */}
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase text-secondary">Secondary Colors</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-secondary border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Secondary</div>
-                              <div className="text-xs text-muted-foreground">--secondary</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-accent border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Accent</div>
-                              <div className="text-xs text-muted-foreground">--accent</div>
-                            </div>
-                          </div>
-                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-primary-light border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary Light</div>
+                        <div className="text-xs text-muted-foreground">--primary-light</div>
                       </div>
-
-                      {/* Status Colors */}
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase text-secondary">Status Colors</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-success border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Success</div>
-                              <div className="text-xs text-muted-foreground">--success</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-warning border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Warning</div>
-                              <div className="text-xs text-muted-foreground">--warning</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-destructive border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Destructive</div>
-                              <div className="text-xs text-muted-foreground">--destructive</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* UI Colors */}
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase text-secondary">UI Colors</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-background border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Background</div>
-                              <div className="text-xs text-muted-foreground">--background</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-card border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Card</div>
-                              <div className="text-xs text-muted-foreground">--card</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-muted border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Muted</div>
-                              <div className="text-xs text-muted-foreground">--muted</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Border & Input Colors */}
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase text-secondary">Border & Input</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-border border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Border</div>
-                              <div className="text-xs text-muted-foreground">--border</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-input border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Input</div>
-                              <div className="text-xs text-muted-foreground">--input</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-ring border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Ring</div>
-                              <div className="text-xs text-muted-foreground">--ring</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Gradient Examples */}
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase text-secondary">Gradients</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-gradient-primary border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Primary Gradient</div>
-                              <div className="text-xs text-muted-foreground">--gradient-primary</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-gradient-hero border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Hero Gradient</div>
-                              <div className="text-xs text-muted-foreground">--gradient-hero</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-gradient-card border border-border shadow-sm"></div>
-                            <div>
-                              <div className="text-sm font-medium">Card Gradient</div>
-                              <div className="text-xs text-muted-foreground">--gradient-card</div>
-                            </div>
-                          </div>
-                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-primary-dark border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary Dark</div>
+                        <div className="text-xs text-muted-foreground">--primary-dark</div>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Secondary Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Secondary Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-secondary border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Secondary</div>
+                        <div className="text-xs text-muted-foreground">--secondary</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-accent border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Accent</div>
+                        <div className="text-xs text-muted-foreground">--accent</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Status Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-success border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Success</div>
+                        <div className="text-xs text-muted-foreground">--success</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-warning border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Warning</div>
+                        <div className="text-xs text-muted-foreground">--warning</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-destructive border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Destructive</div>
+                        <div className="text-xs text-muted-foreground">--destructive</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* UI Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">UI Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Background</div>
+                        <div className="text-xs text-muted-foreground">--background</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-card border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Card</div>
+                        <div className="text-xs text-muted-foreground">--card</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-muted border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Muted</div>
+                        <div className="text-xs text-muted-foreground">--muted</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Border & Input Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Border & Input</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-border border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Border</div>
+                        <div className="text-xs text-muted-foreground">--border</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-input border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Input</div>
+                        <div className="text-xs text-muted-foreground">--input</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-ring border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Ring</div>
+                        <div className="text-xs text-muted-foreground">--ring</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gradient Examples */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Gradients</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-primary border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary Gradient</div>
+                        <div className="text-xs text-muted-foreground">--gradient-primary</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-hero border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Hero Gradient</div>
+                        <div className="text-xs text-muted-foreground">--gradient-hero</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-card border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Card Gradient</div>
+                        <div className="text-xs text-muted-foreground">--gradient-card</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
 
             {/* Typography Section */}
             <AccordionItem value="typography">
+              <AccordionTrigger className="text-xl font-semibold">Typography</AccordionTrigger>
               <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    Typography
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">Text styles and hierarchy</p>
-                  </div>
-                  <div className="p-6 space-y-6">
-                    <div className="space-y-4">
-                      <h1 className="text-4xl font-bold">Heading 1</h1>
-                      <h2 className="text-3xl font-semibold">Heading 2</h2>
-                      <h3 className="text-2xl font-medium">Heading 3</h3>
-                      <h4 className="text-xl font-medium">Heading 4</h4>
-                      <p className="text-base">Body text - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                      <p className="text-base font-bold">Body text bold - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                      <p className="text-base font-medium">Body text medium - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                      <p className="text-sm text-muted-foreground">Small text - Secondary information</p>
-                      <p className="text-sm text-muted-foreground font-bold">Small text bold - Secondary information</p>
-                      <p className="text-sm text-muted-foreground font-medium">Small text medium - Secondary information</p>
-                      <p className="text-xs text-muted-foreground">Extra small text - Captions and labels</p>
-                      <p className="text-xs text-muted-foreground font-bold">Extra small text bold - Captions and labels</p>
-                      <p className="text-xs text-muted-foreground font-medium">Extra small text medium - Captions and labels</p>
-                      <code className="bg-muted px-2 py-1 rounded text-sm font-mono">Code snippet</code>
-                    </div>
-                  </div>
-                </div>
+                <Card>
+                  <CardHeader>
+                    <CardDescription>Text styles and hierarchy</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h1 className="text-4xl font-bold">Heading 1</h1>
+                <h2 className="text-3xl font-semibold">Heading 2</h2>
+                <h3 className="text-2xl font-medium">Heading 3</h3>
+                <h4 className="text-xl font-medium">Heading 4</h4>
+                <p className="text-base">Body text - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <p className="text-base font-bold">Body text bold - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <p className="text-base font-medium">Body text medium - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <p className="text-sm text-muted-foreground">Small text - Secondary information</p>
+                <p className="text-sm text-muted-foreground font-bold">Small text bold - Secondary information</p>
+                <p className="text-sm text-muted-foreground font-medium">Small text medium - Secondary information</p>
+                <p className="text-xs text-muted-foreground">Extra small text - Captions and labels</p>
+                <p className="text-xs text-muted-foreground font-bold">Extra small text bold - Captions and labels</p>
+                <p className="text-xs text-muted-foreground font-medium">Extra small text medium - Captions and labels</p>
+                <code className="bg-muted px-2 py-1 rounded text-sm font-mono">Code snippet</code>
+              </div>
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
 
             {/* Buttons Section */}
             <AccordionItem value="buttons">
+              <AccordionTrigger className="text-xl font-semibold">Buttons</AccordionTrigger>
               <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    Buttons
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">All button variants and states</p>
+                <Card>
+                  <CardHeader>
+                    <CardDescription>All button variants and states</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+              <Tabs defaultValue="variants">
+                <TabsList>
+                  <TabsTrigger value="variants">Variants</TabsTrigger>
+                  <TabsTrigger value="sizes">Sizes</TabsTrigger>
+                  <TabsTrigger value="icons">With Icons</TabsTrigger>
+                  <TabsTrigger value="states">States</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="variants" className="space-y-4">
+                  <div className="flex flex-wrap gap-3">
+                    <Button>Default</Button>
+                    <Button variant="secondary">Secondary</Button>
+                    <Button variant="destructive">Destructive</Button>
+                    <Button variant="outline">Outline</Button>
+                    <Button variant="ghost">Ghost</Button>
+                    <Button variant="link">Link</Button>
                   </div>
-                  <div className="p-6">
-                    <Tabs defaultValue="variants">
-                      <TabsList>
-                        <TabsTrigger value="variants">Variants</TabsTrigger>
-                        <TabsTrigger value="sizes">Sizes</TabsTrigger>
-                        <TabsTrigger value="icons">With Icons</TabsTrigger>
-                        <TabsTrigger value="states">States</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="variants" className="space-y-4">
-                        <div className="flex flex-wrap gap-3">
-                          <Button>Default</Button>
-                          <Button variant="secondary">Secondary</Button>
-                          <Button variant="destructive">Destructive</Button>
-                          <Button variant="outline">Outline</Button>
-                          <Button variant="ghost">Ghost</Button>
-                          <Button variant="link">Link</Button>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="sizes" className="space-y-4">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <Button size="sm">Small</Button>
-                          <Button size="default">Default</Button>
-                          <Button size="lg">Large</Button>
-                          <Button size="icon" variant="ghost"><Settings className="w-4 h-4" /></Button>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="icons" className="space-y-4">
-                        <div className="space-y-4">
-                          <div>
-                            <h4 className="text-sm font-medium mb-2">With Text and Icons</h4>
-                            <div className="flex flex-wrap gap-3">
-                              <Button><Plus className="w-4 h-4 mr-2" />Add New</Button>
-                              <Button variant="outline"><Edit className="w-4 h-4 mr-2" />Edit</Button>
-                              <Button variant="destructive">
-                                <Trash2 className="w-4 h-4 mr-2" />Delete
-                              </Button>
-                              <Button variant="ghost"><Download className="w-4 h-4 mr-2" />Download</Button>
-                              <Button variant="secondary"><Settings className="w-4 h-4 mr-2" />Settings</Button>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="states" className="space-y-4">
-                        <div className="flex flex-wrap gap-3">
-                          <Button>Normal</Button>
-                          <Button disabled>Disabled</Button>
-                          <Button onClick={toggleLoading} disabled={isLoading}>
-                            {isLoading ? "Loading..." : "Click to Load"}
+                </TabsContent>
+                
+                <TabsContent value="sizes" className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button size="sm">Small</Button>
+                    <Button size="default">Default</Button>
+                    <Button size="lg">Large</Button>
+                    <Button size="icon" variant="ghost"><Settings className="w-4 h-4" /></Button>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="icons" className="space-y-4">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">With Text and Icons</h4>
+                      <div className="flex flex-wrap gap-3">
+                        <Button><Plus className="w-4 h-4 mr-2" />Add New</Button>
+                        <Button variant="outline"><Edit className="w-4 h-4 mr-2" />Edit</Button>
+                        <Button variant="destructive">
+                          <Trash2 className="w-4 h-4 mr-2" />Delete
+                        </Button>
+                        <Button variant="ghost"><Download className="w-4 h-4 mr-2" />Download</Button>
+                        <Button variant="secondary"><Settings className="w-4 h-4 mr-2" />Settings</Button>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Icon Only (Click to cycle icons)</h4>
+                      <div className="grid grid-cols-5 gap-4">
+                        <div className="flex flex-col items-center gap-1">
+                          <Button 
+                            size="icon" 
+                            onClick={() => cycleIcon('default')}
+                            className="cursor-pointer"
+                          >
+                            {(() => {
+                              const IconComponent = getIconComponent(buttonIcons.default);
+                              return <IconComponent className="w-4 h-4" />;
+                            })()}
                           </Button>
+                          <span className="text-xs text-muted-foreground">default</span>
                         </div>
-                      </TabsContent>
-                    </Tabs>
+                        <div className="flex flex-col items-center gap-1">
+                          <Button 
+                            size="icon" 
+                            variant="outline" 
+                            onClick={() => cycleIcon('outline')}
+                            className="cursor-pointer"
+                          >
+                            {(() => {
+                              const IconComponent = getIconComponent(buttonIcons.outline);
+                              return <IconComponent className="w-4 h-4" />;
+                            })()}
+                          </Button>
+                          <span className="text-xs text-muted-foreground">outline</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <Button 
+                            size="icon" 
+                            variant="destructive" 
+                            onClick={() => cycleIcon('destructive')}
+                            className="cursor-pointer"
+                          >
+                            {(() => {
+                              const IconComponent = getIconComponent(buttonIcons.destructive);
+                              return <IconComponent className="w-4 h-4" />;
+                            })()}
+                          </Button>
+                          <span className="text-xs text-muted-foreground">destructive</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <Button 
+                            size="icon" 
+                            variant="ghost" 
+                            onClick={() => cycleIcon('ghost')}
+                            className="cursor-pointer"
+                          >
+                            {(() => {
+                              const IconComponent = getIconComponent(buttonIcons.ghost);
+                              return <IconComponent className="w-4 h-4" />;
+                            })()}
+                          </Button>
+                          <span className="text-xs text-muted-foreground">ghost</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <Button 
+                            size="icon" 
+                            variant="secondary" 
+                            onClick={() => cycleIcon('secondary')}
+                            className="cursor-pointer"
+                          >
+                            {(() => {
+                              const IconComponent = getIconComponent(buttonIcons.secondary);
+                              return <IconComponent className="w-4 h-4" />;
+                            })()}
+                          </Button>
+                          <span className="text-xs text-muted-foreground">secondary</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </TabsContent>
+                
+                <TabsContent value="states" className="space-y-4">
+                  <div className="flex flex-wrap gap-3">
+                    <Button>Normal</Button>
+                    <Button disabled>Disabled</Button>
+                    <Button onClick={toggleLoading} disabled={isLoading}>
+                      {isLoading ? "Loading..." : "Click to Load"}
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
 
             {/* Form Controls Section */}
             <AccordionItem value="forms">
+              <AccordionTrigger className="text-xl font-semibold">Form Controls</AccordionTrigger>
               <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    Form Controls
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">Input fields and form elements</p>
+                <Card>
+                  <CardHeader>
+                    <CardDescription>Input fields and form elements</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="text-input">Text Input</Label>
+                    <Input id="text-input" placeholder="Enter text here..." />
                   </div>
-                  <div className="p-6 space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="text-input">Text Input</Label>
-                          <Input id="text-input" placeholder="Enter text here..." />
-                        </div>
-                        <div>
-                          <Label htmlFor="disabled-input">Disabled Input</Label>
-                          <Input id="disabled-input" placeholder="Disabled input" disabled />
-                        </div>
-                        <div>
-                          <Label htmlFor="textarea">Textarea</Label>
-                          <Textarea id="textarea" placeholder="Enter longer text here..." />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <div className="flex items-center space-x-2">
-                          <Switch 
-                            id="switch" 
-                            checked={switchValue} 
-                            onCheckedChange={setSwitchValue} 
-                          />
-                          <Label htmlFor="switch">Switch Toggle</Label>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id="checkbox" 
-                            checked={checkboxValue} 
-                            onCheckedChange={(checked) => setCheckboxValue(checked as boolean)} 
-                          />
-                          <Label htmlFor="checkbox">Checkbox</Label>
-                        </div>
-                        
-                        <RadioGroup value={radioValue} onValueChange={setRadioValue}>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="option1" id="option1" />
-                            <Label htmlFor="option1">Option 1</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="option2" id="option2" />
-                            <Label htmlFor="option2">Option 2</Label>
-                          </div>
-                        </RadioGroup>
-                        
-                        <div>
-                          <Label>Select Dropdown</Label>
-                          <Select value={selectValue} onValueChange={setSelectValue}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select an option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="option1">Option 1</SelectItem>
-                              <SelectItem value="option2">Option 2</SelectItem>
-                              <SelectItem value="option3">Option 3</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
+                  <div>
+                    <Label htmlFor="disabled-input">Disabled Input</Label>
+                    <Input id="disabled-input" placeholder="Disabled input" disabled />
+                  </div>
+                  <div>
+                    <Label htmlFor="textarea">Textarea</Label>
+                    <Textarea id="textarea" placeholder="Enter longer text here..." />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      id="switch" 
+                      checked={switchValue} 
+                      onCheckedChange={setSwitchValue} 
+                    />
+                    <Label htmlFor="switch">Switch Toggle</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="checkbox" 
+                      checked={checkboxValue} 
+                      onCheckedChange={(checked) => setCheckboxValue(checked as boolean)} 
+                    />
+                    <Label htmlFor="checkbox">Checkbox</Label>
+                  </div>
+                  
+                  <RadioGroup value={radioValue} onValueChange={setRadioValue}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="option1" id="option1" />
+                      <Label htmlFor="option1">Option 1</Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="option2" id="option2" />
+                      <Label htmlFor="option2">Option 2</Label>
+                    </div>
+                  </RadioGroup>
+                  
+                  <div>
+                    <Label>Select Dropdown</Label>
+                    <Select value={selectValue} onValueChange={setSelectValue}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an option" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="option1">Option 1</SelectItem>
+                        <SelectItem value="option2">Option 2</SelectItem>
+                        <SelectItem value="option3">Option 3</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Tables Section */}
-            <AccordionItem value="tables">
-              <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    Tables & Data Display
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">Data tables with sorting, filtering, and status indicators</p>
+          {/* Feedback Components */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Feedback Components</CardTitle>
+              <CardDescription>Alerts, badges, and progress indicators</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Alerts</h3>
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Info Alert</AlertTitle>
+                  <AlertDescription>This is an informational alert message.</AlertDescription>
+                </Alert>
+                <Alert variant="destructive">
+                  <X className="h-4 w-4" />
+                  <AlertTitle>Error Alert</AlertTitle>
+                  <AlertDescription>This is an error alert message.</AlertDescription>
+                </Alert>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Badges</h3>
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Solid Badges</h4>
+                       <div className="flex flex-wrap gap-2">
+                        <Badge>Primary</Badge>
+                        <Badge variant="secondary">Secondary</Badge>
+                        <Badge variant="destructive">Destructive</Badge>
+                        <Badge variant="destructive" showIcon>Destructive with Icon</Badge>
+                        <Badge variant="success">Success</Badge>
+                        <Badge variant="success" showIcon>Success with Icon</Badge>
+                        <Badge variant="warning">Warning</Badge>
+                        <Badge variant="warning" showIcon>Warning with Icon</Badge>
+                      </div>
                   </div>
-                  <div className="p-6">
-                    <Tabs defaultValue="basic">
-                      <TabsList>
-                        <TabsTrigger value="basic">Basic Table</TabsTrigger>
-                        <TabsTrigger value="sortable">Sortable</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="basic" className="space-y-4">
-                        <Table>
-                          <TableCaption>A simple data table</TableCaption>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="text-sm font-bold uppercase text-secondary">Name</TableHead>
-                              <TableHead className="text-sm font-bold uppercase text-secondary">Email</TableHead>
-                              <TableHead className="text-sm font-bold uppercase text-secondary">Role</TableHead>
-                              <TableHead className="text-right text-sm font-bold uppercase text-secondary">Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <TableRow>
-                              <TableCell className="font-medium">John Doe</TableCell>
-                              <TableCell>john@example.com</TableCell>
-                              <TableCell>Admin</TableCell>
-                              <TableCell className="text-right">
-                                <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell className="font-medium">Jane Smith</TableCell>
-                              <TableCell>jane@example.com</TableCell>
-                              <TableCell>User</TableCell>
-                              <TableCell className="text-right">
-                                <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TabsContent>
-                      
-                      <TabsContent value="sortable" className="space-y-4">
-                        <Table>
-                          <TableCaption>Sortable table with interactive headers</TableCaption>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>
-                                <Button 
-                                  variant="ghost" 
-                                  className={`text-sm font-bold uppercase text-secondary p-0 h-auto hover:bg-transparent ${
-                                    sortColumn === "name" ? "text-foreground font-bold" : ""
-                                  }`}
-                                  onClick={() => handleSort("name")}
-                                >
-                                  Name 
-                                  {sortColumn === "name" ? (
-                                    sortDirection === "asc" ? 
-                                      <ArrowUp className="w-4 h-4 ml-1" /> : 
-                                      <ArrowDown className="w-4 h-4 ml-1" />
-                                  ) : (
-                                    <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
-                                  )}
-                                </Button>
-                              </TableHead>
-                              <TableHead>
-                                <Button 
-                                  variant="ghost" 
-                                  className={`text-sm font-bold uppercase text-secondary p-0 h-auto hover:bg-transparent ${
-                                    sortColumn === "email" ? "text-foreground font-bold" : ""
-                                  }`}
-                                  onClick={() => handleSort("email")}
-                                >
-                                  Email
-                                  {sortColumn === "email" ? (
-                                    sortDirection === "asc" ? 
-                                      <ArrowUp className="w-4 h-4 ml-1" /> : 
-                                      <ArrowDown className="w-4 h-4 ml-1" />
-                                  ) : (
-                                    <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
-                                  )}
-                                </Button>
-                              </TableHead>
-                              <TableHead>
-                                <Button 
-                                  variant="ghost" 
-                                  className={`text-sm font-bold uppercase text-secondary p-0 h-auto hover:bg-transparent ${
-                                    sortColumn === "department" ? "text-foreground font-bold" : ""
-                                  }`}
-                                  onClick={() => handleSort("department")}
-                                >
-                                  Department
-                                  {sortColumn === "department" ? (
-                                    sortDirection === "asc" ? 
-                                      <ArrowUp className="w-4 h-4 ml-1" /> : 
-                                      <ArrowDown className="w-4 h-4 ml-1" />
-                                  ) : (
-                                    <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
-                                  )}
-                                </Button>
-                              </TableHead>
-                              <TableHead className="text-right text-sm font-bold uppercase text-secondary">Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {sortedData.map((user, index) => (
-                              <TableRow key={index}>
-                                <TableCell className="font-medium">{user.name}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>{user.department}</TableCell>
-                                <TableCell className="text-right">
-                                  <div className="flex gap-1 justify-end">
-                                    <Button size="sm" variant="ghost">
-                                      <Edit className="w-4 h-4" />
-                                    </Button>
-                                    <Button size="sm" variant="ghost">
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TabsContent>
-                    </Tabs>
+                  <div>
+                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Hollow Badges</h4>
+                     <div className="flex flex-wrap gap-2">
+                        <Badge variant="hollow-primary">Primary</Badge>
+                        <Badge variant="hollow-secondary">Secondary</Badge>
+                        <Badge variant="hollow-destructive">Destructive</Badge>
+                        <Badge variant="hollow-destructive" showIcon>Destructive with Icon</Badge>
+                        <Badge variant="hollow-success">Success</Badge>
+                        <Badge variant="hollow-success" showIcon>Success with Icon</Badge>
+                        <Badge variant="hollow-warning">Warning</Badge>
+                        <Badge variant="hollow-warning" showIcon>Warning with Icon</Badge>
+                        <Badge variant="outline">Outline</Badge>
+                        <Badge variant="hollow-plain">Plain</Badge>
+                      </div>
                   </div>
                 </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Progress</h3>
+                <Progress value={progress} className="w-full" />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => setProgress(Math.max(0, progress - 10))}>-10</Button>
+                  <Button size="sm" onClick={() => setProgress(Math.min(100, progress + 10))}>+10</Button>
+                  <span className="text-sm text-muted-foreground">{progress}%</span>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Toast Messages</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => showToast("default")}>Info Toast</Button>
+                  <Button size="sm" onClick={() => showToast("success")}>Success Toast</Button>
+                  <Button size="sm" variant="destructive" onClick={() => showToast("destructive")}>Error Toast</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Data Display */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Data Display</CardTitle>
+              <CardDescription>Tables, avatars, and data presentation</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Avatars</h3>
+                <div className="flex gap-4">
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <Avatar>
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  <Avatar>
+                    <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
+                  </Avatar>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Tables</h3>
+                
+                <Tabs defaultValue="basic">
+                  <TabsList>
+                    <TabsTrigger value="basic">Basic</TabsTrigger>
+                    <TabsTrigger value="sortable">Sortable</TabsTrigger>
+                    <TabsTrigger value="filtered">With Filters</TabsTrigger>
+                    <TabsTrigger value="statuses">With Statuses</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="basic" className="space-y-4">
+                    <Table>
+                      <TableCaption>A simple data table</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Name</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Email</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Role</TableHead>
+                           <TableHead className="text-right text-sm font-bold uppercase text-secondary">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">John Doe</TableCell>
+                          <TableCell>john@example.com</TableCell>
+                          <TableCell>Admin</TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="ghost">
+                              <Edit className="w-4 h-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Jane Smith</TableCell>
+                          <TableCell>jane@example.com</TableCell>
+                          <TableCell>User</TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="ghost">
+                              <Edit className="w-4 h-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="sortable" className="space-y-4">
+                    <Table>
+                      <TableCaption>Sortable table with interactive headers</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>
+                             <Button 
+                               variant="ghost" 
+                               className={`text-sm font-bold uppercase text-secondary p-0 h-auto hover:bg-transparent ${
+                                 sortColumn === "name" ? "text-foreground font-bold" : ""
+                               }`}
+                               onClick={() => handleSort("name")}
+                             >
+                              Name 
+                              {sortColumn === "name" ? (
+                                sortDirection === "asc" ? 
+                                  <ArrowUp className="w-4 h-4 ml-1" /> : 
+                                  <ArrowDown className="w-4 h-4 ml-1" />
+                              ) : (
+                                <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
+                              )}
+                            </Button>
+                          </TableHead>
+                          <TableHead>
+                             <Button 
+                               variant="ghost" 
+                               className={`text-sm font-bold uppercase text-secondary p-0 h-auto hover:bg-transparent ${
+                                 sortColumn === "email" ? "text-foreground font-bold" : ""
+                               }`}
+                               onClick={() => handleSort("email")}
+                             >
+                              Email
+                              {sortColumn === "email" ? (
+                                sortDirection === "asc" ? 
+                                  <ArrowUp className="w-4 h-4 ml-1" /> : 
+                                  <ArrowDown className="w-4 h-4 ml-1" />
+                              ) : (
+                                <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
+                              )}
+                            </Button>
+                          </TableHead>
+                          <TableHead>
+                             <Button 
+                               variant="ghost" 
+                               className={`text-sm font-bold uppercase text-secondary p-0 h-auto hover:bg-transparent ${
+                                 sortColumn === "department" ? "text-foreground font-bold" : ""
+                               }`}
+                               onClick={() => handleSort("department")}
+                             >
+                              Department
+                              {sortColumn === "department" ? (
+                                sortDirection === "asc" ? 
+                                  <ArrowUp className="w-4 h-4 ml-1" /> : 
+                                  <ArrowDown className="w-4 h-4 ml-1" />
+                              ) : (
+                                <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
+                              )}
+                            </Button>
+                          </TableHead>
+                           <TableHead className="text-right text-sm font-bold uppercase text-secondary">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                       <TableBody>
+                         {sortedData.map((user, index) => (
+                           <TableRow key={index}>
+                             <TableCell className="font-medium">{user.name}</TableCell>
+                             <TableCell>{user.email}</TableCell>
+                             <TableCell>{user.department}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex gap-1 justify-end">
+                                  <Button size="sm" variant="ghost">
+                                    <Eye className="w-4 h-4" />
+                                    <span className="sr-only">View</span>
+                                  </Button>
+                                  <Button size="sm" variant="ghost">
+                                    <Edit className="w-4 h-4" />
+                                    <span className="sr-only">Edit</span>
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                                    <Trash2 className="w-4 h-4" />
+                                    <span className="sr-only">Delete</span>
+                                  </Button>
+                                </div>
+                              </TableCell>
+                           </TableRow>
+                         ))}
+                       </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="filtered" className="space-y-4">
+                    <div className="flex gap-2 mb-4">
+                      <Select defaultValue="all">
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select defaultValue="all">
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Roles</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="manager">Manager</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input placeholder="Search by name..." className="w-[200px]" />
+                    </div>
+                    <Table>
+                      <TableCaption>Filtered table with search and dropdown filters</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">User</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Status</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Role</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Last Activity</TableHead>
+                           <TableHead className="text-right text-sm font-bold uppercase text-secondary">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                       <TableBody>
+                         <TableRow>
+                           <TableCell>
+                             <div className="flex items-center gap-3">
+                               <Avatar className="w-8 h-8">
+                                 <AvatarFallback>CJ</AvatarFallback>
+                               </Avatar>
+                               <div>
+                                 <div className="font-medium">Charlie Jones</div>
+                                 <div className="text-sm text-muted-foreground">charlie@example.com</div>
+                               </div>
+                             </div>
+                           </TableCell>
+                           <TableCell><Badge variant="success">Active</Badge></TableCell>
+                           <TableCell><Badge variant="hollow-primary">Manager</Badge></TableCell>
+                           <TableCell className="text-muted-foreground">2 hours ago</TableCell>
+                           <TableCell className="text-right">
+                             <DropdownMenu>
+                               <DropdownMenuTrigger asChild>
+                                 <Button size="sm" variant="ghost">•••</Button>
+                               </DropdownMenuTrigger>
+                               <DropdownMenuContent align="end">
+                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                 <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
+                                 <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                                 <DropdownMenuSeparator />
+                                 <DropdownMenuItem className="text-destructive">
+                                   <Trash2 className="w-4 h-4 mr-2" />Delete
+                                 </DropdownMenuItem>
+                               </DropdownMenuContent>
+                             </DropdownMenu>
+                           </TableCell>
+                         </TableRow>
+                         <TableRow>
+                           <TableCell>
+                             <div className="flex items-center gap-3">
+                               <Avatar className="w-8 h-8">
+                                 <AvatarFallback>DM</AvatarFallback>
+                               </Avatar>
+                               <div>
+                                 <div className="font-medium">Diana Miller</div>
+                                 <div className="text-sm text-muted-foreground">diana@example.com</div>
+                               </div>
+                             </div>
+                           </TableCell>
+                           <TableCell><Badge variant="warning">Pending</Badge></TableCell>
+                           <TableCell><Badge variant="hollow-secondary">User</Badge></TableCell>
+                           <TableCell className="text-muted-foreground">1 day ago</TableCell>
+                           <TableCell className="text-right">
+                             <DropdownMenu>
+                               <DropdownMenuTrigger asChild>
+                                 <Button size="sm" variant="ghost">•••</Button>
+                               </DropdownMenuTrigger>
+                               <DropdownMenuContent align="end">
+                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                 <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
+                                 <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                                 <DropdownMenuSeparator />
+                                 <DropdownMenuItem className="text-destructive">
+                                   <Trash2 className="w-4 h-4 mr-2" />Delete
+                                 </DropdownMenuItem>
+                               </DropdownMenuContent>
+                             </DropdownMenu>
+                           </TableCell>
+                         </TableRow>
+                       </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="statuses" className="space-y-4">
+                    <Table>
+                      <TableCaption>Table with various status badges and progress indicators</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Project</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Progress</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Status</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Priority</TableHead>
+                           <TableHead className="text-sm font-bold uppercase text-secondary">Assignee</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                       <TableBody>
+                         <TableRow>
+                           <TableCell>
+                             <div>
+                               <div className="font-medium">Website Redesign</div>
+                               <div className="text-sm text-muted-foreground">Frontend improvements</div>
+                             </div>
+                           </TableCell>
+                           <TableCell>
+                             <div className="space-y-1">
+                               <Progress value={75} className="w-[60px]" />
+                               <div className="text-xs text-muted-foreground">75%</div>
+                             </div>
+                           </TableCell>
+                           <TableCell><Badge variant="success" showIcon>Complete</Badge></TableCell>
+                           <TableCell><Badge variant="destructive">High</Badge></TableCell>
+                           <TableCell>
+                             <Avatar className="w-6 h-6">
+                               <AvatarFallback className="text-xs">JS</AvatarFallback>
+                             </Avatar>
+                           </TableCell>
+                         </TableRow>
+                         <TableRow>
+                           <TableCell>
+                             <div>
+                               <div className="font-medium">Mobile App</div>
+                               <div className="text-sm text-muted-foreground">iOS & Android development</div>
+                             </div>
+                           </TableCell>
+                           <TableCell>
+                             <div className="space-y-1">
+                               <Progress value={45} className="w-[60px]" />
+                               <div className="text-xs text-muted-foreground">45%</div>
+                             </div>
+                           </TableCell>
+                           <TableCell><Badge variant="warning" showIcon>In Progress</Badge></TableCell>
+                           <TableCell><Badge variant="secondary">Medium</Badge></TableCell>
+                           <TableCell>
+                             <Avatar className="w-6 h-6">
+                               <AvatarFallback className="text-xs">AM</AvatarFallback>
+                             </Avatar>
+                           </TableCell>
+                         </TableRow>
+                         <TableRow>
+                           <TableCell>
+                             <div>
+                               <div className="font-medium">API Integration</div>
+                               <div className="text-sm text-muted-foreground">Backend services</div>
+                             </div>
+                           </TableCell>
+                           <TableCell>
+                             <div className="space-y-1">
+                               <Progress value={20} className="w-[60px]" />
+                               <div className="text-xs text-muted-foreground">20%</div>
+                             </div>
+                           </TableCell>
+                           <TableCell><Badge variant="hollow-destructive" showIcon>Blocked</Badge></TableCell>
+                           <TableCell><Badge variant="hollow-warning">Low</Badge></TableCell>
+                           <TableCell>
+                             <Avatar className="w-6 h-6">
+                               <AvatarFallback className="text-xs">RK</AvatarFallback>
+                             </Avatar>
+                           </TableCell>
+                         </TableRow>
+                       </TableBody>
+                    </Table>
+                  </TabsContent>
+                </Tabs>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Loading States</h3>
+                <LoadingSkeleton />
+              </div>
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
 
             {/* Interactive Components Section */}
             <AccordionItem value="interactive">
+              <AccordionTrigger className="text-xl font-semibold">Interactive Components</AccordionTrigger>
               <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    Interactive Components
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">Dialogs, dropdowns, and overlays</p>
-                  </div>
-                  <div className="p-6 space-y-6">
-                    <div className="flex flex-wrap gap-4">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button>Open Dialog</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Dialog Title</DialogTitle>
-                            <DialogDescription>
-                              This is a dialog description explaining what this dialog does.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div>
-                            <p>Dialog content goes here.</p>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline">Cancel</Button>
-                            <Button>Confirm</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive">Delete Item</Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete your data.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction>Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline">Dropdown Menu</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem><User className="w-4 h-4 mr-2" />Profile</DropdownMenuItem>
-                          <DropdownMenuItem><Settings className="w-4 h-4 mr-2" />Settings</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem><Bell className="w-4 h-4 mr-2" />Notifications</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline">Hover for Tooltip</Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>This is a helpful tooltip</p>
-                        </TooltipContent>
-                      </Tooltip>
+                <Card>
+                  <CardHeader>
+                    <CardDescription>Dialogs, dropdowns, and overlays</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+              <div className="flex flex-wrap gap-4">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Open Dialog</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Dialog Title</DialogTitle>
+                      <DialogDescription>
+                        This is a dialog description explaining what this dialog does.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div>
+                      <p>Dialog content goes here. The body now automatically has proper padding while the header and footer extend full width with their own backgrounds.</p>
                     </div>
+                    <DialogFooter>
+                      <Button variant="outline">Cancel</Button>
+                      <Button>Confirm</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Delete Item</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">Dropdown Menu</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem><User className="w-4 h-4 mr-2" />Profile</DropdownMenuItem>
+                    <DropdownMenuItem><Settings className="w-4 h-4 mr-2" />Settings</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem><Bell className="w-4 h-4 mr-2" />Notifications</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline">Hover for Tooltip</Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>This is a helpful tooltip</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </CardContent>
+          </Card>
 
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Alerts & Feedback</h3>
-                      <div className="space-y-4">
-                        <Alert>
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertTitle>Info Alert</AlertTitle>
-                          <AlertDescription>This is an informational alert message.</AlertDescription>
-                        </Alert>
-                        <Alert variant="destructive">
-                          <X className="h-4 w-4" />
-                          <AlertTitle>Error Alert</AlertTitle>
-                          <AlertDescription>This is an error alert message.</AlertDescription>
-                        </Alert>
+          {/* Calendar Component */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Calendar</CardTitle>
+              <CardDescription>Date picker component</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="rounded-md border pointer-events-auto"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Icons Gallery */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Icons</CardTitle>
+              <CardDescription>Commonly used Lucide icons</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-8 md:grid-cols-12 gap-4">
+                {[
+                  Home, Settings, User, Bell, Search, Plus, Edit, Trash2,
+                  Download, Upload, Eye, EyeOff, AlertCircle, CheckCircle, Info, X
+                ].map((Icon, index) => (
+                  <Tooltip key={index}>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center justify-center p-3 border rounded-lg hover:bg-muted transition-colors">
+                        <Icon className="w-5 h-5" />
                       </div>
-                    </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{Icon.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Progress & Badges</h3>
-                      <div className="space-y-4">
-                        <Progress value={progress} className="w-[60%]" />
-                        <div className="flex gap-2">
-                          <Badge>Default</Badge>
-                          <Badge variant="secondary">Secondary</Badge>
-                          <Badge variant="destructive">Destructive</Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            {/* Navigation & Layout Section */}
-            <AccordionItem value="navigation">
-              <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    Navigation & Layout
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">Breadcrumbs, tabs, separators, and navigation elements</p>
-                  </div>
-                  <div className="p-6 space-y-6">
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Separators</h3>
-                      <div>
-                        <div className="space-y-1">
-                          <h4 className="text-sm font-medium leading-none">Radix Primitives</h4>
-                          <p className="text-sm text-muted-foreground">
-                            An open-source UI component library.
-                          </p>
-                        </div>
-                        <Separator className="my-4" />
-                        <div className="flex h-5 items-center space-x-4 text-sm">
-                          <div>Blog</div>
-                          <Separator orientation="vertical" />
-                          <div>Docs</div>
-                          <Separator orientation="vertical" />
-                          <div>Source</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Example Tabs</h3>
-                      <Tabs defaultValue="tab1" className="w-[400px]">
-                        <TabsList>
-                          <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-                          <TabsTrigger value="tab2">Tab 2</TabsTrigger>
-                          <TabsTrigger value="tab3">Tab 3</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="tab1">
-                          <p>Content for tab 1</p>
-                        </TabsContent>
-                        <TabsContent value="tab2">
-                          <p>Content for tab 2</p>
-                        </TabsContent>
-                        <TabsContent value="tab3">
-                          <p>Content for tab 3</p>
-                        </TabsContent>
-                      </Tabs>
-                    </div>
-                  </div>
-                </div>
+          {/* Layout Components */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Layout Components</CardTitle>
+              <CardDescription>Cards, separators, and tabs</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Card Title</CardTitle>
+                    <CardDescription>Card description</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Card content goes here.</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Another Card</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>More card content.</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Third Card</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Even more content.</p>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Separator />
+              
+              <Tabs defaultValue="tab1">
+                <TabsList>
+                  <TabsTrigger value="tab1">Tab 1</TabsTrigger>
+                  <TabsTrigger value="tab2">Tab 2</TabsTrigger>
+                  <TabsTrigger value="tab3">Tab 3</TabsTrigger>
+                </TabsList>
+                <TabsContent value="tab1">
+                  <p>Content for tab 1</p>
+                </TabsContent>
+                <TabsContent value="tab2">
+                  <p>Content for tab 2</p>
+                </TabsContent>
+                <TabsContent value="tab3">
+                  <p>Content for tab 3</p>
+                </TabsContent>
+              </Tabs>
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
 
             {/* Footer Section */}
             <AccordionItem value="footer">
+              <AccordionTrigger className="text-xl font-semibold">About</AccordionTrigger>
               <AccordionContent>
-                <div className="border rounded-lg">
-                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
-                    About
-                  </AccordionTrigger>
-                  <div className="border-b bg-muted/30 p-4">
-                    <p className="text-sm text-muted-foreground">Built with shadcn/ui and Radix UI</p>
-                  </div>
-                  <div className="p-6">
+                <Card>
+                  <CardContent className="pt-6">
                     <div className="text-center text-sm text-muted-foreground">
                       <p>Components Gallery • Built with shadcn/ui and Radix UI</p>
                       <p className="mt-2">Toggle between light and dark themes to see all variants</p>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
 
