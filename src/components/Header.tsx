@@ -23,7 +23,7 @@ export const Header = ({
           {/* Left Side - Logo and Title */}
           <div className="flex items-center space-x-4">
             <Link to="/dashboard" className="flex items-center space-x-4 hover:opacity-80 transition-opacity">
-              <img src="/lovable-uploads/7e1a4696-94c6-4091-a327-3ef06439c85a.png" alt="Senior Services for South Sound" className="h-12 w-auto object-cover" style={{
+              <img src="/lovable-uploads/17985630-6b86-4141-8e51-dc98494292a5.png" alt="Senior Services for South Sound" className="h-12 w-auto object-cover" style={{
               objectPosition: 'left center'
             }} />
               <div>
