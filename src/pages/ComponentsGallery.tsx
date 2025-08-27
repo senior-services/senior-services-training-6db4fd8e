@@ -565,7 +565,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        <TableRow className="py-0 min-h-[32px]">
+                        <TableRow>
                           <TableCell className="font-medium">John Doe</TableCell>
                           <TableCell>john@example.com</TableCell>
                           <TableCell>Admin</TableCell>
@@ -576,7 +576,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                             </Button>
                           </TableCell>
                         </TableRow>
-                        <TableRow className="py-0 min-h-[32px]">
+                        <TableRow>
                           <TableCell className="font-medium">Jane Smith</TableCell>
                           <TableCell>jane@example.com</TableCell>
                           <TableCell>User</TableCell>
@@ -655,7 +655,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       </TableHeader>
                        <TableBody>
                          {sortedData.map((user, index) => (
-                           <TableRow key={index} className="py-0 min-h-[32px]">
+                           <TableRow key={index}>
                              <TableCell className="font-medium">{user.name}</TableCell>
                              <TableCell>{user.email}</TableCell>
                              <TableCell>{user.department}</TableCell>
@@ -719,7 +719,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        <TableRow className="py-0 min-h-[32px]">
+                        <TableRow>
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <Avatar className="w-8 h-8">
@@ -751,7 +751,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                             </DropdownMenu>
                           </TableCell>
                         </TableRow>
-                        <TableRow className="py-0 min-h-[32px]">
+                        <TableRow>
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <Avatar className="w-8 h-8">
@@ -800,7 +800,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        <TableRow className="py-0 min-h-[32px]">
+                        <TableRow>
                           <TableCell>
                             <div>
                               <div className="font-medium">Website Redesign</div>
@@ -821,7 +821,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                             </Avatar>
                           </TableCell>
                         </TableRow>
-                        <TableRow className="py-0 min-h-[32px]">
+                        <TableRow>
                           <TableCell>
                             <div>
                               <div className="font-medium">Mobile App</div>
@@ -842,7 +842,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                             </Avatar>
                           </TableCell>
                         </TableRow>
-                        <TableRow className="py-0 min-h-[32px]">
+                        <TableRow>
                           <TableCell>
                             <div>
                               <div className="font-medium">API Integration</div>
