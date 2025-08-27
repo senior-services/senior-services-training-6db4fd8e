@@ -243,7 +243,23 @@ export const TrainingCard = memo<TrainingCardProps>(({
         {/* Video Thumbnail with Enhanced Accessibility */}
         <header className="relative">
           <button type="button" onClick={handlePlay} aria-label={ariaLabels.playButton} className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg w-full text-left overflow-hidden">
-            <img src={thumbnailCandidates[thumbIndex]} alt={`${sanitizedVideo.title} - Training video thumbnail`} className="w-full aspect-video object-cover bg-muted transition-transform duration-300 group-hover:scale-105 rounded-lg" loading={priority ? "eager" : "lazy"} onError={handleImageError} />
+            <img 
+              src={thumbnailCandidates[thumbIndex]} 
+              alt={`${sanitizedVideo.title} - Training video thumbnail`} 
+              className="w-full aspect-video object-cover bg-muted transition-transform duration-300 group-hover:scale-105 rounded-lg" 
+              loading={priority ? "eager" : "lazy"}
+              onError={handleImageError}
+              onLoad={() => {
+                logger.debug('Thumbnail loaded successfully', {
+                  videoId: sanitizedVideo.id,
+                  videoTitle: sanitizedVideo.title,
+                  thumbnailSrc: thumbnailCandidates[thumbIndex],
+                  fallbackIndex: thumbIndex
+                });
+              }}
+              // Add crossOrigin to handle CORS issues with external thumbnails
+              crossOrigin="anonymous"
+            />
           </button>
 
           {/* Due Date Badge and Completion Badge with Enhanced Accessibility */}
