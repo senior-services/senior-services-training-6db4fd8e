@@ -98,8 +98,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <UserPlus className="w-5 h-5" />
+          <DialogTitle>
             Add New Employee
           </DialogTitle>
           <DialogDescription>
@@ -110,8 +109,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
+            <Label htmlFor="email">
               Email Address *
             </Label>
             <Input
@@ -129,8 +127,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fullName" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
+            <Label htmlFor="fullName">
               Full Name (Optional)
             </Label>
             <Input
