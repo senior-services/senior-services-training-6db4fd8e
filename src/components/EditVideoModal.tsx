@@ -150,15 +150,12 @@ export const EditVideoModal = ({
                    
                     {/* Video Source */}
                     <div className="text-left">
-                      <div className="flex items-center gap-2">
-                        <FileVideo className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          Video Source: {isYouTube ? 'YouTube Video' : 
-                           isGoogleDrive ? 'Google Drive Video' : 
-                           isFileUpload ? 'Uploaded File' : 
-                           'External Video'}
-                        </span>
-                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        Video Source: {isYouTube ? 'YouTube' : 
+                         isGoogleDrive ? 'Google Drive' : 
+                         isFileUpload ? 'Uploaded File' : 
+                         'External'}
+                      </span>
                     </div>
                  </div>
 
