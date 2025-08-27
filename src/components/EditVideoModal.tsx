@@ -12,7 +12,7 @@ import { Play, FileVideo, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveEmbedUrl } from "@/utils/videoUtils";
+import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveEmbedUrl, getGoogleDriveViewUrl, getYouTubeWatchUrl } from "@/utils/videoUtils";
 interface VideoData {
   id: string;
   title: string;
@@ -99,6 +99,14 @@ export const EditVideoModal = ({
   const isFileUpload = video.video_file_name;
   const youtubeVideoId = isYouTube && video.video_url ? getYouTubeVideoId(video.video_url) : null;
   const googleDriveEmbedUrl = isGoogleDrive && video.video_url ? getGoogleDriveEmbedUrl(video.video_url) : null;
+  const storageUrl = isFileUpload && video.video_file_name 
+    ? `https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${video.video_file_name}` 
+    : null;
+  const sourceUrl = video.video_url
+    ? (isYouTube ? getYouTubeWatchUrl(video.video_url as string)
+      : isGoogleDrive ? getGoogleDriveViewUrl(video.video_url as string)
+      : video.video_url)
+    : storageUrl;
   return <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
@@ -140,23 +148,20 @@ export const EditVideoModal = ({
                      </div>
                    </div>
                    
-                   {/* Video Source Link */}
-                   {(video.video_url || isFileUpload) && (
-                     <div className="text-left">
-                       <a
-                         href={
-                           video.video_url || 
-                           (isFileUpload ? `https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${video.video_file_name}` : '')
-                         }
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         className="text-sm text-muted-foreground hover:text-foreground underline inline-flex items-center gap-1"
-                       >
-                         <FileVideo className="w-3 h-3" />
-                         View Original Source
-                       </a>
-                     </div>
-                   )}
+                    {/* Video Source Link */}
+                    {sourceUrl && (
+                      <div className="text-left">
+                        <a
+                          href={sourceUrl as string}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-muted-foreground hover:text-foreground underline inline-flex items-center gap-1"
+                        >
+                          <FileVideo className="w-3 h-3" />
+                          View Original Source
+                        </a>
+                      </div>
+                    )}
                  </div>
 
                 {/* Title Section */}

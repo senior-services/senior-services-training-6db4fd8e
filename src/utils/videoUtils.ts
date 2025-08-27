@@ -34,6 +34,15 @@ export const getGoogleDriveEmbedUrl = (url: string): string | null => {
 };
 
 /**
+ * Converts Google Drive URL to standard view URL
+ */
+export const getGoogleDriveViewUrl = (url: string): string | null => {
+  const fileId = getGoogleDriveFileId(url);
+  if (!fileId) return null;
+  return `https://drive.google.com/file/d/${fileId}/view`;
+};
+
+/**
  * Gets Google Drive thumbnail URL
  */
 export const getGoogleDriveThumbnail = (url: string): string | null => {
@@ -74,4 +83,12 @@ export const getYouTubeThumbnail = (url: string): string | null => {
   if (!videoId) return null;
   
   return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+};
+
+/**
+ * Normalizes any YouTube URL to a standard watch URL
+ */
+export const getYouTubeWatchUrl = (url: string): string | null => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://www.youtube.com/watch?v=${videoId}` : null;
 };
