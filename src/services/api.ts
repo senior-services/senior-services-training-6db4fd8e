@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger, performanceTracker } from '@/utils/logger';
+import { getYouTubeVideoId, getGoogleDriveFileId, isYouTubeUrl, isGoogleDriveUrl } from '@/utils/videoUtils';
 import type { 
   Video, 
   VideoCreateData,
@@ -43,6 +44,35 @@ interface EmployeeWithAssignments {
   updated_at?: string;
 }
 
+/**
+ * Generates thumbnail URL from video URL if possible
+ */
+const generateThumbnailUrl = (videoUrl: string | null): string | null => {
+  if (!videoUrl) return null;
+  
+  try {
+    // YouTube thumbnails
+    if (isYouTubeUrl(videoUrl)) {
+      const videoId = getYouTubeVideoId(videoUrl);
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      }
+    }
+    
+    // Google Drive thumbnails
+    if (isGoogleDriveUrl(videoUrl)) {
+      const fileId = getGoogleDriveFileId(videoUrl);
+      if (fileId) {
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800-h600`;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    logger.warn('Failed to generate thumbnail URL', { videoUrl, error });
+    return null;
+  }
+};
 /**
  * Unified Video Operations
  */
@@ -151,6 +181,9 @@ export const videoOperations = {
         logger.info('Video file uploaded successfully', { fileName });
       }
 
+      // Generate thumbnail URL from video URL if available
+      const thumbnailUrl = generateThumbnailUrl(video_url);
+
       const { data, error } = await supabase
         .from('videos')
         .insert({
@@ -158,6 +191,7 @@ export const videoOperations = {
           description: videoData.description,
           video_url,
           video_file_name,
+          thumbnail_url: thumbnailUrl,
           type: videoData.type,
           assigned_to: 0,
           completion_rate: 0,
