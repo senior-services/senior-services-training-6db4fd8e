@@ -324,7 +324,8 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <Badge>Primary</Badge>
                       <Badge variant="secondary">Secondary</Badge>
                       <Badge variant="destructive">Destructive</Badge>
-                      <Badge variant="success" showIcon>Success</Badge>
+                      <Badge variant="success">Success</Badge>
+                      <Badge variant="success" showIcon>Success with Icon</Badge>
                     </div>
                   </div>
                   <div>
@@ -333,7 +334,8 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <Badge variant="hollow-primary">Primary</Badge>
                       <Badge variant="hollow-secondary">Secondary</Badge>
                       <Badge variant="hollow-destructive">Destructive</Badge>
-                      <Badge variant="hollow-success" showIcon>Success</Badge>
+                      <Badge variant="hollow-success">Success</Badge>
+                      <Badge variant="hollow-success" showIcon>Success with Icon</Badge>
                       <Badge variant="outline">Outline</Badge>
                       <Badge variant="hollow-plain">Plain</Badge>
                     </div>
