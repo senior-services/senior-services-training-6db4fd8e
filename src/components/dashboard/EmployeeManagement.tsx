@@ -220,8 +220,8 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="whitespace-nowrap">Employee</TableHead>
-                  <TableHead className="text-center whitespace-nowrap">Assigned Videos</TableHead>
-                  <TableHead className="text-center whitespace-nowrap">Status</TableHead>
+                  <TableHead className="whitespace-nowrap">Assigned Videos</TableHead>
+                  <TableHead className="whitespace-nowrap">Status</TableHead>
                   <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -271,11 +271,11 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                           </Collapsible>
                         </TableCell>
                         
-                        <TableCell className="text-center py-3">
+                        <TableCell className="py-3">
                           <span className="font-medium">{employee.assigned_videos_count || 0}</span>
                         </TableCell>
                         
-                        <TableCell className="text-center py-3">
+                        <TableCell className="py-3">
                           {overdueCount > 0 ? (
                             <Badge variant="hollow-destructive" showIcon className="text-xs">
                               {overdueCount} Overdue
