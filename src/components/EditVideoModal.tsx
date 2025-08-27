@@ -137,9 +137,27 @@ export const EditVideoModal = ({
                             </div>
                           </div>
                         </div>}
-                    </div>
-                  </div>
-                </div>
+                     </div>
+                   </div>
+                   
+                   {/* Video Source Link */}
+                   {(video.video_url || isFileUpload) && (
+                     <div className="text-center">
+                       <a
+                         href={
+                           video.video_url || 
+                           (isFileUpload ? `https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${video.video_file_name}` : '')
+                         }
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         className="text-sm text-muted-foreground hover:text-foreground underline inline-flex items-center gap-1"
+                       >
+                         <FileVideo className="w-3 h-3" />
+                         View Original Source
+                       </a>
+                     </div>
+                   )}
+                 </div>
 
                 {/* Title Section */}
                 <div className="space-y-2">
