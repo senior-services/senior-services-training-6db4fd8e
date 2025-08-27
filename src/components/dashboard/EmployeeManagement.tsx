@@ -305,7 +305,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                 const badge = getDeadlineBadge(assignment.due_date, assignment.progress_percent);
                                 
                                 return (
-                                  <TableRow key={assignment.assignment_id}>
+                                  <TableRow key={assignment.assignment_id} className="hover:bg-transparent">
                                     <TableCell className="py-1">
                                       {assignment.video_title}
                                     </TableCell>
