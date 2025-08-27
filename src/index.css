@@ -18,11 +18,11 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 15%;
 
-    /* Primary: South Sound Brand Navy - Matches southsoundseniors.org */
-    --primary: 210 100% 15%; /* Deep navy from their website */
+    /* Primary: Deep Professional Blue - Enhanced Contrast */
+    --primary: 219 79% 22%; /* Darker for better contrast */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 207 85% 45%; /* Light blue accent */
-    --primary-dark: 210 100% 10%; /* Deeper navy */
+    --primary-light: 219 79% 30%;
+    --primary-dark: 219 79% 16%;
 
     /* Secondary: More Contrast */
     --secondary: 206 73% 55%; /* Darker for better contrast */
@@ -63,7 +63,6 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
-    --gradient-abstract: linear-gradient(135deg, hsl(var(--primary) / 0.95), hsl(var(--primary-light) / 0.8), hsl(var(--primary-light) / 0.6));
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(var(--primary) / 0.05);
@@ -225,55 +224,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   }
 
   .bg-gradient-hero {
-    background: linear-gradient(135deg, hsl(210, 100%, 15%), hsl(207, 85%, 45%));
-  }
-
-  /* Abstract Background Pattern - South Sound Brand */
-  .abstract-bg {
-    position: relative;
-    background: var(--gradient-abstract);
-    overflow: hidden;
-  }
-
-  .abstract-bg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      radial-gradient(circle at 25% 40%, hsl(207 85% 65% / 0.4) 0%, transparent 50%),
-      radial-gradient(circle at 75% 20%, hsl(207 85% 45% / 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 50% 80%, hsl(210 100% 25% / 0.2) 0%, transparent 60%),
-      linear-gradient(45deg, transparent 30%, hsl(207 85% 65% / 0.1) 50%, transparent 70%),
-      linear-gradient(-45deg, transparent 30%, hsl(210 100% 20% / 0.05) 50%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .abstract-bg::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 60px,
-        hsl(207 85% 75% / 0.04) 60px,
-        hsl(207 85% 75% / 0.04) 120px
-      ),
-      repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 80px,
-        hsl(210 100% 25% / 0.03) 80px,
-        hsl(210 100% 25% / 0.03) 160px
-      );
-    pointer-events: none;
+    background: linear-gradient(135deg, hsl(219, 79%, 22%), hsl(206, 73%, 55%));
   }
 
   .status-overdue {
