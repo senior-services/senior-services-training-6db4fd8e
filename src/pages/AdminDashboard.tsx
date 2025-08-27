@@ -1,44 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Header } from "@/components/Header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Users, Video, BookOpen, Settings, Plus, Edit, Trash2, Play } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Settings, Users, Video, BookOpen } from "lucide-react";
 import { AddVideoModal, VideoFormData } from "@/components/AddVideoModal";
 import { EditVideoModal } from "@/components/EditVideoModal";
 import { VideoPlayerModal } from "@/components/VideoPlayerModal";
 import { EmployeeManagement } from "@/components/dashboard/EmployeeManagement";
 import { AdminManagement } from "@/components/dashboard/AdminManagement";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { VideoManagement, VideoData } from "@/components/dashboard/VideoManagement";
+import { StatsSkeleton } from "@/components/ui/LoadingSkeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useOptimizedCallback } from "@/hooks/useOptimizedCallback";
 import { supabase } from "@/integrations/supabase/client";
 import { EmployeeService } from "@/services/employeeService";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog";
 import { logger, performanceTracker } from "@/utils/logger";
 import { handleError, createDatabaseError, withErrorHandler, withRetry } from "@/utils/errorHandler";
-import { sanitizeText, validateEmail } from "@/utils/security";
+import { sanitizeText } from "@/utils/security";
 
 /**
  * Props interface for the AdminDashboard component
- * @interface AdminDashboardProps
  */
 interface AdminDashboardProps {
   /** The admin user's display name */
@@ -50,33 +32,14 @@ interface AdminDashboardProps {
 }
 
 /**
- * Video data interface for type safety
- * @interface VideoData
+ * Dashboard statistics interface for type safety
  */
-type VideoData = {
-  /** Unique video identifier */
-  id: string;
-  /** Video title */
-  title: string;
-  /** Optional video description */
-  description: string | null;
-  /** URL for streaming videos (YouTube, etc.) */
-  video_url: string | null;
-  /** Filename for uploaded video files */
-  video_file_name: string | null;
-  /** Optional thumbnail image URL */
-  thumbnail_url?: string | null;
-  /** Video type classification */
-  type: string;
-  /** Number of employees assigned to this video */
-  assigned_to: number;
-  /** Completion rate percentage */
-  completion_rate: number;
-  /** Video creation timestamp */
-  created_at: string;
-  /** Last update timestamp */
-  updated_at: string;
-};
+interface DashboardStatistics {
+  totalVideos: number;
+  totalEmployees: number;
+  overallCompletionRate: number;
+  assignedVideos: number;
+}
 
 /**
  * AdminDashboard Component - Main administrative interface for the Senior Services Training Portal
@@ -106,7 +69,7 @@ type VideoData = {
  * @returns {JSX.Element} Admin dashboard interface
  */
 export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboardProps) => {
-  // Component state management
+  // Component state management with performance optimization
   const [isAddVideoModalOpen, setIsAddVideoModalOpen] = useState(false);
   const [isEditVideoModalOpen, setIsEditVideoModalOpen] = useState(false);
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
@@ -118,51 +81,28 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
   const [isDeleting, setIsDeleting] = useState(false);
   const [employeeCount, setEmployeeCount] = useState(0);
   
-  // Hooks for user feedback
+  // Hooks for user feedback and optimization
   const { toast } = useToast();
-
-  // Mock data - will be replaced with real data from Supabase
-  const employees = [
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@southsoundseniors.org',
-      requiredProgress: 85,
-      completedVideos: 3,
-      totalVideos: 4,
-      status: 'On Track'
-    },
-    {
-      id: '2', 
-      name: 'Mike Chen',
-      email: 'mike.chen@southsoundseniors.org',
-      requiredProgress: 60,
-      completedVideos: 2,
-      totalVideos: 5,
-      status: 'Behind'
-    },
-    {
-      id: '3',
-      name: 'Lisa Rodriguez', 
-      email: 'lisa.rodriguez@southsoundseniors.org',
-      requiredProgress: 100,
-      completedVideos: 4,
-      totalVideos: 4,
-      status: 'Completed'
-    }
-  ];
-
+  
+  // Memoized dashboard statistics for performance
+  const dashboardStats = useMemo<DashboardStatistics>(() => {
+    const totalVideos = videos.length;
+    const assignedVideos = videos.filter(video => video.assigned_to > 0).length;
+    const overallCompletionRate = totalVideos > 0 
+      ? Math.round(videos.reduce((sum, video) => sum + video.completion_rate, 0) / totalVideos)
+      : 0;
+    
+    return {
+      totalVideos,
+      totalEmployees: employeeCount,
+      overallCompletionRate,
+      assignedVideos
+    };
+  }, [videos, employeeCount]);
 
   /**
    * Fetches videos from Supabase with proper error handling and performance monitoring
    * Uses the video service to calculate correct assignment counts and statistics
-   * 
-   * This function:
-   * 1. Authenticates the current user
-   * 2. Fetches video data using the optimized video service
-   * 3. Handles errors gracefully with user-friendly messages
-   * 4. Logs operations for monitoring and debugging
-   * 5. Updates the UI state appropriately
    */
   const fetchVideos = async () => {
     performanceTracker.start('fetchVideos');
@@ -225,16 +165,23 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
   };
 
   /**
-   * Fetches employee count from the database
+   * Fetches employee count from the database with error handling
    */
-  const fetchEmployeeCount = async () => {
-    try {
-      const employees = await EmployeeService.getEmployees();
-      setEmployeeCount(employees.length);
-    } catch (error) {
-      console.error('Error fetching employee count:', error);
+  const fetchEmployeeCount = useOptimizedCallback(async () => {
+    const countResult = await withErrorHandler(
+      async () => {
+        const employees = await EmployeeService.getEmployees();
+        setEmployeeCount(employees.length);
+        return employees.length;
+      },
+      { operation: 'fetchEmployeeCount', adminUser: userEmail },
+      'Unable to load employee count'
+    );
+
+    if (!countResult.success) {
+      logger.warn('Failed to fetch employee count', { adminUser: userEmail });
     }
-  };
+  }, [userEmail]);
 
   /**
    * Load videos and employee count on component mount with proper lifecycle management
@@ -244,32 +191,26 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
     fetchEmployeeCount();
   }, []);
 
-  /**
-   * Generates a consistent color for video thumbnails based on title
-   * Provides visual consistency and accessibility for videos without thumbnails
-   * 
-   * @param {string} title - Video title to generate color from
-   * @returns {string} Tailwind CSS color class
-   */
-  const generateThumbnailColor = (title: string) => {
-    const colors = [
-      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-indigo-500',
-      'bg-pink-500', 'bg-red-500', 'bg-yellow-500', 'bg-teal-500'
-    ];
+  // Optimized callback functions for performance
+  const handleAddVideoClick = useOptimizedCallback(() => {
+    setIsAddVideoModalOpen(true);
+  }, []);
+
+  const handleEditVideoClick = useOptimizedCallback((video: VideoData) => {
+    logger.videoEvent('edit_started', video.id, {
+      title: video.title,
+      adminUser: userEmail
+    });
     
-    // Create hash from title for consistent color selection
-    const hash = title.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
-    return colors[hash % colors.length];
-  };
+    setEditingVideo(video);
+    setIsEditVideoModalOpen(true);
+  }, [userEmail]);
 
   /**
    * Handles video thumbnail click to open video player
    * Provides secure video playback with progress tracking
-   * 
-   * @param {VideoData} video - Video data to play
    */
-  const handleVideoThumbnailClick = (video: VideoData) => {
-    console.log('Opening video player for video:', video);
+  const handleVideoThumbnailClick = useOptimizedCallback((video: VideoData) => {
     logger.videoEvent('thumbnail_clicked', video.id, { 
       title: video.title,
       adminUser: userEmail 
@@ -277,28 +218,22 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
     
     setSelectedVideo(video);
     setIsVideoPlayerOpen(true);
-  };
+  }, [userEmail]);
 
   /**
    * Handles video player modal close - ensures proper state cleanup
    */
-  const handleVideoPlayerClose = (open: boolean) => {
+  const handleVideoPlayerClose = useOptimizedCallback((open: boolean) => {
     setIsVideoPlayerOpen(open);
-    // Don't clear selectedVideo immediately - let the modal handle its own cleanup
-  };
+    if (!open) {
+      // Clear selected video after modal animation completes
+      setTimeout(() => setSelectedVideo(null), 200);
+    }
+  }, []);
 
   /**
    * Handles adding a new video with comprehensive error handling and validation
    * Supports both file uploads and URL-based videos with thumbnail generation
-   * 
-   * This function:
-   * 1. Validates and sanitizes input data for security
-   * 2. Handles file upload with automatic thumbnail generation
-   * 3. Processes URL-based videos with proper validation
-   * 4. Provides detailed error handling and user feedback
-   * 5. Logs all operations for monitoring and debugging
-   * 
-   * @param {VideoFormData} videoData - Form data containing video information
    */
   const handleAddVideo = async (videoData: VideoFormData): Promise<void> => {
     performanceTracker.start('addVideo');
@@ -432,26 +367,9 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
 
     performanceTracker.end('addVideo');
   };
-  /**
-   * Handles editing video metadata with validation and error handling
-   * 
-   * @param {VideoData} video - Video to edit
-   */
-  const handleEditVideo = (video: VideoData) => {
-    logger.videoEvent('edit_started', video.id, {
-      title: video.title,
-      adminUser: userEmail
-    });
-    
-    setEditingVideo(video);
-    setIsEditVideoModalOpen(true);
-  };
 
   /**
    * Handles updating video details with comprehensive validation and error handling
-   * 
-   * @param {string} videoId - ID of video to update
-   * @param {object} updates - Updates to apply
    */
   const handleUpdateVideo = async (
     videoId: string, 
@@ -516,14 +434,22 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
 
   /**
    * Handles video deletion with comprehensive error handling and logging
-   * 
-   * @param {string} videoId - ID of video to delete
    */
-  const handleDeleteVideo = async (videoId: string) => {
+  const handleDeleteVideo = useOptimizedCallback(async (videoId: string) => {
     performanceTracker.start('deleteVideo');
+    setIsDeleting(true);
     
     const deleteResult = await withErrorHandler(
       async () => {
+        // Delete video from storage if it's a file upload
+        const videoToDelete = videos.find(v => v.id === videoId);
+        if (videoToDelete?.video_file_name) {
+          await supabase.storage
+            .from('videos')
+            .remove([videoToDelete.video_file_name]);
+        }
+
+        // Delete video record from database
         const { error } = await supabase
           .from('videos')
           .delete()
@@ -540,10 +466,10 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
 
         toast({
           title: "Video Deleted Successfully",
-          description: "Video has been permanently removed from the library.",
+          description: "The video has been permanently removed from the training library.",
         });
         
-        await fetchVideos(); // Refresh the videos list
+        await fetchVideos(); // Refresh video list
       },
       {
         operation: 'deleteVideo',
@@ -555,35 +481,16 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
 
     if (!deleteResult.success) {
       toast({
-        title: "Deletion Error",
-        description: "Failed to delete video. Please try again.",
-        variant: "destructive",
+        title: 'Video Deletion Error',
+        description: 'Failed to delete video. Please try again.',
+        variant: 'destructive',
       });
     }
 
-    performanceTracker.end('deleteVideo');
-  };
-
-  /**
-   * Confirms and executes video deletion with proper state management
-   */
-  const handleDeleteConfirm = async () => {
-    if (!deleteConfirmVideo) {
-      logger.warn('Delete confirmation called without video', { adminUser: userEmail });
-      return;
-    }
-    
-    setIsDeleting(true);
-    
-    logger.videoEvent('delete_confirmed', deleteConfirmVideo.id, {
-      title: deleteConfirmVideo.title,
-      adminUser: userEmail
-    });
-    
-    await handleDeleteVideo(deleteConfirmVideo.id);
     setDeleteConfirmVideo(null);
     setIsDeleting(false);
-  };
+    performanceTracker.end('deleteVideo');
+  }, [videos, userEmail, toast]);
 
   return (
     <>
@@ -594,225 +501,101 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
         onLogout={onLogout}
       />
       
-      <main className="container mx-auto px-4 pb-6">
-        <div>
+      <main className="flex-1 space-y-6 p-4 md:p-8 pt-6" role="main">
+        {/* Dashboard Header */}
+        <header className="flex items-center justify-between space-y-2">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Admin Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Manage training videos, monitor employee progress, and system settings
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Badge variant="secondary" className="px-3 py-1 font-medium">
+              {userEmail}
+            </Badge>
+          </div>
+        </header>
 
-            <Tabs defaultValue="videos" className="w-full">
-              <TabsList className="w-full">
-                <TabsTrigger value="videos" className="gap-2">
-                  Videos
-                </TabsTrigger>
-                <TabsTrigger value="employees" className="gap-2">
-                  Employees  
-                </TabsTrigger>
-                <TabsTrigger value="settings">Admins</TabsTrigger>
-              </TabsList>
+        {/* Dashboard Statistics */}
+        {loading ? (
+          <StatsSkeleton />
+        ) : (
+          <DashboardStats {...dashboardStats} />
+        )}
 
-            <TabsContent value="employees" className="space-y-6 mt-6">
-              <EmployeeManagement onCountChange={setEmployeeCount} />
-            </TabsContent>
+        {/* Main Content Tabs */}
+        <div className="space-y-6">
+          <Tabs defaultValue="videos" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1">
+              <TabsTrigger 
+                value="videos" 
+                className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Video className="w-4 h-4" aria-hidden="true" />
+                Videos
+              </TabsTrigger>
+              <TabsTrigger 
+                value="employees" 
+                className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Users className="w-4 h-4" aria-hidden="true" />
+                Employees
+              </TabsTrigger>
+              <TabsTrigger 
+                value="reports" 
+                className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <BookOpen className="w-4 h-4" aria-hidden="true" />
+                Reports
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings" 
+                className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Settings className="w-4 h-4" aria-hidden="true" />
+                Settings
+              </TabsTrigger>
+            </TabsList>
 
             <TabsContent value="videos" className="space-y-6 mt-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-semibold">Training Videos</h3>
-                  <p className="text-muted-foreground">Manage your training content library</p>
+              <VideoManagement
+                videos={videos}
+                loading={loading}
+                onAddVideo={handleAddVideoClick}
+                onEditVideo={handleEditVideoClick}
+                onDeleteVideo={handleDeleteVideo}
+                onVideoThumbnailClick={handleVideoThumbnailClick}
+                deleteConfirmVideo={deleteConfirmVideo}
+                setDeleteConfirmVideo={setDeleteConfirmVideo}
+                isDeleting={isDeleting}
+              />
+            </TabsContent>
+
+            <TabsContent value="employees" className="space-y-6 mt-6">
+              <EmployeeManagement />
+            </TabsContent>
+
+            <TabsContent value="reports" className="space-y-6 mt-6">
+              <div className="grid gap-6">
+                <div className="rounded-lg border border-dashed border-border/50 p-12 text-center">
+                  <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    Advanced Reports Coming Soon
+                  </h3>
+                  <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                    Detailed analytics, progress tracking, and comprehensive reporting features 
+                    will be available in this section
+                  </p>
+                  <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+                    <span>• Employee Progress Analytics</span>
+                    <span>• Training Completion Reports</span>
+                    <span>• Performance Insights</span>
+                  </div>
                 </div>
-                <Button onClick={() => setIsAddVideoModalOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Video
-                </Button>
               </div>
-
-              <Card>
-                <CardContent className="p-0">
-                  <Table>
-                        <TableHeader>
-                          <TableRow className="bg-muted/50">
-                            <TableHead>Video Title and Description</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                    <TableBody>
-                      {loading ? (
-                        <TableRow>
-                          <TableCell colSpan={2} className="text-center py-12 text-muted-foreground">
-                            <div className="space-y-2">
-                              <p>Loading videos...</p>
-                              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ) : videos.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={2} className="text-center py-12">
-                            <div className="space-y-3">
-                              <Video className="w-12 h-12 text-muted-foreground mx-auto" />
-                              <div>
-                                <h4 className="font-medium text-foreground">No videos found</h4>
-                                <p className="text-sm text-muted-foreground">Add your first video to get started with training content.</p>
-                              </div>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => setIsAddVideoModalOpen(true)}
-                              >
-                                <Plus className="w-4 h-4 mr-2" />
-                                Add First Video
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        videos.map((video) => (
-                          <TableRow key={video.id}>
-                            <TableCell className="font-medium">
-                              <div className="flex items-center gap-3">
-                                {/* Video Preview (thumbnail area) */}
-                                <div 
-                                  onClick={() => handleVideoThumbnailClick(video)}
-                                  className="relative w-16 h-10 rounded-md overflow-hidden cursor-pointer group bg-muted"
-                                >
-                                  {(() => {
-                                    const isYouTube = video.video_url && (
-                                      video.video_url.includes('youtube.com/watch') ||
-                                      video.video_url.includes('youtu.be/')
-                                    );
-                                    
-                                    const isGoogleDrive = video.video_url && (
-                                      video.video_url.includes('drive.google.com')
-                                    );
-                                    
-                                    const getYouTubeVideoId = (url: string) => {
-                                      const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
-                                      return match ? match[1] : null;
-                                    };
-
-                                    const getGoogleDriveFileId = (url: string) => {
-                                      const match = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)\//);
-                                      return match ? match[1] : null;
-                                    };
-                                    
-                                    if (isYouTube && video.video_url) {
-                                      const videoId = getYouTubeVideoId(video.video_url);
-                                      if (videoId) {
-                                        return (
-                                          <img 
-                                            src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
-                                            alt={`${video.title} thumbnail`}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                              // Fallback to colored placeholder if thumbnail fails to load
-                                              const target = e.target as HTMLImageElement;
-                                              target.style.display = 'none';
-                                              const fallback = target.nextElementSibling as HTMLElement;
-                                              if (fallback) fallback.classList.remove('hidden');
-                                            }}
-                                          />
-                                        );
-                                      }
-                                    } else if (isGoogleDrive && video.video_url) {
-                                      const fileId = getGoogleDriveFileId(video.video_url);
-                                      if (fileId) {
-                                        return (
-                                          <img 
-                                            src={`https://drive.google.com/thumbnail?id=${fileId}&sz=w400-h300`}
-                                            alt={`${video.title} thumbnail`}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                              // Fallback to colored placeholder if thumbnail fails to load
-                                              const target = e.target as HTMLImageElement;
-                                              target.style.display = 'none';
-                                              const fallback = target.nextElementSibling as HTMLElement;
-                                              if (fallback) fallback.classList.remove('hidden');
-                                            }}
-                                          />
-                                        );
-                                      }
-                                    } else if (video.thumbnail_url) {
-                                      return (
-                                        <img 
-                                          src={video.thumbnail_url}
-                                          alt={`${video.title} thumbnail`}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            // Fallback to colored placeholder if image fails to load
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const fallback = target.nextElementSibling as HTMLElement;
-                                            if (fallback) fallback.classList.remove('hidden');
-                                          }}
-                                        />
-                                      );
-                                    } else if (video.video_file_name) {
-                                      // For uploaded videos without thumbnails, show colored placeholder
-                                      return (
-                                        <div className={`absolute inset-0 flex items-center justify-center ${generateThumbnailColor(video.title)}`}>
-                                          <Play className="w-4 h-4 text-white" />
-                                        </div>
-                                      );
-                                    }
-                                    // For all other cases, show the colored placeholder
-                                    return (
-                                      <div className={`absolute inset-0 flex items-center justify-center ${generateThumbnailColor(video.title)}`}>
-                                        <Play className="w-4 h-4 text-white" />
-                                      </div>
-                                    );
-                                  })()}
-
-                                  {/* Hidden fallback placeholder for YouTube/thumbnail errors */}
-                                  <div className={`hidden absolute inset-0 flex items-center justify-center ${generateThumbnailColor(video.title)}`}>
-                                    <Play className="w-4 h-4 text-white" />
-                                  </div>
-
-                                  {/* Show indicator for uploaded files */}
-                                  {video.video_file_name && (
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-white" title="Uploaded video file" />
-                                  )}
-
-                                  {/* Hover overlay with play icon */}
-                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                    <Play className="w-3 h-3 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  </div>
-                                </div>
-                                
-                                {/* Video Title */}
-                                <div className="flex-1">
-                                  <p className="font-medium text-foreground">{video.title}</p>
-                                  {video.description && (
-                                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                                      {video.description}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end space-x-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleEditVideo(video)}
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  onClick={() => setDeleteConfirmVideo(video)}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-6 mt-6">
@@ -835,37 +618,6 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
         onSave={handleUpdateVideo}
         onDelete={handleDeleteVideo}
       />
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmVideo} onOpenChange={(open) => { if (!open) setDeleteConfirmVideo(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Training Video</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deleteConfirmVideo?.title}"?
-              <br />
-              <br />
-              This will permanently remove:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>The video and all its content</li>
-                <li>Title and description</li>
-                <li>Its assignment as a required video for users</li>
-              </ul>
-              <br />
-              <strong>This action cannot be undone.</strong>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? 'Deleting...' : 'Delete Video'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <VideoPlayerModal
         open={isVideoPlayerOpen}
