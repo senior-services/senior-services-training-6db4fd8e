@@ -787,9 +787,14 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
-<Button variant="outline" size="sm" onClick={() => setDeleteConfirmVideo(video)}>
-  <Trash2 className="w-4 h-4" />
-</Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setDeleteConfirmVideo(video)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
                               </div>
                             </TableCell>
                           </TableRow>
