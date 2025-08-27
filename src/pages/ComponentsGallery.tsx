@@ -99,6 +99,25 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
   const [isLoading, setIsLoading] = useState(false);
   const [sortColumn, setSortColumn] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const tableData = [
+    { name: "Alice Johnson", email: "alice@example.com", department: "Engineering" },
+    { name: "Bob Wilson", email: "bob@example.com", department: "Marketing" },
+    { name: "Carol Smith", email: "carol@example.com", department: "Design" },
+    { name: "David Brown", email: "david@example.com", department: "Engineering" },
+    { name: "Emma Davis", email: "emma@example.com", department: "Sales" },
+  ];
+
+  const sortedData = [...tableData].sort((a, b) => {
+    const aValue = a[sortColumn as keyof typeof a];
+    const bValue = b[sortColumn as keyof typeof b];
+    
+    if (sortDirection === "asc") {
+      return aValue.localeCompare(bValue);
+    } else {
+      return bValue.localeCompare(aValue);
+    }
+  });
   
   const { toast } = useToast();
 
@@ -518,50 +537,31 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell className="font-medium">Alice Johnson</TableCell>
-                          <TableCell>alice@example.com</TableCell>
-                          <TableCell>Engineering</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex gap-1 justify-end">
-                              <Button size="sm" variant="outline">
-                                <Eye className="w-4 h-4" />
-                                <span className="sr-only">View</span>
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Edit className="w-4 h-4" />
-                                <span className="sr-only">Edit</span>
-                              </Button>
-                              <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
-                                <Trash2 className="w-4 h-4" />
-                                <span className="sr-only">Delete</span>
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="font-medium">Bob Wilson</TableCell>
-                          <TableCell>bob@example.com</TableCell>
-                          <TableCell>Marketing</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex gap-1 justify-end">
-                              <Button size="sm" variant="outline">
-                                <Eye className="w-4 h-4" />
-                                <span className="sr-only">View</span>
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Edit className="w-4 h-4" />
-                                <span className="sr-only">Edit</span>
-                              </Button>
-                              <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
-                                <Trash2 className="w-4 h-4" />
-                                <span className="sr-only">Delete</span>
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
+                       <TableBody>
+                         {sortedData.map((user, index) => (
+                           <TableRow key={index}>
+                             <TableCell className="font-medium">{user.name}</TableCell>
+                             <TableCell>{user.email}</TableCell>
+                             <TableCell>{user.department}</TableCell>
+                             <TableCell className="text-right">
+                               <div className="flex gap-1 justify-end">
+                                 <Button size="sm" variant="outline">
+                                   <Eye className="w-4 h-4" />
+                                   <span className="sr-only">View</span>
+                                 </Button>
+                                 <Button size="sm" variant="outline">
+                                   <Edit className="w-4 h-4" />
+                                   <span className="sr-only">Edit</span>
+                                 </Button>
+                                 <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
+                                   <Trash2 className="w-4 h-4" />
+                                   <span className="sr-only">Delete</span>
+                                 </Button>
+                               </div>
+                             </TableCell>
+                           </TableRow>
+                         ))}
+                       </TableBody>
                     </Table>
                   </TabsContent>
                   
