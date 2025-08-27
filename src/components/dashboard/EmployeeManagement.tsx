@@ -203,8 +203,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                 <TableRow className="bg-muted/50">
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Videos Assigned</TableHead>
-                  <TableHead>Videos Overdue</TableHead>
+                  <TableHead>Progress</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -235,12 +234,24 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                         {employee.email}
                       </TableCell>
                       <TableCell>
-                        {employee.assigned_videos_count || 0}
-                      </TableCell>
-                      <TableCell>
-                        <span className={overdueCount > 0 ? "text-destructive font-medium" : "text-muted-foreground"}>
-                          {overdueCount}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary">
+                                {employee.assigned_videos_count || 0}
+                              </div>
+                              <span className="text-sm text-muted-foreground">assigned</span>
+                            </div>
+                            {overdueCount > 0 && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-6 h-6 rounded-full bg-destructive/20 flex items-center justify-center text-xs font-medium text-destructive">
+                                  {overdueCount}
+                                </div>
+                                <span className="text-sm text-destructive">overdue</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
@@ -248,9 +259,9 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                             variant="outline" 
                             size="sm" 
                             onClick={() => handleAssignVideos(employee)}
+                            aria-label={`Edit video assignments for ${employee.full_name || employee.email}`}
                           >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
+                            <Edit className="w-4 h-4" />
                           </Button>
                           <Button 
                             variant="outline" 
