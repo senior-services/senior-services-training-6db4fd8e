@@ -57,7 +57,7 @@ export const VideoPlayerModal = ({
   const googleDriveEmbedUrl = isGoogleDrive && video.video_url ? getGoogleDriveEmbedUrl(video.video_url) : null;
   return <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
-        <div className="flex-1 overflow-y-auto p-1">
+        <div className="flex-1 overflow-y-auto p-1 pt-8">
           {/* Video Player Area */}
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
             {isYouTube && youtubeVideoId ? <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${youtubeVideoId}`} title={video.title} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen className="w-full h-full" /> : isGoogleDrive && googleDriveEmbedUrl ? <iframe width="100%" height="100%" src={googleDriveEmbedUrl} title={video.title} frameBorder="0" allowFullScreen className="w-full h-full" /> : video.video_url ? <video className="w-full h-full" controls preload="metadata" poster={video.thumbnail_url || undefined} onLoadStart={() => logger.info('Video loading started', {
