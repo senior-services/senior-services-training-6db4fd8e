@@ -45,8 +45,8 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-3">
             <Play className="w-5 h-5 text-primary" />
             {video.title}
@@ -60,7 +60,7 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
           )}
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6 p-1">
           {/* Video Player Area */}
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
             {isYouTube && youtubeVideoId ? (
