@@ -557,12 +557,20 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                     <Table>
                       <TableCaption>A simple data table</TableCaption>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Role</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
+                         <TableRow>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Name</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Email</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Role</span>
+                           </TableHead>
+                           <TableHead className="text-right">
+                             <span className="font-medium p-0 h-auto">Actions</span>
+                           </TableHead>
+                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         <TableRow>
@@ -710,13 +718,23 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                     <Table>
                       <TableCaption>Filtered table with search and dropdown filters</TableCaption>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>User</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Role</TableHead>
-                          <TableHead>Last Activity</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
+                         <TableRow>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">User</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Status</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Role</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Last Activity</span>
+                           </TableHead>
+                           <TableHead className="text-right">
+                             <span className="font-medium p-0 h-auto">Actions</span>
+                           </TableHead>
+                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         <TableRow>
@@ -791,13 +809,23 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                     <Table>
                       <TableCaption>Table with various status badges and progress indicators</TableCaption>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Project</TableHead>
-                          <TableHead>Progress</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Priority</TableHead>
-                          <TableHead>Assignee</TableHead>
-                        </TableRow>
+                         <TableRow>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Project</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Progress</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Status</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Priority</span>
+                           </TableHead>
+                           <TableHead>
+                             <span className="font-medium p-0 h-auto">Assignee</span>
+                           </TableHead>
+                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         <TableRow>
