@@ -17,6 +17,7 @@ import { sanitizeText, createSafeDisplayName } from '@/utils/security';
 import { getTrainingCardAriaLabel, getStatusAnnouncement, handleKeyPress, announceToScreenReader } from '@/utils/accessibility';
 import { useOptimizedCallback, useOptimizedMemo } from '@/utils/performance';
 import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveFileId } from '@/utils/videoUtils';
+import { logger } from '@/utils/logger';
 
 // Import optimized image loading
 import videoPlaceholder from '@/assets/video-placeholder.jpg';
@@ -208,8 +209,30 @@ export const TrainingCard = memo<TrainingCardProps>(({
 
   // Image error handler with progressive fallback across candidates
   const handleImageError = useCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    setThumbIndex((prev) => (prev + 1 < thumbnailCandidates.length ? prev + 1 : prev));
-  }, [thumbnailCandidates]);
+    const currentSrc = (event.target as HTMLImageElement).src;
+    logger.debug('Thumbnail failed to load, trying next fallback', {
+      failedSrc: currentSrc,
+      currentIndex: thumbIndex,
+      totalCandidates: thumbnailCandidates.length
+    });
+    
+    setThumbIndex((prev) => {
+      const nextIndex = prev + 1;
+      if (nextIndex < thumbnailCandidates.length) {
+        logger.debug('Switching to fallback thumbnail', { 
+          nextIndex, 
+          nextSrc: thumbnailCandidates[nextIndex] 
+        });
+        return nextIndex;
+      }
+      // If we've exhausted all candidates, stay on the last one (placeholder)
+      logger.warn('All thumbnail sources failed, using final placeholder', {
+        videoId: sanitizedVideo.id,
+        videoTitle: sanitizedVideo.title
+      });
+      return prev;
+    });
+  }, [thumbnailCandidates, thumbIndex, sanitizedVideo.id, sanitizedVideo.title]);
   return <article className={cn('training-card group relative overflow-hidden focus-within:ring-2 focus-within:ring-ring', className)} aria-label={ariaLabels.card} role="article">
       <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg">
         {/* Video Thumbnail with Enhanced Accessibility */}

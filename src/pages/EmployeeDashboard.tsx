@@ -142,11 +142,9 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       id: video.id,
       title: sanitizeText(video.title || 'Untitled Video'),
       description: sanitizeText(video.description || ''),
-      thumbnail: '',
-      // Let TrainingCard handle thumbnail generation
+      thumbnail: video.thumbnail_url || '', // Use actual thumbnail_url from database
       duration: formatSeconds(video.duration_seconds || 0),
       progress: Math.max(0, Math.min(100, assignment?.progress_percent || 0)),
-      // Use real progress from assignment
       isRequired: video.type === 'Required',
       deadline: assignment?.due_date ? new Date(assignment.due_date).toLocaleDateString() : undefined,
       dueDate: assignment?.due_date || null,
