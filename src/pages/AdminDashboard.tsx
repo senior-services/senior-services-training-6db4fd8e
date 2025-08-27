@@ -284,12 +284,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
    */
   const handleVideoPlayerClose = (open: boolean) => {
     setIsVideoPlayerOpen(open);
-    if (!open) {
-      // Small delay to ensure modal closes smoothly before clearing video
-      setTimeout(() => {
-        setSelectedVideo(null);
-      }, 100);
-    }
+    // Don't clear selectedVideo immediately - let the modal handle its own cleanup
   };
 
   /**

@@ -27,7 +27,22 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
   console.log('VideoPlayerModal rendered with video:', video);
   console.log('Video description:', video?.description);
   
-  if (!video) return null;
+  // Handle modal close and cleanup
+  const handleClose = (isOpen: boolean) => {
+    onOpenChange(isOpen);
+  };
+  
+  if (!video) {
+    return (
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-4xl">
+          <div className="flex items-center justify-center py-8">
+            <p className="text-muted-foreground">No video selected</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const hasVideoSource = video.video_url || video.video_file_name;
   console.log('Video source check:', { 
@@ -44,7 +59,7 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
   const googleDriveEmbedUrl = isGoogleDrive && video.video_url ? getGoogleDriveEmbedUrl(video.video_url) : null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-3">
