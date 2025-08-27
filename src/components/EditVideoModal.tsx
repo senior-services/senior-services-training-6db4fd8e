@@ -158,7 +158,10 @@ export const EditVideoModal = ({
                           className="text-sm text-muted-foreground hover:text-foreground underline inline-flex items-center gap-1"
                         >
                           <FileVideo className="w-3 h-3" />
-                          View Original Source
+                          {isYouTube ? 'YouTube Video' : 
+                           isGoogleDrive ? 'Google Drive Video' : 
+                           isFileUpload ? 'Uploaded File' : 
+                           'View Original Source'}
                         </a>
                       </div>
                     )}
