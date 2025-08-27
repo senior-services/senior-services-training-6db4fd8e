@@ -222,9 +222,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
             
             {/* Color Palette Section */}
             <AccordionItem value="colors">
-              <AccordionTrigger className="text-xl font-semibold">Color Palette</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    Color Palette
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">Design system color tokens and semantic colors</p>
                   </div>
@@ -399,9 +401,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
 
             {/* Typography Section */}
             <AccordionItem value="typography">
-              <AccordionTrigger className="text-xl font-semibold">Typography</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    Typography
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">Text styles and hierarchy</p>
                   </div>
@@ -429,9 +433,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
 
             {/* Buttons Section */}
             <AccordionItem value="buttons">
-              <AccordionTrigger className="text-xl font-semibold">Buttons</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    Buttons
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">All button variants and states</p>
                   </div>
@@ -498,9 +504,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
 
             {/* Form Controls Section */}
             <AccordionItem value="forms">
-              <AccordionTrigger className="text-xl font-semibold">Form Controls</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    Form Controls
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">Input fields and form elements</p>
                   </div>
@@ -573,9 +581,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
 
             {/* Tables Section */}
             <AccordionItem value="tables">
-              <AccordionTrigger className="text-xl font-semibold">Tables & Data Display</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    Tables & Data Display
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">Data tables with sorting, filtering, and status indicators</p>
                   </div>
@@ -709,9 +719,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
 
             {/* Interactive Components Section */}
             <AccordionItem value="interactive">
-              <AccordionTrigger className="text-xl font-semibold">Interactive Components</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    Interactive Components
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">Dialogs, dropdowns, and overlays</p>
                   </div>
@@ -814,9 +826,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
 
             {/* Navigation & Layout Section */}
             <AccordionItem value="navigation">
-              <AccordionTrigger className="text-xl font-semibold">Navigation & Layout</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    Navigation & Layout
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">Breadcrumbs, tabs, separators, and navigation elements</p>
                   </div>
@@ -867,9 +881,11 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
 
             {/* Footer Section */}
             <AccordionItem value="footer">
-              <AccordionTrigger className="text-xl font-semibold">About</AccordionTrigger>
               <AccordionContent>
                 <div className="border rounded-lg">
+                  <AccordionTrigger className="text-xl font-semibold px-4 py-3 border-b bg-muted/10 hover:bg-muted/20">
+                    About
+                  </AccordionTrigger>
                   <div className="border-b bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground">Built with shadcn/ui and Radix UI</p>
                   </div>
