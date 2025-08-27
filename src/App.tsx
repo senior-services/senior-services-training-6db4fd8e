@@ -14,6 +14,7 @@ import { useUserRole } from "./hooks/useUserRole";
 import { VideoPlayerFullscreen } from "@/components/VideoPlayerFullscreen";
 import { logger } from "@/utils/logger";
 import { AuthCallback } from "./pages/AuthCallback";
+import { ComponentsGallery } from "./pages/ComponentsGallery";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,16 @@ const AppContent = () => {
         <Route 
           path="/video/:videoId" 
           element={<VideoPage />} 
+        />
+        <Route 
+          path="/components-gallery" 
+          element={
+            <ComponentsGallery 
+              userName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+              userEmail={user?.email || ''}
+              onLogout={handleLogout}
+            />
+          } 
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

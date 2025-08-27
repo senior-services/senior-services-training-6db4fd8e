@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChevronDown, LogOut, User } from "lucide-react";
+import { ChevronDown, LogOut, User, Palette } from "lucide-react";
 import { Link } from "react-router-dom";
 // Using uploaded logo image
 
@@ -60,6 +60,12 @@ export const Header = ({
                   <p className="text-sm font-medium text-foreground">{userName}</p>
                   <p className="text-xs text-muted-foreground">{userEmail}</p>
                 </div>
+                <DropdownMenuItem asChild>
+                  <Link to="/components-gallery" className="flex items-center space-x-2">
+                    <Palette className="w-4 h-4" />
+                    <span>Components Gallery</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={onLogout} className="flex items-center space-x-2">
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>
