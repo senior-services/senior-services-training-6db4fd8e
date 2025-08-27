@@ -339,7 +339,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                             size="sm"
                             onClick={() => setDeleteVideo(video)}
                             aria-label={`Delete video: ${video.title}`}
-                            className="hover:bg-destructive/10 hover:text-destructive"
+                            className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="w-4 h-4" aria-hidden="true" />
                             <span className="sr-only">Delete</span>
