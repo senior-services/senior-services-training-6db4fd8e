@@ -174,13 +174,20 @@ export const AdminManagement: React.FC = () => {
                           <span>{admin.isPending ? '--' : (admin.full_name || 'Unknown')}</span>
                           <Badge 
                             variant="secondary" 
-                            className={`ml-2 text-xs ${
+                            className={`ml-2 text-xs flex items-center gap-1 ${
                               admin.isPending 
                                 ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' 
-                                : 'bg-primary/10 text-primary'
+                                : 'bg-[hsl(var(--yellow-light))] text-[hsl(var(--yellow-dark))]'
                             }`}
                           >
-                            {admin.isPending ? 'Pending' : 'Admin'}
+                            {admin.isPending ? (
+                              'Pending'
+                            ) : (
+                              <>
+                                <Shield className="w-3 h-3" />
+                                Admin
+                              </>
+                            )}
                           </Badge>
                         </div>
                       </div>
