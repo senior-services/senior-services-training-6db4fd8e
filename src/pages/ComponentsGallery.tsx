@@ -428,8 +428,8 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         This is a dialog description explaining what this dialog does.
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="py-4">
-                      <p>Dialog content goes here.</p>
+                    <div className="px-6 py-4">
+                      <p>Dialog content goes here. This content area has proper padding while the header and footer extend full width.</p>
                     </div>
                     <DialogFooter>
                       <Button variant="outline">Cancel</Button>
