@@ -421,7 +421,10 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableCell>john@example.com</TableCell>
                           <TableCell>Admin</TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-4 h-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
                           </TableCell>
                         </TableRow>
                         <TableRow>
@@ -429,7 +432,10 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableCell>jane@example.com</TableCell>
                           <TableCell>User</TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-4 h-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -462,10 +468,17 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableCell>Engineering</TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-1 justify-end">
-                              <Button size="sm" variant="ghost"><Eye className="w-4 h-4" /></Button>
-                              <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
-                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                              <Button size="sm" variant="outline">
+                                <Eye className="w-4 h-4" />
+                                <span className="sr-only">View</span>
+                              </Button>
+                              <Button size="sm" variant="outline">
+                                <Edit className="w-4 h-4" />
+                                <span className="sr-only">Edit</span>
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
                                 <Trash2 className="w-4 h-4" />
+                                <span className="sr-only">Delete</span>
                               </Button>
                             </div>
                           </TableCell>
@@ -476,10 +489,17 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableCell>Marketing</TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-1 justify-end">
-                              <Button size="sm" variant="ghost"><Eye className="w-4 h-4" /></Button>
-                              <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
-                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                              <Button size="sm" variant="outline">
+                                <Eye className="w-4 h-4" />
+                                <span className="sr-only">View</span>
+                              </Button>
+                              <Button size="sm" variant="outline">
+                                <Edit className="w-4 h-4" />
+                                <span className="sr-only">Edit</span>
+                              </Button>
+                              <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
                                 <Trash2 className="w-4 h-4" />
+                                <span className="sr-only">Delete</span>
                               </Button>
                             </div>
                           </TableCell>
