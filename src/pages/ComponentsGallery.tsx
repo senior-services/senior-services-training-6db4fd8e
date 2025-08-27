@@ -279,6 +279,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <Trash2 className="w-4 h-4 mr-2" />Delete
                         </Button>
                         <Button variant="ghost"><Download className="w-4 h-4 mr-2" />Download</Button>
+                        <Button variant="secondary"><Settings className="w-4 h-4 mr-2" />Settings</Button>
                       </div>
                     </div>
                     <div>
