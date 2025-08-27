@@ -59,7 +59,7 @@ export const videoOperations = {
         .order('created_at', { ascending: false });
 
       if (videosError) {
-        logger.error('Failed to fetch videos', { errorMessage: videosError.message });
+        logger.error('Failed to fetch videos', undefined, { supabaseError: videosError.message });
         return { data: null, error: videosError.message, success: false };
       }
 
@@ -79,7 +79,7 @@ export const videoOperations = {
         });
 
       if (countError) {
-        logger.warn('Failed to fetch assignment counts', { errorMessage: countError.message });
+        logger.warn('Failed to fetch assignment counts', { supabaseError: countError.message });
       }
 
       // Merge data
@@ -91,7 +91,7 @@ export const videoOperations = {
       logger.info('Videos fetched successfully', { count: videosWithCounts.length });
       return { data: videosWithCounts as Video[], error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching videos', { errorMessage: String(error) });
+      logger.error('Unexpected error fetching videos', error as Error);
       return { data: null, error: 'Failed to fetch videos', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -110,14 +110,14 @@ export const videoOperations = {
         .single();
 
       if (error) {
-        logger.error('Failed to fetch video', { videoId: id, errorMessage: error.message });
+        logger.error('Failed to fetch video', undefined, { videoId: id, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
       logger.info('Video fetched successfully', { videoId: id });
       return { data: data as Video, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching video', { videoId: id, errorMessage: String(error) });
+      logger.error('Unexpected error fetching video', error as Error, { videoId: id });
       return { data: null, error: 'Failed to fetch video', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -141,7 +141,7 @@ export const videoOperations = {
           .upload(fileName, videoData.file);
 
         if (uploadError) {
-          logger.error('Failed to upload video file', { fileName, errorMessage: uploadError.message });
+          logger.error('Failed to upload video file', undefined, { fileName, supabaseError: uploadError.message });
           return { data: null, error: 'Failed to upload video file', success: false };
         }
 
@@ -166,14 +166,14 @@ export const videoOperations = {
         .single();
 
       if (error) {
-        logger.error('Failed to create video', { title: videoData.title, errorMessage: error.message });
+        logger.error('Failed to create video', undefined, { title: videoData.title, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
       logger.info('Video created successfully', { videoId: data.id, title: data.title });
       return { data: data as Video, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error creating video', { title: videoData.title, errorMessage: String(error) });
+      logger.error('Unexpected error creating video', error as Error, { title: videoData.title });
       return { data: null, error: 'Failed to create video', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -198,14 +198,14 @@ export const videoOperations = {
         .single();
 
       if (error) {
-        logger.error('Failed to update video', { videoId: id, errorMessage: error.message });
+        logger.error('Failed to update video', undefined, { videoId: id, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
       logger.info('Video updated successfully', { videoId: id, title: updates.title });
       return { data: data as Video, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error updating video', { videoId: id, errorMessage: String(error) });
+      logger.error('Unexpected error updating video', error as Error, { videoId: id });
       return { data: null, error: 'Failed to update video', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -223,14 +223,14 @@ export const videoOperations = {
         .eq('id', id);
 
       if (error) {
-        logger.error('Failed to delete video', { videoId: id, errorMessage: error.message });
+        logger.error('Failed to delete video', undefined, { videoId: id, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
       logger.info('Video deleted successfully', { videoId: id });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error deleting video', { videoId: id, errorMessage: String(error) });
+      logger.error('Unexpected error deleting video', error as Error, { videoId: id });
       return { data: null, error: 'Failed to delete video', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -254,7 +254,7 @@ export const employeeOperations = {
         .order('created_at', { ascending: false });
 
       if (error) {
-        logger.error('Failed to fetch employees', { errorMessage: error.message });
+        logger.error('Failed to fetch employees', undefined, { supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
@@ -274,7 +274,7 @@ export const employeeOperations = {
       logger.info('Employees fetched successfully', { count: result.length });
       return { data: result, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching employees', { errorMessage: String(error) });
+      logger.error('Unexpected error fetching employees', error as Error);
       return { data: null, error: 'Failed to fetch employees', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -305,7 +305,7 @@ export const employeeOperations = {
         .single();
 
       if (error) {
-        logger.error('Failed to add employee', { email, errorMessage: error.message });
+        logger.error('Failed to add employee', undefined, { email, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
@@ -325,7 +325,7 @@ export const employeeOperations = {
       logger.info('Employee added successfully', { employeeId: data.id, email });
       return { data: employeeWithAssignments, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error adding employee', { email, errorMessage: String(error) });
+      logger.error('Unexpected error adding employee', error as Error, { email });
       return { data: null, error: 'Failed to add employee', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -343,14 +343,14 @@ export const employeeOperations = {
         .eq('id', employeeId);
 
       if (error) {
-        logger.error('Failed to delete employee', { employeeId, errorMessage: error.message });
+        logger.error('Failed to delete employee', undefined, { employeeId, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
       logger.info('Employee deleted successfully', { employeeId });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error deleting employee', { employeeId, errorMessage: String(error) });
+      logger.error('Unexpected error deleting employee', error as Error, { employeeId });
       return { data: null, error: 'Failed to delete employee', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -373,14 +373,14 @@ export const assignmentOperations = {
         .eq('employee_id', employeeId);
 
       if (error) {
-        logger.error('Failed to fetch employee assignments', { employeeId, errorMessage: error.message });
+        logger.error('Failed to fetch employee assignments', undefined, { employeeId, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
       logger.info('Employee assignments fetched', { employeeId, count: data?.length || 0 });
       return { data: data as VideoAssignment[], error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching assignments', { employeeId, errorMessage: String(error) });
+      logger.error('Unexpected error fetching assignments', error as Error, { employeeId });
       return { data: null, error: 'Failed to fetch assignments', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -396,7 +396,7 @@ export const assignmentOperations = {
         .rpc('get_user_video_assignments', { user_email: email });
 
       if (error) {
-        logger.error('Failed to fetch assignments by email (RPC)', { email, errorMessage: error.message });
+        logger.error('Failed to fetch assignments by email (RPC)', undefined, { email, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
@@ -417,7 +417,7 @@ export const assignmentOperations = {
       logger.info('Assignments fetched by email', { email, count: result.length });
       return { data: result, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching assignments by email', { email, errorMessage: String(error) });
+      logger.error('Unexpected error fetching assignments by email', error as Error, { email });
       return { data: null, error: 'Failed to fetch assignments', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -452,11 +452,11 @@ export const progressOperations = {
         });
 
       if (error) {
-        logger.error('Failed to update progress', { 
+        logger.error('Failed to update progress', undefined, { 
           employeeId, 
           videoId, 
           progressPercent, 
-          errorMessage: error.message 
+          supabaseError: error.message 
         });
         return { data: null, error: error.message, success: false };
       }
@@ -464,10 +464,9 @@ export const progressOperations = {
       logger.info('Progress updated successfully', { employeeId, videoId, progressPercent });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error updating progress', { 
+      logger.error('Unexpected error updating progress', error as Error, { 
         employeeId, 
-        videoId, 
-        errorMessage: String(error) 
+        videoId 
       });
       return { data: null, error: 'Failed to update progress', success: false };
     } finally {
