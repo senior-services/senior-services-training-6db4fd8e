@@ -4,14 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserPlus, Trash2, Shield, Mail } from 'lucide-react';
@@ -19,7 +12,6 @@ import { AdminService, AdminUser } from '@/services/adminService';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-
 export const AdminManagement: React.FC = () => {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,12 +21,12 @@ export const AdminManagement: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     loadAdmins();
   }, []);
-
   const loadAdmins = async () => {
     try {
       setLoading(true);
@@ -51,7 +43,6 @@ export const AdminManagement: React.FC = () => {
       setLoading(false);
     }
   };
-
   const handleAddAdmin = async () => {
     if (!newAdminEmail.trim()) {
       toast({
@@ -61,18 +52,17 @@ export const AdminManagement: React.FC = () => {
       });
       return;
     }
-
     setIsAdding(true);
-      try {
-        await AdminService.addAdminByEmail(newAdminEmail.trim());
-        setNewAdminEmail('');
-        setHasChanges(false);
-        setShowAddModal(false);
-        await loadAdmins();
-        toast({
-          title: "Success",
-          description: "Admin invitation sent successfully. They will gain admin access when they sign up."
-        });
+    try {
+      await AdminService.addAdminByEmail(newAdminEmail.trim());
+      setNewAdminEmail('');
+      setHasChanges(false);
+      setShowAddModal(false);
+      await loadAdmins();
+      toast({
+        title: "Success",
+        description: "Admin invitation sent successfully. They will gain admin access when they sign up."
+      });
     } catch (error: any) {
       console.error('Error adding admin:', error);
       toast({
@@ -84,10 +74,8 @@ export const AdminManagement: React.FC = () => {
       setIsAdding(false);
     }
   };
-
   const handleDeleteAdmin = async () => {
     if (!deleteConfirmAdmin) return;
-    
     setIsDeleting(true);
     try {
       await AdminService.removeAdminRole(deleteConfirmAdmin.id, deleteConfirmAdmin.isPending);
@@ -108,16 +96,12 @@ export const AdminManagement: React.FC = () => {
       setIsDeleting(false);
     }
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-xl font-semibold">Admin Management</h3>
-          <p className="text-muted-foreground">
-            Manage system administrators and their permissions
-          </p>
+          <p className="text-muted-foreground">Manage admins, employees, and training assignments.</p>
         </div>
         <Button onClick={() => setShowAddModal(true)}>
           <UserPlus className="w-4 h-4 mr-2" />
@@ -128,14 +112,11 @@ export const AdminManagement: React.FC = () => {
       {/* Admins Table */}
       <Card>
         <CardContent className="p-0">
-          {loading ? (
-            <div className="p-6 space-y-4">
+          {loading ? <div className="p-6 space-y-4">
               <LoadingSkeleton lines={1} className="h-12" />
               <LoadingSkeleton lines={1} className="h-12" />
               <LoadingSkeleton lines={1} className="h-12" />
-            </div>
-          ) : admins.length === 0 ? (
-            <div className="text-center py-12">
+            </div> : admins.length === 0 ? <div className="text-center py-12">
               <div className="space-y-3">
                 <Shield className="w-12 h-12 text-muted-foreground mx-auto" />
                 <div>
@@ -151,9 +132,7 @@ export const AdminManagement: React.FC = () => {
                   Add First Admin
                 </Button>
               </div>
-            </div>
-          ) : (
-            <Table>
+            </div> : <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead>Name</TableHead>
@@ -163,28 +142,16 @@ export const AdminManagement: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {admins.map((admin) => (
-                  <TableRow key={admin.id}>
+                {admins.map(admin => <TableRow key={admin.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center">
-                          <span>{admin.isPending ? '--' : (admin.full_name || 'Unknown')}</span>
-                          <Badge 
-                            variant="secondary" 
-                            className={`ml-2 text-xs flex items-center gap-1 ${
-                              admin.isPending 
-                                ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' 
-                                : 'bg-[hsl(var(--yellow-light))] text-[hsl(var(--yellow-dark))]'
-                            }`}
-                          >
-                            {admin.isPending ? (
-                              'Pending'
-                            ) : (
-                              <>
-                                <Shield className="w-3 h-3" />
-                                Admin
-                              </>
-                            )}
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Shield className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <span>{admin.isPending ? '--' : admin.full_name || 'Unknown'}</span>
+                          <Badge variant="secondary" className={`ml-2 text-xs ${admin.isPending ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' : 'bg-primary/10 text-primary'}`}>
+                            {admin.isPending ? 'Pending' : 'Admin'}
                           </Badge>
                         </div>
                       </div>
@@ -196,21 +163,14 @@ export const AdminManagement: React.FC = () => {
                       {admin.isPending ? 'Pending' : format(new Date(admin.created_at), 'MMM d, yyyy')}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => setDeleteConfirmAdmin(admin)}
-                        className="text-destructive hover:text-destructive"
-                      >
+                      <Button variant="outline" size="sm" onClick={() => setDeleteConfirmAdmin(admin)} className="text-destructive hover:text-destructive">
                         <Trash2 className="w-4 h-4" />
                         <span className="sr-only">{admin.isPending ? 'Cancel Invitation' : 'Remove Admin'}</span>
                       </Button>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
-            </Table>
-          )}
+            </Table>}
         </CardContent>
       </Card>
 
@@ -228,30 +188,23 @@ export const AdminManagement: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label htmlFor="admin-email">Email Address</Label>
-              <Input
-                id="admin-email"
-                type="email"
-                placeholder="admin@example.com"
-                value={newAdminEmail}
-                onChange={(e) => {
-                  setNewAdminEmail(e.target.value);
-                  setHasChanges(true);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleAddAdmin();
-                  }
-                }}
-              />
+              <Input id="admin-email" type="email" placeholder="admin@example.com" value={newAdminEmail} onChange={e => {
+              setNewAdminEmail(e.target.value);
+              setHasChanges(true);
+            }} onKeyDown={e => {
+              if (e.key === 'Enter') {
+                handleAddAdmin();
+              }
+            }} />
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => {
-              setShowAddModal(false);
-              setNewAdminEmail('');
-              setHasChanges(false);
-            }} disabled={isAdding}>
+            setShowAddModal(false);
+            setNewAdminEmail('');
+            setHasChanges(false);
+          }} disabled={isAdding}>
               Cancel
             </Button>
             <Button onClick={handleAddAdmin} disabled={isAdding || !hasChanges}>
@@ -274,22 +227,15 @@ export const AdminManagement: React.FC = () => {
               <br />
               This will:
               <ul className="list-disc list-inside mt-2 space-y-1">
-                {deleteConfirmAdmin?.isPending ? (
-                  <li>Cancel their pending admin invitation</li>
-                ) : (
-                  <>
+                {deleteConfirmAdmin?.isPending ? <li>Cancel their pending admin invitation</li> : <>
                     <li>Remove their admin access to the system</li>
                     <li>Restrict them to employee-level permissions</li>
                     <li>Prevent them from managing other users</li>
-                  </>
-                )}
+                  </>}
               </ul>
               <br />
               <strong>
-                {deleteConfirmAdmin?.isPending 
-                  ? 'The invitation will be permanently cancelled.' 
-                  : 'This action can be reversed by adding them as an admin again.'
-                }
+                {deleteConfirmAdmin?.isPending ? 'The invitation will be permanently cancelled.' : 'This action can be reversed by adding them as an admin again.'}
               </strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -297,16 +243,11 @@ export const AdminManagement: React.FC = () => {
             <AlertDialogCancel disabled={isDeleting}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteAdmin} 
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? 'Processing...' : (deleteConfirmAdmin?.isPending ? 'Cancel Invitation' : 'Remove Admin')}
+            <AlertDialogAction onClick={handleDeleteAdmin} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isDeleting ? 'Processing...' : deleteConfirmAdmin?.isPending ? 'Cancel Invitation' : 'Remove Admin'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 };
