@@ -15,7 +15,7 @@ export const Landing = ({
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <img src="/lovable-uploads/17985630-6b86-4141-8e51-dc98494292a5.png" alt="Senior Services for South Sound" className="mx-auto h-16 w-auto mb-6" />
+          <img src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" alt="Senior Services for South Sound" className="mx-auto h-16 w-auto mb-6" />
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Senior Services Training Portal</h1>
           <p className="text-xl text-white/90 max-w-2xl mx-auto">
             Streamlined onboarding and continuous training for nonprofit employees

@@ -17,21 +17,21 @@ export const Header = ({
   onLogout
 }: HeaderProps) => {
   const subtitle = userRole === 'admin' ? 'Administrator Dashboard' : 'Employee Portal';
-  return <header className="bg-primary border-b border-primary/20 shadow-sm">
+  return <header className="bg-background border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
           <div className="flex items-center space-x-4">
             <Link to="/dashboard" className="flex items-center space-x-4 hover:opacity-80 transition-opacity">
-              <img src="/lovable-uploads/17985630-6b86-4141-8e51-dc98494292a5.png" alt="Senior Services for South Sound" className="h-12 w-auto object-cover" style={{
+              <img src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" alt="Senior Services for South Sound" className="h-12 w-auto object-cover" style={{
               objectPosition: 'left center'
             }} />
               <div>
-                <h1 className="text-xl font-bold text-primary-foreground">Learning Hub</h1>
+                <h1 className="text-xl font-bold text-primary">Learning Hub</h1>
                 <p className={`text-sm hidden sm:block ${
                   userRole === 'admin' 
-                    ? 'font-bold text-status-red' 
-                    : 'text-status-red'
+                    ? 'font-bold text-[hsl(var(--admin-highlight))]' 
+                    : 'text-muted-foreground'
                 }`}>
                   {userRole === 'admin' ? 'Admin Dashboard' : 'Employee Dashboard'}
                 </p>
@@ -42,7 +42,7 @@ export const Header = ({
           {/* Right Side - User Info and Menu */}
           <div className="flex items-center space-x-3">
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-primary-foreground">{userName}</p>
+              <p className="text-sm font-medium text-foreground">{userName}</p>
               
             </div>
             
@@ -52,7 +52,7 @@ export const Header = ({
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                     <User className="w-4 h-4 text-primary-foreground" />
                   </div>
-                  <ChevronDown className="w-4 h-4 text-primary-foreground/70" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">

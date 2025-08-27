@@ -94,10 +94,6 @@ export default {
 				'deadline-warning': 'hsl(var(--deadline-warning))',
 				'deadline-upcoming': 'hsl(var(--deadline-upcoming))',
 				'deadline-completed': 'hsl(var(--deadline-completed))',
-				'status-red': {
-					DEFAULT: 'hsl(var(--status-red))',
-					foreground: 'hsl(var(--status-red-foreground))'
-				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
