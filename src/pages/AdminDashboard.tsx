@@ -169,26 +169,37 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
     
     const fetchResult = await withErrorHandler(
       async () => {
-        // Verify user authentication
-        const { data: user, error: authError } = await supabase.auth.getUser();
-        
-        if (authError) {
-          throw createDatabaseError('user authentication', 'auth.users', authError);
-        }
-
-        logger.authEvent('admin_videos_fetch_started', user?.user?.id, user?.user?.email);
-        
-        // Use videoService which correctly calculates assignment counts
+        // Try to get videos directly first, auth check is handled by RLS
         const { videoService } = await import('@/services/supabase');
         const result = await videoService.getAll();
 
         if (!result.success) {
+          // If it fails, try with explicit auth check
+          const { data: user, error: authError } = await supabase.auth.getUser();
+          
+          if (authError) {
+            // Log the auth error but don't fail completely - might be network issue
+            logger.warn('Auth check failed during video fetch, retrying...', {
+              error: authError.message,
+              adminUser: userEmail
+            });
+            
+            // Retry video fetch once more
+            const retryResult = await videoService.getAll();
+            if (!retryResult.success) {
+              throw createDatabaseError('video fetch after auth retry', 'videos', new Error(retryResult.error || 'Unable to connect to database'));
+            }
+            setVideos(retryResult.data || []);
+            return retryResult.data;
+          }
+
+          logger.authEvent('admin_videos_fetch_started', user?.user?.id, user?.user?.email);
           throw createDatabaseError('video fetch', 'videos', new Error(result.error || 'Unknown error'));
         }
 
         logger.dbOperation('select', 'videos', true, {
           count: result.data?.length || 0,
-          adminUser: user?.user?.email
+          adminUser: userEmail
         });
 
         setVideos(result.data || []);
@@ -203,8 +214,8 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
 
     if (!fetchResult.success) {
       toast({
-        title: "Error Loading Videos",
-        description: "Failed to load videos. Please try again.",
+        title: "Connection Error",
+        description: "Unable to connect to the server. Please check your internet connection and try again.",
         variant: "destructive",
       });
     }
