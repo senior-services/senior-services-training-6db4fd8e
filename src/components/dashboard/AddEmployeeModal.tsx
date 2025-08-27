@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -143,7 +144,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             </p>
           </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t">
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
@@ -155,7 +156,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Adding...' : 'Add Employee'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
