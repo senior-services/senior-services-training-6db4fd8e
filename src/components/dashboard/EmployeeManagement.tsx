@@ -306,7 +306,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                 
                                 return (
                                   <TableRow key={assignment.assignment_id}>
-                                    <TableCell className="font-medium py-1">
+                                    <TableCell className="py-1">
                                       {assignment.video_title}
                                     </TableCell>
                                     <TableCell className="text-right py-1">
