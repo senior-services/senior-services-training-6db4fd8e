@@ -62,7 +62,7 @@ export const VideoPlayerModal = ({
             <Play className="w-5 h-5 text-primary" />
             {video.title}
           </DialogTitle>
-          {video.description && video.description.trim() && <div className="pt-3 pb-1 ">
+          {video.description && video.description.trim() && <div className="">
               <p className="text-sm text-muted-foreground font-normal leading-relaxed">
                 {video.description}
               </p>
