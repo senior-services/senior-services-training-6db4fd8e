@@ -310,7 +310,6 @@ export type Database = {
       }
       videos: {
         Row: {
-          assigned_to: number
           completion_rate: number
           created_at: string
           description: string | null
@@ -325,7 +324,6 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
-          assigned_to?: number
           completion_rate?: number
           created_at?: string
           description?: string | null
@@ -340,7 +338,6 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
-          assigned_to?: number
           completion_rate?: number
           created_at?: string
           description?: string | null

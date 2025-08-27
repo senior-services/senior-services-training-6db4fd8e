@@ -95,30 +95,7 @@ export const videoOperations = {
         return { data: null, error: videosError.message, success: false };
       }
 
-      // Get assignment counts
-      const { data: assignmentCounts, error: countError } = await supabase
-        .from('video_assignments')
-        .select('video_id')
-        .then(({ data, error }) => {
-          if (error) return { data: null, error };
-          
-          const counts = new Map<string, number>();
-          data?.forEach(assignment => {
-            counts.set(assignment.video_id, (counts.get(assignment.video_id) || 0) + 1);
-          });
-          
-          return { data: counts, error: null };
-        });
-
-      if (countError) {
-        logger.warn('Failed to fetch assignment counts', { supabaseError: countError.message });
-      }
-
-      // Merge data
-      const videosWithCounts = videos?.map(video => ({
-        ...video,
-        assigned_to: assignmentCounts?.get(video.id) || 0
-      })) || [];
+      const videosWithCounts = videos || [];
 
       logger.info('Videos fetched successfully', { count: videosWithCounts.length });
       return { data: videosWithCounts as Video[], error: null, success: true };
@@ -195,7 +172,6 @@ export const videoOperations = {
           video_file_name,
           thumbnail_url: thumbnailUrl,
           type: videoData.type,
-          assigned_to: 0,
           completion_rate: 0,
         })
         .select()

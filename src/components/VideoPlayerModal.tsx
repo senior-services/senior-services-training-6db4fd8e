@@ -11,7 +11,6 @@ interface VideoPlayerModalProps {
     title: string;
     description?: string | null;
     type: string;
-    assigned_to: number;
     video_url?: string | null;
     video_file_name?: string | null;
     thumbnail_url?: string | null;

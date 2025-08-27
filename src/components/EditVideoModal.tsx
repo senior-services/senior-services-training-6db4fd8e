@@ -22,7 +22,6 @@ interface VideoData {
   video_file_name: string | null;
   thumbnail_url?: string | null;
   type: string;
-  assigned_to: number;
   completion_rate: number;
   created_at: string;
   updated_at: string;

@@ -38,7 +38,6 @@ export interface Video {
   thumbnail_url?: string | null;
   type: VideoType;
   has_quiz: boolean;
-  assigned_to: number;
   completion_rate: number;
   duration_seconds: number;
   created_at: string;

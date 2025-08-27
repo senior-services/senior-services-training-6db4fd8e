@@ -62,7 +62,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
   onAddVideo,
   className,
 }) => {
-  const [sortColumn, setSortColumn] = useState<'title' | 'assigned_to'>('title');
+  const [sortColumn, setSortColumn] = useState<'title'>('title');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   /**
@@ -78,9 +78,6 @@ export const VideoTable: React.FC<VideoTableProps> = ({
         case 'title':
           comparison = a.title.localeCompare(b.title);
           break;
-        case 'assigned_to':
-          comparison = a.assigned_to - b.assigned_to;
-          break;
       }
 
       return sortDirection === 'asc' ? comparison : -comparison;
@@ -90,7 +87,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
   /**
    * Handles sorting of video table
    */
-  const handleSort = useCallback((column: 'title' | 'assigned_to') => {
+  const handleSort = useCallback((column: 'title') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -154,21 +151,6 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                     >
                       Video Title and Description
                       {sortColumn === 'title' && (
-                        <span className="ml-1" aria-hidden="true">
-                          {sortDirection === 'asc' ? '↑' : '↓'}
-                        </span>
-                      )}
-                    </Button>
-                  </TableHead>
-                  <TableHead className="text-center whitespace-nowrap">
-                    <Button
-                      variant="ghost"
-                      className="font-semibold p-0 h-auto hover:bg-transparent whitespace-nowrap"
-                      onClick={() => handleSort('assigned_to')}
-                      aria-label="Sort by assigned employees"
-                    >
-                      Assigned To
-                      {sortColumn === 'assigned_to' && (
                         <span className="ml-1" aria-hidden="true">
                           {sortDirection === 'asc' ? '↑' : '↓'}
                         </span>
@@ -299,12 +281,6 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                         </div>
                       </TableCell>
 
-                      {/* Assigned employees count */}
-                      <TableCell className="text-center py-2">
-                        <span className="font-medium">
-                          {video.assigned_to}
-                        </span>
-                      </TableCell>
 
                       {/* Quiz status */}
                       <TableCell className="text-center py-2">
