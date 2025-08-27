@@ -17,13 +17,14 @@ import {
 } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, ChevronUp, User, RefreshCw } from 'lucide-react';
-import { EmployeeService } from '@/services/employeeService';
+import { employeeOperations } from '@/services/api';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AddEmployeeModal } from './AddEmployeeModal';
 import { AssignVideosModal } from './AssignVideosModal';
+import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
 export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => void }> = ({ onCountChange }) => {
   const [employees, setEmployees] = useState<EmployeeWithAssignments[]>([]);
@@ -52,7 +53,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
           table: 'employee_video_assignments'
         },
         () => {
-          console.log('Employee assignment changed, refreshing data...');
+          logger.info('Employee assignment changed, refreshing data...');
           loadEmployees();
         }
       )
@@ -64,7 +65,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
           table: 'profiles'
         },
         () => {
-          console.log('Employee profile changed, refreshing data...');
+          logger.info('Employee profile changed, refreshing data...');
           loadEmployees();
         }
       )
@@ -76,7 +77,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
           table: 'employee_video_progress'
         },
         () => {
-          console.log('Employee progress changed, refreshing data...');
+          logger.info('Employee progress changed, refreshing data...');
           loadEmployees();
         }
       )
@@ -89,24 +90,37 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
   const loadEmployees = async () => {
     try {
       setLoading(true);
-      const data = await EmployeeService.getEmployees();
-      setEmployees(data);
-      onCountChange?.(data.length);
-
-      // Load video assignments for each employee - now data comes pre-loaded from batch function
-      const videoMap = new Map();
-      for (const employee of data) {
-        // Use pre-loaded assignments from the optimized batch function
-        if (employee.assignments && Array.isArray(employee.assignments)) {
-          videoMap.set(employee.id, employee.assignments);
-        } else {
-          // Fallback for employees without assignments
-          videoMap.set(employee.id, []);
+      const data = await employeeOperations.getAll();
+      if (data.success && data.data) {
+        // Transform API data to match local types
+        const transformedEmployees: EmployeeWithAssignments[] = data.data.map(employee => ({
+          id: employee.id,
+          email: employee.email,
+          full_name: employee.name, // API uses 'name', component expects 'full_name'
+          created_at: employee.created_at || new Date().toISOString(),
+          updated_at: employee.updated_at || new Date().toISOString(),
+          assigned_videos_count: 0, // Will be calculated from assignments
+          assignments: employee.assignments || []
+        }));
+        
+        setEmployees(transformedEmployees);
+        onCountChange?.(transformedEmployees.length);
+        
+        // Load video assignments for each employee
+        const videoMap = new Map();
+        for (const employee of transformedEmployees) {
+          if (employee.assignments && Array.isArray(employee.assignments)) {
+            videoMap.set(employee.id, employee.assignments);
+          } else {
+            videoMap.set(employee.id, []);
+          }
         }
+        setEmployeeVideos(videoMap);
+      } else {
+        throw new Error(data.error || 'Failed to load employees');
       }
-      setEmployeeVideos(videoMap);
     } catch (error) {
-      console.error('Error loading employees:', error);
+      logger.error('Error loading employees', error as Error);
       toast({
         title: "Error",
         description: "Failed to load employees",
@@ -118,10 +132,16 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
   };
   const handleAddEmployee = (employee: Employee) => {
     setEmployees(prev => {
-      const updated = [...prev, {
-        ...employee,
-        assigned_videos_count: 0
-      }];
+      const transformedEmployee: EmployeeWithAssignments = {
+        id: employee.id,
+        email: employee.email,
+        full_name: employee.full_name || employee.email?.split('@')[0] || 'Unknown',
+        created_at: employee.created_at,
+        updated_at: employee.updated_at,
+        assigned_videos_count: 0,
+        assignments: []
+      };
+      const updated = [...prev, transformedEmployee];
       onCountChange?.(updated.length);
       return updated;
     });
@@ -139,15 +159,23 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
     if (!deleteConfirmEmployee) return;
     setIsDeleting(true);
     try {
-      await EmployeeService.deleteEmployee(deleteConfirmEmployee.id);
-      setEmployees(prev => { const updated = prev.filter(emp => emp.id !== deleteConfirmEmployee.id); onCountChange?.(updated.length); return updated; });
-      setDeleteConfirmEmployee(null);
-      toast({
-        title: "Success",
-        description: "Employee deleted successfully"
-      });
+      const result = await employeeOperations.delete(deleteConfirmEmployee.id);
+      if (result.success) {
+        setEmployees(prev => { 
+          const updated = prev.filter(emp => emp.id !== deleteConfirmEmployee.id); 
+          onCountChange?.(updated.length); 
+          return updated; 
+        });
+        setDeleteConfirmEmployee(null);
+        toast({
+          title: "Success",
+          description: "Employee deleted successfully"
+        });
+      } else {
+        throw new Error(result.error || 'Failed to delete employee');
+      }
     } catch (error) {
-      console.error('Error deleting employee:', error);
+      logger.error('Error deleting employee', error as Error);
       toast({
         title: "Error",
         description: "Failed to delete employee",
