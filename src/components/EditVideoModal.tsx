@@ -12,6 +12,7 @@ import { Play, FileVideo, Trash2, Copy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/utils/logger";
 import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveEmbedUrl, getGoogleDriveViewUrl, getYouTubeWatchUrl } from "@/utils/videoUtils";
 interface VideoData {
   id: string;
@@ -67,7 +68,7 @@ export const EditVideoModal = ({
       });
       onOpenChange(false);
     } catch (error) {
-      console.error('Error updating video:', error);
+      logger.error('Error updating video', error as Error);
     } finally {
       setLoading(false);
     }
@@ -80,7 +81,7 @@ export const EditVideoModal = ({
       setDeleteDialogOpen(false);
       onOpenChange(false);
     } catch (error) {
-      console.error('Error deleting video:', error);
+      logger.error('Error deleting video', error as Error);
     } finally {
       setIsDeleting(false);
     }

@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { EmployeeService } from "@/services/employeeService";
+import { videoOperations } from '@/services/api';
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import type { Video } from "@/types";
-import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveEmbedUrl } from "@/utils/videoUtils";
+import { logger } from '@/utils/logger';
 
 export const VideoPage = () => {
   const { videoId } = useParams<{ videoId: string }>();
@@ -32,7 +32,7 @@ export const VideoPage = () => {
   }, [videoId]);
 
   useEffect(() => {
-    console.info('VideoPage route', { pathname: location.pathname, hash: window.location.hash, videoId });
+    logger.info('VideoPage route accessed', { videoId });
   }, [location, videoId]);
 
   const loadVideo = async (id: string) => {
@@ -41,7 +41,7 @@ export const VideoPage = () => {
       const videoData = await EmployeeService.getVideoById(id);
       setVideo(videoData);
     } catch (error) {
-      console.error('Error loading video:', error);
+      logger.error('Error loading video', error as Error);
       toast({
         title: "Error",
         description: "Failed to load video",
@@ -76,7 +76,7 @@ export const VideoPage = () => {
         });
       }
     } catch (error) {
-      console.error('Failed to update video progress:', error);
+      logger.error('Failed to update video progress', error as Error);
     }
   };
 

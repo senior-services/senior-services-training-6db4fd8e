@@ -11,9 +11,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserPlus, Mail, User } from 'lucide-react';
-import { EmployeeService } from '@/services/employeeService';
+import { employeeOperations } from '@/services/api';
 import type { Employee } from '@/types/employee';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/logger';
 
 interface AddEmployeeModalProps {
   open: boolean;
@@ -60,15 +61,27 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const newEmployee = await EmployeeService.addEmployee(
-        email.trim().toLowerCase(),
-        fullName.trim() || undefined
-      );
-      
-      onEmployeeAdded(newEmployee);
-      handleClose();
+      const result = await employeeOperations.add(email.trim().toLowerCase(), fullName.trim() || undefined);
+      if (result.success && result.data) {
+        // Transform API response to match expected Employee type
+        const employee = {
+          id: result.data.id,
+          email: result.data.email,
+          full_name: result.data.name,
+          created_at: result.data.created_at || new Date().toISOString(),
+          updated_at: result.data.updated_at || new Date().toISOString()
+        };
+        onEmployeeAdded(employee);
+        handleClose();
+        toast({
+          title: "Success",
+          description: "Employee added successfully"
+        });
+      } else {
+        throw new Error(result.error || 'Failed to add employee');
+      }
     } catch (error: any) {
-      console.error('Error adding employee:', error);
+      logger.error('Error adding employee', error as Error);
       
       // Handle duplicate email error
       if (error?.code === '23505' || error?.message?.includes('duplicate')) {

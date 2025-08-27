@@ -9,7 +9,7 @@ import { TrainingCard, TrainingVideo } from "@/components/TrainingCard";
 import { Badge } from "@/components/ui/badge";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { BookOpen, AlertCircle, CheckCircle, Clock, ChevronDown } from "lucide-react";
-import { EmployeeService } from "@/services/employeeService";
+import { assignmentOperations, progressOperations } from '@/services/api';
 import { supabase } from "@/integrations/supabase/client";
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";

@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Play, Clock, Users } from "lucide-react";
+import { logger } from "@/utils/logger";
 import { 
   isYouTubeUrl, 
   isGoogleDriveUrl, 
@@ -26,7 +27,7 @@ interface VideoPlayerModalProps {
 export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModalProps) => {
   // Only log when actually opening with video data
   if (open && video) {
-    console.log('VideoPlayerModal opened with video:', video.title);
+    logger.info('VideoPlayerModal opened', { videoTitle: video.title });
   }
   
   // Handle modal close and cleanup
@@ -47,10 +48,11 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
   }
 
   const hasVideoSource = video.video_url || video.video_file_name;
-  console.log('Video source check:', { 
-    video_url: video.video_url, 
-    video_file_name: video.video_file_name, 
-    hasVideoSource 
+  logger.info('Video source determined', { 
+    videoId: video.id,
+    hasUrl: !!video.video_url,
+    hasFile: !!video.video_file_name,
+    hasVideoSource
   });
 
   // Check video URL type
@@ -107,8 +109,8 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
                 controls
                 preload="metadata"
                 poster={video.thumbnail_url || undefined}
-                onLoadStart={() => console.log('Video loading started')}
-                onError={(e) => console.error('Video error:', e)}
+                onLoadStart={() => logger.info('Video loading started', { videoId: video.id })}
+                onError={(e) => logger.error('Video playback error', new Error(`Video error: ${e.type}`), { videoId: video.id })}
               >
                 <source src={video.video_url} type="video/mp4" />
                 Your browser does not support the video tag.
@@ -119,8 +121,8 @@ export const VideoPlayerModal = ({ open, onOpenChange, video }: VideoPlayerModal
                 controls
                 preload="metadata"
                 poster={video.thumbnail_url || undefined}
-                onLoadStart={() => console.log('Video file loading started')}
-                onError={(e) => console.error('Video file error:', e)}
+                onLoadStart={() => logger.info('Video file loading started', { videoId: video.id })}
+                onError={(e) => logger.error('Video file playback error', new Error(`Video file error: ${e.type}`), { videoId: video.id })}
               >
                 <source 
                   src={`https://wicbqqoudkaulltsjsvp.supabase.co/storage/v1/object/public/videos/${video.video_file_name}`} 
