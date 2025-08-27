@@ -47,7 +47,7 @@ export interface BadgeProps
 function Badge({ className, variant, showIcon, children, ...props }: BadgeProps) {
   return (
     <div className={cn(badgeVariants({ variant }), className)} {...props}>
-      {showIcon && variant === "success" && (
+      {showIcon && (variant === "success" || variant === "hollow-success") && (
         <Check className="w-3 h-3 mr-1" />
       )}
       {children}
