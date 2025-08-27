@@ -314,7 +314,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                       </TableRow>
                       
                       {isExpanded && (
-                        <TableRow>
+                        <TableRow className="hover:bg-transparent">
                           <TableCell colSpan={4} className="py-0">
                             <Collapsible open={isExpanded}>
                               <CollapsibleContent>
