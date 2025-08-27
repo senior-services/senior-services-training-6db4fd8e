@@ -21,6 +21,7 @@ import { EmployeeService } from '@/services/employeeService';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { AddEmployeeModal } from './AddEmployeeModal';
 import { AssignVideosModal } from './AssignVideosModal';
 import { format, differenceInDays, isPast } from 'date-fns';
@@ -40,9 +41,50 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
   useEffect(() => {
     loadEmployees();
 
-    // Auto-refresh every 30 seconds to show latest completion status
-    const interval = setInterval(loadEmployees, 30000);
-    return () => clearInterval(interval);
+    // Smart refresh: Only refresh when there are actual database changes
+    const channel = supabase
+      .channel('employee-assignments-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'employee_video_assignments'
+        },
+        () => {
+          console.log('Employee assignment changed, refreshing data...');
+          loadEmployees();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public', 
+          table: 'profiles'
+        },
+        () => {
+          console.log('Employee profile changed, refreshing data...');
+          loadEmployees();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'employee_video_progress'
+        },
+        () => {
+          console.log('Employee progress changed, refreshing data...');
+          loadEmployees();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
   const loadEmployees = async () => {
     try {
