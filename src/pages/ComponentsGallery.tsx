@@ -656,10 +656,10 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                        <TableBody>
                          {sortedData.map((user, index) => (
                            <TableRow key={index}>
-                             <TableCell className="font-medium">{user.name}</TableCell>
-                             <TableCell>{user.email}</TableCell>
-                             <TableCell>{user.department}</TableCell>
-                              <TableCell className="text-right">
+                             <TableCell className="font-medium py-0 min-h-[40px]">{user.name}</TableCell>
+                             <TableCell className="py-0 min-h-[40px]">{user.email}</TableCell>
+                             <TableCell className="py-0 min-h-[40px]">{user.department}</TableCell>
+                              <TableCell className="text-right py-0 min-h-[40px]">
                                 <div className="flex gap-1 justify-end">
                                   <Button size="sm" variant="ghost">
                                     <Eye className="w-4 h-4" />
@@ -718,72 +718,72 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="w-8 h-8">
-                                <AvatarFallback>CJ</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium">Charlie Jones</div>
-                                <div className="text-sm text-muted-foreground">charlie@example.com</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell><Badge variant="success">Active</Badge></TableCell>
-                          <TableCell><Badge variant="hollow-primary">Manager</Badge></TableCell>
-                          <TableCell className="text-muted-foreground">2 hours ago</TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="sm" variant="ghost">•••</Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
-                                <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive">
-                                  <Trash2 className="w-4 h-4 mr-2" />Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="w-8 h-8">
-                                <AvatarFallback>DM</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium">Diana Miller</div>
-                                <div className="text-sm text-muted-foreground">diana@example.com</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell><Badge variant="warning">Pending</Badge></TableCell>
-                          <TableCell><Badge variant="hollow-secondary">User</Badge></TableCell>
-                          <TableCell className="text-muted-foreground">1 day ago</TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="sm" variant="ghost">•••</Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
-                                <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive">
-                                  <Trash2 className="w-4 h-4 mr-2" />Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
+                       <TableBody>
+                         <TableRow>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div className="flex items-center gap-3">
+                               <Avatar className="w-8 h-8">
+                                 <AvatarFallback>CJ</AvatarFallback>
+                               </Avatar>
+                               <div>
+                                 <div className="font-medium">Charlie Jones</div>
+                                 <div className="text-sm text-muted-foreground">charlie@example.com</div>
+                               </div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="success">Active</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="hollow-primary">Manager</Badge></TableCell>
+                           <TableCell className="text-muted-foreground py-0 min-h-[40px]">2 hours ago</TableCell>
+                           <TableCell className="text-right py-0 min-h-[40px]">
+                             <DropdownMenu>
+                               <DropdownMenuTrigger asChild>
+                                 <Button size="sm" variant="ghost">•••</Button>
+                               </DropdownMenuTrigger>
+                               <DropdownMenuContent align="end">
+                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                 <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
+                                 <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                                 <DropdownMenuSeparator />
+                                 <DropdownMenuItem className="text-destructive">
+                                   <Trash2 className="w-4 h-4 mr-2" />Delete
+                                 </DropdownMenuItem>
+                               </DropdownMenuContent>
+                             </DropdownMenu>
+                           </TableCell>
+                         </TableRow>
+                         <TableRow>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div className="flex items-center gap-3">
+                               <Avatar className="w-8 h-8">
+                                 <AvatarFallback>DM</AvatarFallback>
+                               </Avatar>
+                               <div>
+                                 <div className="font-medium">Diana Miller</div>
+                                 <div className="text-sm text-muted-foreground">diana@example.com</div>
+                               </div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="warning">Pending</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="hollow-secondary">User</Badge></TableCell>
+                           <TableCell className="text-muted-foreground py-0 min-h-[40px]">1 day ago</TableCell>
+                           <TableCell className="text-right py-0 min-h-[40px]">
+                             <DropdownMenu>
+                               <DropdownMenuTrigger asChild>
+                                 <Button size="sm" variant="ghost">•••</Button>
+                               </DropdownMenuTrigger>
+                               <DropdownMenuContent align="end">
+                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                 <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
+                                 <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                                 <DropdownMenuSeparator />
+                                 <DropdownMenuItem className="text-destructive">
+                                   <Trash2 className="w-4 h-4 mr-2" />Delete
+                                 </DropdownMenuItem>
+                               </DropdownMenuContent>
+                             </DropdownMenu>
+                           </TableCell>
+                         </TableRow>
+                       </TableBody>
                     </Table>
                   </TabsContent>
                   
@@ -799,71 +799,71 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableHead>Assignee</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">Website Redesign</div>
-                              <div className="text-sm text-muted-foreground">Frontend improvements</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              <Progress value={75} className="w-[60px]" />
-                              <div className="text-xs text-muted-foreground">75%</div>
-                            </div>
-                          </TableCell>
-                          <TableCell><Badge variant="success" showIcon>Complete</Badge></TableCell>
-                          <TableCell><Badge variant="destructive">High</Badge></TableCell>
-                          <TableCell>
-                            <Avatar className="w-6 h-6">
-                              <AvatarFallback className="text-xs">JS</AvatarFallback>
-                            </Avatar>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">Mobile App</div>
-                              <div className="text-sm text-muted-foreground">iOS & Android development</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              <Progress value={45} className="w-[60px]" />
-                              <div className="text-xs text-muted-foreground">45%</div>
-                            </div>
-                          </TableCell>
-                          <TableCell><Badge variant="warning" showIcon>In Progress</Badge></TableCell>
-                          <TableCell><Badge variant="secondary">Medium</Badge></TableCell>
-                          <TableCell>
-                            <Avatar className="w-6 h-6">
-                              <AvatarFallback className="text-xs">AM</AvatarFallback>
-                            </Avatar>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">API Integration</div>
-                              <div className="text-sm text-muted-foreground">Backend services</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              <Progress value={20} className="w-[60px]" />
-                              <div className="text-xs text-muted-foreground">20%</div>
-                            </div>
-                          </TableCell>
-                          <TableCell><Badge variant="hollow-destructive" showIcon>Blocked</Badge></TableCell>
-                          <TableCell><Badge variant="hollow-warning">Low</Badge></TableCell>
-                          <TableCell>
-                            <Avatar className="w-6 h-6">
-                              <AvatarFallback className="text-xs">RK</AvatarFallback>
-                            </Avatar>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
+                       <TableBody>
+                         <TableRow>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div>
+                               <div className="font-medium">Website Redesign</div>
+                               <div className="text-sm text-muted-foreground">Frontend improvements</div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div className="space-y-1">
+                               <Progress value={75} className="w-[60px]" />
+                               <div className="text-xs text-muted-foreground">75%</div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="success" showIcon>Complete</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="destructive">High</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <Avatar className="w-6 h-6">
+                               <AvatarFallback className="text-xs">JS</AvatarFallback>
+                             </Avatar>
+                           </TableCell>
+                         </TableRow>
+                         <TableRow>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div>
+                               <div className="font-medium">Mobile App</div>
+                               <div className="text-sm text-muted-foreground">iOS & Android development</div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div className="space-y-1">
+                               <Progress value={45} className="w-[60px]" />
+                               <div className="text-xs text-muted-foreground">45%</div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="warning" showIcon>In Progress</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="secondary">Medium</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <Avatar className="w-6 h-6">
+                               <AvatarFallback className="text-xs">AM</AvatarFallback>
+                             </Avatar>
+                           </TableCell>
+                         </TableRow>
+                         <TableRow>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div>
+                               <div className="font-medium">API Integration</div>
+                               <div className="text-sm text-muted-foreground">Backend services</div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <div className="space-y-1">
+                               <Progress value={20} className="w-[60px]" />
+                               <div className="text-xs text-muted-foreground">20%</div>
+                             </div>
+                           </TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="hollow-destructive" showIcon>Blocked</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]"><Badge variant="hollow-warning">Low</Badge></TableCell>
+                           <TableCell className="py-0 min-h-[40px]">
+                             <Avatar className="w-6 h-6">
+                               <AvatarFallback className="text-xs">RK</AvatarFallback>
+                             </Avatar>
+                           </TableCell>
+                         </TableRow>
+                       </TableBody>
                     </Table>
                   </TabsContent>
                 </Tabs>
