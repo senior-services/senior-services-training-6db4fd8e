@@ -320,27 +320,31 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 <div className="space-y-3">
                   <div>
                     <h4 className="text-sm font-medium mb-2 text-muted-foreground">Solid Badges</h4>
-                     <div className="flex flex-wrap gap-2">
-                       <Badge>Primary</Badge>
-                       <Badge variant="secondary">Secondary</Badge>
-                       <Badge variant="destructive">Destructive</Badge>
-                       <Badge variant="destructive" showIcon>Destructive with Icon</Badge>
-                       <Badge variant="success">Success</Badge>
-                       <Badge variant="success" showIcon>Success with Icon</Badge>
-                     </div>
+                       <div className="flex flex-wrap gap-2">
+                        <Badge>Primary</Badge>
+                        <Badge variant="secondary">Secondary</Badge>
+                        <Badge variant="destructive">Destructive</Badge>
+                        <Badge variant="destructive" showIcon>Destructive with Icon</Badge>
+                        <Badge variant="success">Success</Badge>
+                        <Badge variant="success" showIcon>Success with Icon</Badge>
+                        <Badge variant="warning">Warning</Badge>
+                        <Badge variant="warning" showIcon>Warning with Icon</Badge>
+                      </div>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium mb-2 text-muted-foreground">Hollow Badges</h4>
                      <div className="flex flex-wrap gap-2">
-                       <Badge variant="hollow-primary">Primary</Badge>
-                       <Badge variant="hollow-secondary">Secondary</Badge>
-                       <Badge variant="hollow-destructive">Destructive</Badge>
-                       <Badge variant="hollow-destructive" showIcon>Destructive with Icon</Badge>
-                       <Badge variant="hollow-success">Success</Badge>
-                       <Badge variant="hollow-success" showIcon>Success with Icon</Badge>
-                       <Badge variant="outline">Outline</Badge>
-                       <Badge variant="hollow-plain">Plain</Badge>
-                     </div>
+                        <Badge variant="hollow-primary">Primary</Badge>
+                        <Badge variant="hollow-secondary">Secondary</Badge>
+                        <Badge variant="hollow-destructive">Destructive</Badge>
+                        <Badge variant="hollow-destructive" showIcon>Destructive with Icon</Badge>
+                        <Badge variant="hollow-success">Success</Badge>
+                        <Badge variant="hollow-success" showIcon>Success with Icon</Badge>
+                        <Badge variant="hollow-warning">Warning</Badge>
+                        <Badge variant="hollow-warning" showIcon>Warning with Icon</Badge>
+                        <Badge variant="outline">Outline</Badge>
+                        <Badge variant="hollow-plain">Plain</Badge>
+                      </div>
                   </div>
                 </div>
               </div>
