@@ -33,8 +33,7 @@ import {
   DialogFooter, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger,
-  DialogClose 
+  DialogTrigger 
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -424,16 +423,10 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <div className="flex flex-col space-y-1.5 text-left">
-                        <DialogTitle>Dialog Title</DialogTitle>
-                        <DialogDescription>
-                          This is a dialog description explaining what this dialog does.
-                        </DialogDescription>
-                      </div>
-                      <DialogClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Close</span>
-                      </DialogClose>
+                      <DialogTitle>Dialog Title</DialogTitle>
+                      <DialogDescription>
+                        This is a dialog description explaining what this dialog does.
+                      </DialogDescription>
                     </DialogHeader>
                     <div>
                       <p>Dialog content goes here. The body now automatically has proper padding while the header and footer extend full width with their own backgrounds.</p>
