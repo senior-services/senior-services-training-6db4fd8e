@@ -559,16 +559,16 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <TableHeader>
                          <TableRow>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Name</span>
+                             <span className="font-medium p-3 h-auto">Name</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Email</span>
+                             <span className="font-medium p-3 h-auto">Email</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Role</span>
+                             <span className="font-medium p-3 h-auto">Role</span>
                            </TableHead>
                            <TableHead className="text-right">
-                             <span className="font-medium p-0 h-auto">Actions</span>
+                             <span className="font-medium p-3 h-auto">Actions</span>
                            </TableHead>
                          </TableRow>
                       </TableHeader>
@@ -720,19 +720,19 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <TableHeader>
                          <TableRow>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">User</span>
+                             <span className="font-medium p-3 h-auto">User</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Status</span>
+                             <span className="font-medium p-3 h-auto">Status</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Role</span>
+                             <span className="font-medium p-3 h-auto">Role</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Last Activity</span>
+                             <span className="font-medium p-3 h-auto">Last Activity</span>
                            </TableHead>
                            <TableHead className="text-right">
-                             <span className="font-medium p-0 h-auto">Actions</span>
+                             <span className="font-medium p-3 h-auto">Actions</span>
                            </TableHead>
                          </TableRow>
                       </TableHeader>
@@ -811,19 +811,19 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <TableHeader>
                          <TableRow>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Project</span>
+                             <span className="font-medium p-3 h-auto">Project</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Progress</span>
+                             <span className="font-medium p-3 h-auto">Progress</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Status</span>
+                             <span className="font-medium p-3 h-auto">Status</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Priority</span>
+                             <span className="font-medium p-3 h-auto">Priority</span>
                            </TableHead>
                            <TableHead>
-                             <span className="font-medium p-0 h-auto">Assignee</span>
+                             <span className="font-medium p-3 h-auto">Assignee</span>
                            </TableHead>
                          </TableRow>
                       </TableHeader>
