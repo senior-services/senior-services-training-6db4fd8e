@@ -392,16 +392,16 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                           </Button>
                           
                           <Button 
-                            variant="outline" 
+                            variant="ghost" 
                             size="sm"
                             onClick={() => {
                               setDeleteConfirmVideo(video);
                               announceToScreenReader(`Delete confirmation dialog opened for video: ${video.title}`);
                             }}
                             aria-label={`Delete video: ${video.title}`}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20 dark:border-red-800"
+                            className="!text-red-600 hover:!text-red-700 hover:!bg-red-50 dark:!text-red-400 dark:hover:!text-red-300 dark:hover:!bg-red-950/20"
                           >
-                            <Trash2 className="w-4 h-4" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 !text-red-600 dark:!text-red-400" aria-hidden="true" />
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
