@@ -388,6 +388,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      promote_user_to_admin: {
+        Args: { p_email: string; p_user_id: string }
+        Returns: undefined
+      }
       update_video_progress: {
         Args: {
           p_completed_at?: string

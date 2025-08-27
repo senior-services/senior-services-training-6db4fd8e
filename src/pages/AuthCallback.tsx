@@ -34,11 +34,12 @@ export const AuthCallback = () => {
             const isPending = await AdminService.isPendingAdmin(email);
             
             if (isPending) {
-              // Add admin role to the user
+              // Use the new promote function to handle role assignment properly
               try {
-                await AdminService.grantAdminToUserId(user.id);
-                // Remove from pending admins
-                await AdminService.removePendingAdmin(email);
+                await supabase.rpc('promote_user_to_admin', { 
+                  p_user_id: user.id, 
+                  p_email: email 
+                });
                 
                 toast({
                   title: 'Welcome, Administrator!',
