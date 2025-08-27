@@ -620,7 +620,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
                   <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead>Title</TableHead>
+                            <TableHead>Video Title and Description</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
