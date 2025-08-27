@@ -213,6 +213,179 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
             </p>
           </div>
 
+          {/* Color Palette Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Color Palette</CardTitle>
+              <CardDescription>Design system color tokens and semantic colors</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                {/* Primary Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Primary Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-primary border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary</div>
+                        <div className="text-xs text-muted-foreground">--primary</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-primary-light border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary Light</div>
+                        <div className="text-xs text-muted-foreground">--primary-light</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-primary-dark border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary Dark</div>
+                        <div className="text-xs text-muted-foreground">--primary-dark</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Secondary Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Secondary Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-secondary border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Secondary</div>
+                        <div className="text-xs text-muted-foreground">--secondary</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-accent border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Accent</div>
+                        <div className="text-xs text-muted-foreground">--accent</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Status Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-success border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Success</div>
+                        <div className="text-xs text-muted-foreground">--success</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-warning border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Warning</div>
+                        <div className="text-xs text-muted-foreground">--warning</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-destructive border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Destructive</div>
+                        <div className="text-xs text-muted-foreground">--destructive</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* UI Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">UI Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Background</div>
+                        <div className="text-xs text-muted-foreground">--background</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-card border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Card</div>
+                        <div className="text-xs text-muted-foreground">--card</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-muted border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Muted</div>
+                        <div className="text-xs text-muted-foreground">--muted</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Border & Input Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Border & Input</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-border border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Border</div>
+                        <div className="text-xs text-muted-foreground">--border</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-input border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Input</div>
+                        <div className="text-xs text-muted-foreground">--input</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-ring border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Ring</div>
+                        <div className="text-xs text-muted-foreground">--ring</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gradient Examples */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Gradients</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-primary border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Primary Gradient</div>
+                        <div className="text-xs text-muted-foreground">--gradient-primary</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-hero border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Hero Gradient</div>
+                        <div className="text-xs text-muted-foreground">--gradient-hero</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-card border border-border shadow-sm"></div>
+                      <div>
+                        <div className="text-sm font-medium">Card Gradient</div>
+                        <div className="text-xs text-muted-foreground">--gradient-card</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Typography Section */}
           <Card>
             <CardHeader>
