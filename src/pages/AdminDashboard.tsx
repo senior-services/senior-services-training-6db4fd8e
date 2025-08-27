@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoManagement } from "@/components/dashboard/VideoManagement";
-import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { EmployeeManagement } from "@/components/dashboard/EmployeeManagement";
 import { AdminManagement } from "@/components/dashboard/AdminManagement";
 import { logger } from "@/utils/logger";
@@ -26,10 +25,6 @@ interface AdminDashboardProps {
  * Each major feature area is handled by dedicated components.
  */
 export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboardProps) => {
-  // Simplified state management for dashboard overview
-  const [videoCount, setVideoCount] = useState(0);
-  const [employeeCount, setEmployeeCount] = useState(0);
-
   // Log admin dashboard access
   useEffect(() => {
     logger.info('Admin dashboard accessed', { adminUser: userEmail });
@@ -46,45 +41,24 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
       
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          {/* Page Header */}
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-            <p className="text-muted-foreground">
-              Manage training content, employees, and system settings
-            </p>
-          </div>
-
           {/* Dashboard Tabs */}
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
+          <Tabs defaultValue="videos" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="employees">Employees</TabsTrigger>
               <TabsTrigger value="admins">Admins</TabsTrigger>
             </TabsList>
 
-            {/* Dashboard Overview */}
-            <TabsContent value="overview" className="space-y-6">
-              <DashboardOverview
-                videoCount={videoCount}
-                employeeCount={employeeCount}
-                userEmail={userEmail}
-              />
-            </TabsContent>
-
             {/* Video Management */}
             <TabsContent value="videos" className="space-y-6">
               <VideoManagement
                 userEmail={userEmail}
-                onVideoCountChange={setVideoCount}
               />
             </TabsContent>
 
             {/* Employee Management */}
             <TabsContent value="employees" className="space-y-6">
-              <EmployeeManagement
-                onCountChange={setEmployeeCount}
-              />
+              <EmployeeManagement />
             </TabsContent>
 
             {/* Admin Management */}
