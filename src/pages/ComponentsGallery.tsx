@@ -570,7 +570,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableCell>john@example.com</TableCell>
                           <TableCell>Admin</TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="ghost">
                               <Edit className="w-4 h-4" />
                               <span className="sr-only">Edit</span>
                             </Button>
@@ -581,7 +581,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableCell>jane@example.com</TableCell>
                           <TableCell>User</TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="ghost">
                               <Edit className="w-4 h-4" />
                               <span className="sr-only">Edit</span>
                             </Button>
