@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
-import { Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, ChevronDown, ChevronUp, User } from 'lucide-react';
 import { Employee } from '@/types';
 import { announceToScreenReader } from '@/utils/accessibility';
 import { cn } from '@/lib/utils';
@@ -263,14 +263,17 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div 
-                        id={`employee-${employee.id}-name`}
-                        className="flex items-center gap-3 font-medium text-foreground"
-                      >
-                        <span>{employee.name}</span>
-                        <span className="text-muted-foreground">|</span>
-                        <span className="text-sm text-muted-foreground font-normal">{employee.email}</span>
-                      </div>
+                       <div 
+                         id={`employee-${employee.id}-name`}
+                         className="flex items-center gap-3 font-medium text-foreground"
+                       >
+                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                           <User className="w-4 h-4 text-primary" />
+                         </div>
+                         <span>{employee.name}</span>
+                         <span className="text-muted-foreground">|</span>
+                         <span className="text-sm text-muted-foreground font-normal">{employee.email}</span>
+                       </div>
                     </div>
                     
                     <div className="flex items-center space-x-3">

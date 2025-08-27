@@ -223,9 +223,14 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
 
                   return (
                     <TableRow key={employee.id}>
-                      <TableCell className="font-medium">
-                        {employee.full_name || 'Unknown'}
-                      </TableCell>
+                       <TableCell className="font-medium">
+                         <div className="flex items-center gap-3">
+                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                             <User className="w-4 h-4 text-primary" />
+                           </div>
+                           {employee.full_name || 'Unknown'}
+                         </div>
+                       </TableCell>
                       <TableCell className="text-foreground">
                         {employee.email}
                       </TableCell>
