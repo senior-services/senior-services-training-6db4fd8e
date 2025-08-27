@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Check, AlertTriangle } from "lucide-react"
+import { Check, AlertTriangle, AlertCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -18,6 +18,8 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         success:
           "border-transparent bg-success text-success-foreground hover:bg-success/80",
+        warning:
+          "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
         // Hollow variants  
         outline: "text-foreground",
         "hollow-primary":
@@ -28,6 +30,8 @@ const badgeVariants = cva(
           "border-destructive text-destructive bg-transparent hover:bg-destructive/10",
         "hollow-success":
           "border-success text-success bg-transparent hover:bg-success/10",
+        "hollow-warning":
+          "border-warning text-warning bg-transparent hover:bg-warning/10",
         "hollow-plain":
           "border-transparent text-muted-foreground bg-transparent hover:bg-secondary/10",
       },
@@ -52,6 +56,9 @@ function Badge({ className, variant, showIcon, children, ...props }: BadgeProps)
       )}
       {showIcon && (variant === "destructive" || variant === "hollow-destructive") && (
         <AlertTriangle className="w-3 h-3 mr-1" />
+      )}
+      {showIcon && (variant === "warning" || variant === "hollow-warning") && (
+        <AlertCircle className="w-3 h-3 mr-1" />
       )}
       {children}
     </div>
