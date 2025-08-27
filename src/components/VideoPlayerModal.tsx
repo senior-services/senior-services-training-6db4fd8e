@@ -100,15 +100,6 @@ export const VideoPlayerModal = ({
               </div>}
           </div>
 
-          {/* Video Info */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <span>Assigned to {video.assigned_to} employees</span>
-              </div>
-            </div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>;
