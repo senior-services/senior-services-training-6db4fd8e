@@ -394,36 +394,286 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Table</h3>
-                <Table>
-                  <TableCaption>A list of sample data</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      <TableCell><Badge variant="secondary">Active</Badge></TableCell>
-                      <TableCell>john@example.com</TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Jane Smith</TableCell>
-                      <TableCell><Badge>Complete</Badge></TableCell>
-                      <TableCell>jane@example.com</TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                <h3 className="text-lg font-medium">Tables</h3>
+                
+                <Tabs defaultValue="basic">
+                  <TabsList>
+                    <TabsTrigger value="basic">Basic</TabsTrigger>
+                    <TabsTrigger value="sortable">Sortable</TabsTrigger>
+                    <TabsTrigger value="filtered">With Filters</TabsTrigger>
+                    <TabsTrigger value="statuses">With Statuses</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="basic" className="space-y-4">
+                    <Table>
+                      <TableCaption>A simple data table</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">John Doe</TableCell>
+                          <TableCell>john@example.com</TableCell>
+                          <TableCell>Admin</TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Jane Smith</TableCell>
+                          <TableCell>jane@example.com</TableCell>
+                          <TableCell>User</TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="sortable" className="space-y-4">
+                    <Table>
+                      <TableCaption>Sortable table with interactive headers</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>
+                            <Button variant="ghost" className="font-semibold p-0 h-auto hover:bg-transparent">
+                              Name ↑
+                            </Button>
+                          </TableHead>
+                          <TableHead>
+                            <Button variant="ghost" className="font-semibold p-0 h-auto hover:bg-transparent">
+                              Email
+                            </Button>
+                          </TableHead>
+                          <TableHead>Department</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">Alice Johnson</TableCell>
+                          <TableCell>alice@example.com</TableCell>
+                          <TableCell>Engineering</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-1 justify-end">
+                              <Button size="sm" variant="ghost"><Eye className="w-4 h-4" /></Button>
+                              <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
+                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Bob Wilson</TableCell>
+                          <TableCell>bob@example.com</TableCell>
+                          <TableCell>Marketing</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-1 justify-end">
+                              <Button size="sm" variant="ghost"><Eye className="w-4 h-4" /></Button>
+                              <Button size="sm" variant="ghost"><Edit className="w-4 h-4" /></Button>
+                              <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="filtered" className="space-y-4">
+                    <div className="flex gap-2 mb-4">
+                      <Select defaultValue="all">
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select defaultValue="all">
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Filter by role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Roles</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="manager">Manager</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input placeholder="Search by name..." className="w-[200px]" />
+                    </div>
+                    <Table>
+                      <TableCaption>Filtered table with search and dropdown filters</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Last Activity</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="w-8 h-8">
+                                <AvatarFallback>CJ</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">Charlie Jones</div>
+                                <div className="text-sm text-muted-foreground">charlie@example.com</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell><Badge variant="success">Active</Badge></TableCell>
+                          <TableCell><Badge variant="hollow-primary">Manager</Badge></TableCell>
+                          <TableCell className="text-muted-foreground">2 hours ago</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button size="sm" variant="ghost">•••</Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
+                                <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive">
+                                  <Trash2 className="w-4 h-4 mr-2" />Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="w-8 h-8">
+                                <AvatarFallback>DM</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">Diana Miller</div>
+                                <div className="text-sm text-muted-foreground">diana@example.com</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell><Badge variant="warning">Pending</Badge></TableCell>
+                          <TableCell><Badge variant="hollow-secondary">User</Badge></TableCell>
+                          <TableCell className="text-muted-foreground">1 day ago</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button size="sm" variant="ghost">•••</Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem><Eye className="w-4 h-4 mr-2" />View</DropdownMenuItem>
+                                <DropdownMenuItem><Edit className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive">
+                                  <Trash2 className="w-4 h-4 mr-2" />Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  
+                  <TabsContent value="statuses" className="space-y-4">
+                    <Table>
+                      <TableCaption>Table with various status badges and progress indicators</TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Project</TableHead>
+                          <TableHead>Progress</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Priority</TableHead>
+                          <TableHead>Assignee</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">Website Redesign</div>
+                              <div className="text-sm text-muted-foreground">Frontend improvements</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <Progress value={75} className="w-[60px]" />
+                              <div className="text-xs text-muted-foreground">75%</div>
+                            </div>
+                          </TableCell>
+                          <TableCell><Badge variant="success" showIcon>Complete</Badge></TableCell>
+                          <TableCell><Badge variant="destructive">High</Badge></TableCell>
+                          <TableCell>
+                            <Avatar className="w-6 h-6">
+                              <AvatarFallback className="text-xs">JS</AvatarFallback>
+                            </Avatar>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">Mobile App</div>
+                              <div className="text-sm text-muted-foreground">iOS & Android development</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <Progress value={45} className="w-[60px]" />
+                              <div className="text-xs text-muted-foreground">45%</div>
+                            </div>
+                          </TableCell>
+                          <TableCell><Badge variant="warning" showIcon>In Progress</Badge></TableCell>
+                          <TableCell><Badge variant="secondary">Medium</Badge></TableCell>
+                          <TableCell>
+                            <Avatar className="w-6 h-6">
+                              <AvatarFallback className="text-xs">AM</AvatarFallback>
+                            </Avatar>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">API Integration</div>
+                              <div className="text-sm text-muted-foreground">Backend services</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <Progress value={20} className="w-[60px]" />
+                              <div className="text-xs text-muted-foreground">20%</div>
+                            </div>
+                          </TableCell>
+                          <TableCell><Badge variant="hollow-destructive" showIcon>Blocked</Badge></TableCell>
+                          <TableCell><Badge variant="hollow-warning">Low</Badge></TableCell>
+                          <TableCell>
+                            <Avatar className="w-6 h-6">
+                              <AvatarFallback className="text-xs">RK</AvatarFallback>
+                            </Avatar>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                </Tabs>
               </div>
               
               <div className="space-y-4">
