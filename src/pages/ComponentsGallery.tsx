@@ -317,12 +317,26 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
               
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Badges</h3>
-                <div className="flex flex-wrap gap-2">
-                  <Badge>Default</Badge>
-                  <Badge variant="secondary">Secondary</Badge>
-                  <Badge variant="destructive">Destructive</Badge>
-                  <Badge variant="outline">Outline</Badge>
-                  <Badge variant="success" showIcon>Success</Badge>
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Solid Badges</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge>Primary</Badge>
+                      <Badge variant="secondary">Secondary</Badge>
+                      <Badge variant="destructive">Destructive</Badge>
+                      <Badge variant="success" showIcon>Success</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Hollow Badges</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="hollow-primary">Primary</Badge>
+                      <Badge variant="hollow-secondary">Secondary</Badge>
+                      <Badge variant="hollow-destructive">Destructive</Badge>
+                      <Badge variant="hollow-success" showIcon>Success</Badge>
+                      <Badge variant="outline">Outline</Badge>
+                    </div>
+                  </div>
                 </div>
               </div>
               
