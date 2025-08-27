@@ -167,8 +167,8 @@ export const AdminManagement: React.FC = () => {
                   <TableRow key={admin.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Shield className="w-4 h-4 text-primary" />
+                        <div className="w-8 h-8 rounded-full bg-[hsl(var(--yellow-light))] flex items-center justify-center">
+                          <Shield className="w-4 h-4 text-[hsl(var(--yellow-dark))]" />
                         </div>
                         <div>
                           <span>{admin.isPending ? '--' : (admin.full_name || 'Unknown')}</span>

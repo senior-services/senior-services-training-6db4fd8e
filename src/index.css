@@ -76,6 +76,10 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     
     /* Admin Highlight Color */
     --admin-highlight: 357 77% 58%; /* #e15554 */
+    
+    /* Yellow accent colors for admin icons - WCAG AAA compliant */
+    --yellow-light: 45 90% 88%; /* Light yellow background */
+    --yellow-dark: 38 75% 35%; /* Dark yellow for icons */
   }
 
   .dark {
