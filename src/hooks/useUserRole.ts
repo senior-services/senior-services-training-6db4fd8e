@@ -49,8 +49,21 @@ export function useUserRole(user: User | null) {
 
     fetchUserRole();
 
+    const channel = supabase
+      .channel('user_roles_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_roles', filter: `user_id=eq.${user.id}` },
+        () => {
+          if (!mounted) return;
+          fetchUserRole();
+        }
+      )
+      .subscribe();
+
     return () => {
       mounted = false;
+      supabase.removeChannel(channel);
     };
   }, [user?.id]); // Only depend on user.id to avoid unnecessary re-renders
 
