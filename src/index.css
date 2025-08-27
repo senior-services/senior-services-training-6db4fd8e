@@ -74,6 +74,10 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     
+    /* Status Red Color - Accessible on dark backgrounds */
+    --status-red: 0 84% 65%; /* Bright red for dark backgrounds */
+    --status-red-foreground: 0 0% 100%;
+    
     /* Admin Highlight Color */
     --admin-highlight: 357 77% 58%; /* #e15554 */
   }
@@ -131,6 +135,10 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.2), 0 2px 4px -1px hsl(0 0% 0% / 0.12);
     --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.2), 0 4px 6px -2px hsl(0 0% 0% / 0.1);
     --shadow-card: 0 4px 16px -4px hsl(0 0% 0% / 0.25);
+    
+    /* Status Red Color - Accessible on light backgrounds in dark mode */
+    --status-red: 0 84% 70%; /* Slightly brighter for dark mode */
+    --status-red-foreground: 219 79% 6%;
   }
 }
 

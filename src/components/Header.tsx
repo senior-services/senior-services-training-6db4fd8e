@@ -30,8 +30,8 @@ export const Header = ({
                 <h1 className="text-xl font-bold text-primary-foreground">Learning Hub</h1>
                 <p className={`text-sm hidden sm:block ${
                   userRole === 'admin' 
-                    ? 'font-bold text-primary-foreground/90' 
-                    : 'text-primary-foreground/80'
+                    ? 'font-bold text-status-red' 
+                    : 'text-status-red'
                 }`}>
                   {userRole === 'admin' ? 'Admin Dashboard' : 'Employee Dashboard'}
                 </p>
