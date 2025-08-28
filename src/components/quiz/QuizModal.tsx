@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { QuizWithQuestions, QuizSubmissionData } from "@/types/quiz";
+import { QuizWithQuestions, QuizSubmissionData, QuizResponse } from "@/types/quiz";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -13,13 +13,18 @@ interface QuizModalProps {
   onSubmit: (responses: QuizSubmissionData[]) => void;
   onCancel: () => void;
   onResponsesChange?: (responses: QuizSubmissionData[], allAnswered: boolean) => void;
+  quizResults?: QuizResponse[];
+  isSubmitted?: boolean;
 }
 
-export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange }: QuizModalProps) {
+export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizResults, isSubmitted }: QuizModalProps) {
   const [responses, setResponses] = useState<Record<string, QuizSubmissionData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleResponseChange = (questionId: string, response: Partial<QuizSubmissionData>) => {
+    // Don't allow changes if quiz is submitted
+    if (isSubmitted) return;
+    
     const newResponses = {
       ...responses,
       [questionId]: {
@@ -39,6 +44,11 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange }: QuizM
       return response && (response.selected_option_id || response.text_answer?.trim());
     });
     onResponsesChange?.(responseArray, allAnswered);
+  };
+
+  // Get quiz result for a specific question
+  const getQuestionResult = (questionId: string) => {
+    return quizResults?.find(result => result.question_id === questionId);
   };
 
   const handleSubmit = async () => {
@@ -85,17 +95,35 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange }: QuizM
                       onValueChange={(value) => 
                         handleResponseChange(question.id, { selected_option_id: value })
                       }
+                      disabled={isSubmitted}
                     >
                       {question.options
                         .sort((a, b) => a.order_index - b.order_index)
-                        .map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2">
-                            <RadioGroupItem value={option.id} id={option.id} />
-                            <Label htmlFor={option.id} className="flex-1 cursor-pointer">
-                              {option.option_text}
-                            </Label>
-                          </div>
-                        ))}
+                        .map((option) => {
+                          const questionResult = getQuestionResult(question.id);
+                          const isSelected = responses[question.id]?.selected_option_id === option.id;
+                          const isCorrect = option.is_correct;
+                          const showResult = isSubmitted && isSelected;
+                          
+                          return (
+                            <div key={option.id} className="flex items-center space-x-2">
+                              <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
+                              <Label htmlFor={option.id} className={`flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between`}>
+                                <span>{option.option_text}</span>
+                                {showResult && (
+                                  isCorrect ? (
+                                    <CheckCircle className="w-5 h-5 text-green-600 ml-2" />
+                                  ) : (
+                                    <XCircle className="w-5 h-5 text-red-600 ml-2" />
+                                  )
+                                )}
+                                {isSubmitted && isCorrect && !isSelected && (
+                                  <CheckCircle className="w-5 h-5 text-green-600 ml-2 opacity-50" />
+                                )}
+                              </Label>
+                            </div>
+                          );
+                        })}
                     </RadioGroup>
                   )}
 
@@ -105,34 +133,71 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange }: QuizM
                       onValueChange={(value) => 
                         handleResponseChange(question.id, { selected_option_id: value })
                       }
+                      disabled={isSubmitted}
                     >
                       {question.options
                         .sort((a, b) => a.order_index - b.order_index)
-                        .map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2">
-                            <RadioGroupItem value={option.id} id={option.id} />
-                            <Label htmlFor={option.id} className="cursor-pointer">
-                              {option.option_text === 'True' ? (
-                                <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
-                              ) : (
-                                <XCircle className="inline w-4 h-4 mr-2 text-red-600" />
-                              )}
-                              {option.option_text}
-                            </Label>
-                          </div>
-                        ))}
+                        .map((option) => {
+                          const questionResult = getQuestionResult(question.id);
+                          const isSelected = responses[question.id]?.selected_option_id === option.id;
+                          const isCorrect = option.is_correct;
+                          const showResult = isSubmitted && isSelected;
+                          
+                          return (
+                            <div key={option.id} className="flex items-center space-x-2">
+                              <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
+                              <Label htmlFor={option.id} className={`${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between`}>
+                                <span className="flex items-center">
+                                  {option.option_text === 'True' ? (
+                                    <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
+                                  ) : (
+                                    <XCircle className="inline w-4 h-4 mr-2 text-red-600" />
+                                  )}
+                                  {option.option_text}
+                                </span>
+                                {showResult && (
+                                  isCorrect ? (
+                                    <CheckCircle className="w-5 h-5 text-green-600 ml-2" />
+                                  ) : (
+                                    <XCircle className="w-5 h-5 text-red-600 ml-2" />
+                                  )
+                                )}
+                                {isSubmitted && isCorrect && !isSelected && (
+                                  <CheckCircle className="w-5 h-5 text-green-600 ml-2 opacity-50" />
+                                )}
+                              </Label>
+                            </div>
+                          );
+                        })}
                     </RadioGroup>
                   )}
 
                   {question.question_type === 'single_answer' && (
-                    <Textarea
-                      placeholder="Type your answer here..."
-                      value={responses[question.id]?.text_answer || ""}
-                      onChange={(e) => 
-                        handleResponseChange(question.id, { text_answer: e.target.value })
-                      }
-                      className="min-h-[100px]"
-                    />
+                    <div>
+                      <Textarea
+                        placeholder="Type your answer here..."
+                        value={responses[question.id]?.text_answer || ""}
+                        onChange={(e) => 
+                          handleResponseChange(question.id, { text_answer: e.target.value })
+                        }
+                        className="min-h-[100px]"
+                        disabled={isSubmitted}
+                      />
+                      {isSubmitted && (
+                        <div className="mt-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            {getQuestionResult(question.id)?.is_correct ? (
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-red-600" />
+                            )}
+                            <span className={getQuestionResult(question.id)?.is_correct ? 'text-green-600' : 'text-red-600'}>
+                              {getQuestionResult(question.id)?.is_correct ? 'Correct' : 'Incorrect'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </CardContent>

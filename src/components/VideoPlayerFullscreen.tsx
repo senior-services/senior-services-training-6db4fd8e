@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { quizOperations } from '@/services/quizService';
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import type { QuizSubmissionData } from "@/types/quiz";
+import type { QuizSubmissionData, QuizResponse } from "@/types/quiz";
 import { logger } from "@/utils/logger";
 import { QuizModal } from "@/components/quiz/QuizModal";
 import { VideoPlayer } from "@/components/video/VideoPlayer";
@@ -61,6 +61,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // State management
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizResults, setQuizResults] = useState<QuizResponse[]>([]);
   const [quizResponses, setQuizResponses] = useState<QuizSubmissionData[]>([]);
   const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false);
   const [hasQuizChanges, setHasQuizChanges] = useState(false);
@@ -94,6 +96,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         resetProgress();
         setShowCompletionOverlay(false);
         setQuizStarted(false);
+        setQuizSubmitted(false);
+        setQuizResults([]);
         return;
       }
 
@@ -159,7 +163,15 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }
 
     try {
-      await quizOperations.submitQuiz(user.email, quiz.id, quizResponses);
+      const attemptId = await quizOperations.submitQuiz(user.email, quiz.id, quizResponses);
+      
+      // Get quiz results to show correct/incorrect answers
+      const attempts = await quizOperations.getUserAttempts(user.email);
+      const currentAttempt = attempts.find(attempt => attempt.id === attemptId);
+      
+      if (currentAttempt?.responses) {
+        setQuizResults(currentAttempt.responses);
+      }
       
       logger.info('Quiz submitted successfully', { 
         quizId: quiz.id, 
@@ -167,17 +179,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         userEmail: user.email 
       });
 
-      setQuizStarted(false);
-      setShowCompletionOverlay(false);
+      setQuizSubmitted(true);
       onProgressUpdate?.(100);
 
       toast({
-        title: "Training Completed! 🎉",
-        description: "You've successfully completed the training and quiz."
+        title: "Quiz Submitted! 📝",
+        description: "Review your answers and complete the training."
       });
 
-      // Close the dialog
-      onOpenChange(false);
     } catch (error) {
       logger.error('Failed to submit quiz', error);
       toast({
@@ -186,7 +195,21 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         variant: "destructive"
       });
     }
-  }, [quiz, user?.email, video?.id, onProgressUpdate, toast, onOpenChange, quizResponses]);
+  }, [quiz, user?.email, video?.id, onProgressUpdate, toast, quizResponses]);
+
+  // Handle marking training complete
+  const handleMarkTrainingComplete = useCallback(() => {
+    setQuizStarted(false);
+    setShowCompletionOverlay(false);
+    
+    toast({
+      title: "Training Completed! 🎉",
+      description: "You've successfully completed the training and quiz."
+    });
+
+    // Close the dialog
+    onOpenChange(false);
+  }, [toast, onOpenChange]);
 
   // Handle starting the quiz
   const handleStartQuiz = useCallback(() => {
@@ -195,6 +218,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setQuizResponses([]);
     setAllQuestionsAnswered(false);
     setHasQuizChanges(false);
+    setQuizSubmitted(false);
+    setQuizResults([]);
     
     // Scroll to quiz section
     setTimeout(() => {
@@ -219,6 +244,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   // Handle cancel button click
   const handleCancelClick = useCallback(() => {
+    if (quizSubmitted) {
+      // Quiz already submitted, just go back to completion overlay
+      setQuizStarted(false);
+      setShowCompletionOverlay(true);
+      return;
+    }
+    
     if (hasQuizChanges) {
       setShowCancelConfirmation(true);
     } else {
@@ -226,7 +258,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       setQuizStarted(false);
       setShowCompletionOverlay(true);
     }
-  }, [hasQuizChanges]);
+  }, [hasQuizChanges, quizSubmitted]);
 
   // Handle confirmed cancellation (user wants to lose changes)
   const handleConfirmedCancel = useCallback(() => {
@@ -236,11 +268,23 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setQuizResponses([]);
     setAllQuestionsAnswered(false);
     setHasQuizChanges(false);
+    setQuizSubmitted(false);
+    setQuizResults([]);
   }, []);
+
+  // Handle dialog close
+  const handleDialogOpenChange = useCallback((open: boolean) => {
+    if (!open && quizSubmitted) {
+      // If quiz was submitted and user is closing dialog, mark training complete
+      handleMarkTrainingComplete();
+      return;
+    }
+    onOpenChange(open);
+  }, [quizSubmitted, handleMarkTrainingComplete, onOpenChange]);
 
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent 
         className="max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto"
         onOpenAutoFocus={(e) => {
@@ -307,6 +351,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 onSubmit={handleQuizSubmit}
                 onCancel={() => {}}
                 onResponsesChange={handleQuizResponsesChange}
+                quizResults={quizResults}
+                isSubmitted={quizSubmitted}
               />
             </div>
           )}
@@ -343,13 +389,22 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               </AlertDialogContent>
             </AlertDialog>
             
-            <Button
-              onClick={handleQuizSubmit}
-              disabled={!allQuestionsAnswered}
-              className="shadow-md hover:shadow-lg transition-shadow"
-            >
-              Submit Quiz
-            </Button>
+            {!quizSubmitted ? (
+              <Button
+                onClick={handleQuizSubmit}
+                disabled={!allQuestionsAnswered}
+                className="shadow-md hover:shadow-lg transition-shadow"
+              >
+                Submit Quiz
+              </Button>
+            ) : (
+              <Button
+                onClick={handleMarkTrainingComplete}
+                className="shadow-md hover:shadow-lg transition-shadow bg-green-600 hover:bg-green-700 focus:ring-green-500"
+              >
+                Mark Training Complete
+              </Button>
+            )}
           </DialogFooter>
         )}
       </DialogContent>
