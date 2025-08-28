@@ -114,21 +114,25 @@ export const EditVideoModal = ({
     if (!video) return;
     setLoading(true);
     try {
-      // Save video changes
-      await onSave(video.id, {
-        title,
-        description
-      });
-
-      // Handle quiz changes
+      const isCreatingNewQuiz = !quiz && (quizTitle.trim() || questions.length > 0);
+      
+      // Handle quiz changes first
       if (quizTitle.trim() || questions.length > 0) {
         if (quiz) {
           // Update existing quiz
           await handleUpdateQuiz();
         } else {
-          // Create new quiz
+          // Create new quiz - this will show its own success toast
           await handleCreateQuiz();
         }
+      }
+      
+      // Save video changes (only if not creating a new quiz to avoid duplicate toasts)
+      if (!isCreatingNewQuiz) {
+        await onSave(video.id, {
+          title,
+          description
+        });
       }
       
       onOpenChange(false);
