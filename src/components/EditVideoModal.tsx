@@ -19,6 +19,16 @@ import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveEmbedU
 import { quizOperations, questionOperations, optionOperations } from "@/services/quizService";
 import { QuizWithQuestions } from "@/types/quiz";
 import { QuestionFormData, OptionFormData } from "@/components/quiz/CreateQuizModal";
+
+// Extended interfaces for editing with IDs
+interface EditableQuestionFormData extends QuestionFormData {
+  id?: string;
+  options: EditableOptionFormData[];
+}
+
+interface EditableOptionFormData extends OptionFormData {
+  id?: string;
+}
 interface VideoData {
   id: string;
   title: string;
@@ -58,7 +68,7 @@ export const EditVideoModal = ({
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
   const [quizTitle, setQuizTitle] = useState('');
   const [quizDescription, setQuizDescription] = useState('');
-  const [questions, setQuestions] = useState<QuestionFormData[]>([]);
+  const [questions, setQuestions] = useState<EditableQuestionFormData[]>([]);
   const { toast } = useToast();
   useEffect(() => {
     if (video) {
@@ -78,6 +88,21 @@ export const EditVideoModal = ({
       if (quizData) {
         setQuizTitle(quizData.title);
         setQuizDescription(quizData.description || '');
+        
+        // Load existing questions into the editing form
+        const loadedQuestions: EditableQuestionFormData[] = quizData.questions.map(q => ({
+          id: q.id,
+          question_text: q.question_text,
+          question_type: q.question_type,
+          order_index: q.order_index,
+          options: q.options.map(opt => ({
+            id: opt.id,
+            option_text: opt.option_text,
+            is_correct: opt.is_correct,
+            order_index: opt.order_index
+          }))
+        }));
+        setQuestions(loadedQuestions);
       }
     } catch (error) {
       console.log('No quiz found for this video:', error);
@@ -95,9 +120,15 @@ export const EditVideoModal = ({
         description
       });
 
-      // Create quiz if there are quiz changes and no existing quiz
-      if (!quiz && (quizTitle || questions.length > 0)) {
-        await handleCreateQuiz();
+      // Handle quiz changes
+      if (quizTitle.trim() || questions.length > 0) {
+        if (quiz) {
+          // Update existing quiz
+          await handleUpdateQuiz();
+        } else {
+          // Create new quiz
+          await handleCreateQuiz();
+        }
       }
       
       onOpenChange(false);
@@ -131,7 +162,7 @@ export const EditVideoModal = ({
   };
 
   const addQuestion = () => {
-    const newQuestion: QuestionFormData = {
+    const newQuestion: EditableQuestionFormData = {
       question_text: "",
       question_type: "multiple_choice",
       order_index: questions.length,
@@ -140,7 +171,7 @@ export const EditVideoModal = ({
     setQuestions(prev => [...prev, newQuestion]);
   };
 
-  const updateQuestion = (index: number, updates: Partial<QuestionFormData>) => {
+  const updateQuestion = (index: number, updates: Partial<EditableQuestionFormData>) => {
     setQuestions(prev => prev.map((q, i) => 
       i === index ? { ...q, ...updates } : q
     ));
@@ -152,7 +183,7 @@ export const EditVideoModal = ({
 
   const addOption = (questionIndex: number) => {
     const question = questions[questionIndex];
-    const newOption: OptionFormData = {
+    const newOption: EditableOptionFormData = {
       option_text: "",
       is_correct: false,
       order_index: question.options.length
@@ -163,7 +194,7 @@ export const EditVideoModal = ({
     });
   };
 
-  const updateOption = (questionIndex: number, optionIndex: number, updates: Partial<OptionFormData>) => {
+  const updateOption = (questionIndex: number, optionIndex: number, updates: Partial<EditableOptionFormData>) => {
     const question = questions[questionIndex];
     const updatedOptions = question.options.map((option, i) => 
       i === optionIndex ? { ...option, ...updates } : option
@@ -179,6 +210,114 @@ export const EditVideoModal = ({
     updateQuestion(questionIndex, { options: updatedOptions });
   };
 
+  const handleUpdateQuiz = async () => {
+    if (!quiz || !video) return;
+    
+    setIsCreatingQuiz(true);
+    try {
+      // Update quiz basic info
+      await quizOperations.update(quiz.id, {
+        title: sanitizeText(quizTitle),
+        description: sanitizeText(quizDescription) || undefined
+      });
+
+      // Handle questions - delete removed ones, update existing ones, create new ones
+      const existingQuestionIds = quiz.questions.map(q => q.id);
+      const currentQuestionIds = questions.filter(q => q.id).map(q => q.id);
+      
+      // Delete removed questions
+      const questionsToDelete = existingQuestionIds.filter(id => !currentQuestionIds.includes(id));
+      for (const questionId of questionsToDelete) {
+        await questionOperations.delete(questionId);
+      }
+
+      // Update or create questions
+      for (const [index, questionData] of questions.entries()) {
+        let question;
+        
+        if (questionData.id) {
+          // Update existing question
+          question = await questionOperations.update(questionData.id, {
+            question_text: sanitizeText(questionData.question_text),
+            question_type: questionData.question_type,
+            order_index: index
+          });
+        } else {
+          // Create new question
+          question = await questionOperations.create({
+            quiz_id: quiz.id,
+            question_text: sanitizeText(questionData.question_text),
+            question_type: questionData.question_type,
+            order_index: index
+          });
+        }
+
+        // Handle options for multiple choice questions
+        if (questionData.question_type === 'multiple_choice') {
+          const existingOptions = quiz.questions.find(q => q.id === question.id)?.options || [];
+          const existingOptionIds = existingOptions.map(opt => opt.id);
+          const currentOptionIds = questionData.options.filter(opt => opt.id).map(opt => opt.id);
+          
+          // Delete removed options
+          const optionsToDelete = existingOptionIds.filter(id => !currentOptionIds.includes(id));
+          for (const optionId of optionsToDelete) {
+            await optionOperations.delete(optionId);
+          }
+
+          // Update or create options
+          for (const [optionIndex, optionData] of questionData.options.entries()) {
+            if (optionData.id) {
+              // Update existing option
+              await optionOperations.update(optionData.id, {
+                option_text: sanitizeText(optionData.option_text),
+                is_correct: optionData.is_correct,
+                order_index: optionIndex
+              });
+            } else {
+              // Create new option
+              await optionOperations.create({
+                question_id: question.id,
+                option_text: sanitizeText(optionData.option_text),
+                is_correct: optionData.is_correct,
+                order_index: optionIndex
+              });
+            }
+          }
+        } else if (questionData.question_type === 'true_false' && !questionData.id) {
+          // Only create True/False options for new true/false questions
+          await optionOperations.create({
+            question_id: question.id,
+            option_text: 'True',
+            is_correct: true,
+            order_index: 0
+          });
+          await optionOperations.create({
+            question_id: question.id,
+            option_text: 'False',
+            is_correct: false,
+            order_index: 1
+          });
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Quiz updated successfully",
+      });
+      
+      // Reload quiz data
+      await loadQuiz();
+    } catch (error) {
+      logger.error('Error updating quiz:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update quiz",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingQuiz(false);
+    }
+  };
   const handleCreateQuiz = async () => {
     if (!video) return;
     
@@ -233,10 +372,7 @@ export const EditVideoModal = ({
       });
       
       // Reload quiz data
-      loadQuiz();
-      setQuizTitle('');
-      setQuizDescription('');
-      setQuestions([]);
+      await loadQuiz();
     } catch (error) {
       logger.error('Error creating quiz:', error);
       toast({
@@ -251,7 +387,25 @@ export const EditVideoModal = ({
   const hasChanges = video && (
     title !== (video.title || '') || 
     description !== (video.description || '') ||
-    (!quiz && (quizTitle.trim() || questions.length > 0))
+    (!quiz && (quizTitle.trim() || questions.length > 0)) ||
+    (quiz && (
+      quizTitle !== quiz.title || 
+      quizDescription !== (quiz.description || '') ||
+      questions.length !== quiz.questions.length ||
+      questions.some((q, i) => {
+        const originalQ = quiz.questions[i];
+        return !originalQ || 
+               q.question_text !== originalQ.question_text ||
+               q.question_type !== originalQ.question_type ||
+               q.options.length !== originalQ.options.length ||
+               q.options.some((opt, j) => {
+                 const originalOpt = originalQ.options[j];
+                 return !originalOpt ||
+                        opt.option_text !== originalOpt.option_text ||
+                        opt.is_correct !== originalOpt.is_correct;
+               });
+      })
+    ))
   );
   if (!video) return null;
 
@@ -338,53 +492,32 @@ export const EditVideoModal = ({
               </TabsContent>
 
               <TabsContent value="quiz" className="space-y-6 mt-6">
-                {quiz ? (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <FileQuestion className="h-5 w-5" />
-                        Existing Quiz: {quiz.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <p className="text-muted-foreground">{quiz.description}</p>
-                        <Badge variant="outline">
-                          {quiz.questions.length} Question{quiz.questions.length !== 1 ? 's' : ''}
-                        </Badge>
-                        <p className="text-sm text-muted-foreground">
-                          Quiz editing functionality will be added in a future update.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">
-                        Create Quiz
-                      </h3>
-                      
-                      <div>
-                        <Label htmlFor="quiz-title">Quiz Title</Label>
-                        <Input
-                          id="quiz-title"
-                          value={quizTitle}
-                          onChange={(e) => setQuizTitle(e.target.value)}
-                          placeholder="Enter quiz title"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="quiz-description">Description (Optional)</Label>
-                        <Textarea
-                          id="quiz-description"
-                          value={quizDescription}
-                          onChange={(e) => setQuizDescription(e.target.value)}
-                          placeholder="Enter quiz description"
-                        />
-                      </div>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">
+                      {quiz ? 'Edit Quiz' : 'Create Quiz'}
+                    </h3>
+                    
+                    <div>
+                      <Label htmlFor="quiz-title">Quiz Title</Label>
+                      <Input
+                        id="quiz-title"
+                        value={quizTitle}
+                        onChange={(e) => setQuizTitle(e.target.value)}
+                        placeholder="Enter quiz title"
+                      />
                     </div>
+                    
+                    <div>
+                      <Label htmlFor="quiz-description">Description (Optional)</Label>
+                      <Textarea
+                        id="quiz-description"
+                        value={quizDescription}
+                        onChange={(e) => setQuizDescription(e.target.value)}
+                        placeholder="Enter quiz description"
+                      />
+                    </div>
+                  </div>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -507,8 +640,7 @@ export const EditVideoModal = ({
                         </p>
                       )}
                     </div>
-                  </div>
-                )}
+                </div>
               </TabsContent>
             </Tabs>
           </div>
