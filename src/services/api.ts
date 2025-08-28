@@ -448,6 +448,100 @@ export const assignmentOperations = {
     } finally {
       performanceTracker.end(operation);
     }
+  },
+
+  async create(
+    videoId: string,
+    employeeId: string,
+    assignedBy: string,
+    dueDate?: Date
+  ): Promise<ApiResult<VideoAssignment>> {
+    const operation = 'assignment.create';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data, error } = await supabase
+        .from('video_assignments')
+        .insert({
+          video_id: videoId,
+          employee_id: employeeId,
+          assigned_by: assignedBy,
+          due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to create assignment', undefined, { videoId, employeeId, supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Assignment created successfully', { videoId, employeeId });
+      return { data: data as VideoAssignment, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error creating assignment', error as Error, { videoId, employeeId });
+      return { data: null, error: 'Failed to create assignment', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async update(
+    assignmentId: string,
+    updates: { due_date?: Date | null }
+  ): Promise<ApiResult<VideoAssignment>> {
+    const operation = 'assignment.update';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data, error } = await supabase
+        .from('video_assignments')
+        .update({
+          due_date: updates.due_date ? updates.due_date.toISOString().split('T')[0] : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', assignmentId)
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to update assignment', undefined, { assignmentId, supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Assignment updated successfully', { assignmentId });
+      return { data: data as VideoAssignment, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error updating assignment', error as Error, { assignmentId });
+      return { data: null, error: 'Failed to update assignment', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async delete(assignmentId: string): Promise<ApiResult<boolean>> {
+    const operation = 'assignment.delete';
+    performanceTracker.start(operation);
+    
+    try {
+      const { error } = await supabase
+        .from('video_assignments')
+        .delete()
+        .eq('id', assignmentId);
+
+      if (error) {
+        logger.error('Failed to delete assignment', undefined, { assignmentId, supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Assignment deleted successfully', { assignmentId });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error deleting assignment', error as Error, { assignmentId });
+      return { data: null, error: 'Failed to delete assignment', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
   }
 };
 

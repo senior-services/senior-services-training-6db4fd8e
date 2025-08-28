@@ -27,6 +27,7 @@ import { Video, Play, Check, X, CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { videoOperations, assignmentOperations } from '@/services/api';
+import { supabase } from '@/integrations/supabase/client';
 import type { Employee, VideoAssignment } from '@/types/employee';
 import type { Video as VideoType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -183,20 +184,64 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      // Update video types in database for selected videos
-      for (const video of videos) {
-        if (selectedVideoIds.has(video.id)) {
-          // Update video type in database
-          await videoOperations.update(video.id, { 
-            title: video.title, 
-            description: video.description || '',
-            type: video.type 
-          });
+      // Get current user to set as assigned_by
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      // Create a map of existing assignments for quick lookup
+      const existingAssignmentsResult = await assignmentOperations.getByEmployee(employee.id);
+      const existingAssignments = new Map<string, VideoAssignment>();
+      
+      if (existingAssignmentsResult.success && existingAssignmentsResult.data) {
+        existingAssignmentsResult.data.forEach(assignment => {
+          existingAssignments.set(assignment.video_id, assignment);
+        });
+      }
+
+      // Process assignments: create new ones, update existing ones, delete unselected ones
+      const promises: Promise<any>[] = [];
+
+      // Handle selected videos
+      for (const videoId of selectedVideoIds) {
+        const existingAssignment = existingAssignments.get(videoId);
+        const dueDate = videoDeadlines.get(videoId);
+
+        if (existingAssignment) {
+          // Update existing assignment if due date changed
+          const existingDueDate = existingAssignment.due_date ? new Date(existingAssignment.due_date) : null;
+          const newDueDate = dueDate || null;
+          
+          // Compare dates by converting to ISO date strings (YYYY-MM-DD)
+          const existingDateStr = existingDueDate?.toISOString().split('T')[0] || null;
+          const newDateStr = newDueDate?.toISOString().split('T')[0] || null;
+          
+          if (existingDateStr !== newDateStr) {
+            promises.push(
+              assignmentOperations.update(existingAssignment.id, { due_date: dueDate })
+            );
+          }
+        } else {
+          // Create new assignment
+          promises.push(
+            assignmentOperations.create(videoId, employee.id, user.id, dueDate)
+          );
         }
       }
 
-      // For now, since we don't have assignment operations implemented,
-      // we'll just show success. TODO: Implement assignment operations
+      // Delete assignments for unselected videos
+      for (const [videoId, assignment] of existingAssignments) {
+        if (!selectedVideoIds.has(videoId)) {
+          promises.push(
+            assignmentOperations.delete(assignment.id)
+          );
+        }
+      }
+
+      // Execute all operations
+      await Promise.all(promises);
+
       toast({
         title: "Success",
         description: `Video assignments updated for ${employee.full_name || employee.email}`,
