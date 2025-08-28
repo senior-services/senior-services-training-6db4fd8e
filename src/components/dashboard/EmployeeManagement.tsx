@@ -502,9 +502,10 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                               variant="ghost" 
                               size="sm" 
                               onClick={() => handleAssignVideos(employee)}
-                              aria-label={`Edit video assignments for ${employee.full_name || employee.email}`}
+                              aria-label={`Assign videos to ${employee.full_name || employee.email}`}
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-4 h-4 mr-2" />
+                              Assign Videos
                             </Button>
                             <Button 
                               variant="ghost" 
