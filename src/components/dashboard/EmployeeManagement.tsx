@@ -64,31 +64,60 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
       } else { // status
         const aVideos = employeeVideos.get(a.id) || [];
         const bVideos = employeeVideos.get(b.id) || [];
-        const aOverdue = aVideos.filter(assignment => {
-          if (!assignment.due_date || assignment.progress_percent >= 100) return false;
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const due = new Date(assignment.due_date);
-          due.setHours(0, 0, 0, 0);
-          const daysUntilDue = differenceInDays(due, today);
-          return isPast(due) && daysUntilDue < 0;
-        }).length;
-        const bOverdue = bVideos.filter(assignment => {
-          if (!assignment.due_date || assignment.progress_percent >= 100) return false;
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const due = new Date(assignment.due_date);
-          due.setHours(0, 0, 0, 0);
-          const daysUntilDue = differenceInDays(due, today);
-          return isPast(due) && daysUntilDue < 0;
-        }).length;
-
-        // Sort by status priority: overdue first, then on track, then no videos
-        const aStatus = aOverdue > 0 ? 'overdue' : aVideos.length > 0 ? 'ontrack' : 'novideos';
-        const bStatus = bOverdue > 0 ? 'overdue' : bVideos.length > 0 ? 'ontrack' : 'novideos';
         
-        aValue = aStatus;
-        bValue = bStatus;
+        // Calculate status for employee A
+        const aRequiredVideos = aVideos.filter(assignment => assignment.video_type === 'Required');
+        const aCompletedRequired = aRequiredVideos.filter(assignment => assignment.progress_percent >= 100);
+        const aOverdueRequired = aRequiredVideos.filter(assignment => {
+          if (assignment.progress_percent >= 100) return false;
+          if (!assignment.due_date) return false;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const due = new Date(assignment.due_date);
+          due.setHours(0, 0, 0, 0);
+          const daysUntilDue = differenceInDays(due, today);
+          return isPast(due) && daysUntilDue < 0;
+        });
+        
+        // Calculate status for employee B
+        const bRequiredVideos = bVideos.filter(assignment => assignment.video_type === 'Required');
+        const bCompletedRequired = bRequiredVideos.filter(assignment => assignment.progress_percent >= 100);
+        const bOverdueRequired = bRequiredVideos.filter(assignment => {
+          if (assignment.progress_percent >= 100) return false;
+          if (!assignment.due_date) return false;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const due = new Date(assignment.due_date);
+          due.setHours(0, 0, 0, 0);
+          const daysUntilDue = differenceInDays(due, today);
+          return isPast(due) && daysUntilDue < 0;
+        });
+
+        // Status priority: 4=overdue, 3=incomplete, 2=completed, 1=no required training
+        let aPriority = 1; // No required training
+        if (aRequiredVideos.length > 0) {
+          if (aOverdueRequired.length > 0) {
+            aPriority = 4; // Overdue
+          } else if (aCompletedRequired.length === aRequiredVideos.length) {
+            aPriority = 2; // All training complete
+          } else {
+            aPriority = 3; // Incomplete training
+          }
+        }
+        
+        let bPriority = 1; // No required training
+        if (bRequiredVideos.length > 0) {
+          if (bOverdueRequired.length > 0) {
+            bPriority = 4; // Overdue
+          } else if (bCompletedRequired.length === bRequiredVideos.length) {
+            bPriority = 2; // All training complete
+          } else {
+            bPriority = 3; // Incomplete training
+          }
+        }
+        
+        aValue = aPriority.toString();
+        bValue = bPriority.toString();
       }
 
       const comparison = aValue.localeCompare(bValue);
@@ -437,15 +466,54 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                 {getSortedEmployees().map(employee => {
                   const videos = employeeVideos.get(employee.id) || [];
                   const isExpanded = expandedEmployees.has(employee.id);
-                  const overdueCount = videos.filter(assignment => {
-                    if (!assignment.due_date || assignment.progress_percent >= 100) return false;
+                  
+                  // Calculate comprehensive status based on required training completion
+                  const requiredVideos = videos.filter(assignment => 
+                    assignment.video_type === 'Required'
+                  );
+                  
+                  const completedRequiredVideos = requiredVideos.filter(assignment => 
+                    assignment.progress_percent >= 100
+                  );
+                  
+                  const overdueRequiredVideos = requiredVideos.filter(assignment => {
+                    if (assignment.progress_percent >= 100) return false; // Completed videos can't be overdue
+                    if (!assignment.due_date) return false; // No due date = not overdue
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     const due = new Date(assignment.due_date);
                     due.setHours(0, 0, 0, 0);
                     const daysUntilDue = differenceInDays(due, today);
                     return isPast(due) && daysUntilDue < 0;
-                  }).length;
+                  });
+
+                  // Determine status based on required training completion
+                  let statusInfo;
+                  if (requiredVideos.length === 0) {
+                    statusInfo = {
+                      variant: "hollow-plain" as const,
+                      text: "No Required Training",
+                      showIcon: false
+                    };
+                  } else if (completedRequiredVideos.length === requiredVideos.length) {
+                    statusInfo = {
+                      variant: "hollow-success" as const,
+                      text: "All Training Complete",
+                      showIcon: true
+                    };
+                  } else if (overdueRequiredVideos.length > 0) {
+                    statusInfo = {
+                      variant: "hollow-destructive" as const,
+                      text: `${overdueRequiredVideos.length} Overdue`,
+                      showIcon: true
+                    };
+                  } else {
+                    statusInfo = {
+                      variant: "hollow-secondary" as const,
+                      text: `${completedRequiredVideos.length}/${requiredVideos.length} Complete`,
+                      showIcon: false
+                    };
+                  }
 
                   return (
                     <React.Fragment key={employee.id}>
@@ -481,19 +549,13 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                         </TableCell>
                         
                         <TableCell className="py-3">
-                          {overdueCount > 0 ? (
-                            <Badge variant="hollow-destructive" showIcon className="text-xs">
-                              {overdueCount} Overdue
-                            </Badge>
-                          ) : videos.length > 0 ? (
-                            <Badge variant="hollow-success" showIcon className="text-xs">
-                              On Track
-                            </Badge>
-                          ) : (
-                            <Badge variant="hollow-plain" className="text-xs">
-                              No Videos
-                            </Badge>
-                          )}
+                          <Badge 
+                            variant={statusInfo.variant}
+                            showIcon={statusInfo.showIcon}
+                            className="text-xs"
+                          >
+                            {statusInfo.text}
+                          </Badge>
                         </TableCell>
 
                         <TableCell className="text-right py-3">
