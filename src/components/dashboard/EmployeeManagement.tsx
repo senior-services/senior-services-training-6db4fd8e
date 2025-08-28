@@ -533,6 +533,8 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Employee</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="px-6 py-4">
             <AlertDialogDescription>
               Are you sure you want to delete "{deleteConfirmEmployee?.full_name || deleteConfirmEmployee?.email}"?
               <br />
@@ -546,7 +548,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
               <br />
               <strong>This action cannot be undone.</strong>
             </AlertDialogDescription>
-          </AlertDialogHeader>
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>
               Cancel
