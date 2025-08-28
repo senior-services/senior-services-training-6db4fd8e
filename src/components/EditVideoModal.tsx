@@ -545,15 +545,6 @@ export const EditVideoModal = ({
                           </CardHeader>
                           <CardContent className="space-y-4">
                             <div>
-                              <Label>Question Text</Label>
-                              <Textarea
-                                value={question.question_text}
-                                onChange={(e) => updateQuestion(questionIndex, { question_text: e.target.value })}
-                                placeholder="Enter your question"
-                              />
-                            </div>
-
-                            <div>
                               <Label>Question Type</Label>
                               <Select
                                 value={question.question_type}
@@ -573,6 +564,15 @@ export const EditVideoModal = ({
                                   <SelectItem value="single_answer">Single Answer</SelectItem>
                                 </SelectContent>
                               </Select>
+                            </div>
+
+                            <div>
+                              <Label>Question Text</Label>
+                              <Textarea
+                                value={question.question_text}
+                                onChange={(e) => updateQuestion(questionIndex, { question_text: e.target.value })}
+                                placeholder="Enter your question"
+                              />
                             </div>
 
                             {question.question_type === 'multiple_choice' && (
