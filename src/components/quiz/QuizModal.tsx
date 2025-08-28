@@ -6,17 +6,15 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, XCircle, ArrowLeft } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 
 interface QuizModalProps {
   quiz: QuizWithQuestions;
-  videoTitle?: string;
   onSubmit: (responses: QuizSubmissionData[]) => void;
   onCancel: () => void;
-  onBackToVideo?: () => void;
 }
 
-export function QuizModal({ quiz, videoTitle, onSubmit, onCancel, onBackToVideo }: QuizModalProps) {
+export function QuizModal({ quiz, onSubmit, onCancel }: QuizModalProps) {
   const [responses, setResponses] = useState<Record<string, QuizSubmissionData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,18 +51,6 @@ export function QuizModal({ quiz, videoTitle, onSubmit, onCancel, onBackToVideo 
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Back to video link */}
-        {onBackToVideo && (
-          <Button
-            variant="ghost"
-            onClick={onBackToVideo}
-            className="mb-4 p-0 h-auto font-normal text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to {videoTitle || "video"}
-          </Button>
-        )}
-        
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">{quiz.title}</h2>
           {quiz.description && (
@@ -146,7 +132,7 @@ export function QuizModal({ quiz, videoTitle, onSubmit, onCancel, onBackToVideo 
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              Skip Quiz
             </Button>
             <Button
               onClick={handleSubmit}

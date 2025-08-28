@@ -226,8 +226,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           setIsCompleted(true);
           setWasEverCompleted(true);
           
-          // Always show completion overlay first, regardless of quiz availability
-          setShowCompletionOverlay(true);
+          // Show quiz if available, otherwise show completion overlay
+          if (quiz && quiz.questions && quiz.questions.length > 0) {
+            setShowQuiz(true);
+          } else {
+            setShowCompletionOverlay(true);
+          }
           
           logger.videoEvent('video_completed', videoId, {
             userEmail: user.email,
@@ -235,10 +239,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             hasQuiz: !!quiz
           });
 
-          // Only notify parent and show toast if there's no quiz
+          // Don't notify parent about completion yet if there's a quiz
           if (!quiz || !quiz.questions || quiz.questions.length === 0) {
             onProgressUpdate?.(100);
-            // Removed toast notification - completion overlay provides feedback now
+            toast({
+              title: "Video Completed! 🎉",
+              description: "You've successfully completed this training video."
+            });
           }
         }
       },
@@ -286,11 +293,15 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const handleVideoEnded = useCallback(async () => {
     setProgress(100);
     
-    // Always show completion overlay first
-    setShowCompletionOverlay(true);
+    // Show quiz if available, otherwise show completion overlay
+    if (quiz && quiz.questions && quiz.questions.length > 0) {
+      setShowQuiz(true);
+    } else {
+      setShowCompletionOverlay(true);
+    }
     
     onProgressUpdate?.(100);
-  }, [onProgressUpdate]);
+  }, [quiz, onProgressUpdate]);
 
   /**
    * Manual completion handler with proper error handling
@@ -316,8 +327,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         setIsCompleted(true);
         setWasEverCompleted(true);
         
-        // Always show completion overlay first
-        setShowCompletionOverlay(true);
+        // Show quiz if available, otherwise show completion overlay
+        if (quiz && quiz.questions && quiz.questions.length > 0) {
+          setShowQuiz(true);
+        } else {
+          setShowCompletionOverlay(true);
+        }
         
         // Ensure database update completes
         await updateProgressToDatabase(100);
@@ -329,7 +344,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           // Add small delay before showing success message
           await new Promise(resolve => setTimeout(resolve, 200));
           
-          // Removed toast notification - completion overlay provides feedback now
+          toast({
+            title: "Training Completed! 🎉",
+            description: "You've successfully completed this training video."
+          });
         }
         
         logger.info('Video marked as complete successfully', { 
@@ -374,6 +392,11 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       setShowQuiz(false);
       setShowCompletionOverlay(true);
       onProgressUpdate?.(100);
+
+      toast({
+        title: "Training Completed! 🎉",
+        description: "You've successfully completed the quiz and training video."
+      });
     } catch (error) {
       logger.error('Failed to submit quiz', error);
       toast({
@@ -406,30 +429,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
    */
   useEffect(() => {
     return () => {
-      // Clear all timeouts and intervals
       if (progressUpdateTimeoutRef.current) {
         clearTimeout(progressUpdateTimeoutRef.current);
-        progressUpdateTimeoutRef.current = undefined;
       }
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = undefined;
       }
       if (ytProgressIntervalRef.current) {
         clearInterval(ytProgressIntervalRef.current);
-        ytProgressIntervalRef.current = undefined;
       }
-      
-      // Safely cleanup YouTube player
       try {
-        if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
-          ytPlayerRef.current.destroy();
-          ytPlayerRef.current = null;
-        }
-      } catch (error) {
-        logger.debug('YouTube player cleanup error (non-critical)', error);
-      }
-      
+        ytPlayerRef.current?.destroy?.();
+      } catch {}
       logger.debug('VideoPlayerFullscreen cleanup completed');
     };
   }, []);
@@ -441,134 +452,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
    */
   useEffect(() => {
     if (!open || !videoId) {
-      // Clear all intervals and timeouts
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = undefined;
       }
-      if (ytProgressIntervalRef.current) {
-        clearInterval(ytProgressIntervalRef.current);
-        ytProgressIntervalRef.current = undefined;
-      }
-      if (progressUpdateTimeoutRef.current) {
-        clearTimeout(progressUpdateTimeoutRef.current);
-        progressUpdateTimeoutRef.current = undefined;
-      }
-      
-      // Safely cleanup YouTube player when modal closes
-      try {
-        if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
-          ytPlayerRef.current.destroy();
-          ytPlayerRef.current = null;
-        }
-      } catch (error) {
-        logger.debug('YouTube player cleanup on close error (non-critical)', error);
-      }
-      
       setIsWatching(false);
-      logger.debug('Video intervals and players cleared due to modal close or video change');
+      logger.debug('Video intervals cleared due to modal close or video change');
     }
   }, [open, videoId]);
-
-  // Initialize YouTube player into a container to avoid React DOM conflicts
-  useEffect(() => {
-    if (!open || !video || !video.video_url || !isYouTubeUrl(video.video_url)) return;
-    const id = getYouTubeVideoId(video.video_url);
-    if (!id) return;
-
-    let cancelled = false;
-
-    const setup = async () => {
-      try {
-        await ensureYouTubeAPI();
-        if (cancelled) return;
-        if (ytProgressIntervalRef.current) {
-          clearInterval(ytProgressIntervalRef.current);
-          ytProgressIntervalRef.current = undefined;
-        }
-        try {
-          if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
-            ytPlayerRef.current.destroy();
-            ytPlayerRef.current = null;
-          }
-        } catch (error) {
-          logger.debug('YouTube player cleanup before init', error);
-        }
-        const YTGlobal: any = (window as any).YT;
-        const container = document.getElementById(`yt-container-${id}`);
-        if (!container) {
-          logger.debug('YouTube container not found, skipping init');
-          return;
-        }
-        ytPlayerRef.current = new YTGlobal.Player(container, {
-          videoId: id,
-          events: {
-            onReady: (e: any) => {
-              ytProgressIntervalRef.current = setInterval(() => {
-                try {
-                  const current = e.target.getCurrentTime ? e.target.getCurrentTime() : 0;
-                  const duration = e.target.getDuration ? e.target.getDuration() : (video.duration_seconds || 0);
-                  if (duration > 0 && current >= 0) {
-                    const progressPercent = Math.min(100, Math.max(0, Math.floor((current / duration) * 100)));
-                    setProgress(progressPercent);
-                    onProgressUpdate?.(progressPercent);
-                    if (progressPercent >= 100) {
-                      if (ytProgressIntervalRef.current) {
-                        clearInterval(ytProgressIntervalRef.current);
-                        ytProgressIntervalRef.current = undefined;
-                      }
-                      setShowCompletionOverlay(true);
-                      updateProgressToDatabase(100);
-                    } else if (Math.floor(current) % 15 === 0) {
-                      updateProgressToDatabase(progressPercent);
-                    }
-                  }
-                } catch (err) {
-                  logger.debug('YouTube progress tracking error', err);
-                }
-              }, 1000);
-            },
-            onStateChange: (e: any) => {
-              try {
-                const state = (window as any).YT.PlayerState;
-                if (e.data === state.ENDED) {
-                  setProgress(100);
-                  setShowCompletionOverlay(true);
-                  onProgressUpdate?.(100);
-                  updateProgressToDatabase(100);
-                  if (ytProgressIntervalRef.current) {
-                    clearInterval(ytProgressIntervalRef.current);
-                    ytProgressIntervalRef.current = undefined;
-                  }
-                } else if (e.data === state.PAUSED) {
-                  updateProgressToDatabase(progress);
-                }
-              } catch (err) {
-                logger.debug('YouTube state change error', err);
-              }
-            }
-          }
-        });
-      } catch (error) {
-        logger.error('Failed to initialize YouTube player', error);
-      }
-    };
-
-    setup();
-    return () => {
-      cancelled = true;
-      if (ytProgressIntervalRef.current) {
-        clearInterval(ytProgressIntervalRef.current);
-        ytProgressIntervalRef.current = undefined;
-      }
-      try {
-        ytPlayerRef.current?.destroy?.();
-        ytPlayerRef.current = null;
-      } catch (error) {
-        logger.debug('YouTube player cleanup on unmount', error);
-      }
-    };
-  }, [open, video?.video_url]);
 
   /**
    * Memoized video content renderer
@@ -595,9 +486,69 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       const id = getYouTubeVideoId(videoUrl);
       if (id) {
         return (
-          <div 
-            id={`yt-container-${id}`}
+          <iframe 
+            id={`yt-player-${id}`}
+            src={`https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${window.location.origin}`}
+            title={video.title}
             className="w-full h-full"
+            allowFullScreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            onLoad={() => {
+              // Initialize YouTube IFrame API player and progress tracking
+              ensureYouTubeAPI().then(() => {
+                if (ytProgressIntervalRef.current) {
+                  clearInterval(ytProgressIntervalRef.current);
+                }
+                try { ytPlayerRef.current?.destroy?.(); } catch {}
+                // Create player bound to this iframe
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const YTGlobal: any = (window as any).YT;
+                ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
+                  events: {
+                    onReady: (e: any) => {
+                      ytProgressIntervalRef.current = setInterval(() => {
+                        const current = e.target.getCurrentTime ? e.target.getCurrentTime() : 0;
+                        const duration = e.target.getDuration ? e.target.getDuration() : (video.duration_seconds || 0);
+                        if (duration > 0) {
+                           const progressPercent = Math.min(100, Math.floor((current / duration) * 100));
+                           setProgress(progressPercent);
+                           onProgressUpdate?.(progressPercent);
+                           if (progressPercent >= 100) {
+                             clearInterval(ytProgressIntervalRef.current!);
+                             // Show quiz if available, otherwise show completion overlay
+                             if (quiz && quiz.questions && quiz.questions.length > 0) {
+                               setShowQuiz(true);
+                             } else {
+                               setShowCompletionOverlay(true);
+                             }
+                             updateProgressToDatabase(100);
+                           } else if (Math.floor(current) % 15 === 0) {
+                             updateProgressToDatabase(progressPercent);
+                           }
+                        }
+                      }, 1000);
+                    },
+                     onStateChange: (e: any) => {
+                       const state = YTGlobal.PlayerState;
+                       if (e.data === state.ENDED) {
+                         setProgress(100);
+                         // Show quiz if available, otherwise show completion overlay
+                         if (quiz && quiz.questions && quiz.questions.length > 0) {
+                           setShowQuiz(true);
+                         } else {
+                           setShowCompletionOverlay(true);
+                         }
+                         onProgressUpdate?.(100);
+                         updateProgressToDatabase(100);
+                         if (ytProgressIntervalRef.current) clearInterval(ytProgressIntervalRef.current);
+                       } else if (e.data === state.PAUSED) {
+                         updateProgressToDatabase(progress);
+                       }
+                     }
+                  }
+                });
+              });
+            }}
           />
         );
       }
@@ -643,8 +594,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                  
                  if (likelyCompleted || actuallyCompleted) {
                    setProgress(100);
-                   // Always show completion overlay first
-                   setShowCompletionOverlay(true);
+                   // Show quiz if available, otherwise show completion overlay
+                   if (quiz && quiz.questions && quiz.questions.length > 0) {
+                     setShowQuiz(true);
+                   } else {
+                     setShowCompletionOverlay(true);
+                   }
                    onProgressUpdate?.(100);
                    if (progressIntervalRef.current) {
                      clearInterval(progressIntervalRef.current);
@@ -821,46 +776,24 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           {showCompletionOverlay && progress >= 100 && (
             <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-10 animate-fade-in">
               <div className="bg-card rounded-xl p-8 max-w-md mx-4 text-center shadow-xl border animate-scale-in">
-                 <div className="mb-6">
-                   <CheckCircle className="w-16 h-16 text-success mx-auto mb-3" />
-                   <h3 className="text-2xl font-bold text-foreground mb-2">
-                     Video Completed! 🎉
-                   </h3>
-                   <p className="text-muted-foreground mb-4">
-                     You've successfully watched "{video?.title}"
-                   </p>
-                 </div>
-                 
-                 <div className="space-y-3">
-                   {/* Show quiz button if quiz is available */}
-                   {quiz && quiz.questions && quiz.questions.length > 0 ? (
-                     <Button 
-                       onClick={() => {
-                         setShowCompletionOverlay(false);
-                         setShowQuiz(true);
-                       }}
-                       className="w-full bg-primary hover:bg-primary/90"
-                       size="lg"
-                     >
-                       Start Quiz to Complete Training
-                     </Button>
-                   ) : null}
-                   
-                    {/* Close button */}
-                    <Button 
-                      variant="outline"
-                      onClick={() => {
-                        setShowCompletionOverlay(false);
-                        onOpenChange(false);
-                        
-                        // Complete the training since there's no quiz or user chose to close
-                        onProgressUpdate?.(100);
-                      }}
-                      className="w-full"
-                    >
-                      Close
-                   </Button>
-                 </div>
+                <div className="mb-4">
+                  <CheckCircle className="w-16 h-16 text-success mx-auto mb-3" />
+                  <h3 className="text-2xl font-bold text-foreground mb-2">
+                    Training Completed! 🎉
+                  </h3>
+                  <p className="text-muted-foreground">
+                    You've successfully completed "{video?.title}"
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => {
+                    setShowCompletionOverlay(false);
+                    onOpenChange(false);
+                  }}
+                  className="w-full"
+                >
+                  Close
+                </Button>
               </div>
             </div>
           )}
@@ -870,15 +803,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             <div className="absolute inset-0 bg-card z-20">
               <QuizModal
                 quiz={quiz}
-                videoTitle={video?.title}
                 onSubmit={handleQuizSubmit}
                 onCancel={() => {
                   setShowQuiz(false);
                   setShowCompletionOverlay(true);
-                }}
-                onBackToVideo={() => {
-                  setShowQuiz(false);
-                  // Don't show completion overlay, just return to video
                 }}
               />
             </div>
