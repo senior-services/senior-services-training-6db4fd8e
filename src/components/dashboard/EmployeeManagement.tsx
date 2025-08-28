@@ -344,7 +344,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('employee')}
-                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent ${
+                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:font-bold group ${
                         sortColumn === 'employee' 
                           ? 'font-bold' 
                           : 'font-medium'
@@ -358,7 +358,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                           <ArrowDown className="ml-2 h-4 w-4" />
                         )
                       ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary" />
                       )}
                     </Button>
                   </TableHead>
@@ -367,7 +367,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('status')}
-                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent ${
+                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:font-bold group ${
                         sortColumn === 'status' 
                           ? 'font-bold' 
                           : 'font-medium'
@@ -381,7 +381,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                           <ArrowDown className="ml-2 h-4 w-4" />
                         )
                       ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary" />
                       )}
                     </Button>
                   </TableHead>

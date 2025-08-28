@@ -851,7 +851,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableHead>
                               <Button 
                                 variant="ghost" 
-                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent ${
+                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:font-bold group ${
                                   sortColumn === "name" ? "font-bold" : "font-medium"
                                 }`}
                                 onClick={() => handleSort("name")}
@@ -861,15 +861,15 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                  sortDirection === "asc" ? 
                                    <ArrowUp className="w-4 h-4 ml-1" /> : 
                                    <ArrowDown className="w-4 h-4 ml-1" />
-                               ) : (
-                                 <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
-                               )}
+                                ) : (
+                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary" />
+                                )}
                              </Button>
                           </TableHead>
                           <TableHead>
                               <Button 
                                 variant="ghost" 
-                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent ${
+                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:font-bold group ${
                                   sortColumn === "email" ? "font-bold" : "font-medium"
                                 }`}
                                 onClick={() => handleSort("email")}
@@ -879,15 +879,15 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                  sortDirection === "asc" ? 
                                    <ArrowUp className="w-4 h-4 ml-1" /> : 
                                    <ArrowDown className="w-4 h-4 ml-1" />
-                               ) : (
-                                 <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
-                               )}
+                                ) : (
+                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary" />
+                                )}
                              </Button>
                           </TableHead>
                           <TableHead>
                               <Button 
                                 variant="ghost" 
-                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent ${
+                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:font-bold group ${
                                   sortColumn === "department" ? "font-bold" : "font-medium"
                                 }`}
                                 onClick={() => handleSort("department")}
@@ -897,9 +897,9 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                  sortDirection === "asc" ? 
                                    <ArrowUp className="w-4 h-4 ml-1" /> : 
                                    <ArrowDown className="w-4 h-4 ml-1" />
-                               ) : (
-                                 <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
-                               )}
+                                ) : (
+                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary" />
+                                )}
                              </Button>
                           </TableHead>
                            <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>

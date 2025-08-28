@@ -169,7 +169,7 @@ export const AdminManagement: React.FC = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('name')}
-                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent ${
+                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:font-bold group ${
                         sortColumn === 'name' 
                           ? 'font-bold' 
                           : 'font-medium'
@@ -183,7 +183,7 @@ export const AdminManagement: React.FC = () => {
                           <ArrowDown className="ml-2 h-4 w-4" />
                         )
                       ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary" />
                       )}
                     </Button>
                   </TableHead>
@@ -192,7 +192,7 @@ export const AdminManagement: React.FC = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('dateAdded')}
-                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent ${
+                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:font-bold group ${
                         sortColumn === 'dateAdded' 
                           ? 'font-bold' 
                           : 'font-medium'
@@ -206,7 +206,7 @@ export const AdminManagement: React.FC = () => {
                           <ArrowDown className="ml-2 h-4 w-4" />
                         )
                       ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary" />
                       )}
                     </Button>
                   </TableHead>
