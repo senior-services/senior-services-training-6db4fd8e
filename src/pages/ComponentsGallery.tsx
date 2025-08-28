@@ -911,8 +911,8 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                              <TableCell className="font-medium">{user.name}</TableCell>
                              <TableCell>{user.email}</TableCell>
                              <TableCell>{user.department}</TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex gap-1 justify-end">
+                               <TableCell className="text-right">
+                                 <div className="flex gap-2 justify-end">
                                   <Button size="sm" variant="ghost">
                                     <Eye className="w-4 h-4" />
                                     <span className="sr-only">View</span>
