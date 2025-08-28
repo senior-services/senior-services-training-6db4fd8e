@@ -313,6 +313,49 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                   </div>
                 </div>
 
+                {/* Text Colors */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold uppercase text-secondary">Text Colors</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background border border-border shadow-sm flex items-center justify-center">
+                        <div className="w-6 h-6 bg-foreground rounded-sm"></div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Foreground</div>
+                        <div className="text-xs text-muted-foreground">--foreground</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background border border-border shadow-sm flex items-center justify-center">
+                        <div className="w-6 h-6 bg-muted-foreground rounded-sm"></div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Muted Foreground</div>
+                        <div className="text-xs text-muted-foreground">--muted-foreground</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-primary border border-border shadow-sm flex items-center justify-center">
+                        <div className="w-6 h-6 bg-primary-foreground rounded-sm"></div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Primary Foreground</div>
+                        <div className="text-xs text-muted-foreground">--primary-foreground</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-secondary border border-border shadow-sm flex items-center justify-center">
+                        <div className="w-6 h-6 bg-secondary-foreground rounded-sm"></div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Secondary Foreground</div>
+                        <div className="text-xs text-muted-foreground">--secondary-foreground</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Border & Input Colors */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-bold uppercase text-secondary">Border & Input</h4>
