@@ -863,23 +863,35 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           <TableCell className="font-medium">John Doe</TableCell>
                           <TableCell>john@example.com</TableCell>
                           <TableCell>Admin</TableCell>
-                          <TableCell className="text-right">
-                            <Button size="sm" variant="ghost">
-                              <Edit className="w-4 h-4" />
-                              <span className="sr-only">Edit</span>
-                            </Button>
-                          </TableCell>
+                           <TableCell className="text-right">
+                             <div className="flex gap-1 justify-end">
+                               <Button size="sm" variant="ghost">
+                                 <Edit className="w-4 h-4" />
+                                 <span className="sr-only">Edit</span>
+                               </Button>
+                               <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                                 <Trash2 className="w-4 h-4" />
+                                 <span className="sr-only">Delete</span>
+                               </Button>
+                             </div>
+                           </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell className="font-medium">Jane Smith</TableCell>
                           <TableCell>jane@example.com</TableCell>
                           <TableCell>User</TableCell>
-                          <TableCell className="text-right">
-                            <Button size="sm" variant="ghost">
-                              <Edit className="w-4 h-4" />
-                              <span className="sr-only">Edit</span>
-                            </Button>
-                          </TableCell>
+                           <TableCell className="text-right">
+                             <div className="flex gap-1 justify-end">
+                               <Button size="sm" variant="ghost">
+                                 <Edit className="w-4 h-4" />
+                                 <span className="sr-only">Edit</span>
+                               </Button>
+                               <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                                 <Trash2 className="w-4 h-4" />
+                                 <span className="sr-only">Delete</span>
+                               </Button>
+                             </div>
+                           </TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>

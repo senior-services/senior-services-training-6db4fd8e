@@ -328,7 +328,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       {/* Action buttons */}
                       <TableCell className="text-left py-2">
                         <div 
-                          className="flex gap-2"
+                          className="flex gap-1"
                           role="group"
                           aria-label={`Actions for video: ${video.title}`}
                         >
