@@ -99,27 +99,28 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange }: QuizM
                     </RadioGroup>
                   )}
 
-                  {question.question_type === 'true_false' && (
+                  {question.question_type === 'true_false' && question.options && (
                     <RadioGroup
                       value={responses[question.id]?.selected_option_id || ""}
                       onValueChange={(value) => 
                         handleResponseChange(question.id, { selected_option_id: value })
                       }
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="true" id={`${question.id}_true`} />
-                        <Label htmlFor={`${question.id}_true`} className="cursor-pointer">
-                          <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
-                          True
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="false" id={`${question.id}_false`} />
-                        <Label htmlFor={`${question.id}_false`} className="cursor-pointer">
-                          <XCircle className="inline w-4 h-4 mr-2 text-red-600" />
-                          False
-                        </Label>
-                      </div>
+                      {question.options
+                        .sort((a, b) => a.order_index - b.order_index)
+                        .map((option) => (
+                          <div key={option.id} className="flex items-center space-x-2">
+                            <RadioGroupItem value={option.id} id={option.id} />
+                            <Label htmlFor={option.id} className="cursor-pointer">
+                              {option.option_text === 'True' ? (
+                                <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
+                              ) : (
+                                <XCircle className="inline w-4 h-4 mr-2 text-red-600" />
+                              )}
+                              {option.option_text}
+                            </Label>
+                          </div>
+                        ))}
                     </RadioGroup>
                   )}
 
