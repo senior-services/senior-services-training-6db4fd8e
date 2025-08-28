@@ -5,35 +5,35 @@ import { Check, AlertTriangle, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap shadow-sm hover:shadow-md",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap shadow-sm",
   {
     variants: {
       variant: {
         // Solid variants
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-transparent bg-primary text-primary-foreground",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-transparent bg-secondary text-secondary-foreground",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+          "border-transparent bg-destructive text-destructive-foreground",
         success:
-          "border-transparent bg-success text-success-foreground hover:bg-success/80",
+          "border-transparent bg-success text-success-foreground",
         warning:
-          "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
+          "border-transparent bg-warning text-warning-foreground",
         // Hollow variants  
         outline: "text-foreground",
         "hollow-primary":
-          "border-primary text-primary bg-transparent hover:bg-primary/10",
+          "border-primary text-primary bg-transparent",
         "hollow-secondary":
-          "border-secondary text-secondary bg-transparent hover:bg-secondary/10",
+          "border-secondary text-secondary bg-transparent",
         "hollow-destructive":
-          "border-destructive text-destructive bg-transparent hover:bg-destructive/10",
+          "border-destructive text-destructive bg-transparent",
         "hollow-success":
-          "border-success text-success bg-transparent hover:bg-success/10",
+          "border-success text-success bg-transparent",
         "hollow-warning":
-          "border-warning text-warning bg-transparent hover:bg-warning/10",
+          "border-warning text-warning bg-transparent",
         "hollow-plain":
-          "border-transparent text-muted-foreground bg-transparent hover:bg-secondary/10",
+          "border-transparent text-muted-foreground bg-transparent",
       },
     },
     defaultVariants: {
