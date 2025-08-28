@@ -3,8 +3,9 @@
  * Provides comprehensive video management with keyboard navigation and screen reader support
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Table, 
@@ -32,6 +33,8 @@ import {
   announceToScreenReader 
 } from '@/utils/accessibility';
 import { cn } from '@/lib/utils';
+import { quizOperations } from '@/services/quizService';
+import { logger } from '@/utils/logger';
 
 interface VideoTableProps {
   videos: Video[];
@@ -66,6 +69,38 @@ export const VideoTable: React.FC<VideoTableProps> = ({
 }) => {
   const [sortColumn, setSortColumn] = useState<'title'>('title');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [videoQuizzes, setVideoQuizzes] = useState<Set<string>>(new Set());
+
+  // Load quiz data for each video
+  useEffect(() => {
+    const loadVideoQuizzes = async () => {
+      if (!videos.length) return;
+
+      const quizVideoIds = new Set<string>();
+      
+      try {
+        await Promise.all(
+          videos.map(async (video) => {
+            try {
+              const quiz = await quizOperations.getByVideoId(video.id);
+              if (quiz && quiz.questions && quiz.questions.length > 0) {
+                quizVideoIds.add(video.id);
+              }
+            } catch (error) {
+              // Silently handle errors - video just won't show quiz badge
+              logger.debug(`No quiz found for video ${video.id}`, error);
+            }
+          })
+        );
+        
+        setVideoQuizzes(quizVideoIds);
+      } catch (error) {
+        logger.error('Error loading video quizzes', error);
+      }
+    };
+
+    loadVideoQuizzes();
+  }, [videos]);
 
   /**
    * Sorts videos based on current sort criteria
@@ -274,9 +309,16 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                           
                           {/* Video info */}
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-foreground truncate">
-                              {video.title}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-foreground truncate">
+                                {video.title}
+                              </p>
+                              {videoQuizzes.has(video.id) && (
+                                <Badge variant="hollow-plain" className="text-xs">
+                                  Quiz
+                                </Badge>
+                              )}
+                            </div>
                             {video.description && (
                               <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                                 {video.description}
