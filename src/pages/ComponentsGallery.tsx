@@ -240,20 +240,13 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 <div className="space-y-3">
                   <h4 className="text-sm font-bold uppercase text-secondary">Secondary Colors</h4>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-secondary border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Secondary</div>
-                        <div className="text-xs text-muted-foreground">--secondary</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-accent border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Accent</div>
-                        <div className="text-xs text-muted-foreground">--accent</div>
-                      </div>
-                    </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-secondary border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Secondary</div>
+                         <div className="text-xs text-muted-foreground">--secondary</div>
+                       </div>
+                     </div>
                   </div>
                 </div>
 
@@ -324,20 +317,27 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         <div className="text-xs text-muted-foreground">--border</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-input border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Input</div>
-                        <div className="text-xs text-muted-foreground">--input</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-ring border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Ring</div>
-                        <div className="text-xs text-muted-foreground">--ring</div>
-                      </div>
-                    </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-input border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Input</div>
+                         <div className="text-xs text-muted-foreground">--input</div>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-accent border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Accent</div>
+                         <div className="text-xs text-muted-foreground">--accent</div>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-ring border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Ring</div>
+                         <div className="text-xs text-muted-foreground">--ring</div>
+                       </div>
+                     </div>
                   </div>
                 </div>
 
