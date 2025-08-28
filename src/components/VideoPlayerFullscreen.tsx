@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { quizOperations } from '@/services/quizService';
@@ -62,6 +63,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizResponses, setQuizResponses] = useState<QuizSubmissionData[]>([]);
   const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false);
+  const [hasQuizChanges, setHasQuizChanges] = useState(false);
+  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   
   // Hooks for authentication and user feedback
   const { user } = useAuth();
@@ -189,6 +192,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const handleStartQuiz = useCallback(() => {
     setQuizStarted(true);
     setShowCompletionOverlay(false);
+    setQuizResponses([]);
+    setAllQuestionsAnswered(false);
+    setHasQuizChanges(false);
     
     // Scroll to quiz section
     setTimeout(() => {
@@ -203,6 +209,33 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const handleQuizResponsesChange = useCallback((responses: QuizSubmissionData[], allAnswered: boolean) => {
     setQuizResponses(responses);
     setAllQuestionsAnswered(allAnswered);
+    
+    // Check if any responses have been made (user has started answering)
+    const hasAnyResponses = responses.some(response => 
+      response.selected_option_id || response.text_answer?.trim()
+    );
+    setHasQuizChanges(hasAnyResponses);
+  }, []);
+
+  // Handle cancel button click
+  const handleCancelClick = useCallback(() => {
+    if (hasQuizChanges) {
+      setShowCancelConfirmation(true);
+    } else {
+      // No changes made, cancel directly
+      setQuizStarted(false);
+      setShowCompletionOverlay(true);
+    }
+  }, [hasQuizChanges]);
+
+  // Handle confirmed cancellation (user wants to lose changes)
+  const handleConfirmedCancel = useCallback(() => {
+    setShowCancelConfirmation(false);
+    setQuizStarted(false);
+    setShowCompletionOverlay(true);
+    setQuizResponses([]);
+    setAllQuestionsAnswered(false);
+    setHasQuizChanges(false);
   }, []);
 
 
@@ -282,16 +315,34 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         {/* Dialog Footer */}
         {quizStarted && quiz && (
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setQuizStarted(false);
-                setShowCompletionOverlay(true);
-              }}
-              className="shadow-md hover:shadow-lg transition-shadow"
-            >
-              Cancel
-            </Button>
+            <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelClick}
+                  className="shadow-md hover:shadow-lg transition-shadow"
+                >
+                  Cancel
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancel Quiz?</AlertDialogTitle>
+                </AlertDialogHeader>
+                <div>
+                  <AlertDialogDescription>
+                    You have unsaved changes to your quiz responses. If you cancel now, your answers will be lost and you won't complete this training.
+                  </AlertDialogDescription>
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep Working</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleConfirmedCancel}>
+                    Yes, Cancel Quiz
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            
             <Button
               onClick={handleQuizSubmit}
               disabled={!allQuestionsAnswered}
