@@ -89,10 +89,17 @@ export const EditVideoModal = ({
     if (!video) return;
     setLoading(true);
     try {
+      // Save video changes
       await onSave(video.id, {
         title,
         description
       });
+
+      // Create quiz if there are quiz changes and no existing quiz
+      if (!quiz && (quizTitle || questions.length > 0)) {
+        await handleCreateQuiz();
+      }
+      
       onOpenChange(false);
     } catch (error) {
       logger.error('Error updating video', error as Error);
@@ -241,7 +248,11 @@ export const EditVideoModal = ({
       setIsCreatingQuiz(false);
     }
   };
-  const hasChanges = video && (title !== (video.title || '') || description !== (video.description || ''));
+  const hasChanges = video && (
+    title !== (video.title || '') || 
+    description !== (video.description || '') ||
+    (!quiz && (quizTitle.trim() || questions.length > 0))
+  );
   if (!video) return null;
 
   // Check video URL type using utility functions
@@ -490,17 +501,10 @@ export const EditVideoModal = ({
                         </Card>
                       ))}
 
-                      {questions.length > 0 && (
-                        <Button
-                          onClick={handleCreateQuiz}
-                          disabled={!quizTitle.trim() || questions.length === 0 || 
-                            questions.some(q => !q.question_text.trim() || 
-                              (q.question_type === 'multiple_choice' && q.options.length < 2)) || 
-                            isCreatingQuiz}
-                          className="w-full"
-                        >
-                          {isCreatingQuiz ? "Creating..." : "Create Quiz"}
-                        </Button>
+                      {questions.length === 0 && (
+                        <p className="text-center text-muted-foreground py-8">
+                          No questions added yet. Click "Add Question" to get started.
+                        </p>
                       )}
                     </div>
                   </div>
