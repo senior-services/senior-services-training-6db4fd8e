@@ -31,7 +31,10 @@ import {
   Video as VideoIcon, 
   Plus, 
   Play,
-  Trash2
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown
 } from 'lucide-react';
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveFileId } from '@/utils/videoUtils';
 import { Video } from '@/types';
@@ -180,18 +183,22 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   <TableHead className="whitespace-nowrap">
                     <Button
                       variant="ghost"
-                      className="font-semibold p-0 h-auto hover:bg-transparent whitespace-nowrap"
                       onClick={() => handleSort('title')}
-                      aria-label={`Sort by title ${sortColumn === 'title' ? 
-                        (sortDirection === 'asc' ? 'descending' : 'ascending') : 
-                        'ascending'
+                      className={`h-auto p-0 hover:text-primary/80 uppercase ${
+                        sortColumn === 'title' 
+                          ? 'font-bold text-primary' 
+                          : 'font-normal text-foreground'
                       }`}
                     >
                       Video Title and Description
-                      {sortColumn === 'title' && (
-                        <span className="ml-1" aria-hidden="true">
-                          {sortDirection === 'asc' ? '↑' : '↓'}
-                        </span>
+                      {sortColumn === 'title' ? (
+                        sortDirection === 'asc' ? (
+                          <ArrowUp className="ml-2 h-4 w-4" />
+                        ) : (
+                          <ArrowDown className="ml-2 h-4 w-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="ml-2 h-4 w-4 text-muted-foreground" />
                       )}
                     </Button>
                   </TableHead>
