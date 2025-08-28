@@ -183,7 +183,7 @@ export const AdminManagement: React.FC = () => {
                           <ArrowDown className="ml-2 h-4 w-4" />
                         )
                       ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary" />
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-foreground" />
                       )}
                     </Button>
                   </TableHead>
@@ -206,7 +206,7 @@ export const AdminManagement: React.FC = () => {
                           <ArrowDown className="ml-2 h-4 w-4" />
                         )
                       ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary" />
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-foreground" />
                       )}
                     </Button>
                   </TableHead>

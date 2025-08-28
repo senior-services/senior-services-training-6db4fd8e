@@ -862,7 +862,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                    <ArrowUp className="w-4 h-4 ml-1" /> : 
                                    <ArrowDown className="w-4 h-4 ml-1" />
                                 ) : (
-                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary" />
+                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-foreground" />
                                 )}
                              </Button>
                           </TableHead>
@@ -880,7 +880,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                    <ArrowUp className="w-4 h-4 ml-1" /> : 
                                    <ArrowDown className="w-4 h-4 ml-1" />
                                 ) : (
-                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary" />
+                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-foreground" />
                                 )}
                              </Button>
                           </TableHead>
@@ -898,7 +898,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                    <ArrowUp className="w-4 h-4 ml-1" /> : 
                                    <ArrowDown className="w-4 h-4 ml-1" />
                                 ) : (
-                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary" />
+                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-foreground" />
                                 )}
                              </Button>
                           </TableHead>
