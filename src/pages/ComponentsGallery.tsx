@@ -1323,10 +1323,12 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Important Information</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <div>
                       <AlertDialogDescription>
                         This is an example of an alert dialog. It's perfect for showing important messages that require user acknowledgment.
                       </AlertDialogDescription>
-                    </AlertDialogHeader>
+                    </div>
                     <AlertDialogFooter>
                       <AlertDialogAction>Continue</AlertDialogAction>
                     </AlertDialogFooter>
@@ -1340,10 +1342,12 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <div>
                       <AlertDialogDescription>
                         This action cannot be undone. This will permanently delete your data.
                       </AlertDialogDescription>
-                    </AlertDialogHeader>
+                    </div>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction>Delete</AlertDialogAction>
