@@ -33,8 +33,8 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --muted-foreground: 215 25% 35%; /* Much darker for better readability */
 
     /* Accent: Success Green & Warning Colors */
-    --accent: 206 73% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 20% 90%;
+    --accent-foreground: 215 25% 15%;
 
     /* Status Colors - Enhanced Contrast */
     --success: 142 76% 30%; /* Darker for better contrast */
@@ -104,8 +104,8 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --muted: 219 79% 12%; /* Darker muted background */
     --muted-foreground: 215 16% 75%; /* Brighter muted text */
 
-    --accent: 206 73% 70%;
-    --accent-foreground: 219 79% 6%;
+    --accent: 219 79% 15%;
+    --accent-foreground: 210 20% 98%;
 
     --success: 142 76% 55%; /* Brighter for dark mode visibility */
     --success-foreground: 219 79% 6%;
