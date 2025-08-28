@@ -313,11 +313,11 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                               <p className="font-medium text-foreground truncate">
                                 {video.title}
                               </p>
-                              {videoQuizzes.has(video.id) && (
-                                <Badge variant="hollow-plain" className="text-xs">
-                                  Quiz
-                                </Badge>
-                              )}
+                               {videoQuizzes.has(video.id) && (
+                                 <Badge variant="hollow-plain" className="text-xs">
+                                   Quiz
+                                 </Badge>
+                               )}
                             </div>
                             {video.description && (
                               <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
