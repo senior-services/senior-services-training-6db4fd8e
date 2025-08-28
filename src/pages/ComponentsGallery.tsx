@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,7 +91,9 @@ import {
   X,
   ArrowUp,
   ArrowDown,
-  ArrowUpDown
+  ArrowUpDown,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 interface ComponentsGalleryProps {
@@ -105,6 +112,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
   const [isLoading, setIsLoading] = useState(false);
   const [sortColumn, setSortColumn] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set());
   
   // Icon state management for button examples
   const [buttonIcons, setButtonIcons] = useState({
@@ -198,6 +206,18 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
   const toggleLoading = () => {
     setIsLoading(true);
     setTimeout(() => setIsLoading(false), 2000);
+  };
+
+  const toggleEmployeeExpanded = (employeeId: string) => {
+    setExpandedEmployees(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(employeeId)) {
+        newExpanded.delete(employeeId);
+      } else {
+        newExpanded.add(employeeId);
+      }
+      return newExpanded;
+    });
   };
 
   return (
@@ -1101,92 +1121,103 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                    
                    <TabsContent value="accordion" className="space-y-4">
                      <div className="rounded-lg p-6 border border-border/50 shadow-md">
-                       <h4 className="text-sm font-medium mb-4">Expandable Table Rows</h4>
-                       <Accordion type="single" collapsible className="w-full">
-                         <AccordionItem value="item-1" className="border-b">
-                           <AccordionTrigger className="hover:no-underline">
-                             <div className="flex items-center justify-between w-full pr-4">
-                               <div className="flex items-center space-x-4">
-                                 <span className="font-medium">Alice Johnson</span>
-                                 <Badge variant="secondary">Engineering</Badge>
-                                 <span className="text-sm text-muted-foreground">alice@example.com</span>
-                               </div>
-                             </div>
-                           </AccordionTrigger>
-                           <AccordionContent className="pt-4">
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                               <div>
-                                 <p><strong>Department:</strong> Software Engineering</p>
-                                 <p><strong>Role:</strong> Senior Developer</p>
-                                 <p><strong>Location:</strong> San Francisco, CA</p>
-                                 <p><strong>Start Date:</strong> January 2020</p>
-                               </div>
-                               <div>
-                                 <p><strong>Manager:</strong> John Smith</p>
-                                 <p><strong>Skills:</strong> React, TypeScript, Node.js</p>
-                                 <p><strong>Status:</strong> <Badge variant="default" className="ml-1">Active</Badge></p>
-                                 <p><strong>Last Login:</strong> 2 hours ago</p>
-                               </div>
-                             </div>
-                           </AccordionContent>
-                         </AccordionItem>
-                         
-                         <AccordionItem value="item-2" className="border-b">
-                           <AccordionTrigger className="hover:no-underline">
-                             <div className="flex items-center justify-between w-full pr-4">
-                               <div className="flex items-center space-x-4">
-                                 <span className="font-medium">Bob Wilson</span>
-                                 <Badge variant="outline">Marketing</Badge>
-                                 <span className="text-sm text-muted-foreground">bob@example.com</span>
-                               </div>
-                             </div>
-                           </AccordionTrigger>
-                           <AccordionContent className="pt-4">
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                               <div>
-                                 <p><strong>Department:</strong> Digital Marketing</p>
-                                 <p><strong>Role:</strong> Marketing Manager</p>
-                                 <p><strong>Location:</strong> New York, NY</p>
-                                 <p><strong>Start Date:</strong> March 2019</p>
-                               </div>
-                               <div>
-                                 <p><strong>Manager:</strong> Sarah Lee</p>
-                                 <p><strong>Skills:</strong> SEO, Analytics, Content Strategy</p>
-                                 <p><strong>Status:</strong> <Badge variant="default" className="ml-1">Active</Badge></p>
-                                 <p><strong>Last Login:</strong> 1 day ago</p>
-                               </div>
-                             </div>
-                           </AccordionContent>
-                         </AccordionItem>
-                         
-                         <AccordionItem value="item-3" className="border-b-0">
-                           <AccordionTrigger className="hover:no-underline">
-                             <div className="flex items-center justify-between w-full pr-4">
-                               <div className="flex items-center space-x-4">
-                                 <span className="font-medium">Carol Smith</span>
-                                 <Badge variant="destructive">Finance</Badge>
-                                 <span className="text-sm text-muted-foreground">carol@example.com</span>
-                               </div>
-                             </div>
-                           </AccordionTrigger>
-                           <AccordionContent className="pt-4">
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                               <div>
-                                 <p><strong>Department:</strong> Financial Planning</p>
-                                 <p><strong>Role:</strong> Senior Analyst</p>
-                                 <p><strong>Location:</strong> Chicago, IL</p>
-                                 <p><strong>Start Date:</strong> June 2021</p>
-                               </div>
-                               <div>
-                                 <p><strong>Manager:</strong> Michael Chen</p>
-                                 <p><strong>Skills:</strong> Excel, Financial Modeling, Reporting</p>
-                                 <p><strong>Status:</strong> <Badge variant="secondary" className="ml-1">On Leave</Badge></p>
-                                 <p><strong>Last Login:</strong> 5 days ago</p>
-                               </div>
-                             </div>
-                           </AccordionContent>
-                         </AccordionItem>
-                       </Accordion>
+                       <h4 className="text-sm font-medium mb-4">Collapsible Table Rows (Admin Pattern)</h4>
+                       <Table>
+                         <TableCaption>Employee table with expandable rows matching admin area pattern</TableCaption>
+                         <TableHeader>
+                           <TableRow>
+                             <TableHead className="text-sm font-bold uppercase text-secondary">Employee</TableHead>
+                             <TableHead className="text-sm font-bold uppercase text-secondary">Department</TableHead>
+                             <TableHead className="text-sm font-bold uppercase text-secondary">Status</TableHead>
+                             <TableHead className="text-right text-sm font-bold uppercase text-secondary">Actions</TableHead>
+                           </TableRow>
+                         </TableHeader>
+                         <TableBody>
+                           {[
+                             { id: "emp-1", name: "Alice Johnson", email: "alice@example.com", department: "Engineering", status: "Active", role: "Senior Developer", location: "San Francisco, CA", manager: "John Smith", skills: "React, TypeScript, Node.js" },
+                             { id: "emp-2", name: "Bob Wilson", email: "bob@example.com", department: "Marketing", status: "Active", role: "Marketing Manager", location: "New York, NY", manager: "Sarah Lee", skills: "SEO, Analytics, Content Strategy" },
+                             { id: "emp-3", name: "Carol Smith", email: "carol@example.com", department: "Finance", status: "On Leave", role: "Senior Analyst", location: "Chicago, IL", manager: "Michael Chen", skills: "Excel, Financial Modeling" }
+                           ].map((employee) => {
+                             const isExpanded = expandedEmployees.has(employee.id);
+                             return (
+                               <React.Fragment key={employee.id}>
+                                 <TableRow className={`group hover:bg-muted/50 transition-colors ${isExpanded ? 'border-b-0' : ''}`}>
+                                   <TableCell className="py-3">
+                                     <Collapsible 
+                                       open={isExpanded}
+                                       onOpenChange={() => toggleEmployeeExpanded(employee.id)}
+                                     >
+                                       <CollapsibleTrigger asChild>
+                                         <div className="flex items-center gap-3 cursor-pointer">
+                                           <div className="flex items-center gap-2">
+                                             {isExpanded ? (
+                                               <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                                             ) : (
+                                               <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                             )}
+                                             <div>
+                                               <div className="font-medium">{employee.name}</div>
+                                               <div className="text-sm text-muted-foreground">{employee.email}</div>
+                                             </div>
+                                           </div>
+                                         </div>
+                                       </CollapsibleTrigger>
+                                     </Collapsible>
+                                   </TableCell>
+                                   
+                                   <TableCell className="py-3">
+                                     <Badge variant={employee.department === "Engineering" ? "default" : employee.department === "Marketing" ? "secondary" : "outline"}>
+                                       {employee.department}
+                                     </Badge>
+                                   </TableCell>
+                                   
+                                   <TableCell className="py-3">
+                                     <Badge variant={employee.status === "Active" ? "default" : "secondary"}>
+                                       {employee.status}
+                                     </Badge>
+                                   </TableCell>
+                                   
+                                   <TableCell className="text-right py-3">
+                                     <div className="flex gap-2 justify-end">
+                                       <Button variant="ghost" size="sm">
+                                         <Edit className="w-4 h-4" />
+                                       </Button>
+                                       <Button variant="ghost" size="sm">
+                                         <Trash2 className="w-4 h-4" />
+                                       </Button>
+                                     </div>
+                                   </TableCell>
+                                 </TableRow>
+                                 
+                                 {isExpanded && (
+                                   <TableRow className="hover:bg-transparent">
+                                     <TableCell colSpan={4} className="py-0">
+                                       <Collapsible open={isExpanded}>
+                                         <CollapsibleContent>
+                                           <div className="px-4 pb-4 ml-6">
+                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm border-l-2 border-muted pl-4">
+                                               <div className="space-y-2">
+                                                 <p><strong>Role:</strong> {employee.role}</p>
+                                                 <p><strong>Location:</strong> {employee.location}</p>
+                                                 <p><strong>Manager:</strong> {employee.manager}</p>
+                                               </div>
+                                               <div className="space-y-2">
+                                                 <p><strong>Skills:</strong> {employee.skills}</p>
+                                                 <p><strong>Last Login:</strong> {employee.id === "emp-1" ? "2 hours ago" : employee.id === "emp-2" ? "1 day ago" : "5 days ago"}</p>
+                                                 <p><strong>Start Date:</strong> {employee.id === "emp-1" ? "January 2020" : employee.id === "emp-2" ? "March 2019" : "June 2021"}</p>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </CollapsibleContent>
+                                       </Collapsible>
+                                     </TableCell>
+                                   </TableRow>
+                                 )}
+                               </React.Fragment>
+                             );
+                           })}
+                         </TableBody>
+                       </Table>
                      </div>
                    </TabsContent>
                  </Tabs>
