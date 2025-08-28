@@ -30,11 +30,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --muted: 210 20% 93%; /* Less subtle background */
     --muted-foreground: 215 25% 35%; /* Much darker for better readability */
 
-    /* Accent: Success Green & Warning Colors */
-    --accent: 210 20% 90%;
-    --accent-foreground: 215 25% 15%;
-
-    /* Status Colors - Enhanced Contrast */
+    /* Success Green & Warning Colors */
     --success: 142 76% 30%; /* Darker for better contrast */
     --success-foreground: 0 0% 100%;
     --warning: 25 95% 50%; /* Orange color for AA accessibility - 4.5:1 contrast with white */
@@ -45,6 +41,8 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     /* UI Elements - Stronger Borders and Inputs */
     --border: 210 20% 65%; /* Much darker border for visibility */
     --input: 210 20% 90%; /* Slightly darker input background */
+    --accent: 210 20% 90%;
+    --accent-foreground: 215 25% 15%;
     --ring: 219 79% 22%;
 
     --radius: 0.75rem;
@@ -100,9 +98,6 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --muted: 219 79% 12%; /* Darker muted background */
     --muted-foreground: 215 16% 75%; /* Brighter muted text */
 
-    --accent: 219 79% 15%;
-    --accent-foreground: 210 20% 98%;
-
     --success: 142 76% 55%; /* Brighter for dark mode visibility */
     --success-foreground: 219 79% 6%;
     --warning: 25 95% 65%; /* Brighter orange for dark mode */
@@ -112,6 +107,8 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
     --border: 219 79% 35%; /* More visible borders in dark mode */
     --input: 219 79% 15%; /* Darker input with better contrast */
+    --accent: 219 79% 15%;
+    --accent-foreground: 210 20% 98%;
     --ring: 206 73% 70%;
     /* Dark mode progress & status colors - Enhanced */
     --progress-bg: 219 79% 12%;
