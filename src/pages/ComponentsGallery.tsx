@@ -36,6 +36,12 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -776,6 +782,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                     <TabsTrigger value="sortable">Sortable</TabsTrigger>
                     <TabsTrigger value="filtered">With Filters</TabsTrigger>
                     <TabsTrigger value="statuses">With Statuses</TabsTrigger>
+                    <TabsTrigger value="accordion">Accordion</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="basic" className="space-y-4">
@@ -1089,10 +1096,101 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                            </TableCell>
                          </TableRow>
                        </TableBody>
-                    </Table>
-                  </TabsContent>
-                </Tabs>
-              </div>
+                     </Table>
+                   </TabsContent>
+                   
+                   <TabsContent value="accordion" className="space-y-4">
+                     <div className="rounded-lg p-6 border border-border/50 shadow-md">
+                       <h4 className="text-sm font-medium mb-4">Expandable Table Rows</h4>
+                       <Accordion type="single" collapsible className="w-full">
+                         <AccordionItem value="item-1" className="border-b">
+                           <AccordionTrigger className="hover:no-underline">
+                             <div className="flex items-center justify-between w-full pr-4">
+                               <div className="flex items-center space-x-4">
+                                 <span className="font-medium">Alice Johnson</span>
+                                 <Badge variant="secondary">Engineering</Badge>
+                                 <span className="text-sm text-muted-foreground">alice@example.com</span>
+                               </div>
+                             </div>
+                           </AccordionTrigger>
+                           <AccordionContent className="pt-4">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                               <div>
+                                 <p><strong>Department:</strong> Software Engineering</p>
+                                 <p><strong>Role:</strong> Senior Developer</p>
+                                 <p><strong>Location:</strong> San Francisco, CA</p>
+                                 <p><strong>Start Date:</strong> January 2020</p>
+                               </div>
+                               <div>
+                                 <p><strong>Manager:</strong> John Smith</p>
+                                 <p><strong>Skills:</strong> React, TypeScript, Node.js</p>
+                                 <p><strong>Status:</strong> <Badge variant="default" className="ml-1">Active</Badge></p>
+                                 <p><strong>Last Login:</strong> 2 hours ago</p>
+                               </div>
+                             </div>
+                           </AccordionContent>
+                         </AccordionItem>
+                         
+                         <AccordionItem value="item-2" className="border-b">
+                           <AccordionTrigger className="hover:no-underline">
+                             <div className="flex items-center justify-between w-full pr-4">
+                               <div className="flex items-center space-x-4">
+                                 <span className="font-medium">Bob Wilson</span>
+                                 <Badge variant="outline">Marketing</Badge>
+                                 <span className="text-sm text-muted-foreground">bob@example.com</span>
+                               </div>
+                             </div>
+                           </AccordionTrigger>
+                           <AccordionContent className="pt-4">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                               <div>
+                                 <p><strong>Department:</strong> Digital Marketing</p>
+                                 <p><strong>Role:</strong> Marketing Manager</p>
+                                 <p><strong>Location:</strong> New York, NY</p>
+                                 <p><strong>Start Date:</strong> March 2019</p>
+                               </div>
+                               <div>
+                                 <p><strong>Manager:</strong> Sarah Lee</p>
+                                 <p><strong>Skills:</strong> SEO, Analytics, Content Strategy</p>
+                                 <p><strong>Status:</strong> <Badge variant="default" className="ml-1">Active</Badge></p>
+                                 <p><strong>Last Login:</strong> 1 day ago</p>
+                               </div>
+                             </div>
+                           </AccordionContent>
+                         </AccordionItem>
+                         
+                         <AccordionItem value="item-3" className="border-b-0">
+                           <AccordionTrigger className="hover:no-underline">
+                             <div className="flex items-center justify-between w-full pr-4">
+                               <div className="flex items-center space-x-4">
+                                 <span className="font-medium">Carol Smith</span>
+                                 <Badge variant="destructive">Finance</Badge>
+                                 <span className="text-sm text-muted-foreground">carol@example.com</span>
+                               </div>
+                             </div>
+                           </AccordionTrigger>
+                           <AccordionContent className="pt-4">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                               <div>
+                                 <p><strong>Department:</strong> Financial Planning</p>
+                                 <p><strong>Role:</strong> Senior Analyst</p>
+                                 <p><strong>Location:</strong> Chicago, IL</p>
+                                 <p><strong>Start Date:</strong> June 2021</p>
+                               </div>
+                               <div>
+                                 <p><strong>Manager:</strong> Michael Chen</p>
+                                 <p><strong>Skills:</strong> Excel, Financial Modeling, Reporting</p>
+                                 <p><strong>Status:</strong> <Badge variant="secondary" className="ml-1">On Leave</Badge></p>
+                                 <p><strong>Last Login:</strong> 5 days ago</p>
+                               </div>
+                             </div>
+                           </AccordionContent>
+                         </AccordionItem>
+                       </Accordion>
+                     </div>
+                   </TabsContent>
+                 </Tabs>
+               </div>
               
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Loading States</h3>
