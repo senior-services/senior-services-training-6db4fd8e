@@ -25,16 +25,16 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --primary-dark: 219 79% 16%;
 
     /* Secondary: More Contrast */
-    --secondary: 210 20% 90%; /* Match input color */
-    --secondary-foreground: 215 25% 15%; /* Dark text for better readability */
+    --secondary: 206 73% 55%; /* Darker for better contrast */
+    --secondary-foreground: 0 0% 100%; /* White text for better readability */
 
     /* Muted: Higher Contrast for Senior Vision */
     --muted: 210 20% 93%; /* Less subtle background */
     --muted-foreground: 215 25% 35%; /* Much darker for better readability */
 
     /* Accent: Success Green & Warning Colors */
-    --accent: 210 20% 90%; /* Match input color */
-    --accent-foreground: 215 25% 15%; /* Dark text for better readability */
+    --accent: 206 73% 55%;
+    --accent-foreground: 0 0% 100%;
 
     /* Status Colors - Enhanced Contrast */
     --success: 142 76% 30%; /* Darker for better contrast */
@@ -98,14 +98,14 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --primary-light: 206 73% 80%;
     --primary-dark: 206 73% 60%;
 
-    --secondary: 219 79% 15%; /* Match input color */
+    --secondary: 219 79% 25%; /* Higher contrast secondary */
     --secondary-foreground: 210 20% 98%;
 
     --muted: 219 79% 12%; /* Darker muted background */
     --muted-foreground: 215 16% 75%; /* Brighter muted text */
 
-    --accent: 219 79% 15%; /* Match input color */
-    --accent-foreground: 210 20% 98%;
+    --accent: 206 73% 70%;
+    --accent-foreground: 219 79% 6%;
 
     --success: 142 76% 55%; /* Brighter for dark mode visibility */
     --success-foreground: 219 79% 6%;
