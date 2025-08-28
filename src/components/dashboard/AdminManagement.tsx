@@ -136,10 +136,10 @@ export const AdminManagement: React.FC = () => {
             </div> : <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Date Added</TableHead>
-                  <TableHead className="text-left">Actions</TableHead>
+                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">Name</TableHead>
+                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">Email</TableHead>
+                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">Date Added</TableHead>
+                  <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -163,7 +163,7 @@ export const AdminManagement: React.FC = () => {
                     <TableCell className="text-muted-foreground">
                       {admin.isPending ? 'Pending' : format(new Date(admin.created_at), 'MMM d, yyyy')}
                     </TableCell>
-                    <TableCell className="text-left">
+                    <TableCell className="text-right">
                       <Button variant="outline" size="sm" onClick={() => setDeleteConfirmAdmin(admin)} className="text-destructive hover:text-destructive">
                         <Trash2 className="w-4 h-4" />
                         <span className="sr-only">{admin.isPending ? 'Cancel Invitation' : 'Remove Admin'}</span>
