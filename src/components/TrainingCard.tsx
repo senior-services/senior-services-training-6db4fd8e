@@ -134,12 +134,26 @@ export const TrainingCard = memo<TrainingCardProps>(({
 
   // Calculate due date status with comprehensive logic
   const dueDateInfo = useOptimizedMemo(() => {
+    console.log('TrainingCard dueDateInfo calculation:', {
+      videoTitle: sanitizedVideo.title,
+      dueDate: sanitizedVideo.dueDate,
+      progress: sanitizedVideo.progress,
+      isCompleted: trainingStatus.isCompleted
+    });
+    
     if (!sanitizedVideo.dueDate) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const due = new Date(sanitizedVideo.dueDate);
     due.setHours(0, 0, 0, 0);
     const daysUntilDue = differenceInDays(due, today);
+    
+    console.log('Date calculations:', {
+      today: today.toISOString(),
+      due: due.toISOString(),
+      daysUntilDue
+    });
+    
     if (trainingStatus.isCompleted) {
       return {
         variant: 'default' as const,
