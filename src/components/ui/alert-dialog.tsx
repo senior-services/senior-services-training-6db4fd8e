@@ -49,7 +49,7 @@ const AlertDialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-2 text-center sm:text-left bg-[var(--gradient-card)] px-6 py-4 border-b border-border -mx-6 -mt-6 mb-4",
+      "flex flex-col space-y-2 text-center sm:text-left bg-gradient-to-b from-card to-muted/50 px-6 py-4 border-b border-border -mx-6 -mt-6 mb-4",
       className
     )}
     {...props}
@@ -63,7 +63,7 @@ const AlertDialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-[var(--gradient-card)] px-6 py-4 border-t border-border -mx-6 -mb-6 mt-4",
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-gradient-to-b from-card to-muted/50 px-6 py-4 border-t border-border -mx-6 -mb-6 mt-4",
       className
     )}
     {...props}

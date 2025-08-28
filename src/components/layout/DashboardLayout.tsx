@@ -78,7 +78,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Footer for additional navigation or info */}
       <footer
-        className="bg-[var(--gradient-card)] border-t border-border mt-auto"
+        className="bg-gradient-to-b from-card to-muted/50 border-t border-border mt-auto"
         role="contentinfo"
         aria-label="Dashboard footer"
       >
