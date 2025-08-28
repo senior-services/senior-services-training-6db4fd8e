@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -116,6 +117,10 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
           <DialogTitle>
             Add New Employee
           </DialogTitle>
+          <DialogDescription>
+            Add an individual employee to assign specific training videos.
+            The employee's name will be automatically updated when they log in with Google authentication.
+          </DialogDescription>
         </DialogHeader>
 
         <form id="add-employee-form" onSubmit={handleSubmit} className="space-y-4">

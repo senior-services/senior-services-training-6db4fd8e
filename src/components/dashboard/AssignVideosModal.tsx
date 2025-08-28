@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -251,6 +252,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             <Video className="w-5 h-5" />
             Assign Videos to {employee.full_name || employee.email}
           </DialogTitle>
+          <DialogDescription>
+            Select which training videos should be assigned to {employee.full_name || employee.email}.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 min-h-0 flex flex-col">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -85,9 +85,12 @@ export const AddVideoModal = ({
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Add Training Video</DialogTitle>
+          <DialogDescription>
+            Upload a video file or provide a YouTube/Google Drive URL to add new training content.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4">
+        <div className="flex-1 overflow-y-auto space-y-4 p-1">
           {/* Video Source */}
           <div className="space-y-2">
             <Label>Video Source</Label>
@@ -197,7 +200,7 @@ export const AddVideoModal = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t pt-4">
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
