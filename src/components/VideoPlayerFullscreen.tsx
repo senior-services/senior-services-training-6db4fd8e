@@ -209,7 +209,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto"
         onOpenAutoFocus={(e) => {
           // Let the video container receive focus instead
           e.preventDefault();
@@ -223,67 +223,61 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         aria-describedby="video-description"
       >
         
-        <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle className="flex items-center gap-3">
-                <Play className="w-5 h-5 text-primary" aria-hidden="true" />
-                {video?.title || 'Training Video'}
-              </DialogTitle>
-              
-              {video?.description && video.description.trim() && (
-                <div className="pt-2 pb-1">
-                  <p className="text-sm text-muted-foreground font-normal leading-relaxed">
-                    {video.description}
-                  </p>
-                </div>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-3 mr-8">
-            </div>
-          </div>
-          
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
+            <Play className="w-5 h-5 text-primary" aria-hidden="true" />
+            {video?.title || 'Training Video'}
+          </DialogTitle>
         </DialogHeader>
         
-        <div 
-          className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative"
-          data-video-container
-          tabIndex={0}
-          aria-label="Video player. Press spacebar to play or pause."
-          role="application"
-        >
-          <VideoPlayer
-            video={video}
-            loading={loading}
-            progress={progress}
-            onProgressUpdate={updateProgress}
-            onVideoEnded={handleVideoEnded}
-            updateProgressToDatabase={async () => {}} // This is handled by the progress hook now
-          />
-          
-          {/* Completion Overlay */}
-          {showCompletionOverlay && progress >= 100 && (
-            <CompletionOverlay
+        <div>
+          {video?.description && video.description.trim() && (
+            <div className="pb-4">
+              <p className="text-sm text-muted-foreground font-normal leading-relaxed">
+                {video.description}
+              </p>
+            </div>
+          )}
+
+          <div 
+            className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative"
+            data-video-container
+            tabIndex={0}
+            aria-label="Video player. Press spacebar to play or pause."
+            role="application"
+          >
+            <VideoPlayer
               video={video}
-              quiz={quiz}
-              onStartQuiz={handleStartQuiz}
-              onCompleteTraining={handleCompleteTraining}
+              loading={loading}
+              progress={progress}
+              onProgressUpdate={updateProgress}
+              onVideoEnded={handleVideoEnded}
+              updateProgressToDatabase={async () => {}} // This is handled by the progress hook now
             />
+            
+            {/* Completion Overlay */}
+            {showCompletionOverlay && progress >= 100 && (
+              <CompletionOverlay
+                video={video}
+                quiz={quiz}
+                onStartQuiz={handleStartQuiz}
+                onCompleteTraining={handleCompleteTraining}
+              />
+            )}
+          </div>
+
+          {/* Quiz Section */}
+          {quizStarted && quiz && (
+            <div id="quiz-section" className="mt-8 border-t pt-8">
+              <QuizModal
+                quiz={quiz}
+                onSubmit={handleQuizSubmit}
+                onCancel={() => {}}
+                onResponsesChange={handleQuizResponsesChange}
+              />
+            </div>
           )}
         </div>
-
-        {/* Quiz Section */}
-        {quizStarted && quiz && (
-          <div id="quiz-section" className="mt-8 border-t pt-8">
-            <QuizModal
-              quiz={quiz}
-              onSubmit={handleQuizSubmit}
-              onCancel={() => {}}
-              onResponsesChange={handleQuizResponsesChange}
-            />
-          </div>
-        )}
 
         {/* Dialog Footer */}
         {quizStarted && quiz && (
@@ -291,7 +285,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             <Button
               onClick={handleQuizSubmit}
               disabled={!allQuestionsAnswered}
-              className="w-full"
+              className="w-full shadow-md hover:shadow-lg transition-shadow"
             >
               Submit Quiz
             </Button>
