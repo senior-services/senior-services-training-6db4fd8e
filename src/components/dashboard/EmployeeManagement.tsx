@@ -16,7 +16,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { employeeOperations } from '@/services/api';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
@@ -36,9 +36,63 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState<Employee | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const [sortColumn, setSortColumn] = useState<'employee' | 'status' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const { toast } = useToast();
+
+  const handleSort = (column: 'employee' | 'status') => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedEmployees = () => {
+    if (!sortColumn) return employees;
+
+    return [...employees].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      if (sortColumn === 'employee') {
+        aValue = a.full_name || a.email || '';
+        bValue = b.full_name || b.email || '';
+      } else { // status
+        const aVideos = employeeVideos.get(a.id) || [];
+        const bVideos = employeeVideos.get(b.id) || [];
+        const aOverdue = aVideos.filter(assignment => {
+          if (!assignment.due_date || assignment.progress_percent >= 100) return false;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const due = new Date(assignment.due_date);
+          due.setHours(0, 0, 0, 0);
+          const daysUntilDue = differenceInDays(due, today);
+          return isPast(due) && daysUntilDue < 0;
+        }).length;
+        const bOverdue = bVideos.filter(assignment => {
+          if (!assignment.due_date || assignment.progress_percent >= 100) return false;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const due = new Date(assignment.due_date);
+          due.setHours(0, 0, 0, 0);
+          const daysUntilDue = differenceInDays(due, today);
+          return isPast(due) && daysUntilDue < 0;
+        }).length;
+
+        // Sort by status priority: overdue first, then on track, then no videos
+        const aStatus = aOverdue > 0 ? 'overdue' : aVideos.length > 0 ? 'ontrack' : 'novideos';
+        const bStatus = bOverdue > 0 ? 'overdue' : bVideos.length > 0 ? 'ontrack' : 'novideos';
+        
+        aValue = aStatus;
+        bValue = bStatus;
+      }
+
+      const comparison = aValue.localeCompare(bValue);
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
   useEffect(() => {
     loadEmployees();
 
@@ -286,14 +340,48 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Employee</TableHead>
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort('employee')}
+                      className="h-auto p-0 font-bold text-primary hover:text-primary/80"
+                    >
+                      Employee
+                      {sortColumn === 'employee' ? (
+                        sortDirection === 'asc' ? (
+                          <ArrowUp className="ml-2 h-4 w-4" />
+                        ) : (
+                          <ArrowDown className="ml-2 h-4 w-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableHead>
                   <TableHead>Assigned Videos</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort('status')}
+                      className="h-auto p-0 font-bold text-primary hover:text-primary/80"
+                    >
+                      Status
+                      {sortColumn === 'status' ? (
+                        sortDirection === 'asc' ? (
+                          <ArrowUp className="ml-2 h-4 w-4" />
+                        ) : (
+                          <ArrowDown className="ml-2 h-4 w-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {employees.map(employee => {
+                {getSortedEmployees().map(employee => {
                   const videos = employeeVideos.get(employee.id) || [];
                   const isExpanded = expandedEmployees.has(employee.id);
                   const overdueCount = videos.filter(assignment => {

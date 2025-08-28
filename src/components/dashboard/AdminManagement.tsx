@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Trash2, Shield, Mail } from 'lucide-react';
+import { UserPlus, Trash2, Shield, Mail, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { AdminService, AdminUser } from '@/services/adminService';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
@@ -22,9 +22,38 @@ export const AdminManagement: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const [sortColumn, setSortColumn] = useState<'name' | 'dateAdded' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const { toast } = useToast();
+
+  const handleSort = (column: 'name' | 'dateAdded') => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedAdmins = () => {
+    if (!sortColumn) return admins;
+
+    return [...admins].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      if (sortColumn === 'name') {
+        aValue = a.isPending ? 'zzz_pending' : (a.full_name || a.email || '');
+        bValue = b.isPending ? 'zzz_pending' : (b.full_name || b.email || '');
+      } else { // dateAdded
+        aValue = a.isPending ? 'zzz_pending' : a.created_at;
+        bValue = b.isPending ? 'zzz_pending' : b.created_at;
+      }
+
+      const comparison = aValue.localeCompare(bValue);
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
   useEffect(() => {
     loadAdmins();
   }, []);
@@ -136,14 +165,48 @@ export const AdminManagement: React.FC = () => {
             </div> : <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort('name')}
+                      className="h-auto p-0 font-bold text-primary hover:text-primary/80"
+                    >
+                      Name
+                      {sortColumn === 'name' ? (
+                        sortDirection === 'asc' ? (
+                          <ArrowUp className="ml-2 h-4 w-4" />
+                        ) : (
+                          <ArrowDown className="ml-2 h-4 w-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Date Added</TableHead>
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort('dateAdded')}
+                      className="h-auto p-0 font-bold text-primary hover:text-primary/80"
+                    >
+                      Date Added
+                      {sortColumn === 'dateAdded' ? (
+                        sortDirection === 'asc' ? (
+                          <ArrowUp className="ml-2 h-4 w-4" />
+                        ) : (
+                          <ArrowDown className="ml-2 h-4 w-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {admins.map(admin => <TableRow key={admin.id}>
+                {getSortedAdmins().map(admin => <TableRow key={admin.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
