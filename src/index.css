@@ -35,6 +35,8 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --success-foreground: 0 0% 100%;
     --warning: 25 95% 50%; /* Orange color for AA accessibility - 4.5:1 contrast with white */
     --warning-foreground: 0 0% 100%;
+    --attention: 41 96% 40%; /* rgb(202, 138, 4) converted to HSL */
+    --attention-foreground: 0 0% 100%;
     --destructive: 0 84% 50%; /* Darker for better contrast */
     --destructive-foreground: 0 0% 100%;
 
@@ -102,6 +104,8 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --success-foreground: 219 79% 6%;
     --warning: 25 95% 65%; /* Brighter orange for dark mode */
     --warning-foreground: 219 79% 6%;
+    --attention: 41 96% 55%; /* Brighter for dark mode visibility */
+    --attention-foreground: 219 79% 6%;
     --destructive: 0 84% 75%; /* Brighter destructive */
     --destructive-foreground: 219 79% 6%;
 

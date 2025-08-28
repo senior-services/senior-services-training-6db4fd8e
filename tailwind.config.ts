@@ -86,6 +86,10 @@ export default {
 					DEFAULT: 'hsl(var(--warning))',
 					foreground: 'hsl(var(--warning-foreground))'
 				},
+				attention: {
+					DEFAULT: 'hsl(var(--attention))',
+					foreground: 'hsl(var(--attention-foreground))'
+				},
 				'progress-bg': 'hsl(var(--progress-bg))',
 				'progress-fill': 'hsl(var(--progress-fill))',
 				'deadline-overdue': 'hsl(var(--deadline-overdue))',

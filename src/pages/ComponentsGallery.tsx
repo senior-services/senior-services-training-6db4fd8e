@@ -261,20 +261,27 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         <div className="text-xs text-muted-foreground">--success</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-warning border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Warning</div>
-                        <div className="text-xs text-muted-foreground">--warning</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-destructive border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Destructive</div>
-                        <div className="text-xs text-muted-foreground">--destructive</div>
-                      </div>
-                    </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-warning border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Warning</div>
+                         <div className="text-xs text-muted-foreground">--warning</div>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-attention border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Attention</div>
+                         <div className="text-xs text-muted-foreground">--attention</div>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-destructive border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Destructive</div>
+                         <div className="text-xs text-muted-foreground">--destructive</div>
+                       </div>
+                     </div>
                   </div>
                 </div>
 
