@@ -43,7 +43,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
         <div className="space-y-8">
           {/* Dashboard Tabs */}
           <Tabs defaultValue="videos" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="flex w-full justify-start">
               <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="employees">Employees</TabsTrigger>
               <TabsTrigger value="admins">Admins</TabsTrigger>
