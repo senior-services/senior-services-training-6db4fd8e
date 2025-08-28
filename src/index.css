@@ -21,8 +21,6 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     /* Primary: Deep Professional Blue - Enhanced Contrast */
     --primary: 219 79% 22%; /* Darker for better contrast */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 219 79% 30%;
-    --primary-dark: 219 79% 16%;
 
     /* Secondary: More Contrast */
     --secondary: 206 73% 55%; /* Darker for better contrast */
@@ -60,7 +58,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --deadline-completed: 142 76% 30%; /* Match new success color */
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
 
@@ -95,8 +93,6 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
     --primary: 206 73% 70%; /* Brighter primary in dark mode */
     --primary-foreground: 219 79% 6%;
-    --primary-light: 206 73% 80%;
-    --primary-dark: 206 73% 60%;
 
     --secondary: 219 79% 25%; /* Higher contrast secondary */
     --secondary-foreground: 210 20% 98%;
@@ -126,7 +122,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --deadline-completed: 142 76% 55%;
 
     /* Dark gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
 

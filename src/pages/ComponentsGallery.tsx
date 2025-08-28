@@ -226,27 +226,13 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 <div className="space-y-3">
                   <h4 className="text-sm font-bold uppercase text-secondary">Primary Colors</h4>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-primary border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Primary</div>
-                        <div className="text-xs text-muted-foreground">--primary</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-primary-light border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Primary Light</div>
-                        <div className="text-xs text-muted-foreground">--primary-light</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-primary-dark border border-border shadow-sm"></div>
-                      <div>
-                        <div className="text-sm font-medium">Primary Dark</div>
-                        <div className="text-xs text-muted-foreground">--primary-dark</div>
-                      </div>
-                    </div>
+                     <div className="flex items-center gap-3">
+                       <div className="w-12 h-12 rounded-lg bg-primary border border-border shadow-sm"></div>
+                       <div>
+                         <div className="text-sm font-medium">Primary</div>
+                         <div className="text-xs text-muted-foreground">--primary</div>
+                       </div>
+                     </div>
                   </div>
                 </div>
 
