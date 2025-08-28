@@ -39,7 +39,7 @@ export const AdminDashboard = ({ userName, userEmail, onLogout }: AdminDashboard
         onLogout={onLogout}
       />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pb-8">
         <div className="space-y-8">
           {/* Dashboard Tabs */}
           <Tabs defaultValue="videos" className="space-y-6">
