@@ -253,7 +253,7 @@ export const EditVideoModal = ({
         }
 
         // Handle options for multiple choice questions
-        if (questionData.question_type === 'multiple_choice') {
+        if (questionData.question_type === 'multiple_choice' || questionData.question_type === 'single_answer') {
           const existingOptions = quiz.questions.find(q => q.id === question.id)?.options || [];
           const existingOptionIds = existingOptions.map(opt => opt.id);
           const currentOptionIds = questionData.options.filter(opt => opt.id).map(opt => opt.id);
@@ -340,7 +340,7 @@ export const EditVideoModal = ({
         });
 
         // Create options for multiple choice questions
-        if (questionData.question_type === 'multiple_choice') {
+        if (questionData.question_type === 'multiple_choice' || questionData.question_type === 'single_answer') {
           for (const [optionIndex, optionData] of questionData.options.entries()) {
             await optionOperations.create({
               question_id: question.id,
@@ -551,7 +551,7 @@ export const EditVideoModal = ({
                                 onValueChange={(value: any) => {
                                   updateQuestion(questionIndex, { 
                                     question_type: value,
-                                    options: value === 'single_answer' ? [] : question.options
+                                    options: value === 'true_false' ? [] : question.options
                                   });
                                 }}
                               >
@@ -575,7 +575,7 @@ export const EditVideoModal = ({
                               />
                             </div>
 
-                            {question.question_type === 'multiple_choice' && (
+                            {(question.question_type === 'multiple_choice' || question.question_type === 'single_answer') && (
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between">
                                   <Label>Answer Options</Label>
@@ -599,9 +599,21 @@ export const EditVideoModal = ({
                                     />
                                     <label className="flex items-center gap-2 whitespace-nowrap">
                                       <input
-                                        type="checkbox"
+                                        type={question.question_type === 'single_answer' ? 'radio' : 'checkbox'}
+                                        name={question.question_type === 'single_answer' ? `question_${questionIndex}` : undefined}
                                         checked={option.is_correct}
-                                        onChange={(e) => updateOption(questionIndex, optionIndex, { is_correct: e.target.checked })}
+                                        onChange={(e) => {
+                                          if (question.question_type === 'single_answer') {
+                                            // For single answer, uncheck all other options first
+                                            const updatedOptions = question.options.map((opt, i) => ({
+                                              ...opt,
+                                              is_correct: i === optionIndex ? e.target.checked : false
+                                            }));
+                                            updateQuestion(questionIndex, { options: updatedOptions });
+                                          } else {
+                                            updateOption(questionIndex, optionIndex, { is_correct: e.target.checked });
+                                          }
+                                        }}
                                         className="rounded"
                                       />
                                       Correct
@@ -622,12 +634,6 @@ export const EditVideoModal = ({
                             {question.question_type === 'true_false' && (
                               <div className="text-sm text-muted-foreground">
                                 True/False questions will be automatically generated with "True" and "False" options.
-                              </div>
-                            )}
-
-                            {question.question_type === 'single_answer' && (
-                              <div className="text-sm text-muted-foreground">
-                                Single answer questions require manual grading by administrators.
                               </div>
                             )}
                           </CardContent>
