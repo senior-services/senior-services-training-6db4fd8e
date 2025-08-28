@@ -97,48 +97,61 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
     loadEmployees();
 
     // Smart refresh: Only refresh when there are actual database changes
-    const channel = supabase
-      .channel('employee-assignments-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
-          schema: 'public',
-          table: 'video_assignments'
-        },
-        () => {
-          logger.info('Employee assignment changed, refreshing data...');
-          loadEmployees();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public', 
-          table: 'employees'
-        },
-        () => {
-          logger.info('Employee profile changed, refreshing data...');
-          loadEmployees();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'video_progress'
-        },
-        () => {
-          logger.info('Employee progress changed, refreshing data...');
-          loadEmployees();
-        }
-      )
-      .subscribe();
+    let channel: any = null;
+    try {
+      channel = supabase
+        .channel('employee-assignments-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+            schema: 'public',
+            table: 'video_assignments'
+          },
+          () => {
+            logger.info('Employee assignment changed, refreshing data...');
+            loadEmployees();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public', 
+            table: 'employees'
+          },
+          () => {
+            logger.info('Employee profile changed, refreshing data...');
+            loadEmployees();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'video_progress'
+          },
+          () => {
+            logger.info('Employee progress changed, refreshing data...');
+            loadEmployees();
+          }
+        )
+        .subscribe();
+    } catch (error) {
+      // Silently fail if WebSockets aren't available (e.g., in insecure contexts)
+      logger.error('Failed to set up real-time subscription for employee data', error as Error);
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        try {
+          supabase.removeChannel(channel);
+        } catch (error) {
+          // Silently fail on cleanup
+          logger.error('Failed to remove channel', error as Error);
+        }
+      }
     };
   }, []);
   const loadEmployees = async () => {

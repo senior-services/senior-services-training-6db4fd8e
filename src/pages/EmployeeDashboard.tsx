@@ -257,33 +257,46 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   useEffect(() => {
     loadAssignedVideos();
 
-    // Set up realtime subscription for video progress updates
-    const channel = supabase.channel('video-progress-changes').on('postgres_changes', {
-      event: '*',
-      // Listen to all changes (INSERT, UPDATE, DELETE)
-      schema: 'public',
-      table: 'video_progress'
-    }, payload => {
-      logger.info('Real-time video progress update received', {
-        event: payload.eventType,
-        table: payload.table,
-        userEmail,
-        timestamp: new Date().toISOString()
-      });
+    // Set up realtime subscription for video progress updates with error handling
+    let channel: any = null;
+    try {
+      channel = supabase.channel('video-progress-changes').on('postgres_changes', {
+        event: '*',
+        // Listen to all changes (INSERT, UPDATE, DELETE)
+        schema: 'public',
+        table: 'video_progress'
+      }, payload => {
+        logger.info('Real-time video progress update received', {
+          event: payload.eventType,
+          table: payload.table,
+          userEmail,
+          timestamp: new Date().toISOString()
+        });
 
-      // Debounce refreshes to prevent rapid re-fetch loops
-      if (reloadTimer.current) {
-        window.clearTimeout(reloadTimer.current);
-      }
-      reloadTimer.current = window.setTimeout(() => {
-        loadAssignedVideos({ silent: true });
-        reloadTimer.current = null;
-      }, 500);
-    }).subscribe();
+        // Debounce refreshes to prevent rapid re-fetch loops
+        if (reloadTimer.current) {
+          window.clearTimeout(reloadTimer.current);
+        }
+        reloadTimer.current = window.setTimeout(() => {
+          loadAssignedVideos({ silent: true });
+          reloadTimer.current = null;
+        }, 500);
+      }).subscribe();
+    } catch (error) {
+      // Silently fail if WebSockets aren't available (e.g., in insecure contexts)
+      logger.error('Failed to set up real-time subscription for video progress', error as Error);
+    }
 
     // Cleanup subscription on unmount
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        try {
+          supabase.removeChannel(channel);
+        } catch (error) {
+          // Silently fail on cleanup
+          logger.error('Failed to remove channel', error as Error);
+        }
+      }
       if (reloadTimer.current) {
         window.clearTimeout(reloadTimer.current);
         reloadTimer.current = null;
