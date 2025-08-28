@@ -9,15 +9,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle } from "lucide-react";
 
 interface QuizModalProps {
-  quiz: QuizWithQuestions | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  quiz: QuizWithQuestions;
   onSubmit: (responses: QuizSubmissionData[]) => void;
-  isSubmitting: boolean;
+  onCancel: () => void;
 }
 
-export function QuizModal({ quiz, open, onOpenChange, onSubmit, isSubmitting }: QuizModalProps) {
+export function QuizModal({ quiz, onSubmit, onCancel }: QuizModalProps) {
   const [responses, setResponses] = useState<Record<string, QuizSubmissionData>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleResponseChange = (questionId: string, response: Partial<QuizSubmissionData>) => {
     setResponses(prev => ({
@@ -30,14 +29,16 @@ export function QuizModal({ quiz, open, onOpenChange, onSubmit, isSubmitting }: 
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!quiz) return;
     
+    setIsSubmitting(true);
     const responseArray = quiz.questions.map(question => 
       responses[question.id] || { question_id: question.id }
     );
     
-    onSubmit(responseArray);
+    await onSubmit(responseArray);
+    setIsSubmitting(false);
   };
 
   const allQuestionsAnswered = quiz?.questions.every(question => {
@@ -48,14 +49,14 @@ export function QuizModal({ quiz, open, onOpenChange, onSubmit, isSubmitting }: 
   if (!quiz) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{quiz.title}</DialogTitle>
+    <div className="h-full overflow-y-auto p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-2">{quiz.title}</h2>
           {quiz.description && (
             <p className="text-muted-foreground">{quiz.description}</p>
           )}
-        </DialogHeader>
+        </div>
 
         <div className="space-y-6">
           {quiz.questions.map((question, index) => (
@@ -125,13 +126,13 @@ export function QuizModal({ quiz, open, onOpenChange, onSubmit, isSubmitting }: 
             </Card>
           ))}
 
-          <div className="flex justify-end gap-4 pt-4">
+          <div className="flex justify-end gap-4 pt-4 sticky bottom-0 bg-card">
             <Button
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={onCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              Skip Quiz
             </Button>
             <Button
               onClick={handleSubmit}
@@ -141,7 +142,7 @@ export function QuizModal({ quiz, open, onOpenChange, onSubmit, isSubmitting }: 
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

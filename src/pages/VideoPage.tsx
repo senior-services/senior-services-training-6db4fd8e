@@ -4,6 +4,7 @@ import { ArrowLeft, Play, Pause, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { videoOperations, progressOperations } from '@/services/api';
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
@@ -374,13 +375,15 @@ export const VideoPage = () => {
         </Card>
       </div>
 
-      <QuizModal
-        quiz={quiz}
-        open={showQuiz}
-        onOpenChange={setShowQuiz}
-        onSubmit={handleQuizSubmit}
-        isSubmitting={isSubmittingQuiz}
-      />
+      <Dialog open={showQuiz} onOpenChange={setShowQuiz}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+          <QuizModal
+            quiz={quiz}
+            onSubmit={handleQuizSubmit}
+            onCancel={() => setShowQuiz(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -4,12 +4,15 @@ import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { Play, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { progressOperations, videoOperations } from '@/services/api';
+import { quizOperations } from '@/services/quizService';
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import type { Video } from "@/types";
+import type { QuizWithQuestions, QuizSubmissionData } from "@/types/quiz";
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveEmbedUrl } from "@/utils/videoUtils";
 import { logger, performanceTracker } from "@/utils/logger";
 import { handleError, createVideoError, withErrorHandler } from "@/utils/errorHandler";
+import { QuizModal } from "@/components/quiz/QuizModal";
 
 /**
  * Props interface for the VideoPlayerFullscreen component
@@ -57,12 +60,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 }) => {
   // Component state management
   const [video, setVideo] = useState<Video | null>(null);
+  const [quiz, setQuiz] = useState<QuizWithQuestions | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [wasEverCompleted, setWasEverCompleted] = useState(false); // Track if video was ever completed
   const [isWatching, setIsWatching] = useState(false);
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
   
   // Refs for video element and timing management
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -95,6 +100,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         setWasEverCompleted(false);
         setIsWatching(false);
         setShowCompletionOverlay(false);
+        setShowQuiz(false);
+        setQuiz(null);
         return;
       }
 
@@ -108,6 +115,16 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           setVideo(res.data);
           
           logger.videoEvent('video_loaded', videoId, { title: res.data.title });
+
+          // Load quiz for this video
+          try {
+            const quizData = await quizOperations.getByVideoId(videoId);
+            setQuiz(quizData);
+            logger.info('Quiz loaded for video', { videoId, hasQuiz: !!quizData });
+          } catch (error) {
+            logger.warn('No quiz found for video', { videoId, error });
+            setQuiz(null);
+          }
 
           // Load existing progress if user is authenticated
           if (user?.email) {
@@ -208,20 +225,28 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         if (progressPercent >= 100 && !wasEverCompleted) {
           setIsCompleted(true);
           setWasEverCompleted(true);
-          setShowCompletionOverlay(true);
+          
+          // Show quiz if available, otherwise show completion overlay
+          if (quiz && quiz.questions && quiz.questions.length > 0) {
+            setShowQuiz(true);
+          } else {
+            setShowCompletionOverlay(true);
+          }
           
           logger.videoEvent('video_completed', videoId, {
             userEmail: user.email,
-            completionTime: new Date().toISOString()
+            completionTime: new Date().toISOString(),
+            hasQuiz: !!quiz
           });
 
-          // Notify parent about completion
-          onProgressUpdate?.(100);
-
-          toast({
-            title: "Video Completed! 🎉",
-            description: "You've successfully completed this training video."
-          });
+          // Don't notify parent about completion yet if there's a quiz
+          if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+            onProgressUpdate?.(100);
+            toast({
+              title: "Video Completed! 🎉",
+              description: "You've successfully completed this training video."
+            });
+          }
         }
       },
       { 
@@ -265,16 +290,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }, 1000); // Reduced to 1 second for better responsiveness
   }, [updateProgressToDatabase, onProgressUpdate]);
 
-  /**
-   * Handle video completion for HTML5 videos
-   * Automatically marks video as complete when it ends
-   */
   const handleVideoEnded = useCallback(async () => {
     setProgress(100);
-    setShowCompletionOverlay(true);
-    // Do not auto-complete; allow user to confirm completion manually
+    
+    // Show quiz if available, otherwise show completion overlay
+    if (quiz && quiz.questions && quiz.questions.length > 0) {
+      setShowQuiz(true);
+    } else {
+      setShowCompletionOverlay(true);
+    }
+    
     onProgressUpdate?.(100);
-  }, [onProgressUpdate]);
+  }, [quiz, onProgressUpdate]);
 
   /**
    * Manual completion handler with proper error handling
@@ -299,23 +326,34 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         setProgress(100);
         setIsCompleted(true);
         setWasEverCompleted(true);
-        setShowCompletionOverlay(true);
+        
+        // Show quiz if available, otherwise show completion overlay
+        if (quiz && quiz.questions && quiz.questions.length > 0) {
+          setShowQuiz(true);
+        } else {
+          setShowCompletionOverlay(true);
+        }
         
         // Ensure database update completes
         await updateProgressToDatabase(100);
-        onProgressUpdate?.(100);
         
-        // Add small delay before showing success message
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        toast({
-          title: "Training Completed! 🎉",
-          description: "You've successfully completed this training video."
-        });
+        // Don't notify parent about completion yet if there's a quiz
+        if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+          onProgressUpdate?.(100);
+          
+          // Add small delay before showing success message
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          toast({
+            title: "Training Completed! 🎉",
+            description: "You've successfully completed this training video."
+          });
+        }
         
         logger.info('Video marked as complete successfully', { 
           videoId: video.id, 
           userEmail: user.email,
+          hasQuiz: !!quiz,
           timestamp: new Date().toISOString()
         });
       },
@@ -330,22 +368,44 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         variant: "destructive"
       });
     }
-  }, [video, user?.email, updateProgressToDatabase, toast]);
+  }, [video, user?.email, quiz, updateProgressToDatabase, toast, onProgressUpdate]);
 
-  /**
-   * Toggles the watching state for progress tracking
-   * Used to indicate when user is actively viewing the video
-   * Provides visual feedback and logging for user engagement
-   */
-  const handleWatchingToggle = useCallback(() => {
-    setIsWatching(prev => {
-      const newState = !prev;
-      logger.videoEvent('watching_toggled', videoId || 'unknown', { 
-        isWatching: newState 
+  // Handle quiz submission
+  const handleQuizSubmit = useCallback(async (responses: QuizSubmissionData[]) => {
+    if (!quiz || !user?.email) {
+      logger.warn('Cannot submit quiz: missing quiz or user', {
+        hasQuiz: !!quiz,
+        hasUser: !!user?.email
       });
-      return newState;
-    });
-  }, [videoId]);
+      return;
+    }
+
+    try {
+      await quizOperations.submitQuiz(user.email, quiz.id, responses);
+      
+      logger.info('Quiz submitted successfully', { 
+        quizId: quiz.id, 
+        videoId: video?.id,
+        userEmail: user.email 
+      });
+
+      setShowQuiz(false);
+      setShowCompletionOverlay(true);
+      onProgressUpdate?.(100);
+
+      toast({
+        title: "Training Completed! 🎉",
+        description: "You've successfully completed the quiz and training video."
+      });
+    } catch (error) {
+      logger.error('Failed to submit quiz', error);
+      toast({
+        title: "Quiz Submission Error",
+        description: "Failed to submit quiz. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [quiz, user?.email, video?.id, onProgressUpdate, toast]);
 
   // Ensure YouTube IFrame API is loaded
   const ensureYouTubeAPI = useCallback((): Promise<void> => {
@@ -450,31 +510,41 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                         const current = e.target.getCurrentTime ? e.target.getCurrentTime() : 0;
                         const duration = e.target.getDuration ? e.target.getDuration() : (video.duration_seconds || 0);
                         if (duration > 0) {
-                          const progressPercent = Math.min(100, Math.floor((current / duration) * 100));
-                          setProgress(progressPercent);
-                          onProgressUpdate?.(progressPercent);
-                          if (progressPercent >= 100) {
-                            clearInterval(ytProgressIntervalRef.current!);
-                            setShowCompletionOverlay(true);
-                            updateProgressToDatabase(100);
-                          } else if (Math.floor(current) % 15 === 0) {
-                            updateProgressToDatabase(progressPercent);
-                          }
+                           const progressPercent = Math.min(100, Math.floor((current / duration) * 100));
+                           setProgress(progressPercent);
+                           onProgressUpdate?.(progressPercent);
+                           if (progressPercent >= 100) {
+                             clearInterval(ytProgressIntervalRef.current!);
+                             // Show quiz if available, otherwise show completion overlay
+                             if (quiz && quiz.questions && quiz.questions.length > 0) {
+                               setShowQuiz(true);
+                             } else {
+                               setShowCompletionOverlay(true);
+                             }
+                             updateProgressToDatabase(100);
+                           } else if (Math.floor(current) % 15 === 0) {
+                             updateProgressToDatabase(progressPercent);
+                           }
                         }
                       }, 1000);
                     },
-                    onStateChange: (e: any) => {
-                      const state = YTGlobal.PlayerState;
-                      if (e.data === state.ENDED) {
-                        setProgress(100);
-                        setShowCompletionOverlay(true);
-                        onProgressUpdate?.(100);
-                        updateProgressToDatabase(100);
-                        if (ytProgressIntervalRef.current) clearInterval(ytProgressIntervalRef.current);
-                      } else if (e.data === state.PAUSED) {
-                        updateProgressToDatabase(progress);
-                      }
-                    }
+                     onStateChange: (e: any) => {
+                       const state = YTGlobal.PlayerState;
+                       if (e.data === state.ENDED) {
+                         setProgress(100);
+                         // Show quiz if available, otherwise show completion overlay
+                         if (quiz && quiz.questions && quiz.questions.length > 0) {
+                           setShowQuiz(true);
+                         } else {
+                           setShowCompletionOverlay(true);
+                         }
+                         onProgressUpdate?.(100);
+                         updateProgressToDatabase(100);
+                         if (ytProgressIntervalRef.current) clearInterval(ytProgressIntervalRef.current);
+                       } else if (e.data === state.PAUSED) {
+                         updateProgressToDatabase(progress);
+                       }
+                     }
                   }
                 });
               });
@@ -521,15 +591,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 // If progress hasn't changed for 30+ seconds and we're past 90%, likely completed
                 const likelyCompleted = consecutiveProgressChecks > 30 && progressPercent >= 90;
                 const actuallyCompleted = progressPercent >= 100;
-                
-                if (likelyCompleted || actuallyCompleted) {
-                  setProgress(100);
-                  setShowCompletionOverlay(true);
-                  onProgressUpdate?.(100);
-                  if (progressIntervalRef.current) {
-                    clearInterval(progressIntervalRef.current);
-                  }
-                } else {
+                 
+                 if (likelyCompleted || actuallyCompleted) {
+                   setProgress(100);
+                   // Show quiz if available, otherwise show completion overlay
+                   if (quiz && quiz.questions && quiz.questions.length > 0) {
+                     setShowQuiz(true);
+                   } else {
+                     setShowCompletionOverlay(true);
+                   }
+                   onProgressUpdate?.(100);
+                   if (progressIntervalRef.current) {
+                     clearInterval(progressIntervalRef.current);
+                   }
+                 } else {
                   setProgress(progressPercent);
                   onProgressUpdate?.(progressPercent);
                   
@@ -720,6 +795,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   Close
                 </Button>
               </div>
+            </div>
+          )}
+
+          {/* Quiz Modal */}
+          {showQuiz && quiz && (
+            <div className="absolute inset-0 bg-card z-20">
+              <QuizModal
+                quiz={quiz}
+                onSubmit={handleQuizSubmit}
+                onCancel={() => {
+                  setShowQuiz(false);
+                  setShowCompletionOverlay(true);
+                }}
+              />
             </div>
           )}
         </div>
