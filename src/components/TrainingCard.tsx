@@ -117,12 +117,9 @@ export const TrainingCard = memo<TrainingCardProps>(({
 
     // Remove duplicates and falsy values  
     return Array.from(new Set(sources.filter(Boolean)));
-  }, [video]);
+  }, [video.thumbnail_url, video.thumbnail, video.video_url]);
 
   const [thumbIndex, setThumbIndex] = useState(0);
-  useEffect(() => {
-    setThumbIndex(0);
-  }, [thumbnailCandidates]);
 
   // Calculate training status and progress
   const trainingStatus = useOptimizedMemo(() => {

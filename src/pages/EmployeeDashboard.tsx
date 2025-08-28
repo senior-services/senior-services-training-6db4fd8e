@@ -69,6 +69,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   const {
     toast
   } = useToast();
+  const reloadTimer = React.useRef<number | null>(null);
 
   // Sanitize and validate user data for security
   const sanitizedUserData = useMemo(() => ({
@@ -78,10 +79,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   }), [userName, userEmail]);
 
   // Load assigned videos with enhanced error handling
-  const loadAssignedVideos = useOptimizedCallback(async () => {
+  const loadAssignedVideos = useOptimizedCallback(async (opts?: { silent?: boolean }) => {
     performanceTracker.start('loadAssignedVideos');
     const loadResult = await withErrorHandler(async () => {
-      setLoading(true);
+      if (!opts?.silent) setLoading(true);
       setError(null);
       const res = await assignmentOperations.getByEmployeeEmail(userEmail);
       const videoData = res.success && res.data ? res.data : [];
@@ -91,8 +92,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         userEmail
       });
 
-      // Announce successful load to screen readers
-      announceToScreenReader(`Loaded ${videoData.length} assigned training videos`);
+      // Announce successful load to screen readers only on non-silent loads
+      if (!opts?.silent) {
+        announceToScreenReader(`Loaded ${videoData.length} assigned training videos`);
+      }
       return videoData;
     }, {
       operation: 'loadAssignedVideos',
@@ -108,10 +111,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       });
 
       // Announce error to screen readers
-      announceToScreenReader(errorMessage, 'assertive');
+      if (!opts?.silent) announceToScreenReader(errorMessage, 'assertive');
     }
     performanceTracker.end('loadAssignedVideos');
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [userEmail, toast]);
 
   // Enhanced video data transformation with security and accessibility
@@ -247,7 +250,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     });
 
     // Optionally refresh the training data to show updated progress
-    loadAssignedVideos();
+    loadAssignedVideos({ silent: true });
   };
 
   // Load videos on component mount and set up realtime subscriptions
@@ -268,13 +271,23 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      // Refresh assigned videos when any progress changes
-      loadAssignedVideos();
+      // Debounce refreshes to prevent rapid re-fetch loops
+      if (reloadTimer.current) {
+        window.clearTimeout(reloadTimer.current);
+      }
+      reloadTimer.current = window.setTimeout(() => {
+        loadAssignedVideos({ silent: true });
+        reloadTimer.current = null;
+      }, 500);
     }).subscribe();
 
     // Cleanup subscription on unmount
     return () => {
       supabase.removeChannel(channel);
+      if (reloadTimer.current) {
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = null;
+      }
     };
   }, [loadAssignedVideos]);
 
@@ -288,7 +301,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       });
 
       // Force reload assigned videos with cache bypass
-      loadAssignedVideos();
+      loadAssignedVideos({ silent: true });
     }
   }, [refreshTrigger, loadAssignedVideos]);
 
@@ -302,7 +315,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" aria-hidden="true" />
             <h2 id="error-heading" className="text-xl sm:text-2xl font-semibold mb-2">Unable to Load Training Data</h2>
             <p className="text-muted-foreground mb-4">{error}</p>
-            <button onClick={loadAssignedVideos} className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring" aria-describedby="retry-description">
+            <button onClick={() => loadAssignedVideos()} className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring" aria-describedby="retry-description">
               Try Again
             </button>
             <p id="retry-description" className="sr-only">
