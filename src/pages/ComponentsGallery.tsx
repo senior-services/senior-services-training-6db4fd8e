@@ -429,7 +429,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
               <CardDescription>Text styles and hierarchy</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4 bg-gradient-card rounded-lg p-6 border border-border/50 shadow-md">
+              <div className="space-y-4 rounded-lg p-6 border border-border/50 shadow-md">
                 <h1 className="text-4xl font-bold">Heading 1</h1>
                 <h2 className="text-3xl font-semibold">Heading 2</h2>
                 <h3 className="text-2xl font-medium">Heading 3</h3>
@@ -464,7 +464,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 </TabsList>
                 
                 <TabsContent value="variants" className="space-y-4">
-                  <div className="bg-gradient-card rounded-lg p-6 border border-border/50 shadow-md">
+                  <div className="rounded-lg p-6 border border-border/50 shadow-md">
                     <div className="flex flex-wrap gap-3">
                       <Button className="shadow-md hover:shadow-lg transition-shadow">Default</Button>
                       <Button variant="secondary" className="shadow-md hover:shadow-lg transition-shadow">Secondary</Button>
@@ -477,7 +477,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 </TabsContent>
                 
                 <TabsContent value="sizes" className="space-y-4">
-                  <div className="bg-gradient-card rounded-lg p-6 border border-border/50 shadow-md">
+                  <div className="rounded-lg p-6 border border-border/50 shadow-md">
                     <div className="flex flex-wrap items-center gap-3">
                       <Button size="sm" className="shadow-md hover:shadow-lg transition-shadow">Small</Button>
                       <Button size="default" className="shadow-md hover:shadow-lg transition-shadow">Default</Button>
@@ -488,7 +488,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 </TabsContent>
                 
                 <TabsContent value="icons" className="space-y-4">
-                  <div className="bg-gradient-card rounded-lg p-6 border border-border/50 shadow-md">
+                  <div className="rounded-lg p-6 border border-border/50 shadow-md">
                     <div className="space-y-4">
                       <div>
                         <h4 className="text-sm font-medium mb-2">With Text and Icons</h4>
@@ -581,7 +581,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 </TabsContent>
                 
                 <TabsContent value="states" className="space-y-4">
-                  <div className="bg-gradient-card rounded-lg p-6 border border-border/50 shadow-md">
+                  <div className="rounded-lg p-6 border border-border/50 shadow-md">
                     <div className="flex flex-wrap gap-3">
                       <Button className="shadow-md hover:shadow-lg transition-shadow">Normal</Button>
                       <Button disabled className="shadow-sm">Disabled</Button>
@@ -602,7 +602,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
               <CardDescription>Input fields and form elements</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
-              <div className="bg-gradient-card rounded-lg p-6 border border-border/50 shadow-md">
+              <div className="rounded-lg p-6 border border-border/50 shadow-md">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
