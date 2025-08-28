@@ -13,12 +13,19 @@ import { useUserRole } from "@/hooks/useUserRole";
 import type { Video } from "@/types";
 import { logger } from '@/utils/logger';
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveEmbedUrl } from '@/utils/videoUtils';
+import { quizOperations } from "@/services/quizService";
+import { QuizModal } from "@/components/quiz/QuizModal";
+import { QuizWithQuestions, QuizSubmissionData } from "@/types/quiz";
+
 export const VideoPage = () => {
   const { videoId } = useParams<{ videoId: string }>();
   const [video, setVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [quiz, setQuiz] = useState<QuizWithQuestions | null>(null);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
@@ -41,6 +48,14 @@ export const VideoPage = () => {
       const res = await videoOperations.getById(id);
       if (res.success && res.data) {
         setVideo(res.data);
+        
+        // Load quiz for this video
+        try {
+          const quizData = await quizOperations.getByVideoId(res.data.id);
+          setQuiz(quizData);
+        } catch (error) {
+          console.log('No quiz found for this video or error loading quiz:', error);
+        }
       } else {
         throw new Error(res.error || 'Failed to load video');
       }
@@ -72,7 +87,7 @@ export const VideoPage = () => {
         completedAt
       );
 
-      if (progressPercent >= 100 && !isCompleted) {
+      if (progressPercent >= 100 && !isCompleted && !quiz) {
         setIsCompleted(true);
         toast({
           title: "Video Completed! 🎉",
@@ -91,6 +106,11 @@ export const VideoPage = () => {
     // Use Math.floor for more conservative progress tracking
     const progressPercent = Math.min(100, Math.max(0, Math.floor((video.currentTime / video.duration) * 100)));
     setProgress(progressPercent);
+
+    // Check if video is completed and show quiz
+    if (progressPercent >= 99 && !isCompleted && quiz && !showQuiz) {
+      setShowQuiz(true);
+    }
 
     // Debounce database updates with shorter interval for better accuracy
     if (progressUpdateTimeoutRef.current) {
@@ -121,6 +141,30 @@ export const VideoPage = () => {
       clearTimeout(progressUpdateTimeoutRef.current);
       // Immediately save progress when paused
       updateProgressToDatabase(progress);
+    }
+  };
+
+  const handleQuizSubmit = async (responses: QuizSubmissionData[]) => {
+    if (!quiz || !user?.email) return;
+    
+    setIsSubmittingQuiz(true);
+    try {
+      await quizOperations.submitQuiz(user.email, quiz.id, responses);
+      setShowQuiz(false);
+      setIsCompleted(true);
+      toast({
+        title: "Quiz completed!",
+        description: "Your training has been marked as complete.",
+      });
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit quiz. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingQuiz(false);
     }
   };
 
@@ -329,6 +373,14 @@ export const VideoPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      <QuizModal
+        quiz={quiz}
+        open={showQuiz}
+        onOpenChange={setShowQuiz}
+        onSubmit={handleQuizSubmit}
+        isSubmitting={isSubmittingQuiz}
+      />
     </div>
   );
 };

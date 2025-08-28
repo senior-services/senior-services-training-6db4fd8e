@@ -86,6 +86,54 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_attempts: {
+        Row: {
+          completed_at: string
+          created_at: string
+          employee_id: string
+          id: string
+          quiz_id: string
+          score: number
+          total_questions: number
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          quiz_id: string
+          score?: number
+          total_questions?: number
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          quiz_id?: string
+          score?: number
+          total_questions?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_quiz_attempts_employee"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_quiz_attempts_quiz"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_question_options: {
         Row: {
           created_at: string
@@ -158,6 +206,61 @@ export type Database = {
             columns: ["quiz_id"]
             isOneToOne: false
             referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_responses: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          question_id: string
+          quiz_attempt_id: string
+          selected_option_id: string | null
+          text_answer: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          question_id: string
+          quiz_attempt_id: string
+          selected_option_id?: string | null
+          text_answer?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          question_id?: string
+          quiz_attempt_id?: string
+          selected_option_id?: string | null
+          text_answer?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_quiz_responses_attempt"
+            columns: ["quiz_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_quiz_responses_option"
+            columns: ["selected_option_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_question_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_quiz_responses_question"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions"
             referencedColumns: ["id"]
           },
         ]
@@ -385,6 +488,10 @@ export type Database = {
       promote_user_to_admin: {
         Args: { p_email: string; p_user_id: string }
         Returns: undefined
+      }
+      submit_quiz_attempt: {
+        Args: { p_employee_email: string; p_quiz_id: string; p_responses: Json }
+        Returns: string
       }
       update_video_progress: {
         Args: {
