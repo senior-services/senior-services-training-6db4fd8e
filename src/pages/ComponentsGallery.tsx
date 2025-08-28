@@ -185,6 +185,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
         toast({
           title: "Success!",
           description: "This is a success message.",
+          variant: "success",
         });
         break;
       case "destructive":
