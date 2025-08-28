@@ -349,35 +349,32 @@ export const EditVideoModal = ({
                   </Card>
                 ) : (
                   <div className="space-y-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <FileQuestion className="h-5 w-5" />
-                          Create Quiz
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div>
-                          <Label htmlFor="quiz-title">Quiz Title</Label>
-                          <Input
-                            id="quiz-title"
-                            value={quizTitle}
-                            onChange={(e) => setQuizTitle(e.target.value)}
-                            placeholder="Enter quiz title"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="quiz-description">Description (Optional)</Label>
-                          <Textarea
-                            id="quiz-description"
-                            value={quizDescription}
-                            onChange={(e) => setQuizDescription(e.target.value)}
-                            placeholder="Enter quiz description"
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <FileQuestion className="h-5 w-5" />
+                        Create Quiz
+                      </h3>
+                      
+                      <div>
+                        <Label htmlFor="quiz-title">Quiz Title</Label>
+                        <Input
+                          id="quiz-title"
+                          value={quizTitle}
+                          onChange={(e) => setQuizTitle(e.target.value)}
+                          placeholder="Enter quiz title"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="quiz-description">Description (Optional)</Label>
+                        <Textarea
+                          id="quiz-description"
+                          value={quizDescription}
+                          onChange={(e) => setQuizDescription(e.target.value)}
+                          placeholder="Enter quiz description"
+                        />
+                      </div>
+                    </div>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
