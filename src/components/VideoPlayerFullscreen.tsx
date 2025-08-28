@@ -417,18 +417,30 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
    */
   useEffect(() => {
     return () => {
+      // Clear all timeouts and intervals
       if (progressUpdateTimeoutRef.current) {
         clearTimeout(progressUpdateTimeoutRef.current);
+        progressUpdateTimeoutRef.current = undefined;
       }
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = undefined;
       }
       if (ytProgressIntervalRef.current) {
         clearInterval(ytProgressIntervalRef.current);
+        ytProgressIntervalRef.current = undefined;
       }
+      
+      // Safely cleanup YouTube player
       try {
-        ytPlayerRef.current?.destroy?.();
-      } catch {}
+        if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
+          ytPlayerRef.current.destroy();
+          ytPlayerRef.current = null;
+        }
+      } catch (error) {
+        logger.debug('YouTube player cleanup error (non-critical)', error);
+      }
+      
       logger.debug('VideoPlayerFullscreen cleanup completed');
     };
   }, []);
@@ -440,12 +452,32 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
    */
   useEffect(() => {
     if (!open || !videoId) {
+      // Clear all intervals and timeouts
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = undefined;
       }
+      if (ytProgressIntervalRef.current) {
+        clearInterval(ytProgressIntervalRef.current);
+        ytProgressIntervalRef.current = undefined;
+      }
+      if (progressUpdateTimeoutRef.current) {
+        clearTimeout(progressUpdateTimeoutRef.current);
+        progressUpdateTimeoutRef.current = undefined;
+      }
+      
+      // Safely cleanup YouTube player when modal closes
+      try {
+        if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
+          ytPlayerRef.current.destroy();
+          ytPlayerRef.current = null;
+        }
+      } catch (error) {
+        logger.debug('YouTube player cleanup on close error (non-critical)', error);
+      }
+      
       setIsWatching(false);
-      logger.debug('Video intervals cleared due to modal close or video change');
+      logger.debug('Video intervals and players cleared due to modal close or video change');
     }
   }, [open, videoId]);
 
@@ -481,54 +513,92 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             className="w-full h-full"
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            onLoad={() => {
-              // Initialize YouTube IFrame API player and progress tracking
-              ensureYouTubeAPI().then(() => {
-                if (ytProgressIntervalRef.current) {
-                  clearInterval(ytProgressIntervalRef.current);
-                }
-                try { ytPlayerRef.current?.destroy?.(); } catch {}
-                // Create player bound to this iframe
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const YTGlobal: any = (window as any).YT;
-                ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
-                  events: {
-                    onReady: (e: any) => {
-                      ytProgressIntervalRef.current = setInterval(() => {
-                        const current = e.target.getCurrentTime ? e.target.getCurrentTime() : 0;
-                        const duration = e.target.getDuration ? e.target.getDuration() : (video.duration_seconds || 0);
-                        if (duration > 0) {
-                           const progressPercent = Math.min(100, Math.floor((current / duration) * 100));
-                           setProgress(progressPercent);
-                           onProgressUpdate?.(progressPercent);
-                           if (progressPercent >= 100) {
-                             clearInterval(ytProgressIntervalRef.current!);
-                             // Always show completion overlay first
-                             setShowCompletionOverlay(true);
-                             updateProgressToDatabase(100);
-                           } else if (Math.floor(current) % 15 === 0) {
-                             updateProgressToDatabase(progressPercent);
-                           }
-                        }
-                      }, 1000);
-                    },
-                     onStateChange: (e: any) => {
-                       const state = YTGlobal.PlayerState;
-                        if (e.data === state.ENDED) {
-                          setProgress(100);
-                          // Always show completion overlay first
-                          setShowCompletionOverlay(true);
-                          onProgressUpdate?.(100);
-                          updateProgressToDatabase(100);
-                          if (ytProgressIntervalRef.current) clearInterval(ytProgressIntervalRef.current);
-                        } else if (e.data === state.PAUSED) {
-                          updateProgressToDatabase(progress);
-                        }
-                     }
+              onLoad={() => {
+                // Initialize YouTube IFrame API player and progress tracking
+                ensureYouTubeAPI().then(() => {
+                  // Clean up any existing player and intervals
+                  if (ytProgressIntervalRef.current) {
+                    clearInterval(ytProgressIntervalRef.current);
+                    ytProgressIntervalRef.current = undefined;
                   }
+                  
+                  try {
+                    if (ytPlayerRef.current && typeof ytPlayerRef.current.destroy === 'function') {
+                      ytPlayerRef.current.destroy();
+                      ytPlayerRef.current = null;
+                    }
+                  } catch (error) {
+                    logger.debug('YouTube player cleanup error during initialization', error);
+                  }
+                  
+                  // Create player bound to this iframe
+                  try {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const YTGlobal: any = (window as any).YT;
+                    ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
+                      events: {
+                        onReady: (e: any) => {
+                          console.log('YouTube player ready');
+                          ytProgressIntervalRef.current = setInterval(() => {
+                            try {
+                              if (!ytPlayerRef.current || !e.target) return;
+                              
+                              const current = e.target.getCurrentTime ? e.target.getCurrentTime() : 0;
+                              const duration = e.target.getDuration ? e.target.getDuration() : (video.duration_seconds || 0);
+                              
+                              if (duration > 0 && current >= 0) {
+                                const progressPercent = Math.min(100, Math.max(0, Math.floor((current / duration) * 100)));
+                                setProgress(progressPercent);
+                                onProgressUpdate?.(progressPercent);
+                                
+                                if (progressPercent >= 100) {
+                                  if (ytProgressIntervalRef.current) {
+                                    clearInterval(ytProgressIntervalRef.current);
+                                    ytProgressIntervalRef.current = undefined;
+                                  }
+                                  // Always show completion overlay first
+                                  setShowCompletionOverlay(true);
+                                  updateProgressToDatabase(100);
+                                } else if (Math.floor(current) % 15 === 0) {
+                                  updateProgressToDatabase(progressPercent);
+                                }
+                              }
+                            } catch (error) {
+                              logger.debug('YouTube progress tracking error', error);
+                            }
+                          }, 1000);
+                        },
+                        onStateChange: (e: any) => {
+                          try {
+                            const state = YTGlobal.PlayerState;
+                            console.log('YouTube player state changed:', e.data);
+                            
+                            if (e.data === state.ENDED) {
+                              setProgress(100);
+                              // Always show completion overlay first
+                              setShowCompletionOverlay(true);
+                              onProgressUpdate?.(100);
+                              updateProgressToDatabase(100);
+                              if (ytProgressIntervalRef.current) {
+                                clearInterval(ytProgressIntervalRef.current);
+                                ytProgressIntervalRef.current = undefined;
+                              }
+                            } else if (e.data === state.PAUSED) {
+                              updateProgressToDatabase(progress);
+                            }
+                          } catch (error) {
+                            logger.debug('YouTube state change error', error);
+                          }
+                        }
+                      }
+                    });
+                  } catch (error) {
+                    logger.error('Failed to initialize YouTube player', error);
+                  }
+                }).catch(error => {
+                  logger.error('Failed to load YouTube API', error);
                 });
-              });
-            }}
+              }}
           />
         );
       }
