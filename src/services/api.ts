@@ -259,34 +259,38 @@ export const employeeOperations = {
     performanceTracker.start(operation);
     
     try {
-      // Direct query to employees table
-      const { data: employees, error } = await supabase
-        .from('employees')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use the database function to get employees with assignments
+      const { data: employeeAssignments, error } = await supabase
+        .rpc('get_all_employee_assignments');
 
       if (error) {
-        logger.error('Failed to fetch employees', undefined, { supabaseError: error.message });
+        logger.error('Failed to fetch employees with assignments', undefined, { supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
-      const result: EmployeeWithAssignments[] = employees?.map((emp) => ({
-        id: emp.id,
-        name: emp.full_name || emp.email?.split('@')[0] || 'Unknown',
-        email: emp.email || '',
-        requiredProgress: 0,
-        completedVideos: 0,
-        totalVideos: 0,
-        status: 'behind' as const,
-        assignments: [],
-        created_at: emp.created_at,
-        updated_at: emp.updated_at
-      })) || [];
+      const result: EmployeeWithAssignments[] = employeeAssignments?.map((emp: any) => {
+        const assignments = Array.isArray(emp.assignments) ? emp.assignments : [];
+        const completedVideos = assignments.filter((a: any) => a.progress_percent === 100).length;
+        const totalVideos = assignments.length;
+        
+        return {
+          id: emp.employee_id,
+          name: emp.employee_full_name || emp.employee_email?.split('@')[0] || 'Unknown',
+          email: emp.employee_email || '',
+          requiredProgress: 0,
+          completedVideos,
+          totalVideos,
+          status: employeeOperations.calculateStatus(completedVideos, totalVideos),
+          assignments,
+          created_at: emp.created_at,
+          updated_at: emp.updated_at
+        };
+      }) || [];
 
-      logger.info('Employees fetched successfully', { count: result.length });
+      logger.info('Employees with assignments fetched successfully', { count: result.length });
       return { data: result, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching employees', error as Error);
+      logger.error('Unexpected error fetching employees with assignments', error as Error);
       return { data: null, error: 'Failed to fetch employees', success: false };
     } finally {
       performanceTracker.end(operation);

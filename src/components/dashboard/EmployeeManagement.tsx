@@ -104,7 +104,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
         {
           event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
           schema: 'public',
-          table: 'employee_video_assignments'
+          table: 'video_assignments'
         },
         () => {
           logger.info('Employee assignment changed, refreshing data...');
@@ -116,7 +116,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
         {
           event: '*',
           schema: 'public', 
-          table: 'profiles'
+          table: 'employees'
         },
         () => {
           logger.info('Employee profile changed, refreshing data...');
@@ -128,7 +128,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
         {
           event: '*',
           schema: 'public',
-          table: 'employee_video_progress'
+          table: 'video_progress'
         },
         () => {
           logger.info('Employee progress changed, refreshing data...');
@@ -153,7 +153,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
           full_name: employee.name, // API uses 'name', component expects 'full_name'
           created_at: employee.created_at || new Date().toISOString(),
           updated_at: employee.updated_at || new Date().toISOString(),
-          assigned_videos_count: 0, // Will be calculated from assignments
+          assigned_videos_count: employee.totalVideos || 0, // Use totalVideos from API
           assignments: employee.assignments || []
         }));
         
@@ -381,7 +381,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                           <ArrowDown className="ml-2 h-4 w-4" />
                         )
                       ) : (
-                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary" />
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />
                       )}
                     </Button>
                   </TableHead>
