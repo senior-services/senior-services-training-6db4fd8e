@@ -169,7 +169,7 @@ export const AdminManagement: React.FC = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('name')}
-                      className={`h-auto p-0 hover:text-primary/80 ${
+                      className={`h-auto p-0 hover:text-primary/80 uppercase ${
                         sortColumn === 'name' 
                           ? 'font-bold text-primary' 
                           : 'font-normal text-foreground'
@@ -192,7 +192,7 @@ export const AdminManagement: React.FC = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('dateAdded')}
-                      className={`h-auto p-0 hover:text-primary/80 ${
+                      className={`h-auto p-0 hover:text-primary/80 uppercase ${
                         sortColumn === 'dateAdded' 
                           ? 'font-bold text-primary' 
                           : 'font-normal text-foreground'
