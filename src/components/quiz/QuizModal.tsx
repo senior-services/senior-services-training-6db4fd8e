@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { QuizWithQuestions, QuizSubmissionData, QuizResponse } from "@/types/quiz";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -80,7 +81,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
     <div className="h-full overflow-y-auto p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">{quiz.title}</h2>
+          <div className="flex items-center gap-3 mb-2">
+            <h2 className="text-2xl font-bold">{quiz.title}</h2>
+            <Badge variant="secondary" className="text-sm">
+              {quiz.questions.length} {quiz.questions.length === 1 ? 'Question' : 'Questions'}
+            </Badge>
+          </div>
           {quiz.description && (
             <p className="text-muted-foreground">{quiz.description}</p>
           )}
