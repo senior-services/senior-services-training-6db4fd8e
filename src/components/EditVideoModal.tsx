@@ -498,9 +498,16 @@ export const EditVideoModal = ({
               <TabsContent value="quiz" className="space-y-6 mt-6">
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">
-                      {quiz ? 'Edit Quiz' : 'Create Quiz'}
-                    </h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-semibold">
+                        {quiz ? 'Edit Quiz' : 'Create Quiz'}
+                      </h3>
+                      {questions.length > 0 && (
+                        <Badge variant="secondary" className="text-sm">
+                          {questions.length} {questions.length === 1 ? 'Question' : 'Questions'}
+                        </Badge>
+                      )}
+                    </div>
                     
                     <div>
                       <Label htmlFor="quiz-title">Quiz Title</Label>

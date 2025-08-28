@@ -378,11 +378,8 @@ export const VideoPage = () => {
       <Dialog open={showQuiz} onOpenChange={setShowQuiz}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
+            <DialogTitle>
               {quiz?.title || 'Quiz'}
-              <Badge variant="secondary" className="text-sm">
-                {quiz?.questions?.length || 0} {quiz?.questions?.length === 1 ? 'Question' : 'Questions'}
-              </Badge>
             </DialogTitle>
           </DialogHeader>
           <QuizModal
