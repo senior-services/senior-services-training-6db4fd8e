@@ -813,7 +813,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">Name</TableHead>
                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">Email</TableHead>
                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">Role</TableHead>
-                            <TableHead className="text-left text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                            <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -902,7 +902,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                )}
                              </Button>
                           </TableHead>
-                            <TableHead className="text-left text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                           <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                        <TableBody>
@@ -967,7 +967,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">Status</TableHead>
                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">Role</TableHead>
                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">Last Activity</TableHead>
-                             <TableHead className="text-left text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                            <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                        <TableBody>
@@ -1129,7 +1129,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                               <TableHead className="text-xs font-medium uppercase text-muted-foreground">Employee</TableHead>
                               <TableHead className="text-xs font-medium uppercase text-muted-foreground">Department</TableHead>
                               <TableHead className="text-xs font-medium uppercase text-muted-foreground">Status</TableHead>
-                              <TableHead className="text-left text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                              <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
                            </TableRow>
                          </TableHeader>
                          <TableBody>
