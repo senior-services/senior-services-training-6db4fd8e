@@ -134,22 +134,12 @@ export const TrainingCard = memo<TrainingCardProps>(({
 
   // Calculate due date status with comprehensive logic
   const dueDateInfo = useOptimizedMemo(() => {
-    console.log('TrainingCard Debug:', {
-      videoId: sanitizedVideo.id,
-      videoTitle: sanitizedVideo.title,
-      dueDate: sanitizedVideo.dueDate,
-      progress: sanitizedVideo.progress,
-      isCompleted: trainingStatus.isCompleted
-    });
-    
     if (!sanitizedVideo.dueDate) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const due = new Date(sanitizedVideo.dueDate);
     due.setHours(0, 0, 0, 0);
     const daysUntilDue = differenceInDays(due, today);
-    
-    console.log('Due date calculation:', { daysUntilDue, isCompleted: trainingStatus.isCompleted });
     
     if (trainingStatus.isCompleted) {
       return {
@@ -271,34 +261,18 @@ export const TrainingCard = memo<TrainingCardProps>(({
           </button>
 
           {/* Due Date Badge and Completion Badge with Enhanced Accessibility */}
-          {dueDateInfo && (() => {
-            console.log('Rendering dueDateInfo badge:', dueDateInfo);
-            return (
-              <Badge variant={dueDateInfo.variant} className={cn('absolute top-2 right-2 text-xs font-medium z-10', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
-                {dueDateInfo.text}
-              </Badge>
-            );
-          })()}
+          {dueDateInfo && (
+            <Badge variant={dueDateInfo.variant} className={cn('absolute top-2 right-2 text-xs font-medium z-10', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
+              {dueDateInfo.text}
+            </Badge>
+          )}
           
           {/* Completed Badge for videos without due dates */}
-          {trainingStatus.isCompleted && !dueDateInfo && (() => {
-            console.log('Rendering completed badge without due date');
-            return (
-              <Badge variant="ghost-success" className="absolute top-2 right-2 text-xs font-medium z-10" aria-label="Training completed successfully" role="status" showIcon>
-                Completed
-              </Badge>
-            );
-          })()}
-          
-          {/* Debug: Always show a test badge */}
-          {(() => {
-            console.log('Test badge rendering for video:', sanitizedVideo.title);
-            return (
-              <Badge variant="ghost-primary" className="absolute top-2 left-2 text-xs font-medium z-10 bg-red-500 text-white" role="status">
-                TEST
-              </Badge>
-            );
-          })()}
+          {trainingStatus.isCompleted && !dueDateInfo && (
+            <Badge variant="ghost-success" className="absolute top-2 right-2 text-xs font-medium z-10" aria-label="Training completed successfully" role="status" showIcon>
+              Completed
+            </Badge>
+          )}
           
           {/* Play Button Overlay with Enhanced Accessibility */}
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

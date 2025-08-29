@@ -331,14 +331,14 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
     const isCompleted = progressPercent >= 100;
     if (isCompleted) {
       return {
-        variant: "hollow-success" as const,
+        variant: "ghost-success" as const,
         showIcon: true,
         text: "Completed"
       };
     }
     if (!dueDate) {
       return {
-        variant: "hollow-plain" as const,
+        variant: "ghost-plain" as const,
         text: "No deadline"
       };
     }
@@ -349,19 +349,19 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
     const daysUntilDue = differenceInDays(due, today);
     if (isPast(due) && daysUntilDue < 0) {
       return {
-        variant: "hollow-destructive" as const,
+        variant: "ghost-destructive" as const,
         showIcon: true,
         text: "Overdue"
       };
     }
     if (daysUntilDue <= 5) {
       return {
-        variant: "hollow-destructive" as const,
+        variant: "ghost-destructive" as const,
         text: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`
       };
     }
     return {
-      variant: "hollow-secondary" as const,
+      variant: "ghost-secondary" as const,
       text: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`
     };
   };
@@ -491,25 +491,25 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                   let statusInfo;
                   if (requiredVideos.length === 0) {
                     statusInfo = {
-                      variant: "hollow-plain" as const,
+                      variant: "ghost-plain" as const,
                       text: "No Required Training",
                       showIcon: false
                     };
                   } else if (completedRequiredVideos.length === requiredVideos.length) {
                     statusInfo = {
-                      variant: "hollow-success" as const,
+                      variant: "ghost-success" as const,
                       text: "All Training Complete",
                       showIcon: true
                     };
                   } else if (overdueRequiredVideos.length > 0) {
                     statusInfo = {
-                      variant: "hollow-destructive" as const,
+                      variant: "ghost-destructive" as const,
                       text: `${overdueRequiredVideos.length} Overdue`,
                       showIcon: true
                     };
                   } else {
                     statusInfo = {
-                      variant: "hollow-secondary" as const,
+                      variant: "ghost-secondary" as const,
                       text: `${completedRequiredVideos.length}/${requiredVideos.length} Complete`,
                       showIcon: false
                     };
@@ -607,7 +607,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                                <TableCell className="text-right py-1">
                                                  <div className="flex gap-2 justify-end">
                                                    {quizAttempt && (
-                                                     <Badge variant="hollow-plain">
+                                                     <Badge variant="ghost-plain">
                                                        Quiz: {quizAttempt.score} of {quizAttempt.total_questions} correct
                                                      </Badge>
                                                    )}
