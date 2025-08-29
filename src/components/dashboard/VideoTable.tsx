@@ -320,7 +320,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                                )}
                             </div>
                             {video.description && (
-                              <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                                 {video.description}
                               </p>
                             )}
