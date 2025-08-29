@@ -64,11 +64,14 @@ export const AdminManagement: React.FC = () => {
     loadAdmins();
   }, []);
   const loadAdmins = async () => {
+    console.log('loadAdmins called - fetching current admin list');
     try {
       setLoading(true);
       const data = await AdminService.getAdmins();
+      console.log('loadAdmins result:', data);
       setAdmins(data);
     } catch (error) {
+      console.error('Error in loadAdmins:', error);
       logger.error('Error loading admins', error as Error);
       toast({
         title: "Error",
@@ -163,6 +166,13 @@ export const AdminManagement: React.FC = () => {
   };
   const handleDeleteAdmin = async () => {
     if (!deleteConfirmAdmin) return;
+    
+    console.log('handleDeleteAdmin called with:', {
+      id: deleteConfirmAdmin.id,
+      email: deleteConfirmAdmin.email,
+      isPending: deleteConfirmAdmin.isPending
+    });
+    
     setIsDeleting(true);
     try {
       await AdminService.removeAdminRole(deleteConfirmAdmin.id, deleteConfirmAdmin.isPending);
