@@ -235,10 +235,12 @@ export const AdminManagement: React.FC = () => {
                       {admin.isPending ? 'Pending' : format(new Date(admin.created_at), 'MMM d, yyyy')}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => setDeleteConfirmAdmin(admin)} className="text-destructive hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
-                        <span className="sr-only">{admin.isPending ? 'Cancel Invitation' : 'Remove Admin'}</span>
-                      </Button>
+                      <div className="flex justify-end">
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteConfirmAdmin(admin)} className="text-destructive hover:text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                          <span className="sr-only">{admin.isPending ? 'Cancel Invitation' : 'Remove Admin'}</span>
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>)}
               </TableBody>
