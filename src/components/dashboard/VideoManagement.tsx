@@ -54,15 +54,12 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
    */
   const loadVideos = async () => {
     setLoading(true);
-    console.log('Loading videos for user:', userEmail);
     
     try {
       // Check authentication status first
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current auth session:', session ? 'authenticated' : 'not authenticated');
       
       if (!session) {
-        console.warn('User not authenticated when loading videos');
         toast({
           title: 'Authentication Required',
           description: 'Please log in to view videos',
@@ -73,10 +70,8 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       }
       
       const result = await videoOperations.getAll();
-      console.log('Video operations result:', result);
       
       if (result.success && result.data) {
-        console.log('Videos loaded successfully, count:', result.data.length);
         setVideos(result.data);
         onVideoCountChange?.(result.data.length);
         logger.info('Videos loaded successfully', { 
@@ -84,7 +79,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
           adminUser: userEmail 
         });
       } else {
-        console.error('Failed to load videos:', result.error);
         logger.error('Failed to load videos', undefined, { 
           error: result.error,
           adminUser: userEmail 
@@ -96,7 +90,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
         });
       }
     } catch (error) {
-      console.error('Unexpected error loading videos:', error);
       toast({
         title: 'Error loading videos',
         description: error instanceof Error ? error.message : 'An unexpected error occurred while loading videos',
