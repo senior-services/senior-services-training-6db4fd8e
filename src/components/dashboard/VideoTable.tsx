@@ -336,7 +336,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                           aria-label={`Actions for video: ${video.title}`}
                         >
                           <Button 
-                            variant="ghost" 
+                            variant="outline" 
                             size="sm"
                             onClick={() => handleVideoAction('Edit video', video, () => onEdit(video))}
                             aria-label={`Edit video: ${video.title}`}
