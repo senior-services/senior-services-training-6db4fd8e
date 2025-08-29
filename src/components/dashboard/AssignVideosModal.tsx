@@ -398,7 +398,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
                               <div className="flex items-center gap-4">
                                 {isCompleted ? (
-                                  <Badge variant="success" showIcon={true}>
+                                  <Badge variant="hollow-success" showIcon={true}>
                                     Completed
                                   </Badge>
                                ) : isSelected ? (
