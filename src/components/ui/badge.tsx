@@ -26,19 +26,19 @@ const badgeVariants = cva(
           "border-transparent bg-attention text-attention-foreground shadow-md",
         // Hollow variants
         "hollow-primary":
-          "border-primary text-primary bg-transparent shadow-md",
+          "border-primary text-primary bg-background shadow-md",
         "hollow-secondary":
-          "border-secondary text-secondary bg-transparent shadow-md",
+          "border-secondary text-secondary bg-background shadow-md",
         "hollow-tertiary":
-          "border-muted-foreground text-muted-foreground bg-transparent shadow-md",
+          "border-muted-foreground text-muted-foreground bg-background shadow-md",
         "hollow-destructive":
-          "border-destructive text-destructive bg-transparent shadow-md",
+          "border-destructive text-destructive bg-background shadow-md",
         "hollow-success":
-          "border-success text-success bg-transparent shadow-md",
+          "border-success text-success bg-background shadow-md",
         "hollow-warning":
-          "border-warning text-warning bg-transparent shadow-md",
+          "border-warning text-warning bg-background shadow-md",
         "hollow-attention":
-          "border-attention text-attention bg-transparent shadow-md",
+          "border-attention text-attention bg-background shadow-md",
         // Ghost variants (like hollow but without borders or shadows)
         "ghost-primary":
           "border-transparent text-primary bg-transparent",
