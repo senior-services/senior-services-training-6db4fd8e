@@ -101,6 +101,7 @@ export const videoOperations = {
 
       const videosWithCounts = videos || [];
       console.log('Processed videos:', videosWithCounts.length);
+      console.log('Returning success result:', { success: true, count: videosWithCounts.length });
 
       logger.info('Videos fetched successfully', { count: videosWithCounts.length });
       return { data: videosWithCounts as Video[], error: null, success: true };
