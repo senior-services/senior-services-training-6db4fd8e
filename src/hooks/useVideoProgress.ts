@@ -104,6 +104,7 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate }: UseVi
         setProgress(progressPercent);
         const isVideoCompleted = progressPercent >= 100;
         setIsCompleted(isVideoCompleted);
+        setWasEverCompleted(isVideoCompleted);
         
         logger.videoEvent('progress_restored', videoId, {
           progress: progressPercent,

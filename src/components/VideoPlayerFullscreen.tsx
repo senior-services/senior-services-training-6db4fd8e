@@ -223,6 +223,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   // Handle starting the quiz
   const handleStartQuiz = useCallback(() => {
+    // Prevent starting quiz if training was already completed previously
+    if (wasEverCompleted) return;
+
     setQuizStarted(true);
     setShowCompletionOverlay(false);
     setQuizResponses([]);
@@ -238,7 +241,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         quizSection.scrollIntoView({ behavior: 'smooth' });
       }
     }, 100);
-  }, []);
+  }, [wasEverCompleted]);
 
   // Handle quiz responses change
   const handleQuizResponsesChange = useCallback((responses: QuizSubmissionData[], allAnswered: boolean) => {
@@ -343,7 +346,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             />
             
             {/* Completion Overlay */}
-            {showCompletionOverlay && progress >= 100 && (
+            {showCompletionOverlay && progress >= 100 && !wasEverCompleted && (
               <CompletionOverlay
                 video={video}
                 quiz={quiz}
