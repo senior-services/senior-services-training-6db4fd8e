@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Check, AlertTriangle, AlertCircle } from "lucide-react"
+import { Check, AlertTriangle, AlertCircle, Shield } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -96,7 +96,7 @@ function Badge({ className, variant, showIcon, children, ...props }: BadgeProps)
         <AlertCircle className="w-3 h-3 mr-1" />
       )}
       {showIcon && (variant === "attention" || variant === "hollow-attention" || variant === "ghost-attention" || variant === "soft-attention") && (
-        <AlertTriangle className="w-3 h-3 mr-1" />
+        <Shield className="w-3 h-3 mr-1" />
       )}
       {children}
     </div>

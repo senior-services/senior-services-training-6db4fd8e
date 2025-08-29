@@ -275,12 +275,13 @@ export const AdminManagement: React.FC = () => {
                 {getSortedAdmins().map(admin => <TableRow key={admin.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Shield className="w-4 h-4 text-primary" />
-                        </div>
                         <div>
                           <span>{admin.isPending ? '--' : admin.full_name || 'Unknown'}</span>
-                          <Badge variant="secondary" className={`ml-2 text-xs ${admin.isPending ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' : 'bg-primary/10 text-primary'}`}>
+                          <Badge 
+                            variant={admin.isPending ? "soft-warning" : "soft-attention"} 
+                            showIcon
+                            className="ml-2 text-xs"
+                          >
                             {admin.isPending ? 'Pending' : 'Admin'}
                           </Badge>
                         </div>
