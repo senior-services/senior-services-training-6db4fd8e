@@ -237,7 +237,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
     });
   }, [thumbnailCandidates, thumbIndex, sanitizedVideo.id, sanitizedVideo.title]);
   return <article className={cn('training-card group relative overflow-hidden focus-within:ring-2 focus-within:ring-ring', className)} aria-label={ariaLabels.card} role="article">
-      <Card className="h-full flex flex-col transition-shadow duration-300 shadow-card hover:shadow-lg">
+      <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg border-border-primary">
         {/* Video Thumbnail with Enhanced Accessibility */}
         <header className="relative">
           <button type="button" onClick={handlePlay} aria-label={ariaLabels.playButton} className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg w-full text-left overflow-hidden">
@@ -276,7 +276,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
           
           {/* Play Button Overlay with Enhanced Accessibility */}
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button size="lg" className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.playButton}>
+            <Button size="lg" className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.playButton}>
               <Play className="w-6 h-6 ml-1" aria-hidden="true" />
               <span className="sr-only">{ariaLabels.playButton}</span>
             </Button>
@@ -299,7 +299,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
         {/* Enhanced Action Button */}
         {!trainingStatus.isCompleted ? (
           <CardFooter className="flex-none">
-            <Button className="w-full min-h-touch shadow-md hover:shadow-lg transition-shadow" variant="default" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
+            <Button className="w-full min-h-touch shadow-md hover:shadow-lg transition-all duration-300" variant="default" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
               {trainingStatus.hasStarted ? "Continue Training" : "Start Training"}
             </Button>
           </CardFooter>
