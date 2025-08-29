@@ -23,7 +23,7 @@ export const Header = ({
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
           <div className="flex items-center space-x-4">
-            <Link to="/dashboard" className="flex items-center space-x-4 hover:opacity-80 transition-all duration-200">
+            <Link to="/dashboard" className="flex items-center space-x-6 hover:opacity-80 transition-all duration-200">
               <img src="/lovable-uploads/f28cf692-0409-41a6-bb28-b62ca7589dcb.png" alt="Senior Services for South Sound" className="h-12 w-auto object-cover" style={{
               objectPosition: 'left center'
             }} />
@@ -41,7 +41,7 @@ export const Header = ({
           </div>
 
           {/* Right Side - User Info and Menu */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-foreground">{userName}</p>
               
@@ -49,7 +49,7 @@ export const Header = ({
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center space-x-2 hover:shadow-md transition-shadow">
+                <Button variant="ghost" size="sm" className="flex items-center space-x-1 hover:shadow-md transition-shadow">
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                     <User className="w-4 h-4 text-primary-foreground" />
                   </div>
