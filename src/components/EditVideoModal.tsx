@@ -790,7 +790,7 @@ export const EditVideoModal = ({
                                 
                                 <Button
                                   onClick={() => addOption(questionIndex)}
-                                  variant="secondary"
+                                  variant="outline"
                                   size="sm"
                                   className="justify-start"
                                 >
@@ -809,7 +809,7 @@ export const EditVideoModal = ({
                         </Card>
                       ))}
 
-                      <Button onClick={addQuestion} variant="secondary" size="sm" className="justify-start">
+                      <Button onClick={addQuestion} variant="outline" size="sm" className="justify-start">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Question
                       </Button>
