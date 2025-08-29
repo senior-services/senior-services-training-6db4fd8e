@@ -559,7 +559,7 @@ export const EditVideoModal = ({
                 <TabsTrigger value="quiz" className="flex items-center gap-2">
                   Quiz
                   {questions.length > 0 && (
-                    <Badge variant="hollow-primary" className="text-xs px-1.5 py-0.5 min-w-[20px] h-5">
+                    <Badge variant="tertiary" className="text-xs px-1.5 py-0.5 min-w-[20px] h-5">
                       {questions.length}
                     </Badge>
                   )}
