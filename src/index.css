@@ -198,6 +198,20 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     @apply mb-2; /* 8px spacing between label and form control per Carbon spec */
   }
 
+  /* Radix UI Form Control Resets - Prevent Button Style Inheritance */
+  [data-radix-checkbox-root],
+  [data-radix-switch-root],
+  [data-radix-radio-group-item] {
+    @apply p-0; /* Reset any inherited padding */
+    box-sizing: border-box;
+    margin: 0;
+  }
+
+  /* Ensure Radix UI switch thumb has proper positioning */
+  [data-radix-switch-thumb] {
+    @apply p-0 m-0;
+  }
+
   /* Form field spacing following Carbon guidelines */
   .form-field {
     @apply mb-6; /* 24px spacing between form fields */
