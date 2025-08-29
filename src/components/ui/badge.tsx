@@ -5,36 +5,36 @@ import { Check, AlertTriangle, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap shadow-sm",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap",
   {
     variants: {
       variant: {
         // Solid variants
         default:
-          "border-transparent bg-primary text-primary-foreground",
+          "border-transparent bg-primary text-primary-foreground shadow-sm",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground",
+          "border-transparent bg-secondary text-secondary-foreground shadow-sm",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground",
+          "border-transparent bg-destructive text-destructive-foreground shadow-sm",
         success:
-          "border-transparent bg-success text-success-foreground",
+          "border-transparent bg-success text-success-foreground shadow-sm",
         warning:
-          "border-transparent bg-warning text-warning-foreground",
+          "border-transparent bg-warning text-warning-foreground shadow-sm",
         // Hollow variants  
-        outline: "text-foreground",
+        outline: "text-foreground shadow-sm",
         "hollow-primary":
-          "border-primary text-primary bg-transparent",
+          "border-primary text-primary bg-transparent shadow-sm",
         "hollow-secondary":
-          "border-secondary text-secondary bg-transparent",
+          "border-secondary text-secondary bg-transparent shadow-sm",
         "hollow-destructive":
-          "border-destructive text-destructive bg-transparent",
+          "border-destructive text-destructive bg-transparent shadow-sm",
         "hollow-success":
-          "border-success text-success bg-transparent",
+          "border-success text-success bg-transparent shadow-sm",
         "hollow-warning":
-          "border-warning text-warning bg-transparent",
+          "border-warning text-warning bg-transparent shadow-sm",
         "hollow-plain":
-          "border-transparent text-muted-foreground bg-transparent",
-        // Ghost variants (like hollow but without borders)
+          "border-transparent text-muted-foreground bg-transparent shadow-sm",
+        // Ghost variants (like hollow but without borders or shadows)
         "ghost-primary":
           "border-transparent text-primary bg-transparent",
         "ghost-secondary":
