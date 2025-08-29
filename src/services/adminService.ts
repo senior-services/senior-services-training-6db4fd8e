@@ -171,12 +171,27 @@ export class AdminService {
       throw new Error('User is already an admin.');
     }
 
+    // Get user email for employee table cleanup
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('user_id', profile.user_id)
+      .single();
+
     // Remove any existing employee role first
     await supabase
       .from('user_roles')
       .delete()
       .eq('user_id', profile.user_id)
       .eq('role', 'employee');
+
+    // Remove from employees table since they're becoming admin
+    if (userProfile?.email) {
+      await supabase
+        .from('employees')
+        .delete()
+        .eq('email', userProfile.email);
+    }
 
     // Add admin role
     const { error: insertError } = await supabase
@@ -205,12 +220,27 @@ export class AdminService {
 
     if (existingRole) return;
 
+    // Get user email for employee table cleanup
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('user_id', userId)
+      .single();
+
     // Remove any existing employee role first
     await supabase
       .from('user_roles')
       .delete()
       .eq('user_id', userId)
       .eq('role', 'employee');
+
+    // Remove from employees table since they're becoming admin
+    if (userProfile?.email) {
+      await supabase
+        .from('employees')
+        .delete()
+        .eq('email', userProfile.email);
+    }
 
     const { error } = await supabase
       .from('user_roles')
