@@ -607,15 +607,15 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                                 <TableCell className="py-1">
                                                   {assignment.video_title}
                                                 </TableCell>
-                                                <TableCell className="py-1">
-                                                  {quizAttempt ? (
-                                                    <Badge variant="ghost-tertiary">
-                                                      {quizAttempt.score} of {quizAttempt.total_questions} correct
-                                                    </Badge>
-                                                  ) : (
-                                                    <span className="text-xs text-muted-foreground">No quiz taken</span>
-                                                  )}
-                                                </TableCell>
+                                                 <TableCell className="py-1">
+                                                   {quizAttempt ? (
+                                                     <span className="text-xs text-foreground">
+                                                       {quizAttempt.score} of {quizAttempt.total_questions} correct
+                                                     </span>
+                                                   ) : (
+                                                     <span className="text-xs text-muted-foreground">No quiz taken</span>
+                                                   )}
+                                                 </TableCell>
                                                 <TableCell className="py-1">
                                                   <Badge 
                                                     variant={badge.variant}
