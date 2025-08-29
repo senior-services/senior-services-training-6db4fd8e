@@ -197,7 +197,6 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
           full_name: employee.name, // API uses 'name', component expects 'full_name'
           created_at: employee.created_at || new Date().toISOString(),
           updated_at: employee.updated_at || new Date().toISOString(),
-          assigned_videos_count: employee.totalVideos || 0, // Use totalVideos from API
           assignments: employee.assignments || []
         }));
         
@@ -266,7 +265,6 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
         full_name: employee.full_name || employee.email?.split('@')[0] || 'Unknown',
         created_at: employee.created_at,
         updated_at: employee.updated_at,
-        assigned_videos_count: 0,
         assignments: []
       };
       const updated = [...prev, transformedEmployee];
@@ -436,7 +434,6 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">Assigned Videos</TableHead>
                   <TableHead>
                     <Button
                       variant="ghost"
@@ -542,10 +539,6 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                               </div>
                             </CollapsibleTrigger>
                           </Collapsible>
-                        </TableCell>
-                        
-                        <TableCell className="py-3">
-                          <span className="font-medium">{employee.assigned_videos_count || 0}</span>
                         </TableCell>
                         
                         <TableCell className="py-3">

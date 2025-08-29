@@ -48,5 +48,4 @@ export interface EmployeeBatchData {
 
 export interface EmployeeWithAssignments extends Employee {
   assignments?: VideoAssignment[];
-  assigned_videos_count?: number;
 }
