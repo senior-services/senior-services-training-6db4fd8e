@@ -69,6 +69,13 @@ export const EditVideoModal = ({
   const [quizTitle, setQuizTitle] = useState('');
   const [quizDescription, setQuizDescription] = useState('');
   const [questions, setQuestions] = useState<EditableQuestionFormData[]>([]);
+  
+  // Track original quiz state for unsaved changes detection
+  const [originalQuizTitle, setOriginalQuizTitle] = useState('');
+  const [originalQuizDescription, setOriginalQuizDescription] = useState('');
+  const [originalQuestions, setOriginalQuestions] = useState<EditableQuestionFormData[]>([]);
+  const [unsavedChangesDialogOpen, setUnsavedChangesDialogOpen] = useState(false);
+  
   const { toast } = useToast();
   useEffect(() => {
     if (video) {
@@ -103,12 +110,22 @@ export const EditVideoModal = ({
           }))
         }));
         setQuestions(loadedQuestions);
+        
+        // Store original values for unsaved changes detection
+        setOriginalQuizTitle(quizData.title);
+        setOriginalQuizDescription(quizData.description || '');
+        setOriginalQuestions(JSON.parse(JSON.stringify(loadedQuestions)));
       } else {
         // No quiz found, ensure local state is cleared for this video
         setQuiz(null);
         setQuizTitle('');
         setQuizDescription('');
         setQuestions([]);
+        
+        // Clear original values too
+        setOriginalQuizTitle('');
+        setOriginalQuizDescription('');
+        setOriginalQuestions([]);
       }
     } catch (error) {
       console.log('No quiz found for this video:', error);
@@ -176,11 +193,52 @@ export const EditVideoModal = ({
 
   // Handle modal open/close events
   const handleOpenChange = (open: boolean) => {
+    if (!open && hasQuizChanges()) {
+      // Show unsaved changes dialog before closing
+      setUnsavedChangesDialogOpen(true);
+      return;
+    }
+    
     onOpenChange(open);
+    
     // When opening, ensure quiz is loaded for the current video if not already
     if (open && video && !quiz && !quizLoading) {
       loadQuiz();
     }
+  };
+
+  // Check if there are unsaved quiz changes
+  const hasQuizChanges = () => {
+    if (!quiz && (quizTitle.trim() || questions.length > 0)) {
+      return true; // New quiz being created
+    }
+    
+    if (quiz) {
+      return (
+        quizTitle !== originalQuizTitle ||
+        quizDescription !== originalQuizDescription ||
+        JSON.stringify(questions) !== JSON.stringify(originalQuestions)
+      );
+    }
+    
+    return false;
+  };
+
+  // Handle discarding unsaved changes
+  const handleDiscardChanges = () => {
+    // Reset to original values
+    if (quiz) {
+      setQuizTitle(originalQuizTitle);
+      setQuizDescription(originalQuizDescription);
+      setQuestions(JSON.parse(JSON.stringify(originalQuestions)));
+    } else {
+      setQuizTitle('');
+      setQuizDescription('');
+      setQuestions([]);
+    }
+    
+    setUnsavedChangesDialogOpen(false);
+    onOpenChange(false);
   };
 
   const addQuestion = () => {
@@ -327,7 +385,7 @@ export const EditVideoModal = ({
         description: "Quiz updated successfully",
       });
       
-      // Reload quiz data
+      // Reload quiz data and update original state
       await loadQuiz();
     } catch (error) {
       logger.error('Error updating quiz:', error);
@@ -393,7 +451,7 @@ export const EditVideoModal = ({
         description: "Quiz created successfully",
       });
       
-      // Reload quiz data
+      // Reload quiz data and update original state
       await loadQuiz();
     } catch (error) {
       logger.error('Error creating quiz:', error);
@@ -445,7 +503,8 @@ export const EditVideoModal = ({
       : isGoogleDrive ? getGoogleDriveViewUrl(video.video_url as string)
       : video.video_url)
     : storageUrl;
-  return <>
+  return (
+    <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
           <DialogHeader className="shrink-0">
@@ -715,5 +774,24 @@ export const EditVideoModal = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>;
+
+      {/* Unsaved Changes Dialog */}
+      <AlertDialog open={unsavedChangesDialogOpen} onOpenChange={setUnsavedChangesDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes to the quiz. Do you want to discard these changes?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Editing</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDiscardChanges} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 };
