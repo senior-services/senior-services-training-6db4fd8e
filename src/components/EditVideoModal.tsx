@@ -103,6 +103,12 @@ export const EditVideoModal = ({
           }))
         }));
         setQuestions(loadedQuestions);
+      } else {
+        // No quiz found, ensure local state is cleared for this video
+        setQuiz(null);
+        setQuizTitle('');
+        setQuizDescription('');
+        setQuestions([]);
       }
     } catch (error) {
       console.log('No quiz found for this video:', error);
@@ -168,12 +174,12 @@ export const EditVideoModal = ({
     onOpenChange(false);
   };
 
-  // Handle modal close events (including ESC, click outside, etc.)
+  // Handle modal open/close events
   const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      handleClose();
-    } else {
-      onOpenChange(open);
+    onOpenChange(open);
+    // When opening, ensure quiz is loaded for the current video if not already
+    if (open && video && !quiz && !quizLoading) {
+      loadQuiz();
     }
   };
 
