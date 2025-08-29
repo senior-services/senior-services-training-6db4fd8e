@@ -137,8 +137,11 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // Handle video ended
   const handleVideoEnded = useCallback(() => {
     updateProgress(100);
-    setShowCompletionOverlay(true);
-  }, [updateProgress]);
+    // Only show completion overlay if training wasn't already completed
+    if (!wasEverCompleted) {
+      setShowCompletionOverlay(true);
+    }
+  }, [updateProgress, wasEverCompleted]);
 
   // Handle complete training (no quiz)
   const handleCompleteTraining = useCallback(() => {
