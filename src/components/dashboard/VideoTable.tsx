@@ -247,7 +247,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       className="group"
                     >
                        {/* Video title and preview */}
-                      <TableCell className="py-1.5">
+                      <TableCell className="py-2">
                         <div className="flex items-center gap-3">
                           {/* Video preview */}
                           <div className="relative w-20 h-12 rounded-md overflow-hidden bg-muted">
