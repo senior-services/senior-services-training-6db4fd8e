@@ -11,34 +11,34 @@ const badgeVariants = cva(
       variant: {
         // Solid variants
         default:
-          "border-transparent bg-primary text-primary-foreground shadow-md",
+          "border-transparent bg-primary text-primary-foreground",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground shadow-md",
+          "border-transparent bg-secondary text-secondary-foreground",
         tertiary:
-          "border-transparent bg-muted text-muted-foreground shadow-md",
+          "border-transparent bg-muted text-muted-foreground",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow-md",
+          "border-transparent bg-destructive text-destructive-foreground",
         success:
-          "border-transparent bg-success text-success-foreground shadow-md",
+          "border-transparent bg-success text-success-foreground",
         warning:
-          "border-transparent bg-warning text-warning-foreground shadow-md",
+          "border-transparent bg-warning text-warning-foreground",
         attention:
-          "border-transparent bg-attention text-attention-foreground shadow-md",
+          "border-transparent bg-attention text-attention-foreground",
         // Hollow variants
         "hollow-primary":
-          "border-primary text-primary bg-background shadow-md",
+          "border-primary text-primary bg-background",
         "hollow-secondary":
-          "border-secondary text-secondary bg-background shadow-md",
+          "border-secondary text-secondary bg-background",
         "hollow-tertiary":
-          "border-muted-foreground text-muted-foreground bg-background shadow-md",
+          "border-muted-foreground text-muted-foreground bg-background",
         "hollow-destructive":
-          "border-destructive text-destructive bg-background shadow-md",
+          "border-destructive text-destructive bg-background",
         "hollow-success":
-          "border-success text-success bg-background shadow-md",
+          "border-success text-success bg-background",
         "hollow-warning":
-          "border-warning text-warning bg-background shadow-md",
+          "border-warning text-warning bg-background",
         "hollow-attention":
-          "border-attention text-attention bg-background shadow-md",
+          "border-attention text-attention bg-background",
         // Ghost variants (like hollow but without borders or shadows)
         "ghost-primary":
           "border-transparent text-primary bg-transparent",
@@ -56,19 +56,19 @@ const badgeVariants = cva(
           "border-transparent text-attention bg-transparent",
         // Soft variants (colored text with muted background)
         "soft-primary":
-          "border-transparent text-primary bg-primary/10 shadow-sm",
+          "border-transparent text-primary bg-primary/10",
         "soft-secondary":
-          "border-transparent text-secondary bg-secondary/10 shadow-sm",
+          "border-transparent text-secondary bg-secondary/10",
         "soft-tertiary":
-          "border-transparent text-muted-foreground bg-muted shadow-sm",
+          "border-transparent text-muted-foreground bg-muted",
         "soft-destructive":
-          "border-transparent text-destructive bg-destructive/10 shadow-sm",
+          "border-transparent text-destructive bg-destructive/10",
         "soft-success":
-          "border-transparent text-success bg-success/10 shadow-sm",
+          "border-transparent text-success bg-success/10",
         "soft-warning":
-          "border-transparent text-warning bg-warning/10 shadow-sm",
+          "border-transparent text-warning bg-warning/10",
         "soft-attention":
-          "border-transparent text-attention bg-attention/10 shadow-sm",
+          "border-transparent text-attention bg-attention/10",
       },
     },
     defaultVariants: {
