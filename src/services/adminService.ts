@@ -256,10 +256,7 @@ export class AdminService {
    * Remove admin role from a user or delete pending admin
    */
   static async removeAdminRole(userId: string, isPending: boolean = false): Promise<void> {
-    console.log('AdminService.removeAdminRole called with:', { userId, isPending });
-    
     if (isPending) {
-      console.log('Removing pending admin with ID:', userId);
       // Remove from pending admins
       const { error } = await (supabase as any)
         .from('pending_admins')
@@ -267,15 +264,11 @@ export class AdminService {
         .eq('id', userId);
 
       if (error) {
-        console.error('Error removing pending admin:', error);
         logger.error('Error removing pending admin', error as Error);
         throw error;
       }
-      console.log('Successfully removed pending admin');
       return;
     }
-
-    console.log('Removing actual admin with user_id:', userId);
 
     // Check if this is the last admin
     const { data: adminCount, error: countError } = await supabase
@@ -284,19 +277,15 @@ export class AdminService {
       .eq('role', 'admin');
 
     if (countError) {
-      console.error('Error checking admin count:', countError);
       logger.error('Error checking admin count', countError as Error);
       throw countError;
     }
-
-    console.log('Current admin count:', adminCount?.length);
 
     if (adminCount && adminCount.length <= 1) {
       throw new Error('Cannot remove the last admin. There must be at least one admin.');
     }
 
     // Remove admin role
-    console.log('Deleting admin role for user_id:', userId);
     const { error } = await supabase
       .from('user_roles')
       .delete()
@@ -304,17 +293,13 @@ export class AdminService {
       .eq('role', 'admin');
 
     if (error) {
-      console.error('Error removing admin role:', error);
       logger.error('Error removing admin role', error as Error);
       throw error;
     }
 
-    console.log('Successfully removed admin role, adding employee role back');
     // Add employee role back to ensure user has a role
     await supabase
       .from('user_roles')
       .insert({ user_id: userId, role: 'employee' });
-    
-    console.log('Admin removal process completed');
   }
 }
