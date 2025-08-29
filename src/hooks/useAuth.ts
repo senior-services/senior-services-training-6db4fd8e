@@ -20,7 +20,6 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
     let initialSessionHandled = false;
-    let logoutToastShown = false;
 
     // Check for existing session first
     const getInitialSession = async () => {
@@ -67,15 +66,6 @@ export function useAuth() {
           loading: false,
         });
 
-        // Only show logout toast once per session
-        if (event === 'SIGNED_OUT' && !logoutToastShown) {
-          logoutToastShown = true;
-          toast.success('Successfully signed out');
-          // Reset the flag after a delay to allow for future logouts
-          setTimeout(() => {
-            logoutToastShown = false;
-          }, 2000);
-        }
       }
     );
 
@@ -184,6 +174,7 @@ export function useAuth() {
         user: null,
         loading: false,
       });
+      toast.success('Successfully signed out');
       
     } catch (error: any) {
       logger.error('Sign out error', error as Error);
@@ -203,8 +194,9 @@ export function useAuth() {
         loading: false,
       });
       
-      // Only show error toast if it's not a session-related error
-      if (!isSessionError) {
+      if (isSessionError) {
+        toast.success('Successfully signed out');
+      } else {
         toast.error('Failed to sign out');
       }
     }
