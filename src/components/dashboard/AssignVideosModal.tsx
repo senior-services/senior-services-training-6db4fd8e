@@ -311,7 +311,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-2xl h-[80vh] flex flex-col bg-gradient-card">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Video className="w-5 h-5" />
