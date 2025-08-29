@@ -425,7 +425,7 @@ export const EmployeeManagement: React.FC<{
               let statusInfo;
               if (requiredVideos.length === 0) {
                 statusInfo = {
-                  variant: "hollow-primary" as const,
+                  variant: "hollow-tertiary" as const,
                   text: "No Required Training",
                   showIcon: false
                 };
