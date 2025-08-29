@@ -14,6 +14,8 @@ const badgeVariants = cva(
           "border-transparent bg-primary text-primary-foreground shadow-sm",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground shadow-sm",
+        tertiary:
+          "border-transparent bg-muted text-muted-foreground shadow-sm",
         destructive:
           "border-transparent bg-destructive text-destructive-foreground shadow-sm",
         success:
@@ -26,6 +28,8 @@ const badgeVariants = cva(
           "border-primary text-primary bg-transparent shadow-sm",
         "hollow-secondary":
           "border-secondary text-secondary bg-transparent shadow-sm",
+        "hollow-tertiary":
+          "border-muted-foreground text-muted-foreground bg-transparent shadow-sm",
         "hollow-destructive":
           "border-destructive text-destructive bg-transparent shadow-sm",
         "hollow-success":
@@ -39,6 +43,8 @@ const badgeVariants = cva(
           "border-transparent text-primary bg-transparent",
         "ghost-secondary":
           "border-transparent text-secondary bg-transparent",
+        "ghost-tertiary":
+          "border-transparent text-muted-foreground bg-transparent",
         "ghost-destructive":
           "border-transparent text-destructive bg-transparent",
         "ghost-success":
