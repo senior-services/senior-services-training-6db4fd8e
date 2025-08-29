@@ -284,7 +284,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
         </header>
 
         {/* Card Content with Semantic HTML */}
-        <CardHeader className="pb-2 pt-3 flex-none">
+        <CardHeader className="pb-3 pt-3 flex-none">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg leading-tight line-clamp-2">
               {sanitizedVideo.title}
