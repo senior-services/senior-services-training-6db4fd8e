@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Calendar } from '@/components/ui/calendar';
@@ -389,20 +390,17 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                    isCompleted && "cursor-not-allowed"
                                  )}
                                >
-                                 <div className="font-medium text-sm line-clamp-2">
-                                   {video.title}
-                                 </div>
-                                 {isCompleted && (
-                                   <Check className="w-4 h-4 text-success flex-shrink-0" />
-                                 )}
-                               </Label>
-                             </div>
+                                  <div className="font-medium text-sm line-clamp-2">
+                                    {video.title}
+                                  </div>
+                                </Label>
+                              </div>
 
-                             <div className="flex items-center gap-4">
-                               {isCompleted ? (
-                                 <div className="text-sm text-success font-medium px-3 py-1 bg-success/10 rounded-md">
-                                   Completed
-                                 </div>
+                              <div className="flex items-center gap-4">
+                                {isCompleted ? (
+                                  <Badge variant="success" showIcon={true}>
+                                    Completed
+                                  </Badge>
                                ) : isSelected ? (
                                  <Popover 
                                    open={calendarOpen.get(video.id) || false}
