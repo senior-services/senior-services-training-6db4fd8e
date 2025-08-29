@@ -353,7 +353,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 mt-4 overflow-y-auto">
+              <ScrollArea className="flex-1 overflow-y-auto">
                 <div className="pr-4">
                    {availableVideosCount === 0 ? (
                      <div className="text-center py-8 text-muted-foreground">
