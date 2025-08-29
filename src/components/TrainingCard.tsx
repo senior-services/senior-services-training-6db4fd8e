@@ -147,7 +147,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
         className: '',
         text: 'Completed',
         ariaLabel: 'Training completed successfully',
-        priority: 'low' as const
+        priority: 'high' as const
       };
     }
     if (isPast(due) && daysUntilDue < 0) {
