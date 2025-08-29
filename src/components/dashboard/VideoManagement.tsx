@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { videoOperations } from '@/services/api';
+import { supabase } from '@/integrations/supabase/client';
 import { logger, performanceTracker } from '@/utils/logger';
 import { sanitizeText } from '@/utils/security';
 import type { Video } from '@/types';
@@ -56,6 +57,21 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
     console.log('Loading videos for user:', userEmail);
     
     try {
+      // Check authentication status first
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current auth session:', session ? 'authenticated' : 'not authenticated');
+      
+      if (!session) {
+        console.warn('User not authenticated when loading videos');
+        toast({
+          title: 'Authentication Required',
+          description: 'Please log in to view videos',
+          variant: 'destructive'
+        });
+        setLoading(false);
+        return;
+      }
+      
       const result = await videoOperations.getAll();
       console.log('Video operations result:', result);
       
@@ -83,7 +99,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       console.error('Unexpected error loading videos:', error);
       toast({
         title: 'Error loading videos',
-        description: 'An unexpected error occurred while loading videos',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred while loading videos',
         variant: 'destructive'
       });
     }
