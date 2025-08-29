@@ -586,14 +586,14 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                     </div>
                                   ) : (
                                      <Table>
-                                        <TableHeader>
-                                          <TableRow className="border-b border-solid border-muted-foreground/30">
+                                        <TableHeader className="[&_tr]:border-b [&_tr]:border-solid [&_tr]:border-muted-foreground/30">
+                                          <TableRow>
                                             <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2">Video Title</TableHead>
                                             <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2">Quiz Results</TableHead>
                                             <TableHead className="text-xs font-medium uppercase text-muted-foreground text-right pb-2">Status</TableHead>
                                           </TableRow>
                                         </TableHeader>
-                                        <TableBody>
+                                        <TableBody className="[&>tr:first-child]:border-t [&>tr:first-child]:border-muted-foreground/30">
                                           {videos.map((assignment) => {
                                             const badge = getDeadlineBadge(assignment.due_date, assignment.progress_percent);
                                             const employeeQuizData = employeeQuizzes.get(employee.id);
