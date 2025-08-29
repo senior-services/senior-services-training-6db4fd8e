@@ -491,7 +491,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                   let statusInfo;
                   if (requiredVideos.length === 0) {
                     statusInfo = {
-                      variant: "hollow-plain" as const,
+                      variant: "hollow-outline" as const,
                       text: "No Required Training",
                       showIcon: false
                     };
