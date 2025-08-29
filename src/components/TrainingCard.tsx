@@ -55,7 +55,7 @@ interface TrainingCardProps {
  * Status badge configuration with enhanced accessibility
  */
 interface BadgeConfig {
-  variant: 'default';
+  variant: 'ghost-success' | 'ghost-destructive' | 'ghost-warning' | 'ghost-secondary' | 'ghost-primary' | 'ghost-plain';
   className: string;
   text: string;
   ariaLabel: string;
