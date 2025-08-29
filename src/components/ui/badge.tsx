@@ -36,8 +36,6 @@ const badgeVariants = cva(
           "border-success text-success bg-transparent shadow-sm",
         "hollow-warning":
           "border-warning text-warning bg-transparent shadow-sm",
-        "hollow-plain":
-          "border-transparent text-muted-foreground bg-transparent shadow-sm",
         // Ghost variants (like hollow but without borders or shadows)
         "ghost-primary":
           "border-transparent text-primary bg-transparent",
@@ -51,8 +49,6 @@ const badgeVariants = cva(
           "border-transparent text-success bg-transparent",
         "ghost-warning":
           "border-transparent text-warning bg-transparent",
-        "ghost-plain":
-          "border-transparent text-muted-foreground bg-transparent",
       },
     },
     defaultVariants: {

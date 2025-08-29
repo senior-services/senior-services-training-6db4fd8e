@@ -336,7 +336,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
     }
     if (!dueDate) {
       return {
-        variant: "ghost-plain" as const,
+        variant: "ghost-tertiary" as const,
         text: "No deadline"
       };
     }
@@ -599,11 +599,11 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                                </TableCell>
                                                <TableCell className="text-right py-1">
                                                  <div className="flex gap-2 justify-end">
-                                                   {quizAttempt && (
-                                                     <Badge variant="ghost-plain">
-                                                       Quiz: {quizAttempt.score} of {quizAttempt.total_questions} correct
-                                                     </Badge>
-                                                   )}
+                                                    {quizAttempt && (
+                                                      <Badge variant="ghost-tertiary">
+                                                        Quiz: {quizAttempt.score} of {quizAttempt.total_questions} correct
+                                                      </Badge>
+                                                    )}
                                                    <Badge 
                                                      variant={badge.variant}
                                                      showIcon={badge.showIcon}

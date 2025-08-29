@@ -817,7 +817,6 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         <Badge variant="hollow-warning">Warning</Badge>
                         <Badge variant="hollow-warning" showIcon>Warning with Icon</Badge>
                         <Badge variant="outline">Outline</Badge>
-                        <Badge variant="hollow-plain">Plain</Badge>
                       </div>
                   </div>
                   <div>
@@ -832,7 +831,6 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         <Badge variant="ghost-success" showIcon>Success with Icon</Badge>
                         <Badge variant="ghost-warning">Warning</Badge>
                         <Badge variant="ghost-warning" showIcon>Warning with Icon</Badge>
-                        <Badge variant="ghost-plain">Plain</Badge>
                       </div>
                   </div>
                 </div>
