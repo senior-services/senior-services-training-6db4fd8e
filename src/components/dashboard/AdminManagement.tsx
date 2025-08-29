@@ -13,6 +13,7 @@ import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { logger } from '@/utils/logger';
+import { supabase } from '@/integrations/supabase/client';
 export const AdminManagement: React.FC = () => {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +25,11 @@ export const AdminManagement: React.FC = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [sortColumn, setSortColumn] = useState<'name' | 'dateAdded' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [employeePromotionDialog, setEmployeePromotionDialog] = useState<{
+    show: boolean;
+    email: string;
+    employeeName?: string;
+  }>({ show: false, email: '', employeeName: '' });
   const { toast } = useToast();
 
   const handleSort = (column: 'name' | 'dateAdded') => {
@@ -73,6 +79,21 @@ export const AdminManagement: React.FC = () => {
       setLoading(false);
     }
   };
+  const checkIfEmployee = async (email: string) => {
+    const { data, error } = await supabase
+      .from('employees')
+      .select('email, full_name')
+      .eq('email', email.toLowerCase())
+      .maybeSingle();
+    
+    if (error) {
+      logger.error('Error checking employee status', error);
+      return null;
+    }
+    
+    return data;
+  };
+
   const handleAddAdmin = async () => {
     if (!newAdminEmail.trim()) {
       toast({
@@ -82,9 +103,39 @@ export const AdminManagement: React.FC = () => {
       });
       return;
     }
+
     setIsAdding(true);
     try {
-      await AdminService.addAdminByEmail(newAdminEmail.trim());
+      // Check if user is already an employee
+      const existingEmployee = await checkIfEmployee(newAdminEmail.trim());
+      
+      if (existingEmployee) {
+        // Show confirmation dialog for employee promotion
+        setEmployeePromotionDialog({
+          show: true,
+          email: newAdminEmail.trim(),
+          employeeName: existingEmployee.full_name
+        });
+        setIsAdding(false);
+        return;
+      }
+
+      // Proceed with normal admin addition
+      await proceedWithAdminAddition(newAdminEmail.trim());
+    } catch (error: any) {
+      logger.error('Error adding admin', error as Error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add admin",
+        variant: "destructive"
+      });
+      setIsAdding(false);
+    }
+  };
+
+  const proceedWithAdminAddition = async (email: string) => {
+    try {
+      await AdminService.addAdminByEmail(email);
       setNewAdminEmail('');
       setHasChanges(false);
       setShowAddModal(false);
@@ -103,6 +154,12 @@ export const AdminManagement: React.FC = () => {
     } finally {
       setIsAdding(false);
     }
+  };
+
+  const handleConfirmEmployeePromotion = async () => {
+    setEmployeePromotionDialog({ show: false, email: '', employeeName: '' });
+    setIsAdding(true);
+    await proceedWithAdminAddition(employeePromotionDialog.email);
   };
   const handleDeleteAdmin = async () => {
     if (!deleteConfirmAdmin) return;
@@ -283,6 +340,49 @@ export const AdminManagement: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Employee Promotion Confirmation Dialog */}
+      <AlertDialog open={employeePromotionDialog.show} onOpenChange={(open) => {
+        if (!open) {
+          setEmployeePromotionDialog({ show: false, email: '', employeeName: '' });
+        }
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-orange-600">
+              Promote Employee to Administrator
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{employeePromotionDialog.employeeName || employeePromotionDialog.email}</strong> is currently an employee with training assignments.
+              <br />
+              <br />
+              By promoting them to administrator:
+              <ul className="list-disc list-inside mt-2 space-y-1 text-destructive">
+                <li>All their current video assignments will be removed</li>
+                <li>All training progress and quiz results will be deleted</li>
+                <li>They will lose access to employee training materials</li>
+                <li>They will gain full administrative privileges</li>
+              </ul>
+              <br />
+              <strong className="text-destructive">
+                This action cannot be undone. Training data will be permanently lost.
+              </strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isAdding}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmEmployeePromotion} 
+              disabled={isAdding} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isAdding ? 'Promoting...' : 'Promote to Admin'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteConfirmAdmin} onOpenChange={() => setDeleteConfirmAdmin(null)}>
