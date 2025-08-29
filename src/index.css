@@ -28,7 +28,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
     /* Muted: Higher Contrast for Senior Vision */
     --muted: 210 20% 93%; /* Less subtle background */
-    --muted-foreground: 215 25% 35%; /* Much darker for better readability */
+    --muted-foreground: 215 25% 45%; /* Slightly lighter while maintaining AA accessibility */
 
     /* Success Green & Warning Colors */
     --success: 142 76% 30%; /* Darker for better contrast */
@@ -55,7 +55,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --progress-fill: 219 79% 22%; /* Match new primary color */
     --deadline-overdue: 0 84% 50%; /* Match new destructive color */
     --deadline-warning: 25 95% 50%; /* Match new orange warning color */
-    --deadline-upcoming: 215 25% 35%; /* Match new muted-foreground */
+    --deadline-upcoming: 215 25% 45%; /* Match updated muted-foreground */
     --deadline-completed: 142 76% 30%; /* Match new success color */
 
     /* Gradients */
@@ -99,7 +99,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --secondary-foreground: 210 20% 98%;
 
     --muted: 219 79% 12%; /* Darker muted background */
-    --muted-foreground: 215 16% 75%; /* Brighter muted text */
+    --muted-foreground: 215 16% 80%; /* Slightly brighter muted text */
 
     --success: 142 76% 55%; /* Brighter for dark mode visibility */
     --success-foreground: 219 79% 6%;
@@ -121,7 +121,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --progress-fill: 206 73% 70%;
     --deadline-overdue: 0 84% 75%;
     --deadline-warning: 25 95% 65%;
-    --deadline-upcoming: 215 16% 75%;
+    --deadline-upcoming: 215 16% 80%;
     --deadline-completed: 142 76% 55%;
 
     /* Dark gradients */
