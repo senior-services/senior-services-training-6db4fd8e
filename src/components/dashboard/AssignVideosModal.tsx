@@ -346,7 +346,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                      }}
                      disabled={availableVideosCount === 0}
                    />
-                  <div className="w-px h-4 bg-border"></div>
+                   <div className="w-px h-4 bg-border"></div>
                    <Label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
                      {selectedAvailableCount} video{selectedAvailableCount !== 1 ? 's' : ''} selected
                    </Label>
@@ -355,37 +355,24 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
               <ScrollArea className="flex-1 mt-4 overflow-y-auto">
                 <div className="pr-4">
-                  {videos.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p>No training videos available</p>
-                    </div>
-                  ) : (
+                   {availableVideosCount === 0 ? (
+                     <div className="text-center py-8 text-muted-foreground">
+                       <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                       <p>No training videos available</p>
+                     </div>
+                   ) : (
                      <div className="space-y-0">
                        {videos
-                         .sort((a, b) => {
-                           const aCompleted = completedVideoIds.has(a.id);
-                           const bCompleted = completedVideoIds.has(b.id);
-                           
-                           // Non-completed videos first
-                           if (!aCompleted && bCompleted) return -1;
-                           if (aCompleted && !bCompleted) return 1;
-                           
-                           // Within each group, maintain original order (by title)
-                           return a.title.localeCompare(b.title);
-                         })
+                         .filter(video => !completedVideoIds.has(video.id))
+                         .sort((a, b) => a.title.localeCompare(b.title))
                          .map((video, index) => {
                          const isSelected = selectedVideoIds.has(video.id);
                          const wasOriginallyAssigned = assignedVideoIds.has(video.id);
-                         const isCompleted = completedVideoIds.has(video.id);
                          
                          return (
                            <div
                              key={video.id}
-                             className={cn(
-                               "flex items-center justify-between py-3 border-b last:border-b-0 border-border-primary/50 transition-colors",
-                               isCompleted && "opacity-60 bg-muted/30"
-                             )}
+                             className="flex items-center justify-between py-3 border-b last:border-b-0 border-border-primary/50 transition-colors"
                            >
                              <div className="flex items-center gap-3 flex-1 min-w-0">
                                <Checkbox
@@ -394,28 +381,20 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                  onCheckedChange={(checked) => 
                                    handleVideoToggle(video.id, checked as boolean)
                                  }
-                                 disabled={isCompleted}
                                />
                                
                                <Label 
                                  htmlFor={`video-${video.id}`}
-                                 className={cn(
-                                   "flex-1 min-w-0 cursor-pointer flex items-center gap-2",
-                                   isCompleted && "cursor-not-allowed"
-                                 )}
+                                 className="flex-1 min-w-0 cursor-pointer"
                                >
-                                  <div className="font-medium text-sm line-clamp-2">
-                                    {video.title}
-                                  </div>
-                                </Label>
-                              </div>
+                                 <div className="font-medium text-sm line-clamp-2">
+                                   {video.title}
+                                 </div>
+                               </Label>
+                             </div>
 
-                              <div className="flex items-center gap-4">
-                                {isCompleted ? (
-                                  <Badge variant="hollow-success" showIcon={true}>
-                                    Completed
-                                  </Badge>
-                               ) : isSelected ? (
+                             <div className="flex items-center gap-4">
+                               {isSelected && (
                                  <Popover 
                                    open={calendarOpen.get(video.id) || false}
                                    onOpenChange={(open) => {
@@ -463,13 +442,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                      />
                                    </PopoverContent>
                                  </Popover>
-                               ) : null}
+                               )}
                              </div>
                            </div>
                          );
                        })}
-                    </div>
-                  )}
+                     </div>
+                   )}
                 </div>
               </ScrollArea>
             </>
