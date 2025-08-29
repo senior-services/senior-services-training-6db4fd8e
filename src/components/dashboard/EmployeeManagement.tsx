@@ -412,7 +412,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>
+                  <TableHead className="px-0">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('employee')}
@@ -434,7 +434,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="px-0">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort('status')}
@@ -456,7 +456,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                  <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground px-0">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -515,7 +515,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                   return (
                     <React.Fragment key={employee.id}>
                       <TableRow className={`group hover:bg-muted/50 transition-colors ${isExpanded ? 'border-b-0' : ''}`}>
-                        <TableCell className="py-3">
+                        <TableCell className="py-3 px-0">
                           <Collapsible 
                             open={isExpanded}
                             onOpenChange={() => toggleEmployeeExpanded(employee.id)}
@@ -541,7 +541,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                           </Collapsible>
                         </TableCell>
                         
-                        <TableCell className="py-3">
+                        <TableCell className="py-3 px-0">
                           <Badge 
                             variant={statusInfo.variant}
                             showIcon={statusInfo.showIcon}
@@ -551,7 +551,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                           </Badge>
                         </TableCell>
 
-                        <TableCell className="text-right py-3">
+                        <TableCell className="text-right py-3 px-0">
                           <div className="flex gap-3 justify-end">
                             <Button 
                               variant="outline" 
@@ -576,7 +576,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                       
                       {isExpanded && (
                         <TableRow className="hover:bg-transparent">
-                          <TableCell colSpan={4} className="py-0">
+                          <TableCell colSpan={4} className="py-0 px-0">
                             <Collapsible open={isExpanded}>
                               <CollapsibleContent>
                                 <div className="px-4 pb-4 ml-6">
@@ -588,9 +588,9 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                      <Table>
                                         <TableHeader className="[&_tr]:border-b [&_tr]:border-solid [&_tr]:border-muted-foreground/30">
                                           <TableRow>
-                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2">Video Title</TableHead>
-                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2">Quiz Results</TableHead>
-                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground text-right pb-2">Status</TableHead>
+                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2 px-0">Video Title</TableHead>
+                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2 px-0">Quiz Results</TableHead>
+                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2 px-0">Status</TableHead>
                                           </TableRow>
                                         </TableHeader>
                                         <TableBody className="[&>tr:first-child]:border-t [&>tr:first-child]:border-muted-foreground/30">
@@ -601,10 +601,10 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                             
                                             return (
                                               <TableRow key={assignment.assignment_id} className="hover:bg-transparent">
-                                                <TableCell className="py-1">
+                                                <TableCell className="py-1 px-0">
                                                   {assignment.video_title}
                                                 </TableCell>
-                                                <TableCell className="py-1">
+                                                <TableCell className="py-1 px-0">
                                                   {quizAttempt ? (
                                                     <Badge variant="ghost-tertiary">
                                                       {quizAttempt.score} of {quizAttempt.total_questions} correct
@@ -613,7 +613,7 @@ export const EmployeeManagement: React.FC<{ onCountChange?: (count: number) => v
                                                     <span className="text-xs text-muted-foreground">No quiz taken</span>
                                                   )}
                                                 </TableCell>
-                                                <TableCell className="text-right py-1">
+                                                <TableCell className="py-1 px-0">
                                                   <Badge 
                                                     variant={badge.variant}
                                                     showIcon={badge.showIcon}
