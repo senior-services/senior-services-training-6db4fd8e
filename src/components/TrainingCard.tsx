@@ -143,8 +143,8 @@ export const TrainingCard = memo<TrainingCardProps>(({
     
     if (trainingStatus.isCompleted) {
       return {
-        variant: 'default' as const,
-        className: 'bg-success text-success-foreground hover:bg-success border-success',
+        variant: 'ghost-success' as const,
+        className: '',
         text: 'Completed',
         ariaLabel: 'Training completed successfully',
         priority: 'low' as const
@@ -152,8 +152,8 @@ export const TrainingCard = memo<TrainingCardProps>(({
     }
     if (isPast(due) && daysUntilDue < 0) {
       return {
-        variant: 'default' as const,
-        className: 'bg-destructive text-destructive-foreground hover:bg-destructive border-destructive',
+        variant: 'ghost-destructive' as const,
+        className: '',
         text: 'Overdue',
         ariaLabel: `Training is overdue by ${Math.abs(daysUntilDue)} days`,
         priority: 'high' as const
@@ -161,8 +161,8 @@ export const TrainingCard = memo<TrainingCardProps>(({
     }
     if (daysUntilDue === 0) {
       return {
-        variant: 'default' as const,
-        className: 'bg-warning text-warning-foreground hover:bg-warning border-warning',
+        variant: 'ghost-warning' as const,
+        className: '',
         text: 'Due Today',
         ariaLabel: 'Training is due today',
         priority: 'high' as const
@@ -170,8 +170,8 @@ export const TrainingCard = memo<TrainingCardProps>(({
     }
     if (daysUntilDue <= 7) {
       return {
-        variant: 'default' as const,
-        className: 'bg-muted text-muted-foreground hover:bg-muted border-muted-foreground',
+        variant: 'ghost-secondary' as const,
+        className: '',
         text: `Due in ${daysUntilDue} days`,
         ariaLabel: `Training is due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`,
         priority: 'medium' as const
@@ -179,8 +179,8 @@ export const TrainingCard = memo<TrainingCardProps>(({
     }
     if (daysUntilDue <= 30) {
       return {
-        variant: 'default' as const,
-        className: 'bg-muted text-muted-foreground hover:bg-muted border-muted-foreground',
+        variant: 'ghost-secondary' as const,
+        className: '',
         text: `Due in ${daysUntilDue} days`,
         ariaLabel: `Training is due in ${daysUntilDue} days`,
         priority: 'low' as const
@@ -261,15 +261,13 @@ export const TrainingCard = memo<TrainingCardProps>(({
           </button>
 
           {/* Due Date Badge and Completion Badge with Enhanced Accessibility */}
-          {dueDateInfo && <Badge variant={dueDateInfo.variant} className={cn('absolute top-2 right-2 text-xs font-medium shadow-lg z-10 border-2', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status">
-              {dueDateInfo.priority === 'high' && <AlertCircle className="w-3 h-3 mr-1" aria-hidden="true" />}
+          {dueDateInfo && <Badge variant={dueDateInfo.variant} className={cn('absolute top-2 right-2 text-xs font-medium z-10', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
               {dueDateInfo.text}
             </Badge>}
           
           {/* Completed Badge for videos without due dates */}
           {trainingStatus.isCompleted && !dueDateInfo && (
-            <Badge variant="default" className="absolute top-2 right-2 text-xs font-medium shadow-lg z-10 border-2 bg-success text-success-foreground hover:bg-success border-success" aria-label="Training completed successfully" role="status">
-              <CheckCircle className="w-3 h-3 mr-1" aria-hidden="true" />
+            <Badge variant="ghost-success" className="absolute top-2 right-2 text-xs font-medium z-10" aria-label="Training completed successfully" role="status" showIcon>
               Completed
             </Badge>
           )}
