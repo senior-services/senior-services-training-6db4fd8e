@@ -468,7 +468,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             onClick={handleSubmit} 
             disabled={!hasChanges || isSubmitting}
           >
-            {isSubmitting ? 'Saving...' : 'Save Changes'}
+            {isSubmitting ? 'Assigning...' : 'Assign Videos'}
           </Button>
         </div>
       </DialogContent>
