@@ -554,7 +554,7 @@ export const EditVideoModal = ({
 
           <div className="flex-1 overflow-y-auto">
             <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList>
                 <TabsTrigger value="info">Video Info</TabsTrigger>
                 <TabsTrigger value="quiz" className="flex items-center gap-2">
                   Quiz
@@ -566,7 +566,7 @@ export const EditVideoModal = ({
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="space-y-6 mt-6">
+              <TabsContent value="info" className="space-y-6 mt-2">
                 {/* Video Preview Section */}
                 <div className="space-y-3">
                   
@@ -620,7 +620,7 @@ export const EditVideoModal = ({
                 
               </TabsContent>
 
-              <TabsContent value="quiz" className="space-y-6 mt-6">
+              <TabsContent value="quiz" className="space-y-6 mt-2">
                 <div className="space-y-6">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">
