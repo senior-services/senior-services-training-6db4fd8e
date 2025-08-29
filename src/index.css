@@ -43,7 +43,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     /* UI Elements - Stronger Borders and Inputs */
     --border-primary: 210 20% 65%; /* Much darker primary border for visibility */
     --border-secondary: 210 20% 77%; /* Medium border - between primary and input */
-    --input: 210 20% 90%; /* Slightly darker input background */
+    --input: 210 20% 77%; /* Match border-secondary for consistency */
     --accent: 210 20% 90%;
     --accent-foreground: 215 25% 15%;
     --ring: 219 79% 22%;
@@ -112,7 +112,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
     --border-primary: 219 79% 35%; /* More visible primary borders in dark mode */
     --border-secondary: 219 79% 25%; /* Medium border - between primary and input */
-    --input: 219 79% 15%; /* Darker input with better contrast */
+    --input: 219 79% 25%; /* Match border-secondary for consistency */
     --accent: 219 79% 15%;
     --accent-foreground: 210 20% 98%;
     --ring: 206 73% 70%;
