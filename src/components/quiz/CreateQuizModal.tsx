@@ -7,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { QuizQuestion, QuizQuestionOption } from "@/types/quiz";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreateQuizModalProps {
   open: boolean;
@@ -41,6 +43,7 @@ export interface OptionFormData {
 }
 
 export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmitting }: CreateQuizModalProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState<QuizFormData>({
     title: "",
     description: "",
@@ -167,6 +170,16 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
   };
 
   const handleSubmit = () => {
+    // Check if there are no questions
+    if (formData.questions.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "No Questions Added",
+        description: "Please add at least one question to create the quiz.",
+      });
+      return;
+    }
+    
     const { cleanedQuestions, errors } = cleanupAndValidateQuestions(formData.questions);
     
     if (Object.keys(errors).length > 0) {
@@ -223,6 +236,18 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                 Add Question
               </Button>
             </div>
+
+            {formData.questions.length === 0 && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  No questions have been added yet. Please add at least one question to create the quiz.
+                  <Button onClick={addQuestion} variant="outline" size="sm" className="ml-2">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Question
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
 
             {formData.questions.map((question, questionIndex) => (
               <Card key={questionIndex} className="border-border">
