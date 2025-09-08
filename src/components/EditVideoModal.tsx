@@ -71,6 +71,7 @@ export const EditVideoModal = ({
   const [quizTitle, setQuizTitle] = useState('');
   const [quizDescription, setQuizDescription] = useState('');
   const [questions, setQuestions] = useState<EditableQuestionFormData[]>([]);
+  const [questionValidationErrors, setQuestionValidationErrors] = useState<{[key: number]: string}>({});
   
   // Track original quiz state for unsaved changes detection
   const [originalQuizTitle, setOriginalQuizTitle] = useState('');
@@ -154,8 +155,35 @@ export const EditVideoModal = ({
       setQuizLoading(false);
     }
   };
+  const validateQuestions = () => {
+    const errors: {[key: number]: string} = {};
+    
+    questions.forEach((question, index) => {
+      if (question.question_type === 'single_answer') {
+        const hasCorrectAnswer = question.options.some(opt => opt.is_correct);
+        if (!hasCorrectAnswer) {
+          errors[index] = 'Please select one correct answer for this single answer question.';
+        }
+      }
+    });
+    
+    setQuestionValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSave = async () => {
     if (!video) return;
+    
+    // Validate questions before saving
+    if ((quizTitle.trim() || questions.length > 0) && !validateQuestions()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the question errors before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
     try {
       const isCreatingNewQuiz = !quiz && (quizTitle.trim() || questions.length > 0);
@@ -207,6 +235,7 @@ export const EditVideoModal = ({
     setQuizTitle('');
     setQuizDescription('');
     setQuestions([]);
+    setQuestionValidationErrors({});
     setQuizLoading(false);
     setIsCreatingQuiz(false);
     onOpenChange(false);
@@ -296,6 +325,15 @@ export const EditVideoModal = ({
     setQuestions(prev => prev.map((q, i) => 
       i === index ? { ...q, ...updates } : q
     ));
+    
+    // Clear validation error for this question when it's updated
+    if (questionValidationErrors[index]) {
+      setQuestionValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[index];
+        return newErrors;
+      });
+    }
   };
 
   const removeQuestion = (index: number) => {
@@ -692,19 +730,20 @@ export const EditVideoModal = ({
                               <div className="space-y-3">
                                 <Label>Answer Options</Label>
                                 
-                                {question.question_type === 'single_answer' ? (
-                                  <RadioGroup
-                                    value={question.options.find(opt => opt.is_correct)?.order_index?.toString() || ""}
-                                    onValueChange={(value) => {
-                                      const selectedIndex = parseInt(value);
-                                      const updatedOptions = question.options.map((opt, i) => ({
-                                        ...opt,
-                                        is_correct: i === selectedIndex
-                                      }));
-                                      updateQuestion(questionIndex, { options: updatedOptions });
-                                    }}
-                                    className="space-y-3"
-                                  >
+                                 {question.question_type === 'single_answer' ? (
+                                  <div className="space-y-3">
+                                    <RadioGroup
+                                      value={question.options.find(opt => opt.is_correct)?.order_index?.toString() || ""}
+                                      onValueChange={(value) => {
+                                        const selectedIndex = parseInt(value);
+                                        const updatedOptions = question.options.map((opt, i) => ({
+                                          ...opt,
+                                          is_correct: i === selectedIndex
+                                        }));
+                                        updateQuestion(questionIndex, { options: updatedOptions });
+                                      }}
+                                      className="space-y-3"
+                                    >
                                     {question.options.map((option, optionIndex) => (
                                       <div key={optionIndex} className="flex items-center gap-3">
                                         <Input
@@ -737,8 +776,15 @@ export const EditVideoModal = ({
                                         </Button>
                                       </div>
                                     ))}
-                                  </RadioGroup>
-                                ) : (
+                                    </RadioGroup>
+                                    
+                                    {questionValidationErrors[questionIndex] && (
+                                      <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                        {questionValidationErrors[questionIndex]}
+                                      </div>
+                                    )}
+                                  </div>
+                                 ) : (
                                   <div className="space-y-3">
                                     {question.options.map((option, optionIndex) => (
                                       <div key={optionIndex} className="flex items-center gap-3">
