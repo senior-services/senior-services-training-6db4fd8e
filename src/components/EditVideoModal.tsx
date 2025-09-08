@@ -283,6 +283,31 @@ export const EditVideoModal = ({
     
     // Enable validation display and cleanup/validate questions before saving
     setShowQuizValidation(true);
+    
+    // Check quiz creation requirements for new quizzes
+    const isCreatingNewQuiz = !quiz && (quizTitle.trim() || questions.length > 0);
+    if (isCreatingNewQuiz) {
+      // Check if title is missing
+      if (quizTitle.trim() === '') {
+        toast({
+          title: "Quiz title is required",
+          description: "Please enter a title for the quiz.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check if no questions added
+      if (questions.length === 0) {
+        toast({
+          title: "Please add at least one question",
+          description: "Please add at least one question to create the quiz.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     if ((quizTitle.trim() || questions.length > 0) && !cleanupAndValidateQuestions()) {
       toast({
         title: "Validation Error",
@@ -611,6 +636,25 @@ export const EditVideoModal = ({
   const handleCreateQuiz = async () => {
     if (!video) return;
     
+    // Defensive validation checks
+    if (quizTitle.trim() === '') {
+      toast({
+        title: "Quiz title is required",
+        description: "Please enter a title for the quiz.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (questions.length === 0) {
+      toast({
+        title: "Please add at least one question",
+        description: "Please add at least one question to create the quiz.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsCreatingQuiz(true);
     try {
       // Create the quiz
@@ -726,15 +770,12 @@ export const EditVideoModal = ({
               <TabsList>
                 <TabsTrigger value="info">Video Info</TabsTrigger>
                 <TabsTrigger value="quiz" className="flex items-center gap-2">
-                  Quiz
-                  {(() => {
-                    const validQuestionCount = questions.filter(isQuestionValid).length;
-                    return validQuestionCount > 0 && (
-                      <Badge variant="tertiary" className="text-xs px-1.5 py-0.5 min-w-[20px] h-5">
-                        {validQuestionCount}
-                      </Badge>
-                    );
-                  })()}
+                   Quiz
+                   {questions.length > 0 && (
+                     <Badge variant="tertiary" className="text-xs px-1.5 py-0.5 min-w-[20px] h-5">
+                       {questions.length}
+                     </Badge>
+                   )}
                 </TabsTrigger>
               </TabsList>
 

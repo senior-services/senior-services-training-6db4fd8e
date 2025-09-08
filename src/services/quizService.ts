@@ -191,14 +191,24 @@ export const quizOperations = {
   // Lightweight check for quiz presence (for VideoTable)
   async hasQuiz(videoId: string): Promise<boolean> {
     try {
-      const { data, error } = await supabase
+      // First check if quiz exists
+      const { data: quizData, error: quizError } = await supabase
         .from('quizzes')
         .select('id')
         .eq('video_id', videoId)
         .limit(1);
 
-      if (error) throw error;
-      return data && data.length > 0;
+      if (quizError) throw quizError;
+      if (!quizData || quizData.length === 0) return false;
+
+      // Then check if quiz has at least one question
+      const { count, error: questionError } = await supabase
+        .from('quiz_questions')
+        .select('*', { count: 'exact', head: true })
+        .eq('quiz_id', quizData[0].id);
+
+      if (questionError) throw questionError;
+      return (count || 0) > 0;
     } catch (error) {
       logger.debug('Error checking quiz presence:', error);
       return false;
