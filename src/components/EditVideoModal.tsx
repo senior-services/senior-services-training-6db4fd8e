@@ -464,7 +464,12 @@ export const EditVideoModal = ({
     const question = questions[questionIndex];
     const updatedOptions = question.options.filter((_, i) => i !== optionIndex);
     
-    updateQuestion(questionIndex, { options: updatedOptions });
+    // Ensure minimum options remain visible for single_answer and multiple_choice
+    const finalOptions = (question.question_type === 'single_answer' || question.question_type === 'multiple_choice') 
+      ? ensureMinOptions(updatedOptions, 2)
+      : updatedOptions;
+    
+    updateQuestion(questionIndex, { options: finalOptions });
   };
 
   const handleUpdateQuiz = async () => {
@@ -801,9 +806,29 @@ export const EditVideoModal = ({
                               <Select
                                 value={question.question_type}
                                 onValueChange={(value: any) => {
+                                  let newOptions = question.options;
+                                  
+                                  if (value === 'true_false') {
+                                    newOptions = [];
+                                  } else if (value === 'single_answer') {
+                                    // Ensure at least 2 options and only one correct
+                                    newOptions = ensureMinOptions(question.options, 2);
+                                    const correctCount = newOptions.filter(opt => opt.is_correct).length;
+                                    if (correctCount !== 1) {
+                                      // Set first option as correct if none or multiple are correct
+                                      newOptions = newOptions.map((opt, i) => ({
+                                        ...opt,
+                                        is_correct: i === 0
+                                      }));
+                                    }
+                                  } else if (value === 'multiple_choice') {
+                                    // Ensure at least 2 options
+                                    newOptions = ensureMinOptions(question.options, 2);
+                                  }
+                                  
                                   updateQuestion(questionIndex, { 
                                     question_type: value,
-                                    options: value === 'true_false' ? [] : question.options
+                                    options: newOptions
                                   });
                                 }}
                               >
