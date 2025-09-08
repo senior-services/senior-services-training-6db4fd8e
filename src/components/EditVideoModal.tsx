@@ -72,6 +72,7 @@ export const EditVideoModal = ({
   const [quizDescription, setQuizDescription] = useState('');
   const [questions, setQuestions] = useState<EditableQuestionFormData[]>([]);
   const [questionValidationErrors, setQuestionValidationErrors] = useState<{[key: number]: string}>({});
+  const [showQuizValidation, setShowQuizValidation] = useState(false);
   
   // Track original quiz state for unsaved changes detection
   const [originalQuizTitle, setOriginalQuizTitle] = useState('');
@@ -240,7 +241,8 @@ export const EditVideoModal = ({
   const handleSave = async () => {
     if (!video) return;
     
-    // Cleanup and validate questions before saving
+    // Enable validation display and cleanup/validate questions before saving
+    setShowQuizValidation(true);
     if ((quizTitle.trim() || questions.length > 0) && !cleanupAndValidateQuestions()) {
       toast({
         title: "Validation Error",
@@ -302,6 +304,7 @@ export const EditVideoModal = ({
     setQuizDescription('');
     setQuestions([]);
     setQuestionValidationErrors({});
+    setShowQuizValidation(false);
     setQuizLoading(false);
     setIsCreatingQuiz(false);
     onOpenChange(false);
@@ -385,6 +388,9 @@ export const EditVideoModal = ({
       ]
     };
     setQuestions(prev => [...prev, newQuestion]);
+    // Clear validation errors and reset validation display when adding questions
+    setQuestionValidationErrors({});
+    setShowQuizValidation(false);
   };
 
   const updateQuestion = (index: number, updates: Partial<EditableQuestionFormData>) => {
@@ -400,10 +406,18 @@ export const EditVideoModal = ({
         return newErrors;
       });
     }
+    
+    // Reset validation display when question type changes
+    if (updates.question_type) {
+      setShowQuizValidation(false);
+    }
   };
 
   const removeQuestion = (index: number) => {
     setQuestions(prev => prev.filter((_, i) => i !== index));
+    // Clear all validation errors and reset validation display when removing questions
+    setQuestionValidationErrors({});
+    setShowQuizValidation(false);
   };
 
   const addOption = (questionIndex: number) => {
@@ -847,11 +861,17 @@ export const EditVideoModal = ({
                                      ))}
                                      </RadioGroup>
                                      
-                                     {questionValidationErrors[questionIndex] && (
-                                       <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
-                                         {questionValidationErrors[questionIndex]}
-                                       </div>
-                                     )}
+                                      {showQuizValidation && questionValidationErrors[questionIndex] && (
+                                        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                          {questionValidationErrors[questionIndex]}
+                                        </div>
+                                      )}
+                                      
+                                      {!showQuizValidation && question.question_type === 'single_answer' && (
+                                        <div className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-md border border-border/50">
+                                          💡 Select exactly one correct answer for single answer questions.
+                                        </div>
+                                      )}
                                   </div>
                                   ) : (
                                    <div className="space-y-3">
@@ -891,11 +911,17 @@ export const EditVideoModal = ({
                                        </div>
                                      ))}
                                      
-                                     {questionValidationErrors[questionIndex] && (
-                                       <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
-                                         {questionValidationErrors[questionIndex]}
-                                       </div>
-                                     )}
+                                      {showQuizValidation && questionValidationErrors[questionIndex] && (
+                                        <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                          {questionValidationErrors[questionIndex]}
+                                        </div>
+                                      )}
+                                      
+                                      {!showQuizValidation && question.question_type === 'multiple_choice' && (
+                                        <div className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-md border border-border/50">
+                                          💡 Select one or more correct answers for multiple choice questions.
+                                        </div>
+                                      )}
                                    </div>
                                  )}
                                 
