@@ -731,18 +731,19 @@ export const EditVideoModal = ({
                                 <Label>Answer Options</Label>
                                 
                                  {question.question_type === 'single_answer' ? (
-                                  <RadioGroup
-                                    value={question.options.find(opt => opt.is_correct)?.order_index?.toString() || ""}
-                                    onValueChange={(value) => {
-                                      const selectedIndex = parseInt(value);
-                                      const updatedOptions = question.options.map((opt, i) => ({
-                                        ...opt,
-                                        is_correct: i === selectedIndex
-                                      }));
-                                      updateQuestion(questionIndex, { options: updatedOptions });
-                                    }}
-                                    className="space-y-3"
-                                  >
+                                  <div className="space-y-3">
+                                    <RadioGroup
+                                      value={question.options.find(opt => opt.is_correct)?.order_index?.toString() || ""}
+                                      onValueChange={(value) => {
+                                        const selectedIndex = parseInt(value);
+                                        const updatedOptions = question.options.map((opt, i) => ({
+                                          ...opt,
+                                          is_correct: i === selectedIndex
+                                        }));
+                                        updateQuestion(questionIndex, { options: updatedOptions });
+                                      }}
+                                      className="space-y-3"
+                                    >
                                     {question.options.map((option, optionIndex) => (
                                       <div key={optionIndex} className="flex items-center gap-3">
                                         <Input
@@ -775,7 +776,14 @@ export const EditVideoModal = ({
                                         </Button>
                                       </div>
                                     ))}
-                                  </RadioGroup>
+                                    </RadioGroup>
+                                    
+                                    {questionValidationErrors[questionIndex] && (
+                                      <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                        {questionValidationErrors[questionIndex]}
+                                      </div>
+                                    )}
+                                  </div>
                                  ) : (
                                   <div className="space-y-3">
                                     {question.options.map((option, optionIndex) => (
@@ -814,26 +822,19 @@ export const EditVideoModal = ({
                                       </div>
                                     ))}
                                   </div>
-                                 )}
-                                 
-                                 {/* Show validation error for single answer questions */}
-                                 {question.question_type === 'single_answer' && questionValidationErrors[questionIndex] && (
-                                   <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20 mt-3">
-                                     {questionValidationErrors[questionIndex]}
-                                   </div>
-                                 )}
-                                 
-                                 <Button
-                                   onClick={() => addOption(questionIndex)}
-                                   variant="outline"
-                                   size="sm"
-                                   className="justify-start"
-                                 >
-                                   <Plus className="w-4 h-4 mr-2" />
-                                   Add Option
-                                 </Button>
-                               </div>
-                             )}
+                                )}
+                                
+                                <Button
+                                  onClick={() => addOption(questionIndex)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="justify-start"
+                                >
+                                  <Plus className="w-4 h-4 mr-2" />
+                                  Add Option
+                                </Button>
+                              </div>
+                            )}
 
                             {question.question_type === 'true_false' && (
                               <div className="text-sm text-muted-foreground">
