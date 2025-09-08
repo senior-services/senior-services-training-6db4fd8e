@@ -156,15 +156,31 @@ export const EditVideoModal = ({
       setQuizLoading(false);
     }
   };
+  // Helper function to ensure minimum options are always visible
+  const ensureMinOptions = (options: EditableOptionFormData[], minCount: number = 2): EditableOptionFormData[] => {
+    // Keep all existing options (both empty and non-empty)
+    const existingOptions = [...options];
+    
+    // If we have fewer than the minimum, pad with empty options
+    while (existingOptions.length < minCount) {
+      existingOptions.push({
+        option_text: "",
+        is_correct: false,
+        order_index: existingOptions.length
+      });
+    }
+    
+    // Reindex all options
+    return existingOptions.map((opt, i) => ({ ...opt, order_index: i }));
+  };
+
   const cleanupAndValidateQuestions = () => {
     const errors: {[key: number]: string} = {};
     
     const cleanedQuestions = questions.map((question, index) => {
       if (question.question_type === 'multiple_choice') {
-        // Remove empty options and reindex
-        const nonEmptyOptions = question.options
-          .filter(opt => opt.option_text.trim())
-          .map((opt, i) => ({ ...opt, order_index: i }));
+        // For multiple choice, filter out empty options for validation but keep them in UI
+        const nonEmptyOptions = question.options.filter(opt => opt.option_text.trim());
         
         // Validate minimum 2 options
         if (nonEmptyOptions.length < 2) {
@@ -177,12 +193,12 @@ export const EditVideoModal = ({
           errors[index] = 'Please select at least one correct answer for this multiple choice question.';
         }
         
-        return { ...question, options: nonEmptyOptions };
+        // Ensure minimum 2 visible options in UI
+        const optionsWithMinimum = ensureMinOptions(question.options, 2);
+        return { ...question, options: optionsWithMinimum };
       } else if (question.question_type === 'single_answer') {
-        // Remove empty options and reindex
-        const nonEmptyOptions = question.options
-          .filter(opt => opt.option_text.trim())
-          .map((opt, i) => ({ ...opt, order_index: i }));
+        // For single answer, filter out empty options for validation but keep them in UI
+        const nonEmptyOptions = question.options.filter(opt => opt.option_text.trim());
         
         // Validate minimum 2 options
         if (nonEmptyOptions.length < 2) {
@@ -195,7 +211,9 @@ export const EditVideoModal = ({
           errors[index] = 'Please select one correct answer for this single answer question.';
         }
         
-        return { ...question, options: nonEmptyOptions };
+        // Ensure minimum 2 visible options in UI
+        const optionsWithMinimum = ensureMinOptions(question.options, 2);
+        return { ...question, options: optionsWithMinimum };
       }
       return question;
     });
