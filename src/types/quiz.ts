@@ -15,7 +15,7 @@ export interface QuizQuestion {
   order_index: number;
   created_at: string;
   updated_at: string;
-  options?: QuizQuestionOption[];
+  options?: (QuizQuestionOption | SafeQuizQuestionOption)[];
 }
 
 export interface QuizQuestionOption {
@@ -23,6 +23,16 @@ export interface QuizQuestionOption {
   question_id: string;
   option_text: string;
   is_correct: boolean;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Safe version for employees - excludes is_correct field
+export interface SafeQuizQuestionOption {
+  id: string;
+  question_id: string;
+  option_text: string;
   order_index: number;
   created_at: string;
   updated_at: string;

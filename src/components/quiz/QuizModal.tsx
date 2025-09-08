@@ -109,7 +109,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                         .map((option) => {
                           const questionResult = getQuestionResult(question.id);
                           const isSelected = responses[question.id]?.selected_option_id === option.id;
-                          const isCorrect = option.is_correct;
+                          const isCorrect = 'is_correct' in option ? option.is_correct : false;
                           const showResult = isSubmitted && isSelected;
                           
                           return (
@@ -147,7 +147,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                         .map((option) => {
                           const questionResult = getQuestionResult(question.id);
                           const isSelected = responses[question.id]?.selected_option_id === option.id;
-                          const isCorrect = option.is_correct;
+                          const isCorrect = 'is_correct' in option ? option.is_correct : false;
                           const showResult = isSubmitted && isSelected;
                           
                           return (
@@ -192,7 +192,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                         .map((option) => {
                           const questionResult = getQuestionResult(question.id);
                           const isSelected = responses[question.id]?.selected_option_id === option.id;
-                          const isCorrect = option.is_correct;
+                          const isCorrect = 'is_correct' in option ? option.is_correct : false;
                           const showResult = isSubmitted && isSelected;
                           
                           return (

@@ -467,6 +467,17 @@ export type Database = {
           employee_id: string
         }[]
       }
+      get_safe_quiz_options: {
+        Args: { p_question_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          option_text: string
+          order_index: number
+          question_id: string
+          updated_at: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

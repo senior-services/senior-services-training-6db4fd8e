@@ -107,7 +107,7 @@ export const EditVideoModal = ({
           options: q.options.map(opt => ({
             id: opt.id,
             option_text: opt.option_text,
-            is_correct: opt.is_correct,
+            is_correct: 'is_correct' in opt ? opt.is_correct : false,
             order_index: opt.order_index
           }))
         }));
@@ -513,7 +513,7 @@ export const EditVideoModal = ({
                  const originalOpt = originalQ.options[j];
                  return !originalOpt ||
                         opt.option_text !== originalOpt.option_text ||
-                        opt.is_correct !== originalOpt.is_correct;
+                        opt.is_correct !== ('is_correct' in originalOpt ? originalOpt.is_correct : false);
                });
       })
     ))
