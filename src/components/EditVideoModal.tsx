@@ -155,14 +155,51 @@ export const EditVideoModal = ({
       setQuizLoading(false);
     }
   };
+  const cleanupAndValidateQuestions = () => {
+    const errors: {[key: number]: string} = {};
+    
+    const cleanedQuestions = questions.map((question, index) => {
+      if (question.question_type === 'single_answer') {
+        // Remove empty options and reindex
+        const nonEmptyOptions = question.options
+          .filter(opt => opt.option_text.trim())
+          .map((opt, i) => ({ ...opt, order_index: i }));
+        
+        // Validate minimum 2 options
+        if (nonEmptyOptions.length < 2) {
+          errors[index] = 'Single answer questions require a minimum of 2 answers.';
+        }
+        
+        // Ensure at least one correct answer
+        const hasCorrectAnswer = nonEmptyOptions.some(opt => opt.is_correct);
+        if (nonEmptyOptions.length >= 2 && !hasCorrectAnswer) {
+          errors[index] = 'Please select one correct answer for this single answer question.';
+        }
+        
+        return { ...question, options: nonEmptyOptions };
+      }
+      return question;
+    });
+    
+    setQuestionValidationErrors(errors);
+    setQuestions(cleanedQuestions);
+    return Object.keys(errors).length === 0;
+  };
+
   const validateQuestions = () => {
     const errors: {[key: number]: string} = {};
     
     questions.forEach((question, index) => {
       if (question.question_type === 'single_answer') {
-        const hasCorrectAnswer = question.options.some(opt => opt.is_correct);
-        if (!hasCorrectAnswer) {
-          errors[index] = 'Please select one correct answer for this single answer question.';
+        const nonEmptyOptions = question.options.filter(opt => opt.option_text.trim());
+        
+        if (nonEmptyOptions.length < 2) {
+          errors[index] = 'Single answer questions require a minimum of 2 answers.';
+        } else {
+          const hasCorrectAnswer = nonEmptyOptions.some(opt => opt.is_correct);
+          if (!hasCorrectAnswer) {
+            errors[index] = 'Please select one correct answer for this single answer question.';
+          }
         }
       }
     });
@@ -174,8 +211,8 @@ export const EditVideoModal = ({
   const handleSave = async () => {
     if (!video) return;
     
-    // Validate questions before saving
-    if ((quizTitle.trim() || questions.length > 0) && !validateQuestions()) {
+    // Cleanup and validate questions before saving
+    if ((quizTitle.trim() || questions.length > 0) && !cleanupAndValidateQuestions()) {
       toast({
         title: "Validation Error",
         description: "Please fix the question errors before saving.",
@@ -744,45 +781,45 @@ export const EditVideoModal = ({
                                       }}
                                       className="space-y-3"
                                     >
-                                    {question.options.map((option, optionIndex) => (
-                                      <div key={optionIndex} className="flex items-center gap-3">
-                                        <Input
-                                          value={option.option_text}
-                                          onChange={(e) => updateOption(questionIndex, optionIndex, { option_text: e.target.value })}
-                                          placeholder={`Option ${optionIndex + 1}`}
-                                          className="flex-1"
-                                        />
-                                        
-                                        <div className="flex items-center space-x-2">
-                                          <RadioGroupItem 
-                                            value={optionIndex.toString()}
-                                            id={`edit_question_${questionIndex}_option_${optionIndex}`} 
-                                          />
-                                          <Label 
-                                            htmlFor={`edit_question_${questionIndex}_option_${optionIndex}`} 
-                                            className="whitespace-nowrap cursor-pointer"
-                                          >
-                                            Correct
-                                          </Label>
-                                        </div>
-                                        
-                                        <Button
-                                          onClick={() => removeOption(questionIndex, optionIndex)}
-                                          variant="ghost"
-                                          size="sm"
-                                          className="text-destructive hover:text-destructive"
-                                        >
-                                          <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                      </div>
-                                    ))}
-                                    </RadioGroup>
-                                    
-                                    {questionValidationErrors[questionIndex] && (
-                                      <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
-                                        {questionValidationErrors[questionIndex]}
-                                      </div>
-                                    )}
+                                     {question.options.map((option, optionIndex) => (
+                                       <div key={optionIndex} className="flex items-center gap-3">
+                                         <Input
+                                           value={option.option_text}
+                                           onChange={(e) => updateOption(questionIndex, optionIndex, { option_text: e.target.value })}
+                                           placeholder={`Option ${optionIndex + 1}`}
+                                           className="flex-1"
+                                         />
+                                         
+                                         <div className="flex items-center space-x-2">
+                                           <RadioGroupItem 
+                                             value={optionIndex.toString()}
+                                             id={`edit_question_${questionIndex}_option_${optionIndex}`} 
+                                           />
+                                           <Label 
+                                             htmlFor={`edit_question_${questionIndex}_option_${optionIndex}`} 
+                                             className="whitespace-nowrap cursor-pointer"
+                                           >
+                                             Correct
+                                           </Label>
+                                         </div>
+                                         
+                                         <Button
+                                           onClick={() => removeOption(questionIndex, optionIndex)}
+                                           variant="ghost"
+                                           size="sm"
+                                           className="text-destructive hover:text-destructive"
+                                         >
+                                           <Trash2 className="w-4 h-4" />
+                                         </Button>
+                                       </div>
+                                     ))}
+                                     </RadioGroup>
+                                     
+                                     {questionValidationErrors[questionIndex] && (
+                                       <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                         {questionValidationErrors[questionIndex]}
+                                       </div>
+                                     )}
                                   </div>
                                  ) : (
                                   <div className="space-y-3">

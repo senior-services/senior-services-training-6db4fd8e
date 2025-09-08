@@ -105,13 +105,53 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
     updateQuestion(questionIndex, { options: updatedOptions });
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
+  const cleanupAndValidateQuestions = (questions: QuestionFormData[]) => {
+    const errors: {[key: number]: string} = {};
+    
+    const cleanedQuestions = questions.map((question, index) => {
+      if (question.question_type === 'single_answer') {
+        // Remove empty options and reindex
+        const nonEmptyOptions = question.options
+          .filter(opt => opt.option_text.trim())
+          .map((opt, i) => ({ ...opt, order_index: i }));
+        
+        // Validate minimum 2 options
+        if (nonEmptyOptions.length < 2) {
+          errors[index] = 'Single answer questions require a minimum of 2 answers.';
+        }
+        
+        // Ensure at least one correct answer
+        const hasCorrectAnswer = nonEmptyOptions.some(opt => opt.is_correct);
+        if (nonEmptyOptions.length >= 2 && !hasCorrectAnswer) {
+          errors[index] = 'Please select one correct answer for this single answer question.';
+        }
+        
+        return { ...question, options: nonEmptyOptions };
+      }
+      return question;
+    });
+    
+    return { cleanedQuestions, errors };
   };
 
+  const handleSubmit = () => {
+    const { cleanedQuestions, errors } = cleanupAndValidateQuestions(formData.questions);
+    
+    if (Object.keys(errors).length > 0) {
+      // Don't submit if there are validation errors
+      return;
+    }
+    
+    onSubmit({
+      ...formData,
+      questions: cleanedQuestions
+    });
+  };
+
+  const { cleanedQuestions, errors: validationErrors } = cleanupAndValidateQuestions(formData.questions);
   const canSubmit = formData.title.trim() && formData.questions.length > 0 &&
-    formData.questions.every(q => q.question_text.trim() && 
-      ((q.question_type === 'multiple_choice' || q.question_type === 'single_answer') ? q.options.length >= 2 : true));
+    formData.questions.every(q => q.question_text.trim()) &&
+    Object.keys(validationErrors).length === 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -213,52 +253,60 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                          </Button>
                        </div>
                        
-                       {question.question_type === 'single_answer' ? (
-                         <RadioGroup
-                           value={question.options.find(opt => opt.is_correct)?.order_index?.toString() || ""}
-                           onValueChange={(value) => {
-                             const selectedIndex = parseInt(value);
-                             const updatedOptions = question.options.map((opt, i) => ({
-                               ...opt,
-                               is_correct: i === selectedIndex
-                             }));
-                             updateQuestion(questionIndex, { options: updatedOptions });
-                           }}
-                           className="space-y-3"
-                         >
-                           {question.options.map((option, optionIndex) => (
-                             <div key={optionIndex} className="flex items-center gap-2 p-3 border rounded">
-                               <Input
-                                 value={option.option_text}
-                                 onChange={(e) => updateOption(questionIndex, optionIndex, { option_text: e.target.value })}
-                                 placeholder={`Option ${optionIndex + 1}`}
-                                 className="flex-1"
-                               />
-                               
-                               <div className="flex items-center space-x-2">
-                                 <RadioGroupItem 
-                                   value={optionIndex.toString()}
-                                   id={`question_${questionIndex}_option_${optionIndex}`} 
-                                 />
-                                 <Label 
-                                   htmlFor={`question_${questionIndex}_option_${optionIndex}`} 
-                                   className="whitespace-nowrap cursor-pointer"
-                                 >
-                                   Correct
-                                 </Label>
-                               </div>
-                               
-                               <Button
-                                 onClick={() => removeOption(questionIndex, optionIndex)}
-                                 variant="ghost"
-                                 size="sm"
-                                 className="text-destructive hover:text-destructive"
-                               >
-                                 <Trash2 className="w-4 h-4" />
-                               </Button>
-                             </div>
-                           ))}
-                         </RadioGroup>
+                        {question.question_type === 'single_answer' ? (
+                          <div className="space-y-3">
+                            <RadioGroup
+                              value={question.options.find(opt => opt.is_correct)?.order_index?.toString() || ""}
+                              onValueChange={(value) => {
+                                const selectedIndex = parseInt(value);
+                                const updatedOptions = question.options.map((opt, i) => ({
+                                  ...opt,
+                                  is_correct: i === selectedIndex
+                                }));
+                                updateQuestion(questionIndex, { options: updatedOptions });
+                              }}
+                              className="space-y-3"
+                            >
+                              {question.options.map((option, optionIndex) => (
+                                <div key={optionIndex} className="flex items-center gap-2 p-3 border rounded">
+                                  <Input
+                                    value={option.option_text}
+                                    onChange={(e) => updateOption(questionIndex, optionIndex, { option_text: e.target.value })}
+                                    placeholder={`Option ${optionIndex + 1}`}
+                                    className="flex-1"
+                                  />
+                                  
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem 
+                                      value={optionIndex.toString()}
+                                      id={`question_${questionIndex}_option_${optionIndex}`} 
+                                    />
+                                    <Label 
+                                      htmlFor={`question_${questionIndex}_option_${optionIndex}`} 
+                                      className="whitespace-nowrap cursor-pointer"
+                                    >
+                                      Correct
+                                    </Label>
+                                  </div>
+                                  
+                                  <Button
+                                    onClick={() => removeOption(questionIndex, optionIndex)}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </RadioGroup>
+                            
+                            {validationErrors[questionIndex] && (
+                              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                {validationErrors[questionIndex]}
+                              </div>
+                            )}
+                          </div>
                        ) : (
                          <div className="space-y-3">
                            {question.options.map((option, optionIndex) => (
