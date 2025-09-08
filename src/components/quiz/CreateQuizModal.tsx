@@ -109,7 +109,25 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
     const errors: {[key: number]: string} = {};
     
     const cleanedQuestions = questions.map((question, index) => {
-      if (question.question_type === 'single_answer') {
+      if (question.question_type === 'multiple_choice') {
+        // Remove empty options and reindex
+        const nonEmptyOptions = question.options
+          .filter(opt => opt.option_text.trim())
+          .map((opt, i) => ({ ...opt, order_index: i }));
+        
+        // Validate minimum 2 options
+        if (nonEmptyOptions.length < 2) {
+          errors[index] = 'Multiple choice questions require a minimum of 2 answers.';
+        }
+        
+        // Ensure at least one correct answer
+        const hasCorrectAnswer = nonEmptyOptions.some(opt => opt.is_correct);
+        if (nonEmptyOptions.length >= 2 && !hasCorrectAnswer) {
+          errors[index] = 'Please select at least one correct answer for this multiple choice question.';
+        }
+        
+        return { ...question, options: nonEmptyOptions };
+      } else if (question.question_type === 'single_answer') {
         // Remove empty options and reindex
         const nonEmptyOptions = question.options
           .filter(opt => opt.option_text.trim())
@@ -307,45 +325,51 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                               </div>
                             )}
                           </div>
-                       ) : (
-                         <div className="space-y-3">
-                           {question.options.map((option, optionIndex) => (
-                             <div key={optionIndex} className="flex items-center gap-2 p-3 border rounded">
-                               <Input
-                                 value={option.option_text}
-                                 onChange={(e) => updateOption(questionIndex, optionIndex, { option_text: e.target.value })}
-                                 placeholder={`Option ${optionIndex + 1}`}
-                                 className="flex-1"
-                               />
-                               
-                               <div className="flex items-center space-x-2">
-                                 <Checkbox
-                                   id={`question_${questionIndex}_option_${optionIndex}`}
-                                   checked={option.is_correct}
-                                   onCheckedChange={(checked) => {
-                                     updateOption(questionIndex, optionIndex, { is_correct: checked as boolean });
-                                   }}
-                                 />
-                                 <Label 
-                                   htmlFor={`question_${questionIndex}_option_${optionIndex}`} 
-                                   className="whitespace-nowrap cursor-pointer"
-                                 >
-                                   Correct
-                                 </Label>
-                               </div>
-                               
-                               <Button
-                                 onClick={() => removeOption(questionIndex, optionIndex)}
-                                 variant="ghost"
-                                 size="sm"
-                                 className="text-destructive hover:text-destructive"
-                               >
-                                 <Trash2 className="w-4 h-4" />
-                               </Button>
-                             </div>
-                           ))}
-                         </div>
-                       )}
+                        ) : (
+                          <div className="space-y-3">
+                            {question.options.map((option, optionIndex) => (
+                              <div key={optionIndex} className="flex items-center gap-2 p-3 border rounded">
+                                <Input
+                                  value={option.option_text}
+                                  onChange={(e) => updateOption(questionIndex, optionIndex, { option_text: e.target.value })}
+                                  placeholder={`Option ${optionIndex + 1}`}
+                                  className="flex-1"
+                                />
+                                
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`question_${questionIndex}_option_${optionIndex}`}
+                                    checked={option.is_correct}
+                                    onCheckedChange={(checked) => {
+                                      updateOption(questionIndex, optionIndex, { is_correct: checked as boolean });
+                                    }}
+                                  />
+                                  <Label 
+                                    htmlFor={`question_${questionIndex}_option_${optionIndex}`} 
+                                    className="whitespace-nowrap cursor-pointer"
+                                  >
+                                    Correct
+                                  </Label>
+                                </div>
+                                
+                                <Button
+                                  onClick={() => removeOption(questionIndex, optionIndex)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            
+                            {validationErrors[questionIndex] && (
+                              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                {validationErrors[questionIndex]}
+                              </div>
+                            )}
+                          </div>
+                        )}
                      </div>
                    )}
 
