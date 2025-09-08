@@ -109,6 +109,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
   const [checkboxValue, setCheckboxValue] = useState(false);
   const [radioValue, setRadioValue] = useState("option1");
   const [selectValue, setSelectValue] = useState("");
+  const [checkboxGroupValue, setCheckboxGroupValue] = useState<string[]>(["option1"]);
   const [progress, setProgress] = useState(33);
   const [isLoading, setIsLoading] = useState(false);
   const [sortColumn, setSortColumn] = useState<string>("name");
@@ -786,16 +787,49 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <Label htmlFor="checkbox">Checkbox</Label>
                     </div>
                     
-                    <RadioGroup value={radioValue} onValueChange={setRadioValue} className="p-3 rounded-md bg-card/50 shadow-sm">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="option1" id="option1" />
-                        <Label htmlFor="option1">Option 1</Label>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Radio Button Group</Label>
+                      <RadioGroup value={radioValue} onValueChange={setRadioValue} className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="small" id="size-small" />
+                          <Label htmlFor="size-small">Small</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="medium" id="size-medium" />
+                          <Label htmlFor="size-medium">Medium</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="large" id="size-large" />
+                          <Label htmlFor="size-large">Large</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="extra-large" id="size-xl" />
+                          <Label htmlFor="size-xl">Extra Large</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Checkbox Group</Label>
+                      <div className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
+                        {["Newsletter", "Marketing", "Updates", "Security Alerts"].map((option) => (
+                          <div key={option} className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`checkbox-${option.toLowerCase().replace(" ", "-")}`}
+                              checked={checkboxGroupValue.includes(option.toLowerCase().replace(" ", "-"))}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCheckboxGroupValue(prev => [...prev, option.toLowerCase().replace(" ", "-")])
+                                } else {
+                                  setCheckboxGroupValue(prev => prev.filter(item => item !== option.toLowerCase().replace(" ", "-")))
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`checkbox-${option.toLowerCase().replace(" ", "-")}`}>{option}</Label>
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="option2" id="option2" />
-                        <Label htmlFor="option2">Option 2</Label>
-                      </div>
-                    </RadioGroup>
+                    </div>
                     
                     <div>
                       <Label>Select Dropdown</Label>
