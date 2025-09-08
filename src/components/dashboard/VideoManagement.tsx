@@ -210,6 +210,13 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   /**
+   * Handles quiz being saved
+   */
+  const handleQuizSaved = async (videoId: string) => {
+    await loadVideos();
+  };
+
+  /**
    * Handles playing a video
    */
   const handlePlayVideo = (video: Video) => {
@@ -246,6 +253,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
         video={editingVideo}
         onSave={handleUpdateVideo}
         onDelete={handleDeleteVideo}
+        onQuizSaved={handleQuizSaved}
       />
 
       {/* Video Player Modal */}

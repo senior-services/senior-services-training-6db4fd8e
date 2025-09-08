@@ -52,13 +52,15 @@ interface EditVideoModalProps {
     description: string;
   }) => Promise<void>;
   onDelete: (videoId: string) => Promise<void>;
+  onQuizSaved?: (videoId: string) => void;
 }
 export const EditVideoModal = ({
   open,
   onOpenChange,
   video,
   onSave,
-  onDelete
+  onDelete,
+  onQuizSaved
 }: EditVideoModalProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -572,6 +574,9 @@ export const EditVideoModal = ({
 
       // Reload quiz data and update original state
       await loadQuiz();
+      
+      // Notify parent that quiz was saved
+      if (video) onQuizSaved?.(video.id);
     } catch (error) {
       logger.error('Error updating quiz:', error);
       toast({
@@ -635,6 +640,9 @@ export const EditVideoModal = ({
 
       // Reload quiz data and update original state
       await loadQuiz();
+      
+      // Notify parent that quiz was saved
+      if (video) onQuizSaved?.(video.id);
     } catch (error) {
       logger.error('Error creating quiz:', error);
       toast({
