@@ -89,31 +89,40 @@ export const quizOperations = {
       if (quizError) throw quizError;
       if (!quiz) return null;
 
-      // Single query to get questions with their options
+      // Get questions first
       const { data: questions, error: questionsError } = await supabase
         .from('quiz_questions')
-        .select(`
-          *,
-          quiz_question_options(*)
-        `)
+        .select('*')
         .eq('quiz_id', id)
         .order('order_index', { ascending: true });
 
       if (questionsError) throw questionsError;
 
-      // Transform questions and handle role-based option filtering
-      const questionsWithOptions = (questions || []).map((question: any) => {
-        let options = question.quiz_question_options || [];
+      // Transform questions and handle role-based option loading
+      const questionsWithOptions = await Promise.all((questions || []).map(async (question: any) => {
+        let options = [];
         
-        // Sort options by order_index
-        options.sort((a: any, b: any) => a.order_index - b.order_index);
-        
-        // For employees, remove is_correct field
-        if (userRole !== 'admin') {
-          options = options.map((option: any) => {
-            const { is_correct, ...safeOption } = option;
-            return safeOption;
-          });
+        if (userRole === 'admin') {
+          // Admins can access options directly
+          const { data: adminOptions, error: optionsError } = await supabase
+            .from('quiz_question_options')
+            .select('*')
+            .eq('question_id', question.id)
+            .order('order_index', { ascending: true });
+          
+          if (optionsError) {
+            logger.error('Error fetching admin options:', optionsError);
+          } else {
+            options = adminOptions || [];
+          }
+        } else {
+          // Employees use the safe RPC function
+          options = await getSafeQuizOptions(question.id);
+        }
+
+        // Log if no options found for debugging
+        if (options.length === 0) {
+          logger.warn('No options found for question', { questionId: question.id, userRole });
         }
 
         return {
@@ -121,7 +130,7 @@ export const quizOperations = {
           question_type: question.question_type as 'multiple_choice' | 'true_false' | 'single_answer',
           options
         };
-      });
+      }));
 
       return {
         ...quiz,
@@ -138,45 +147,58 @@ export const quizOperations = {
     try {
       const userRole = await getCurrentUserRole();
       
-      // Single query to get quiz with questions and options
+      // Get quiz first
       const { data: quiz, error: quizError } = await supabase
         .from('quizzes')
-        .select(`
-          *,
-          quiz_questions(
-            *,
-            quiz_question_options(*)
-          )
-        `)
+        .select('*')
         .eq('video_id', videoId)
         .maybeSingle();
 
       if (quizError) throw quizError;
       if (!quiz) return null; // No quiz found
 
-      // Transform questions and handle role-based option filtering
-      const questionsWithOptions = (quiz.quiz_questions || [])
-        .sort((a: any, b: any) => a.order_index - b.order_index)
-        .map((question: any) => {
-          let options = question.quiz_question_options || [];
-          
-          // Sort options by order_index
-          options.sort((a: any, b: any) => a.order_index - b.order_index);
-          
-          // For employees, remove is_correct field
-          if (userRole !== 'admin') {
-            options = options.map((option: any) => {
-              const { is_correct, ...safeOption } = option;
-              return safeOption;
-            });
-          }
+      // Get questions
+      const { data: questions, error: questionsError } = await supabase
+        .from('quiz_questions')
+        .select('*')
+        .eq('quiz_id', quiz.id)
+        .order('order_index', { ascending: true });
 
-          return {
-            ...question,
-            question_type: question.question_type as 'multiple_choice' | 'true_false' | 'single_answer',
-            options
-          };
-        });
+      if (questionsError) throw questionsError;
+
+      // Transform questions and handle role-based option loading
+      const questionsWithOptions = await Promise.all((questions || []).map(async (question: any) => {
+        let options = [];
+        
+        if (userRole === 'admin') {
+          // Admins can access options directly
+          const { data: adminOptions, error: optionsError } = await supabase
+            .from('quiz_question_options')
+            .select('*')
+            .eq('question_id', question.id)
+            .order('order_index', { ascending: true });
+          
+          if (optionsError) {
+            logger.error('Error fetching admin options:', optionsError);
+          } else {
+            options = adminOptions || [];
+          }
+        } else {
+          // Employees use the safe RPC function
+          options = await getSafeQuizOptions(question.id);
+        }
+
+        // Log if no options found for debugging
+        if (options.length === 0) {
+          logger.warn('No options found for question', { questionId: question.id, userRole });
+        }
+
+        return {
+          ...question,
+          question_type: question.question_type as 'multiple_choice' | 'true_false' | 'single_answer',
+          options
+        };
+      }));
 
       return {
         ...quiz,
