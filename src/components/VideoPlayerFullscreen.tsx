@@ -80,11 +80,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     wasEverCompleted, 
     updateProgress, 
     resetProgress, 
-    loadExistingProgress 
+    loadExistingProgress,
+    markComplete
   } = useVideoProgress({
     videoId,
     userEmail: user?.email || null,
-    onProgressUpdate
+    onProgressUpdate,
+    hasQuiz: !!quiz
   });
 
   // Effect to load video data and existing progress when modal opens
@@ -136,12 +138,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   // Handle video ended
   const handleVideoEnded = useCallback(() => {
-    updateProgress(100);
-    // Only show completion overlay if training wasn't already completed
-    if (!wasEverCompleted) {
-      setShowCompletionOverlay(true);
+    // If quiz exists, cap at 99% and show completion overlay
+    // If no quiz, allow 100% completion
+    if (quiz) {
+      updateProgress(99);
+      if (!wasEverCompleted) {
+        setShowCompletionOverlay(true);
+      }
+    } else {
+      updateProgress(100);
+      if (!wasEverCompleted) {
+        setShowCompletionOverlay(true);
+      }
     }
-  }, [updateProgress, wasEverCompleted]);
+  }, [updateProgress, wasEverCompleted, quiz]);
 
   // Handle complete training (no quiz)
   const handleCompleteTraining = useCallback(() => {
@@ -187,7 +197,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       });
 
       setQuizSubmitted(true);
-      onProgressUpdate?.(100);
+      
+      // Mark training as complete now that quiz is submitted
+      await markComplete();
 
       toast({
         title: "Quiz Submitted! 📝",
@@ -346,7 +358,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             />
             
             {/* Completion Overlay */}
-            {showCompletionOverlay && progress >= 100 && !wasEverCompleted && (
+            {showCompletionOverlay && (progress >= 100 || (progress >= 99 && quiz)) && !wasEverCompleted && (
               <CompletionOverlay
                 video={video}
                 quiz={quiz}

@@ -7,15 +7,16 @@ interface UseVideoProgressProps {
   videoId: string | null;
   userEmail: string | null;
   onProgressUpdate?: (progress: number) => void;
+  hasQuiz?: boolean;
 }
 
-export function useVideoProgress({ videoId, userEmail, onProgressUpdate }: UseVideoProgressProps) {
+export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz }: UseVideoProgressProps) {
   const [progress, setProgress] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [wasEverCompleted, setWasEverCompleted] = useState(false);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const updateProgressToDatabase = useCallback(async (progressPercent: number) => {
+  const updateProgressToDatabase = useCallback(async (progressPercent: number, forceComplete?: boolean) => {
     if (!userEmail || !videoId) {
       logger.warn('Cannot update progress: missing user email or video ID', {
         hasUser: !!userEmail,
@@ -26,7 +27,9 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate }: UseVi
 
     const updateResult = await withErrorHandler(
       async () => {
-        const completedAt = progressPercent >= 100 ? new Date() : undefined;
+        // Only set completedAt if progress is 100% AND (no quiz exists OR forceComplete is true)
+        const shouldComplete = progressPercent >= 100 && (!hasQuiz || forceComplete);
+        const completedAt = shouldComplete ? new Date() : undefined;
         
         await progressOperations.updateByEmail(
           userEmail,
@@ -42,8 +45,8 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate }: UseVi
           completed: progressPercent >= 100
         });
 
-        // Handle completion state change
-        if (progressPercent >= 100 && !wasEverCompleted) {
+        // Handle completion state change - only mark as completed if should complete
+        if (shouldComplete && !wasEverCompleted) {
           setIsCompleted(true);
           setWasEverCompleted(true);
           
@@ -58,20 +61,23 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate }: UseVi
     );
 
     return updateResult;
-  }, [userEmail, videoId, wasEverCompleted]);
+  }, [userEmail, videoId, wasEverCompleted, hasQuiz]);
 
   const updateProgress = useCallback((progressPercent: number) => {
-    setProgress(progressPercent);
-    onProgressUpdate?.(progressPercent);
+    // Cap progress at 99% if quiz exists and hasn't been completed
+    const cappedProgress = hasQuiz && progressPercent >= 100 && !wasEverCompleted ? 99 : progressPercent;
+    
+    setProgress(cappedProgress);
+    onProgressUpdate?.(cappedProgress);
 
     // Debounce database updates
     if (progressUpdateTimeoutRef.current) {
       clearTimeout(progressUpdateTimeoutRef.current);
     }
     progressUpdateTimeoutRef.current = setTimeout(() => {
-      updateProgressToDatabase(progressPercent);
+      updateProgressToDatabase(cappedProgress);
     }, 1000);
-  }, [updateProgressToDatabase, onProgressUpdate]);
+  }, [updateProgressToDatabase, onProgressUpdate, hasQuiz, wasEverCompleted]);
 
   const markComplete = useCallback(async () => {
     setProgress(100);
@@ -79,7 +85,8 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate }: UseVi
     setWasEverCompleted(true);
     onProgressUpdate?.(100);
     
-    return await updateProgressToDatabase(100);
+    // Force completion even if quiz exists (this is called after quiz submission)
+    return await updateProgressToDatabase(100, true);
   }, [updateProgressToDatabase, onProgressUpdate]);
 
   const resetProgress = useCallback(() => {

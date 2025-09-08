@@ -76,11 +76,14 @@ export const VideoPage = () => {
   const [isCompleted, setIsCompleted] = useState(false);
 
   // Debounced progress update to database
-  const updateProgressToDatabase = async (progressPercent: number) => {
+  const updateProgressToDatabase = async (progressPercent: number, forceComplete = false) => {
     if (!user?.email || !videoId) return;
 
     try {
-      const completedAt = progressPercent >= 100 ? new Date() : undefined;
+      // Only set completedAt if progress is 100% AND (no quiz exists OR forceComplete is true)
+      const shouldComplete = progressPercent >= 100 && (!quiz || forceComplete);
+      const completedAt = shouldComplete ? new Date() : undefined;
+      
       await progressOperations.updateByEmail(
         user.email,
         videoId,
@@ -88,7 +91,7 @@ export const VideoPage = () => {
         completedAt
       );
 
-      if (progressPercent >= 100 && !isCompleted && !quiz) {
+      if (shouldComplete && !isCompleted) {
         setIsCompleted(true);
         toast({
           title: "Video Completed! 🎉",
@@ -105,11 +108,14 @@ export const VideoPage = () => {
     if (!video.duration || video.currentTime < 0) return;
 
     // Use Math.floor for more conservative progress tracking
-    const progressPercent = Math.min(100, Math.max(0, Math.floor((video.currentTime / video.duration) * 100)));
-    setProgress(progressPercent);
+    const rawProgress = Math.min(100, Math.max(0, Math.floor((video.currentTime / video.duration) * 100)));
+    
+    // Cap progress at 99% if quiz exists and hasn't been completed
+    const cappedProgress = quiz && rawProgress >= 100 && !isCompleted ? 99 : rawProgress;
+    setProgress(cappedProgress);
 
     // Check if video is completed and show quiz
-    if (progressPercent >= 99 && !isCompleted && quiz && !showQuiz) {
+    if (rawProgress >= 99 && !isCompleted && quiz && !showQuiz) {
       setShowQuiz(true);
     }
 
@@ -119,7 +125,7 @@ export const VideoPage = () => {
     }
 
     progressUpdateTimeoutRef.current = setTimeout(() => {
-      updateProgressToDatabase(progressPercent);
+      updateProgressToDatabase(cappedProgress);
     }, 1000); // Reduced to 1 second for better responsiveness
   };
 
@@ -152,7 +158,12 @@ export const VideoPage = () => {
     try {
       await quizOperations.submitQuiz(user.email, quiz.id, responses);
       setShowQuiz(false);
+      setProgress(100);
       setIsCompleted(true);
+      
+      // Force completion in database now that quiz is submitted
+      await updateProgressToDatabase(100, true);
+      
       toast({
         title: "Quiz completed!",
         description: "Your training has been marked as complete.",
