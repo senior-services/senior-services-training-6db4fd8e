@@ -919,11 +919,6 @@ export const EditVideoModal = ({
                                         </div>
                                       )}
                                       
-                                      {!showQuizValidation && question.question_type === 'single_answer' && (
-                                        <div className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-md border border-border/50">
-                                          💡 Select exactly one correct answer for single answer questions.
-                                        </div>
-                                      )}
                                   </div>
                                   ) : (
                                    <div className="space-y-3">
@@ -971,11 +966,6 @@ export const EditVideoModal = ({
                                         </div>
                                       )}
                                       
-                                      {!showQuizValidation && question.question_type === 'multiple_choice' && (
-                                        <div className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-md border border-border/50">
-                                          💡 Select one or more correct answers for multiple choice questions.
-                                        </div>
-                                      )}
                                    </div>
                                  )}
                                 
