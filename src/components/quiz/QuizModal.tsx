@@ -21,7 +21,23 @@ interface QuizModalProps {
 }
 
 export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizResults, isSubmitted }: QuizModalProps) {
-  const [responses, setResponses] = useState<Record<string, QuizSubmissionData>>({});
+  // Initialize responses with saved quiz results when viewing completed quiz
+  const initializeResponses = () => {
+    if (isSubmitted && quizResults) {
+      const initialResponses: Record<string, QuizSubmissionData> = {};
+      quizResults.forEach(result => {
+        initialResponses[result.question_id] = {
+          question_id: result.question_id,
+          selected_option_id: result.selected_option_id,
+          text_answer: result.text_answer
+        };
+      });
+      return initialResponses;
+    }
+    return {};
+  };
+
+  const [responses, setResponses] = useState<Record<string, QuizSubmissionData>>(initializeResponses);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleResponseChange = (questionId: string, response: Partial<QuizSubmissionData>) => {
@@ -122,15 +138,17 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                             .sort((a, b) => a.order_index - b.order_index)
                             .map((option) => {
                               const isSelected = responses[question.id]?.selected_option_id === option.id;
+                              const questionResult = getQuestionResult(question.id);
+                              const isSelectedCorrect = questionResult?.is_correct || false;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
                               
                               // Enhanced styling for quiz results
                               let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
                               
                               if (isSubmitted) {
-                                if (isSelected && isCorrect) {
+                                if (isSelected && isSelectedCorrect) {
                                   optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                } else if (isSelected && !isCorrect) {
+                                } else if (isSelected && !isSelectedCorrect) {
                                   optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
                                 } else if (!isSelected && isCorrect) {
                                   optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
@@ -143,12 +161,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                   <Label htmlFor={option.id} className={optionClassName}>
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
-                                      {isSubmitted && isSelected && isCorrect && (
+                                      {isSubmitted && isSelected && isSelectedCorrect && (
                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
                                           Correct
                                         </Badge>
                                       )}
-                                      {isSubmitted && isSelected && !isCorrect && (
+                                      {isSubmitted && isSelected && !isSelectedCorrect && (
                                         <Badge variant="destructive" className="text-xs">
                                           Incorrect
                                         </Badge>
@@ -159,7 +177,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                       {isSubmitted && isSelected && (
-                                        isCorrect ? (
+                                        isSelectedCorrect ? (
                                           <CheckCircle className="w-5 h-5 text-emerald-600" />
                                         ) : (
                                           <XCircle className="w-5 h-5 text-red-600" />
@@ -196,15 +214,17 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                             .sort((a, b) => a.order_index - b.order_index)
                             .map((option) => {
                               const isSelected = responses[question.id]?.selected_option_id === option.id;
+                              const questionResult = getQuestionResult(question.id);
+                              const isSelectedCorrect = questionResult?.is_correct || false;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
                               
                               // Enhanced styling for quiz results
                               let optionClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
                               
                               if (isSubmitted) {
-                                if (isSelected && isCorrect) {
+                                if (isSelected && isSelectedCorrect) {
                                   optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                } else if (isSelected && !isCorrect) {
+                                } else if (isSelected && !isSelectedCorrect) {
                                   optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
                                 } else if (!isSelected && isCorrect) {
                                   optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
@@ -224,12 +244,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                       {option.option_text}
                                     </span>
                                     <div className="flex items-center gap-2">
-                                      {isSubmitted && isSelected && isCorrect && (
+                                      {isSubmitted && isSelected && isSelectedCorrect && (
                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
                                           Correct
                                         </Badge>
                                       )}
-                                      {isSubmitted && isSelected && !isCorrect && (
+                                      {isSubmitted && isSelected && !isSelectedCorrect && (
                                         <Badge variant="destructive" className="text-xs">
                                           Incorrect
                                         </Badge>
@@ -240,7 +260,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                       {isSubmitted && isSelected && (
-                                        isCorrect ? (
+                                        isSelectedCorrect ? (
                                           <CheckCircle className="w-5 h-5 text-emerald-600" />
                                         ) : (
                                           <XCircle className="w-5 h-5 text-red-600" />
@@ -277,15 +297,17 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                             .sort((a, b) => a.order_index - b.order_index)
                             .map((option) => {
                               const isSelected = responses[question.id]?.selected_option_id === option.id;
+                              const questionResult = getQuestionResult(question.id);
+                              const isSelectedCorrect = questionResult?.is_correct || false;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
                               
                               // Enhanced styling for quiz results
                               let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
                               
                               if (isSubmitted) {
-                                if (isSelected && isCorrect) {
+                                if (isSelected && isSelectedCorrect) {
                                   optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                } else if (isSelected && !isCorrect) {
+                                } else if (isSelected && !isSelectedCorrect) {
                                   optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
                                 } else if (!isSelected && isCorrect) {
                                   optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
@@ -298,12 +320,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                   <Label htmlFor={option.id} className={optionClassName}>
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
-                                      {isSubmitted && isSelected && isCorrect && (
+                                      {isSubmitted && isSelected && isSelectedCorrect && (
                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
                                           Correct
                                         </Badge>
                                       )}
-                                      {isSubmitted && isSelected && !isCorrect && (
+                                      {isSubmitted && isSelected && !isSelectedCorrect && (
                                         <Badge variant="destructive" className="text-xs">
                                           Incorrect
                                         </Badge>
@@ -314,7 +336,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                       {isSubmitted && isSelected && (
-                                        isCorrect ? (
+                                        isSelectedCorrect ? (
                                           <CheckCircle className="w-5 h-5 text-emerald-600" />
                                         ) : (
                                           <XCircle className="w-5 h-5 text-red-600" />
