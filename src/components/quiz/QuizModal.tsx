@@ -317,7 +317,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
                               
                               // Enhanced styling for quiz results
-                              let optionClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                              let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
                               
                               if (isSubmitted) {
                                 if (isSelected && isSelectedCorrect) {
