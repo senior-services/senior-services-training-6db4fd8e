@@ -29,6 +29,7 @@ const iconMap = {
   success: CheckCircle,
   warning: AlertTriangle,
   error: XCircle,
+  destructive: XCircle,
   default: Info,
 }
 
@@ -58,7 +59,7 @@ const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
     children, 
     ...props 
   }, ref) => {
-    const Icon = CustomIcon || iconMap[variant || "default"]
+    const Icon = CustomIcon || iconMap[variant as keyof typeof iconMap] || iconMap.default
 
     return (
       <div
