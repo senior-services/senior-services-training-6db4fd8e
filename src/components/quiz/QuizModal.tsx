@@ -96,7 +96,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
   if (!quiz) return null;
 
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <div className="h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto">
         {/* Score Summary - shown when quiz is submitted */}
         {isSubmitted && quizResults && (
