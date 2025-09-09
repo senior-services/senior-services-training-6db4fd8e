@@ -220,42 +220,43 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               const isSelectedCorrect = selectedResults.some(r => r.is_correct);
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
                               
-                              // Enhanced styling for quiz results
-                              let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
-                              
-                              if (isSubmitted) {
-                                if (isSelected && isSelectedCorrect) {
-                                  optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                } else if (isSelected && !isSelectedCorrect) {
-                                  optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                } else if (!isSelected && isCorrect) {
-                                  optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
-                                }
-                              }
-                              
-                              return (
-                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
-                                  <Checkbox 
-                                    id={option.id}
-                                    checked={isSelected}
-                                    disabled={isSubmitted}
-                                    onCheckedChange={(checked) => {
-                                      const currentSelections = responses[question.id]?.selected_option_ids || [];
-                                      let newSelections: string[];
-                                      
-                                      if (checked) {
-                                        newSelections = [...currentSelections, option.id];
-                                      } else {
-                                        newSelections = currentSelections.filter(id => id !== option.id);
-                                      }
-                                      
-                                      handleResponseChange(question.id, { 
-                                        selected_option_ids: newSelections,
-                                        selected_option_id: undefined // Clear single selection
-                                      });
-                                    }}
-                                  />
-                                  <Label htmlFor={option.id} className={optionClassName}>
+                               // Enhanced styling for quiz results
+                               let rowClassName = `${isSubmitted ? 'mb-2' : ''}`;
+                               let labelClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                               
+                               if (isSubmitted) {
+                                 if (isSelected && isSelectedCorrect) {
+                                   rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                 } else if (isSelected && !isSelectedCorrect) {
+                                   rowClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                 } else if (!isSelected && isCorrect) {
+                                   rowClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
+                                 }
+                               }
+                               
+                               return (
+                                 <OptionRow key={option.id} className={rowClassName}>
+                                   <Checkbox 
+                                     id={option.id}
+                                     checked={isSelected}
+                                     disabled={isSubmitted}
+                                     onCheckedChange={(checked) => {
+                                       const currentSelections = responses[question.id]?.selected_option_ids || [];
+                                       let newSelections: string[];
+                                       
+                                       if (checked) {
+                                         newSelections = [...currentSelections, option.id];
+                                       } else {
+                                         newSelections = currentSelections.filter(id => id !== option.id);
+                                       }
+                                       
+                                       handleResponseChange(question.id, { 
+                                         selected_option_ids: newSelections,
+                                         selected_option_id: undefined // Clear single selection
+                                       });
+                                     }}
+                                   />
+                                   <Label htmlFor={option.id} className={labelClassName}>
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
@@ -316,23 +317,24 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               const isSelectedCorrect = questionResult?.is_correct || false;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
                               
-                              // Enhanced styling for quiz results
-                              let optionClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
-                              
-                              if (isSubmitted) {
-                                if (isSelected && isSelectedCorrect) {
-                                  optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                } else if (isSelected && !isSelectedCorrect) {
-                                  optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                } else if (!isSelected && isCorrect) {
-                                  optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
-                                }
-                              }
-                              
-                              return (
-                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
-                                  <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={optionClassName}>
+                               // Enhanced styling for quiz results
+                               let rowClassName = `${isSubmitted ? 'mb-2' : ''}`;
+                               let labelClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                               
+                               if (isSubmitted) {
+                                 if (isSelected && isSelectedCorrect) {
+                                   rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                 } else if (isSelected && !isSelectedCorrect) {
+                                   rowClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                 } else if (!isSelected && isCorrect) {
+                                   rowClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
+                                 }
+                               }
+                               
+                               return (
+                                 <OptionRow key={option.id} className={rowClassName}>
+                                   <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
+                                   <Label htmlFor={option.id} className={labelClassName}>
                                     <span className="flex items-center">
                                       {option.option_text === 'True' ? (
                                         <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
@@ -400,23 +402,24 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               const isSelectedCorrect = questionResult?.is_correct || false;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
                               
-                              // Enhanced styling for quiz results
-                              let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
-                              
-                              if (isSubmitted) {
-                                if (isSelected && isSelectedCorrect) {
-                                  optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                } else if (isSelected && !isSelectedCorrect) {
-                                  optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                } else if (!isSelected && isCorrect) {
-                                  optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
-                                }
-                              }
-                              
-                              return (
-                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
-                                  <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={optionClassName}>
+                               // Enhanced styling for quiz results
+                               let rowClassName = `${isSubmitted ? 'mb-2' : ''}`;
+                               let labelClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                               
+                               if (isSubmitted) {
+                                 if (isSelected && isSelectedCorrect) {
+                                   rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                 } else if (isSelected && !isSelectedCorrect) {
+                                   rowClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                 } else if (!isSelected && isCorrect) {
+                                   rowClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
+                                 }
+                               }
+                               
+                               return (
+                                 <OptionRow key={option.id} className={rowClassName}>
+                                   <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
+                                   <Label htmlFor={option.id} className={labelClassName}>
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
