@@ -229,15 +229,15 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                // Check if user got any answer wrong for this question (for multiple choice)
                                const hasIncorrectAnswers = questionResults.some(r => !r.is_correct);
                                
-                               if (isSubmitted) {
-                                 if (isSelected && isSelectedCorrect) {
-                                   optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                 } else if (isSelected && !isSelectedCorrect) {
-                                   optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                 } else if (!isSelected && isCorrect && hasIncorrectAnswers) {
-                                   optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
-                                 }
-                               }
+                                if (isSubmitted) {
+                                  if (isSelected && isSelectedCorrect) {
+                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                  } else if (isSelected && !isSelectedCorrect) {
+                                    optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                  } else if (!isSelected && isCorrect && hasIncorrectAnswers) {
+                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                  }
+                                }
                               
                               return (
                                 <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
@@ -275,8 +275,8 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                        {isSubmitted && !isSelected && isCorrect && hasIncorrectAnswers && (
-                                         <Badge variant="secondary" className="border-emerald-200 text-emerald-700 text-xs">
-                                           Correct Answer
+                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                           Correct
                                          </Badge>
                                        )}
                                        {isSubmitted && isSelected && (
@@ -287,7 +287,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                          )
                                        )}
                                        {isSubmitted && !isSelected && isCorrect && hasIncorrectAnswers && (
-                                         <CheckCircle className="w-5 h-5 text-emerald-600 opacity-70" />
+                                         <CheckCircle className="w-5 h-5 text-emerald-600" />
                                        )}
                                     </div>
                                   </Label>
@@ -330,15 +330,15 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                // Check if user got the question wrong (for single answer questions)
                                const userAnsweredIncorrectly = questionResults.length > 0 && questionResults.some(r => !r.is_correct);
                                
-                               if (isSubmitted) {
-                                 if (isSelected && isSelectedCorrect) {
-                                   optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                 } else if (isSelected && !isSelectedCorrect) {
-                                   optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                 } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
-                                   optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
-                                 }
-                               }
+                                if (isSubmitted) {
+                                  if (isSelected && isSelectedCorrect) {
+                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                  } else if (isSelected && !isSelectedCorrect) {
+                                    optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                  } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
+                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                  }
+                                }
                               
                               return (
                                 <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
@@ -364,8 +364,8 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <Badge variant="secondary" className="border-emerald-200 text-emerald-700 text-xs">
-                                           Correct Answer
+                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                           Correct
                                          </Badge>
                                        )}
                                        {isSubmitted && isSelected && (
@@ -376,7 +376,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                          )
                                        )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <CheckCircle className="w-5 h-5 text-emerald-600 opacity-70" />
+                                         <CheckCircle className="w-5 h-5 text-emerald-600" />
                                        )}
                                     </div>
                                   </Label>
@@ -424,9 +424,9 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
                                  } else if (isSelected && !isSelectedCorrect) {
                                    optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                 } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
-                                   optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
-                                 }
+                                  } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
+                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                  }
                                }
                               
                               return (
@@ -446,8 +446,8 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <Badge variant="secondary" className="border-emerald-200 text-emerald-700 text-xs">
-                                           Correct Answer
+                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                           Correct
                                          </Badge>
                                        )}
                                        {isSubmitted && isSelected && (
@@ -458,7 +458,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                          )
                                        )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <CheckCircle className="w-5 h-5 text-emerald-600 opacity-70" />
+                                         <CheckCircle className="w-5 h-5 text-emerald-600" />
                                        )}
                                     </div>
                                   </Label>
