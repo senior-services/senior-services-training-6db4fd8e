@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle } from "lucide-react";
 import { OptionList, OptionRow } from "@/components/ui/option-list";
+import { QuizScoreSummary } from "./QuizScoreSummary";
 
 interface QuizModalProps {
   quiz: QuizWithQuestions;
@@ -81,6 +82,16 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="max-w-4xl mx-auto">
+        {/* Score Summary - shown when quiz is submitted */}
+        {isSubmitted && quizResults && (
+          <div className="mb-6">
+            <QuizScoreSummary 
+              quizResults={quizResults} 
+              totalQuestions={quiz.questions.length} 
+            />
+          </div>
+        )}
+
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">{quiz.title}</h2>
           {quiz.description && (
@@ -110,26 +121,54 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                           {question.options
                             .sort((a, b) => a.order_index - b.order_index)
                             .map((option) => {
-                              const questionResult = getQuestionResult(question.id);
                               const isSelected = responses[question.id]?.selected_option_id === option.id;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
-                              const showResult = isSubmitted && isSelected;
+                              
+                              // Enhanced styling for quiz results
+                              let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                              
+                              if (isSubmitted) {
+                                if (isSelected && isCorrect) {
+                                  optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                } else if (isSelected && !isCorrect) {
+                                  optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                } else if (!isSelected && isCorrect) {
+                                  optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
+                                }
+                              }
                               
                               return (
-                                <OptionRow key={option.id}>
+                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
                                   <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={`flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between`}>
-                                    <span>{option.option_text}</span>
-                                    {showResult && (
-                                      isCorrect ? (
-                                        <CheckCircle className="w-5 h-5 text-green-600 ml-2" />
-                                      ) : (
-                                        <XCircle className="w-5 h-5 text-red-600 ml-2" />
-                                      )
-                                    )}
-                                    {isSubmitted && isCorrect && !isSelected && (
-                                      <CheckCircle className="w-5 h-5 text-green-600 ml-2 opacity-50" />
-                                    )}
+                                  <Label htmlFor={option.id} className={optionClassName}>
+                                    <span className="flex-1">{option.option_text}</span>
+                                    <div className="flex items-center gap-2">
+                                      {isSubmitted && isSelected && isCorrect && (
+                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                          Correct
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && isSelected && !isCorrect && (
+                                        <Badge variant="destructive" className="text-xs">
+                                          Incorrect
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && !isSelected && isCorrect && (
+                                        <Badge variant="secondary" className="border-emerald-200 text-emerald-700 text-xs">
+                                          Correct Answer
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && isSelected && (
+                                        isCorrect ? (
+                                          <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                        ) : (
+                                          <XCircle className="w-5 h-5 text-red-600" />
+                                        )
+                                      )}
+                                      {isSubmitted && !isSelected && isCorrect && (
+                                        <CheckCircle className="w-5 h-5 text-emerald-600 opacity-70" />
+                                      )}
+                                    </div>
                                   </Label>
                                 </OptionRow>
                               );
@@ -156,15 +195,26 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                           {question.options
                             .sort((a, b) => a.order_index - b.order_index)
                             .map((option) => {
-                              const questionResult = getQuestionResult(question.id);
                               const isSelected = responses[question.id]?.selected_option_id === option.id;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
-                              const showResult = isSubmitted && isSelected;
+                              
+                              // Enhanced styling for quiz results
+                              let optionClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                              
+                              if (isSubmitted) {
+                                if (isSelected && isCorrect) {
+                                  optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                } else if (isSelected && !isCorrect) {
+                                  optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                } else if (!isSelected && isCorrect) {
+                                  optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
+                                }
+                              }
                               
                               return (
-                                <OptionRow key={option.id}>
+                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
                                   <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={`${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between`}>
+                                  <Label htmlFor={option.id} className={optionClassName}>
                                     <span className="flex items-center">
                                       {option.option_text === 'True' ? (
                                         <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
@@ -173,16 +223,33 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                       )}
                                       {option.option_text}
                                     </span>
-                                    {showResult && (
-                                      isCorrect ? (
-                                        <CheckCircle className="w-5 h-5 text-green-600 ml-2" />
-                                      ) : (
-                                        <XCircle className="w-5 h-5 text-red-600 ml-2" />
-                                      )
-                                    )}
-                                    {isSubmitted && isCorrect && !isSelected && (
-                                      <CheckCircle className="w-5 h-5 text-green-600 ml-2 opacity-50" />
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                      {isSubmitted && isSelected && isCorrect && (
+                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                          Correct
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && isSelected && !isCorrect && (
+                                        <Badge variant="destructive" className="text-xs">
+                                          Incorrect
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && !isSelected && isCorrect && (
+                                        <Badge variant="secondary" className="border-emerald-200 text-emerald-700 text-xs">
+                                          Correct Answer
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && isSelected && (
+                                        isCorrect ? (
+                                          <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                        ) : (
+                                          <XCircle className="w-5 h-5 text-red-600" />
+                                        )
+                                      )}
+                                      {isSubmitted && !isSelected && isCorrect && (
+                                        <CheckCircle className="w-5 h-5 text-emerald-600 opacity-70" />
+                                      )}
+                                    </div>
                                   </Label>
                                 </OptionRow>
                               );
@@ -209,26 +276,54 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                           {question.options
                             .sort((a, b) => a.order_index - b.order_index)
                             .map((option) => {
-                              const questionResult = getQuestionResult(question.id);
                               const isSelected = responses[question.id]?.selected_option_id === option.id;
                               const isCorrect = 'is_correct' in option ? option.is_correct : false;
-                              const showResult = isSubmitted && isSelected;
+                              
+                              // Enhanced styling for quiz results
+                              let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                              
+                              if (isSubmitted) {
+                                if (isSelected && isCorrect) {
+                                  optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                } else if (isSelected && !isCorrect) {
+                                  optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                } else if (!isSelected && isCorrect) {
+                                  optionClassName += ' text-emerald-600 bg-emerald-25 border-emerald-100 rounded-md p-3 border border-dashed';
+                                }
+                              }
                               
                               return (
-                                <OptionRow key={option.id}>
+                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
                                   <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={`flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between`}>
-                                    <span>{option.option_text}</span>
-                                    {showResult && (
-                                      isCorrect ? (
-                                        <CheckCircle className="w-5 h-5 text-green-600 ml-2" />
-                                      ) : (
-                                        <XCircle className="w-5 h-5 text-red-600 ml-2" />
-                                      )
-                                    )}
-                                    {isSubmitted && isCorrect && !isSelected && (
-                                      <CheckCircle className="w-5 h-5 text-green-600 ml-2 opacity-50" />
-                                    )}
+                                  <Label htmlFor={option.id} className={optionClassName}>
+                                    <span className="flex-1">{option.option_text}</span>
+                                    <div className="flex items-center gap-2">
+                                      {isSubmitted && isSelected && isCorrect && (
+                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                          Correct
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && isSelected && !isCorrect && (
+                                        <Badge variant="destructive" className="text-xs">
+                                          Incorrect
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && !isSelected && isCorrect && (
+                                        <Badge variant="secondary" className="border-emerald-200 text-emerald-700 text-xs">
+                                          Correct Answer
+                                        </Badge>
+                                      )}
+                                      {isSubmitted && isSelected && (
+                                        isCorrect ? (
+                                          <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                        ) : (
+                                          <XCircle className="w-5 h-5 text-red-600" />
+                                        )
+                                      )}
+                                      {isSubmitted && !isSelected && isCorrect && (
+                                        <CheckCircle className="w-5 h-5 text-emerald-600 opacity-70" />
+                                      )}
+                                    </div>
                                   </Label>
                                 </OptionRow>
                               );
