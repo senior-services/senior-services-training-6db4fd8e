@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Auth } from "./pages/Auth";
 import { EmployeeDashboard } from "./pages/EmployeeDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
@@ -15,6 +15,14 @@ import { VideoPlayerFullscreen } from "@/components/VideoPlayerFullscreen";
 import { logger } from "@/utils/logger";
 import { AuthCallback } from "./pages/AuthCallback";
 import { ComponentsGallery } from "./pages/ComponentsGallery";
+import type { Video } from "./types";
+
+// YouTube API type declarations
+declare global {
+  interface Window {
+    YT?: any;
+  }
+}
 
 const queryClient = new QueryClient();
 
@@ -44,10 +52,12 @@ const AppContent = () => {
 
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [selectedVideoData, setSelectedVideoData] = useState<Video | null>(null);
   const [refreshDashboard, setRefreshDashboard] = useState(0);
 
-  const handlePlayVideo = (videoId: string) => {
+  const handlePlayVideo = (videoId: string, initialVideo?: Video) => {
     setSelectedVideoId(videoId);
+    setSelectedVideoData(initialVideo || null);
     setIsVideoOpen(true);
   };
 
@@ -141,6 +151,7 @@ const AppContent = () => {
         open={isVideoOpen}
         onOpenChange={handleVideoClose}
         videoId={selectedVideoId}
+        initialVideo={selectedVideoData || undefined}
         onProgressUpdate={(progress) => {
         // Update progress with comprehensive logging
         logger.videoEvent('progress_update_callback', selectedVideoId || 'unknown', {
@@ -157,6 +168,16 @@ const AppContent = () => {
 };
 
 const App = () => {
+  // Preload YouTube IFrame API for faster first video load
+  useEffect(() => {
+    if (!window.YT) {
+      const script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

@@ -30,7 +30,7 @@ interface EmployeeDashboardProps {
   userName: string;
   userEmail: string;
   onLogout: () => void;
-  onPlayVideo: (videoId: string) => void;
+  onPlayVideo: (videoId: string, initialVideo?: Video) => void;
   refreshTrigger?: number;
 }
 
@@ -220,8 +220,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     };
   }, [assignedVideoData, transformToTrainingVideo]);
 
-  // Enhanced video play handler with accessibility
-  const handleVideoPlay = useOptimizedCallback((videoId: string) => {
+  const handlePlayVideo = useOptimizedCallback((videoId: string) => {
     const video = trainingData.required.find(v => v.id === videoId) || trainingData.completed.find(v => v.id === videoId);
     logger.videoEvent('employee_video_selected', videoId, {
       videoTitle: video?.title,
@@ -232,14 +231,18 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     if (video) {
       const announcement = `Opening ${video.title}. ${getStatusAnnouncement(video.progress, video.isRequired || false, video.dueDate)}`;
       announceToScreenReader(announcement);
+      
+      // Find the original Video object for faster loading  
+      const originalVideo = assignedVideoData.find(item => item.video.id === videoId)?.video;
+      onPlayVideo(videoId, originalVideo);
     } else {
       logger.warn('Video not found when attempting to play', {
         videoId,
         userEmail
       });
+      onPlayVideo(videoId); // Fallback without original video
     }
-    onPlayVideo(videoId);
-  }, [trainingData.required, trainingData.completed, onPlayVideo, userEmail]);
+  }, [trainingData.required, trainingData.completed, onPlayVideo, userEmail, assignedVideoData]);
 
   // Callback to refresh training data when progress is updated
   const handleProgressUpdate = (progress: number) => {
@@ -391,8 +394,14 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   You don't have any required training videos assigned at this time.
                 </p>
               </div> : <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" role="grid" aria-label="Required training videos">
-                {trainingData.required.map((video, index) => <TrainingCard key={video.id} video={video} onPlay={handleVideoPlay} priority={index < 3} // Prioritize first 3 cards for performance
-            />)}
+                 {trainingData.required.map((video, index) => (
+                   <TrainingCard 
+                     key={video.id} 
+                     video={video} 
+                     onPlay={handlePlayVideo} 
+                     priority={index < 3} // Prioritize first 3 cards for performance
+                   />
+                 ))}
               </div>}
           </section>
 
@@ -414,7 +423,14 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   </AccordionTrigger>
                   <AccordionContent className="px-0 pb-0">
                     <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 pt-4" role="grid" aria-label="Completed training videos">
-                      {trainingData.completed.map((video, index) => <TrainingCard key={video.id} video={video} onPlay={handleVideoPlay} priority={false} />)}
+                     {trainingData.completed.map((video, index) => (
+                       <TrainingCard 
+                         key={video.id} 
+                         video={video} 
+                         onPlay={handlePlayVideo} 
+                         priority={false} 
+                       />
+                     ))}
                     </div>
                   </AccordionContent>
                 </AccordionItem>

@@ -7,6 +7,7 @@ import { quizOperations } from '@/services/quizService';
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import type { QuizSubmissionData, QuizResponse } from "@/types/quiz";
+import type { Video } from "@/types";
 import { logger } from "@/utils/logger";
 import { QuizModal } from "@/components/quiz/QuizModal";
 import { VideoPlayer } from "@/components/video/VideoPlayer";
@@ -27,6 +28,8 @@ interface VideoPlayerFullscreenProps {
   videoId: string | null;
   /** Optional callback to report video progress updates to parent */
   onProgressUpdate?: (progress: number) => void;
+  /** Optional initial video data to avoid extra fetch */
+  initialVideo?: Video;
 }
 
 /**
@@ -56,7 +59,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   open,
   onOpenChange,
   videoId,
-  onProgressUpdate
+  onProgressUpdate,
+  initialVideo
 }) => {
   // State management
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
@@ -77,7 +81,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const { toast } = useToast();
   
   // Custom hooks for data management
-  const { video, quiz, loading, loadVideoData, resetVideoData } = useVideoData();
+  const { video, quiz, videoLoading, quizLoading, loadVideoData, resetVideoData } = useVideoData();
   const { 
     progress, 
     isCompleted, 
@@ -90,7 +94,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     videoId,
     userEmail: user?.email || null,
     onProgressUpdate,
-    hasQuiz: loading || !!quiz
+    hasQuiz: quizLoading || !!quiz
   });
 
   // Effect to load video data and existing progress when modal opens
@@ -110,7 +114,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         return;
       }
 
-      const loadResult = await loadVideoData(videoId);
+      const loadResult = await loadVideoData(videoId, initialVideo);
       
       if (!loadResult.success) {
         toast({
@@ -128,7 +132,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     };
 
     initializeVideo();
-  }, [open, videoId, user?.email, loadVideoData, resetVideoData, resetProgress, loadExistingProgress, toast]);
+  }, [open, videoId, user?.email, loadVideoData, resetVideoData, resetProgress, loadExistingProgress, toast, initialVideo]);
 
   // Separate effect to load completed quiz results when completion status is determined
   useEffect(() => {
@@ -395,7 +399,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         
         <div>
           {video?.description && video.description.trim() && (
-            <div className="pb-4">
+            <div className="pb-4" id="video-description">
               <p className="text-sm text-muted-foreground font-normal leading-relaxed">
                 {video.description}
               </p>
@@ -424,7 +428,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           >
             <VideoPlayer
               video={video}
-              loading={loading}
+              loading={videoLoading}
               progress={progress}
               onProgressUpdate={updateProgress}
               onVideoEnded={handleVideoEnded}
