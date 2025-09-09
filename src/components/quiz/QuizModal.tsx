@@ -230,9 +230,9 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                 const hasIncorrectAnswers = questionResults.some(r => !r.is_correct);
                                 
                                 // Check if there are any correct answers that were not selected (missed correct)
-                                const correctOptionIds = question.options
-                                  ?.filter(opt => 'is_correct' in opt && opt.is_correct)
-                                  ?.map(opt => opt.id) || [];
+                                const correctOptionIds = question.options?.filter(opt => {
+                                  return ('is_correct' in opt) ? opt.is_correct : !!correctOptions[question.id]?.includes(opt.id);
+                                }).map(opt => opt.id) || [];
                                 const selectedOptionIds = responses[question.id]?.selected_option_ids || [];
                                 const hasMissedCorrect = correctOptionIds.some(id => !selectedOptionIds.includes(id));
                                
