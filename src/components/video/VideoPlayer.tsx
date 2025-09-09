@@ -11,7 +11,6 @@ interface VideoPlayerProps {
   onProgressUpdate: (progress: number) => void;
   onVideoEnded: () => void;
   updateProgressToDatabase: (progress: number) => Promise<any>;
-  lazyLoadIframe?: boolean;
 }
 
 export function VideoPlayer({ 
@@ -20,8 +19,7 @@ export function VideoPlayer({
   progress, 
   onProgressUpdate, 
   onVideoEnded,
-  updateProgressToDatabase,
-  lazyLoadIframe = false
+  updateProgressToDatabase 
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout>();
@@ -100,7 +98,6 @@ export function VideoPlayer({
             className="w-full h-full"
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            loading={lazyLoadIframe ? "lazy" : undefined}
             onLoad={() => {
               ensureYouTubeAPI().then(() => {
                 if (ytProgressIntervalRef.current) {
@@ -158,7 +155,6 @@ export function VideoPlayer({
             title={video.title}
             className="w-full h-full"
             allowFullScreen
-            loading={lazyLoadIframe ? "lazy" : undefined}
             onLoad={() => {
               if (progressIntervalRef.current) {
                 clearInterval(progressIntervalRef.current);
