@@ -10,10 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { BookOpen, AlertCircle, CheckCircle, Clock, ChevronDown } from "lucide-react";
 import { assignmentOperations, progressOperations } from '@/services/api';
+import { quizOperations } from '@/services/quizService';
 import { supabase } from "@/integrations/supabase/client";
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
 import type { Video } from "@/types";
+import type { QuizAttemptWithDetails } from '@/types/quiz';
 import { logger, performanceTracker } from "@/utils/logger";
 import { handleError, withErrorHandler } from "@/utils/errorHandler";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -64,6 +66,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     video: Video;
     assignment: any;
   }[]>([]);
+  const [quizAttemptsByVideo, setQuizAttemptsByVideo] = useState<Record<string, QuizAttemptWithDetails | undefined>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -87,6 +90,29 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       const res = await assignmentOperations.getByEmployeeEmail(userEmail);
       const videoData = res.success && res.data ? res.data : [];
       setAssignedVideoData(videoData);
+      
+      // Fetch quiz attempts for the user
+      try {
+        const attempts = await quizOperations.getUserAttempts(userEmail);
+        if (attempts && attempts.length > 0) {
+          // Create a map of video_id -> latest quiz attempt
+          const attemptsByVideo = attempts.reduce((acc, attempt) => {
+            const videoId = attempt.quiz.video_id;
+            if (!acc[videoId] || new Date(attempt.completed_at) > new Date(acc[videoId].completed_at)) {
+              acc[videoId] = attempt;
+            }
+            return acc;
+          }, {} as Record<string, QuizAttemptWithDetails>);
+          setQuizAttemptsByVideo(attemptsByVideo);
+        } else {
+          setQuizAttemptsByVideo({});
+        }
+      } catch (error) {
+        logger.error('Failed to load quiz attempts', error as Error);
+        // Don't fail the entire load if quiz attempts fail
+        setQuizAttemptsByVideo({});
+      }
+      
       logger.info('Successfully loaded assigned videos', {
         videoCount: videoData.length,
         userEmail
@@ -141,6 +167,16 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       }
       return `${hours} hour${hours !== 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
     };
+
+    // Get quiz summary if available
+    const quizAttempt = quizAttemptsByVideo[video.id];
+    const quizSummary = quizAttempt ? {
+      correct: quizAttempt.score,
+      total: quizAttempt.total_questions,
+      percent: Math.round((quizAttempt.score / quizAttempt.total_questions) * 100),
+      completedAt: quizAttempt.completed_at
+    } : undefined;
+
     return {
       id: video.id,
       title: sanitizeText(video.title || 'Untitled Video'),
@@ -154,9 +190,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       status: !video.video_url && !video.video_file_name ? 'warning' as const : undefined,
       video_url: video.video_url,
       thumbnail_url: video.thumbnail_url,
-      video_file_name: video.video_file_name
+      video_file_name: video.video_file_name,
+      quizSummary
     };
-  }, [userEmail]);
+  }, [userEmail, quizAttemptsByVideo]);
 
   // Enhanced training data processing with comprehensive statistics
   const trainingData = useOptimizedMemo(() => {

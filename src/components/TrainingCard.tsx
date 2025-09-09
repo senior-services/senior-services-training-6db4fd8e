@@ -39,6 +39,12 @@ export interface TrainingVideo {
   video_url?: string | null;
   thumbnail_url?: string | null;
   video_file_name?: string | null;
+  quizSummary?: {
+    correct: number;
+    total: number;
+    percent: number;
+    completedAt?: string;
+  };
 }
 
 /**
@@ -294,6 +300,23 @@ export const TrainingCard = memo<TrainingCardProps>(({
           {sanitizedVideo.description && <CardDescription className="line-clamp-2">
               {sanitizedVideo.description}
             </CardDescription>}
+          
+          {/* Quiz Results for Completed Training */}
+          {trainingStatus.isCompleted && sanitizedVideo.quizSummary && (
+            <div className="mt-2 flex items-center gap-2" role="status" aria-label={`Quiz result: ${sanitizedVideo.quizSummary.percent}% score`}>
+              <span className="text-sm text-muted-foreground">Quiz result:</span>
+              <Badge 
+                variant={
+                  sanitizedVideo.quizSummary.percent >= 80 ? 'success' : 
+                  sanitizedVideo.quizSummary.percent >= 60 ? 'warning' : 'destructive'
+                }
+                className="text-xs"
+                aria-label={`Quiz score: ${sanitizedVideo.quizSummary.correct} of ${sanitizedVideo.quizSummary.total} correct, ${sanitizedVideo.quizSummary.percent} percent`}
+              >
+                {sanitizedVideo.quizSummary.percent}% • {sanitizedVideo.quizSummary.correct} of {sanitizedVideo.quizSummary.total} correct
+              </Badge>
+            </div>
+          )}
         </CardHeader>
 
         {/* Enhanced Action Button */}
