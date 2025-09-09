@@ -261,7 +261,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                       });
                                     }}
                                   />
-                                  <Label htmlFor={option.id} className={optionClassName}>
+                                  <Label htmlFor={option.id} className={optionClassName} mutedOnDisabled={false}>
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
@@ -343,7 +343,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               return (
                                 <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
                                   <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={optionClassName}>
+                                  <Label htmlFor={option.id} className={optionClassName} mutedOnDisabled={false}>
                                     <span className="flex items-center">
                                       {option.option_text === 'True' ? (
                                         <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
@@ -432,7 +432,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               return (
                                 <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
                                   <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={optionClassName}>
+                                  <Label htmlFor={option.id} className={optionClassName} mutedOnDisabled={false}>
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
