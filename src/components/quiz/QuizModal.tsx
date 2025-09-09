@@ -323,7 +323,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
                                
                                // Check if user got the question wrong (for single answer questions)
-                               const userAnsweredIncorrectly = questionResults.length > 0 && !isSelectedCorrect && responses[question.id]?.selected_option_id;
+                               const userAnsweredIncorrectly = questionResults.length > 0 && questionResults.some(r => !r.is_correct);
                                
                                if (isSubmitted) {
                                  if (isSelected && isSelectedCorrect) {
@@ -410,7 +410,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
                                
                                // Check if user got the question wrong (for single answer questions)
-                               const userAnsweredIncorrectly = questionResults.length > 0 && !isSelectedCorrect && responses[question.id]?.selected_option_id;
+                               const userAnsweredIncorrectly = questionResults.length > 0 && questionResults.some(r => !r.is_correct);
                                
                                if (isSubmitted) {
                                  if (isSelected && isSelectedCorrect) {
