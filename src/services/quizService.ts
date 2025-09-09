@@ -59,6 +59,34 @@ async function getSafeQuizOptions(questionId: string): Promise<Omit<QuizQuestion
 }
 
 export const quizOperations = {
+  // Get correct options for a quiz (after submission)
+  async getCorrectOptionsForQuiz(quizId: string): Promise<Record<string, string[]>> {
+    try {
+      const { data, error } = await supabase.rpc('get_correct_options_for_quiz', {
+        p_quiz_id: quizId
+      });
+
+      if (error) {
+        logger.warn('Failed to get correct options for quiz', { quizId, error });
+        return {};
+      }
+
+      // Group correct options by question_id
+      const correctOptions: Record<string, string[]> = {};
+      data?.forEach((item: { question_id: string; option_id: string }) => {
+        if (!correctOptions[item.question_id]) {
+          correctOptions[item.question_id] = [];
+        }
+        correctOptions[item.question_id].push(item.option_id);
+      });
+
+      return correctOptions;
+    } catch (error) {
+      logger.error('Error getting correct options for quiz', error);
+      return {};
+    }
+  },
+
   // Get all quizzes
   async getAll(): Promise<Quiz[]> {
     try {

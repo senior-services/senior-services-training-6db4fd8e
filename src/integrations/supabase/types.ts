@@ -467,6 +467,13 @@ export type Database = {
           employee_id: string
         }[]
       }
+      get_correct_options_for_quiz: {
+        Args: { p_quiz_id: string }
+        Returns: {
+          option_id: string
+          question_id: string
+        }[]
+      }
       get_safe_quiz_options: {
         Args: { p_question_id: string }
         Returns: {

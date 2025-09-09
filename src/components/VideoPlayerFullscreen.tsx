@@ -70,6 +70,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [hasQuizChanges, setHasQuizChanges] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [completedQuizResults, setCompletedQuizResults] = useState<QuizResponse[]>([]);
+  const [correctOptions, setCorrectOptions] = useState<Record<string, string[]>>({});
   
   // Hooks for authentication and user feedback
   const { user } = useAuth();
@@ -141,6 +142,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         
         if (latestAttempt?.responses) {
           setCompletedQuizResults(latestAttempt.responses);
+          
+          // Fetch correct options for completed quiz
+          const correctOpts = await quizOperations.getCorrectOptionsForQuiz(quiz.id);
+          setCorrectOptions(correctOpts);
         }
       } catch (error) {
         logger.warn('Failed to load completed quiz results', { videoId, error });
@@ -231,6 +236,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       if (currentAttempt?.responses) {
         setQuizResults(currentAttempt.responses);
       }
+      
+      // Fetch correct options after submission to show in results
+      const correctOpts = await quizOperations.getCorrectOptionsForQuiz(quiz.id);
+      setCorrectOptions(correctOpts);
       
       logger.info('Quiz submitted successfully', { 
         quizId: quiz.id, 
@@ -444,6 +453,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 onResponsesChange={handleQuizResponsesChange}
                 quizResults={wasEverCompleted ? completedQuizResults : quizResults}
                 isSubmitted={wasEverCompleted || quizSubmitted}
+                correctOptions={correctOptions}
               />
             </div>
           )}

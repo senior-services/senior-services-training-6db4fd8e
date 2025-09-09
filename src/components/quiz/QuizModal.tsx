@@ -19,6 +19,7 @@ interface QuizModalProps {
   onResponsesChange?: (responses: QuizSubmissionData[], allAnswered: boolean) => void;
   quizResults?: QuizResponse[];
   isSubmitted?: boolean;
+  correctOptions?: Record<string, string[]>;
 }
 
 // Extended response type for internal state management
@@ -29,7 +30,7 @@ interface ExtendedQuizResponse {
   text_answer?: string;
 }
 
-export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizResults, isSubmitted }: QuizModalProps) {
+export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizResults, isSubmitted, correctOptions = {} }: QuizModalProps) {
   // Initialize responses with saved quiz results when viewing completed quiz
   const initializeResponses = () => {
     if (isSubmitted && quizResults) {
@@ -218,7 +219,9 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               const questionResults = getQuestionResults(question.id);
                               const selectedResults = questionResults.filter(r => r.selected_option_id === option.id);
                               const isSelectedCorrect = selectedResults.some(r => r.is_correct);
-                              const isCorrect = 'is_correct' in option ? option.is_correct : false;
+                              const isCorrect = ('is_correct' in option) 
+                                ? option.is_correct 
+                                : !!correctOptions[question.id]?.includes(option.id);
                               
                                // Enhanced styling for quiz results
                                let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
@@ -317,7 +320,9 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               const questionResults = getQuestionResults(question.id);
                               const questionResult = questionResults.find(r => r.selected_option_id === option.id);
                               const isSelectedCorrect = questionResult?.is_correct || false;
-                              const isCorrect = 'is_correct' in option ? option.is_correct : false;
+                              const isCorrect = ('is_correct' in option) 
+                                ? option.is_correct 
+                                : !!correctOptions[question.id]?.includes(option.id);
                               
                                // Enhanced styling for quiz results
                                let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
@@ -404,7 +409,9 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                               const questionResults = getQuestionResults(question.id);
                               const questionResult = questionResults.find(r => r.selected_option_id === option.id);
                               const isSelectedCorrect = questionResult?.is_correct || false;
-                              const isCorrect = 'is_correct' in option ? option.is_correct : false;
+                              const isCorrect = ('is_correct' in option) 
+                                ? option.is_correct 
+                                : !!correctOptions[question.id]?.includes(option.id);
                               
                                // Enhanced styling for quiz results
                                let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
