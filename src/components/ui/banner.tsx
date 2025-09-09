@@ -3,19 +3,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { X, Info, AlertTriangle, CheckCircle, XCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Alert } from "./alert"
 import { Button } from "./button"
 
 const bannerVariants = cva(
-  "relative w-full",
+  "relative w-full rounded-lg border p-4 shadow-card hover:shadow-lg transition-shadow duration-300 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground border",
+        default: "bg-background text-foreground",
         info: "bg-blue-50 text-blue-900 border-blue-200 dark:bg-blue-950/20 dark:text-blue-100 dark:border-blue-900/50",
         success: "bg-green-50 text-green-900 border-green-200 dark:bg-green-950/20 dark:text-green-100 dark:border-green-900/50",
         warning: "bg-yellow-50 text-yellow-900 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-100 dark:border-yellow-900/50",
         error: "bg-red-50 text-red-900 border-red-200 dark:bg-red-950/20 dark:text-red-100 dark:border-red-900/50",
+        destructive: "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
       },
     },
     defaultVariants: {
@@ -61,8 +61,9 @@ const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
     const Icon = CustomIcon || iconMap[variant || "default"]
 
     return (
-      <Alert
+      <div
         ref={ref}
+        role="alert"
         className={cn(bannerVariants({ variant }), className)}
         {...props}
       >
@@ -73,12 +74,14 @@ const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
             )}
             <div className="flex-1 min-w-0">
               {title && (
-                <h3 className="font-medium text-sm mb-1">{title}</h3>
+                <h5 className="mb-1 font-medium leading-none tracking-tight">{title}</h5>
               )}
               {description && (
-                <p className="text-sm opacity-90">{description}</p>
+                <div className="text-sm [&_p]:leading-relaxed opacity-90">{description}</div>
               )}
-              {children}
+              {children && (
+                <div className="text-sm [&_p]:leading-relaxed">{children}</div>
+              )}
               {actions && (
                 <div className="mt-3 flex items-center space-x-2">
                   {actions}
@@ -98,7 +101,7 @@ const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
             </Button>
           )}
         </div>
-      </Alert>
+      </div>
     )
   }
 )

@@ -67,11 +67,53 @@ Use these wrapper components to maintain consistent spacing:
 
 These components ensure consistent spacing across all form controls throughout the application and align with the Component Gallery design standards.
 
+### Banner Component Usage
+
+The `Banner` component is the unified component for notifications, alerts, status messages, and announcements. It replaces the deprecated `Alert` component.
+
+**Variants:**
+- `default` - neutral messaging
+- `info` - informational content (blue theme)
+- `success` - positive feedback (green theme)  
+- `warning` - cautionary messages (yellow theme)
+- `error` - error states (red theme)
+- `destructive` - destructive actions (red theme, alias for error)
+
+**Features:**
+- Optional title and description
+- Optional action buttons via `actions` prop
+- Optional dismiss functionality via `dismissible` and `onDismiss`
+- Optional icon display via `showIcon` prop
+- Built-in modern drop shadow (`shadow-card hover:shadow-lg`)
+- Accessibility support with `role="alert"`
+
+**✅ Correct Usage:**
+```tsx
+<Banner
+  variant="warning"
+  title="Action Required"
+  description="Your account needs verification."
+  actions={
+    <Button size="sm" variant="outline">
+      Verify Now
+    </Button>
+  }
+  dismissible
+  onDismiss={() => handleDismiss()}
+/>
+```
+
+**When to use Banner vs Toast vs AlertDialog:**
+- **Banner**: Persistent contextual information, status updates, or actionable messages that remain visible
+- **Toast**: Temporary feedback messages that auto-dismiss
+- **AlertDialog**: Critical decisions requiring user confirmation before proceeding
+
 ### ESLint Rules
 
 The following ESLint rules are enforced to maintain consistency:
 
 - No `className` attribute allowed on `RadioGroup` components
 - No `className` attribute allowed on individual `Checkbox` components
+- **Prefer Banner over Alert**: Use the unified `Banner` component instead of the deprecated `Alert` component
 
 Use the wrapper components instead to achieve proper spacing and styling.

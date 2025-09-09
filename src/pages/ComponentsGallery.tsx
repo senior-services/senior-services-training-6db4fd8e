@@ -14,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Banner } from "@/components/ui/banner";
 import { 
   AlertDialog, 
@@ -246,15 +245,10 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
             <nav className="pt-4">
               <ul className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-x-6 text-left">
                  <li className="break-inside-avoid mb-1">
-                   <a href="#alerts" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
-                     Alerts
-                   </a>
-                 </li>
-                 <li className="break-inside-avoid mb-1">
-                   <a href="#banners" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
-                     Banners
-                   </a>
-                 </li>
+                    <a href="#banners" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                      Banners
+                    </a>
+                  </li>
                  <li className="break-inside-avoid mb-1">
                    <a href="#badges" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                      Badges
@@ -856,36 +850,20 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
             </CardContent>
           </Card>
 
-          {/* Alerts */}
-          <Card id="alerts" className="shadow-card hover:shadow-lg transition-shadow duration-300">
-            <CardHeader>
-              <CardTitle>Alerts</CardTitle>
-              <CardDescription>Alert components for notifications and status messages</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Info Alert</AlertTitle>
-                  <AlertDescription>This is an informational alert message.</AlertDescription>
-                </Alert>
-                <Alert variant="destructive">
-                  <X className="h-4 w-4" />
-                  <AlertTitle>Error Alert</AlertTitle>
-                  <AlertDescription>This is an error alert message.</AlertDescription>
-                </Alert>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Banners */}
           <Card id="banners" className="shadow-card hover:shadow-lg transition-shadow duration-300">
             <CardHeader>
               <CardTitle>Banners</CardTitle>
-              <CardDescription>Banner components for prominent notifications, announcements, and contextual information</CardDescription>
+              <CardDescription>Banner components for notifications, alerts, and status messages with modern drop shadows</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
+                {/* Default Banner */}
+                <Banner
+                  title="Default Banner"
+                  description="This is a default banner with modern styling and shadow effects."
+                />
+
                 {/* Info Banner */}
                 <Banner
                   variant="info"
@@ -934,11 +912,23 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                   }
                 />
 
+                {/* Destructive Banner (alias for error) */}
+                <Banner
+                  variant="destructive"
+                  title="Destructive Action"
+                  description="This action cannot be undone and may result in permanent data loss."
+                  actions={
+                    <Button variant="destructive" size="sm">
+                      Proceed Anyway
+                    </Button>
+                  }
+                />
+
                 {/* Dismissible Banner */}
                 <Banner
                   variant="info"
                   title="Dismissible Banner"
-                  description="This banner can be dismissed by clicking the X button."
+                  description="This banner can be dismissed by clicking the X button in the top right corner."
                   dismissible
                   onDismiss={() => console.log("Banner dismissed")}
                 />
@@ -955,6 +945,33 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       </Button>
                       <Button size="sm" variant="ghost">
                         Later
+                      </Button>
+                    </div>
+                  }
+                />
+
+                {/* Banner without Icon */}
+                <Banner
+                  variant="info"
+                  title="No Icon Banner"
+                  description="This banner demonstrates the option to hide the icon."
+                  showIcon={false}
+                />
+
+                {/* Banner with Dismissible and Actions */}
+                <Banner
+                  variant="success"
+                  title="Complete Banner"
+                  description="This banner shows all features: custom icon, title, description, actions, and dismissible functionality."
+                  dismissible
+                  onDismiss={() => console.log("Complete banner dismissed")}
+                  actions={
+                    <div className="flex space-x-2">
+                      <Button size="sm">
+                        Primary Action
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        Secondary
                       </Button>
                     </div>
                   }

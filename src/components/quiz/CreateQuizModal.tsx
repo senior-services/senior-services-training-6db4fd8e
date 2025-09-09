@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Banner } from "@/components/ui/banner";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { QuizQuestion, QuizQuestionOption } from "@/types/quiz";
@@ -239,15 +239,16 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
             </div>
 
             {formData.questions.length === 0 && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  No questions have been added yet. Please add at least one question to create the quiz.
-                  <Button onClick={addQuestion} variant="outline" size="sm" className="ml-2">
+              <Banner 
+                variant="error" 
+                description="No questions have been added yet. Please add at least one question to create the quiz."
+                actions={
+                  <Button onClick={addQuestion} variant="outline" size="sm">
                     <Plus className="w-4 h-4 mr-2" />
                     Add Question
                   </Button>
-                </AlertDescription>
-              </Alert>
+                }
+              />
             )}
 
             {formData.questions.map((question, questionIndex) => (
