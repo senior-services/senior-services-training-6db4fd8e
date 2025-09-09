@@ -885,18 +885,6 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                   }
                 />
 
-                {/* Default Banner - Without Button */}
-                <Banner
-                  title="Default Banner without Button"
-                  description="Banner with no action buttons (same as basic)."
-                />
-
-                {/* Default Banner - With Icon */}
-                <Banner
-                  title="Default Banner with Icon"
-                  description="Banner with icon displayed (default behavior)."
-                  showIcon={true}
-                />
 
                 {/* Default Banner - Without Icon */}
                 <Banner
