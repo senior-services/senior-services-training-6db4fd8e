@@ -61,6 +61,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // State management
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
   const [overlayDismissed, setOverlayDismissed] = useState(false);
+  const [shouldShowOverlay, setShouldShowOverlay] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizResults, setQuizResults] = useState<QuizResponse[]>([]);
@@ -100,6 +101,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         resetProgress();
         setShowCompletionOverlay(false);
         setOverlayDismissed(false);
+        setShouldShowOverlay(false);
         setQuizStarted(false);
         setQuizSubmitted(false);
         setQuizResults([]);
@@ -151,11 +153,15 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // Effect to show completion overlay when progress reaches completion threshold
   useEffect(() => {
     // Never show completion overlay if training was ever completed
-    if (!quiz || wasEverCompleted || overlayDismissed || quizStarted) return;
+    if (!quiz || wasEverCompleted || overlayDismissed || quizStarted) {
+      setShouldShowOverlay(false);
+      return;
+    }
     
     // Show overlay if progress is 99% or higher and video has a quiz
     if (progress >= 99) {
       setShowCompletionOverlay(true);
+      setShouldShowOverlay(true);
     }
   }, [progress, quiz, wasEverCompleted, overlayDismissed, quizStarted]);
 
@@ -296,6 +302,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // Handle closing the completion overlay
   const handleCloseOverlay = useCallback(() => {
     setShowCompletionOverlay(false);
+    setShouldShowOverlay(false);
     setOverlayDismissed(true);
   }, []);
 
@@ -416,7 +423,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             />
             
             {/* Completion Overlay - Only show if training was never completed */}
-            {showCompletionOverlay && (progress >= 100 || (progress >= 99 && (loading || quiz))) && !wasEverCompleted && (
+            {shouldShowOverlay && showCompletionOverlay && !wasEverCompleted && (
               <CompletionOverlay
                 video={video}
                 quiz={quiz}

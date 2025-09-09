@@ -67,7 +67,8 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
     // Cap progress at 99% if quiz exists and hasn't been completed
     const cappedProgress = hasQuiz && progressPercent >= 100 && !wasEverCompleted ? 99 : progressPercent;
     
-    setProgress(cappedProgress);
+    // Prevent progress regression - only update if new progress is higher
+    setProgress(currentProgress => Math.max(currentProgress, cappedProgress));
     onProgressUpdate?.(cappedProgress);
 
     // Debounce database updates
