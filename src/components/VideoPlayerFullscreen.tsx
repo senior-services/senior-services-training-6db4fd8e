@@ -88,7 +88,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     videoId,
     userEmail: user?.email || null,
     onProgressUpdate,
-    hasQuiz: !!quiz
+    hasQuiz: loading || !!quiz
   });
 
   // Effect to load video data and existing progress when modal opens
@@ -416,7 +416,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             />
             
             {/* Completion Overlay - Only show if training was never completed */}
-            {showCompletionOverlay && (progress >= 100 || (progress >= 99 && quiz)) && !wasEverCompleted && (
+            {showCompletionOverlay && (progress >= 100 || (progress >= 99 && (loading || quiz))) && !wasEverCompleted && (
               <CompletionOverlay
                 video={video}
                 quiz={quiz}
