@@ -12,6 +12,7 @@ import { logger } from "@/utils/logger";
 import { QuizModal } from "@/components/quiz/QuizModal";
 import { VideoPlayer } from "@/components/video/VideoPlayer";
 import { CompletionOverlay } from "@/components/video/CompletionOverlay";
+import { QuizScoreSummary } from "@/components/quiz/QuizScoreSummary";
 import { useVideoData } from "@/hooks/useVideoData";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
 
@@ -406,6 +407,28 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             </div>
           )}
 
+          {/* Quiz Results for Completed Training */}
+          {wasEverCompleted && completedQuizResults.length > 0 && quiz && (
+            <div className="pb-4 space-y-3">
+              <QuizScoreSummary 
+                quizResults={completedQuizResults} 
+                totalQuestions={quiz.questions.length} 
+              />
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  const quizSection = document.getElementById('quiz-section');
+                  if (quizSection) {
+                    quizSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="w-full"
+              >
+                View Detailed Answers
+              </Button>
+            </div>
+          )}
+
           {/* Persistent Quiz CTA Button */}
           {quiz && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && (
             <div className="pb-4">
@@ -458,6 +481,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 quizResults={wasEverCompleted ? completedQuizResults : quizResults}
                 isSubmitted={wasEverCompleted || quizSubmitted}
                 correctOptions={correctOptions}
+                showScoreSummary={!wasEverCompleted}
               />
             </div>
           )}
