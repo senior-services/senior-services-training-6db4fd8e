@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { VideoPlayer } from "@/components/video/VideoPlayer";
 import { CompletionOverlay } from "@/components/video/CompletionOverlay";
 import { useVideoData } from "@/hooks/useVideoData";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
+import { QuizSkeleton } from "@/components/quiz/QuizSkeleton";
 
 /**
  * Props interface for the VideoPlayerFullscreen component
@@ -373,10 +375,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   }, [quizSubmitted, handleMarkTrainingComplete, onOpenChange]);
 
 
+  const descriptionId = video?.description && video.description.trim() ? "video-description" : undefined;
+
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent 
-        className="max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto"
+        className="max-w-6xl w-[95vw] max-h-[90vh] overflow-hidden"
         onOpenAutoFocus={(e) => {
           // Let the video container receive focus instead
           e.preventDefault();
@@ -387,7 +391,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             }
           }, 100);
         }}
-        aria-describedby="video-description"
+        aria-describedby={descriptionId}
       >
         
         <DialogHeader>
@@ -397,71 +401,99 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </DialogTitle>
         </DialogHeader>
         
-        <div>
-          {video?.description && video.description.trim() && (
-            <div className="pb-4" id="video-description">
-              <p className="text-sm text-muted-foreground font-normal leading-relaxed">
-                {video.description}
-              </p>
-            </div>
-          )}
+        <ScrollArea className="flex-1 px-1">
+          <div className="space-y-6">
+            {video?.description && video.description.trim() && (
+              <div id="video-description">
+                <p className="text-sm text-muted-foreground font-normal leading-relaxed">
+                  {video.description}
+                </p>
+              </div>
+            )}
 
-          {/* Persistent Quiz CTA Button */}
-          {quiz && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && (
-            <div className="pb-4">
-              <Button 
-                onClick={handleStartQuiz}
-                className="w-full"
-                size="lg"
-              >
-                Start Quiz to Complete Training
-              </Button>
-            </div>
-          )}
+            {/* Persistent Quiz CTA Button */}
+            {quiz && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && (
+              <div>
+                <Button 
+                  onClick={handleStartQuiz}
+                  className="w-full"
+                  size="lg"
+                >
+                  Start Quiz to Complete Training
+                </Button>
+              </div>
+            )}
 
-          <div 
-            className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative"
-            data-video-container
-            tabIndex={0}
-            aria-label="Video player. Press spacebar to play or pause."
-            role="application"
-          >
-            <VideoPlayer
-              video={video}
-              loading={videoLoading}
-              progress={progress}
-              onProgressUpdate={updateProgress}
-              onVideoEnded={handleVideoEnded}
-              updateProgressToDatabase={async () => {}} // This is handled by the progress hook now
-            />
-            
-            {/* Completion Overlay - Only show if training was never completed */}
-            {shouldShowOverlay && showCompletionOverlay && !wasEverCompleted && (
-              <CompletionOverlay
+            {/* Quiz Section - Always render container for completed training */}
+            {wasEverCompleted && quiz && (
+              <div id="quiz-section" className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Quiz Results</h3>
+                {completedQuizResults.length > 0 ? (
+                  <QuizModal
+                    quiz={quiz}
+                    onSubmit={handleQuizSubmit}
+                    onCancel={() => {}}
+                    onResponsesChange={handleQuizResponsesChange}
+                    quizResults={completedQuizResults}
+                    isSubmitted={true}
+                    correctOptions={correctOptions}
+                  />
+                ) : (
+                  <QuizSkeleton />
+                )}
+              </div>
+            )}
+
+            <div 
+              className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative"
+              data-video-container
+              tabIndex={0}
+              aria-label="Video player. Press spacebar to play or pause."
+              role="application"
+            >
+              <VideoPlayer
                 video={video}
-                quiz={quiz}
-                onStartQuiz={handleStartQuiz}
-                onCompleteTraining={handleCompleteTraining}
-                onClose={quiz ? handleCloseOverlay : undefined}
+                loading={videoLoading}
+                progress={progress}
+                onProgressUpdate={updateProgress}
+                onVideoEnded={handleVideoEnded}
+                updateProgressToDatabase={async () => {}} // This is handled by the progress hook now
+                lazyLoadIframe={wasEverCompleted}
               />
+              
+              {/* Completion Overlay - Only show if training was never completed */}
+              {shouldShowOverlay && showCompletionOverlay && !wasEverCompleted && (
+                <CompletionOverlay
+                  video={video}
+                  quiz={quiz}
+                  onStartQuiz={handleStartQuiz}
+                  onCompleteTraining={handleCompleteTraining}
+                  onClose={quiz ? handleCloseOverlay : undefined}
+                />
+              )}
+            </div>
+
+            {/* Quiz Section - For active quiz attempts */}
+            {quizStarted && quiz && !wasEverCompleted && (
+              <div id="quiz-section" className="border-t pt-6">
+                <QuizModal
+                  quiz={quiz}
+                  onSubmit={handleQuizSubmit}
+                  onCancel={() => {}}
+                  onResponsesChange={handleQuizResponsesChange}
+                  quizResults={quizResults}
+                  isSubmitted={quizSubmitted}
+                  correctOptions={correctOptions}
+                />
+              </div>
+            )}
+
+            {/* Always render persistent quiz container for smooth scrolling */}
+            {quiz && !quizStarted && !wasEverCompleted && (
+              <div id="quiz-section" className="min-h-0"></div>
             )}
           </div>
-
-          {/* Quiz Section */}
-          {((quizStarted && quiz) || (wasEverCompleted && quiz && completedQuizResults.length > 0)) && (
-            <div id="quiz-section" className="mt-8 border-t pt-8">
-              <QuizModal
-                quiz={quiz}
-                onSubmit={handleQuizSubmit}
-                onCancel={() => {}}
-                onResponsesChange={handleQuizResponsesChange}
-                quizResults={wasEverCompleted ? completedQuizResults : quizResults}
-                isSubmitted={wasEverCompleted || quizSubmitted}
-                correctOptions={correctOptions}
-              />
-            </div>
-          )}
-        </div>
+        </ScrollArea>
 
         {/* Dialog Footer - Only show for active quiz attempts, not completed ones */}
         {quizStarted && quiz && !wasEverCompleted && (
