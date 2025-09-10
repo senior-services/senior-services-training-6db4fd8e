@@ -258,7 +258,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
       toast({
         title: "Quiz Submitted! 📝",
-        description: "Review your answers and complete the training."
+        description: "Review your answers."
       });
 
     } catch (error) {
