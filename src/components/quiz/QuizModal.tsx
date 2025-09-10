@@ -210,7 +210,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                   {question.question_type === 'multiple_choice' && (
                     <>
                       {question.options && question.options.length > 0 ? (
-                        <div className="space-y-3">
+                        <OptionList>
                           {question.options
                             .sort((a, b) => a.order_index - b.order_index)
                             .map((option) => {
@@ -224,37 +224,37 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                 ? option.is_correct 
                                 : !!correctOptions[question.id]?.includes(option.id);
                               
-                                // Enhanced styling for quiz results
-                                let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
+                                // Check if user got any answer wrong for this question (for multiple choice)
+                                const hasIncorrectAnswers = questionResults.some(r => !r.is_correct);
                                 
-                                 // Check if user got any answer wrong for this question (for multiple choice)
-                                 const hasIncorrectAnswers = questionResults.some(r => !r.is_correct);
-                                 
-                                 // Calculate correct options and determine if "Also Correct" should be shown
-                                 const correctOptionIds = question.options?.filter(opt => {
-                                   return ('is_correct' in opt) ? opt.is_correct : !!correctOptions[question.id]?.includes(opt.id);
-                                 }).map(opt => opt.id) || [];
-                                 const totalCorrectCount = correctOptionIds.length;
-                                 const selectedOptionIds = responses[question.id]?.selected_option_ids || [];
-                                 const hasMissedCorrect = correctOptionIds.some(id => !selectedOptionIds.includes(id));
-                                 
-                                 // Show "Also Correct" for multiple correct answers when user missed some
-                                 const shouldShowAlsoCorrect = totalCorrectCount > 1 && hasMissedCorrect;
-                                 // Show "Correct" for single correct answer when user got it wrong
-                                 const shouldShowSingleCorrect = totalCorrectCount === 1 && hasIncorrectAnswers && hasMissedCorrect;
-                               
-                                 if (isSubmitted) {
-                                   if (isSelected && isSelectedCorrect) {
-                                     optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                   } else if (isSelected && !isSelectedCorrect) {
-                                     optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                   } else if (!isSelected && isCorrect && (shouldShowAlsoCorrect || shouldShowSingleCorrect)) {
-                                     optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                   }
-                                 }
+                                // Calculate correct options and determine if "Also Correct" should be shown
+                                const correctOptionIds = question.options?.filter(opt => {
+                                  return ('is_correct' in opt) ? opt.is_correct : !!correctOptions[question.id]?.includes(opt.id);
+                                }).map(opt => opt.id) || [];
+                                const totalCorrectCount = correctOptionIds.length;
+                                const selectedOptionIds = responses[question.id]?.selected_option_ids || [];
+                                const hasMissedCorrect = correctOptionIds.some(id => !selectedOptionIds.includes(id));
+                                
+                                // Show "Also Correct" for multiple correct answers when user missed some
+                                const shouldShowAlsoCorrect = totalCorrectCount > 1 && hasMissedCorrect;
+                                // Show "Correct" for single correct answer when user got it wrong
+                                const shouldShowSingleCorrect = totalCorrectCount === 1 && hasIncorrectAnswers && hasMissedCorrect;
+                              
+                                // Enhanced styling for quiz results - apply to OptionRow container
+                                let rowClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} transition-colors`;
+                                
+                                if (isSubmitted) {
+                                  if (isSelected && isSelectedCorrect) {
+                                    rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                  } else if (isSelected && !isSelectedCorrect) {
+                                    rowClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                  } else if (!isSelected && isCorrect && (shouldShowAlsoCorrect || shouldShowSingleCorrect)) {
+                                    rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                  }
+                                }
                               
                               return (
-                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
+                                <OptionRow key={option.id} className={rowClassName}>
                                   <Checkbox 
                                     id={option.id}
                                     checked={isSelected}
@@ -276,7 +276,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                       });
                                     }}
                                   />
-                                  <Label htmlFor={option.id} className={optionClassName} mutedOnDisabled={false}>
+                                  <Label htmlFor={option.id} className="flex-1 flex items-center justify-between">
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
@@ -314,7 +314,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                 </OptionRow>
                               );
                             })}
-                        </div>
+                        </OptionList>
                       ) : (
                         <div className="text-muted-foreground italic">
                           No answer options available for this question.
@@ -333,173 +333,174 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                           }
                           disabled={isSubmitted}
                         >
-                          {question.options
-                            .sort((a, b) => a.order_index - b.order_index)
-                            .map((option) => {
-                              const isSelected = responses[question.id]?.selected_option_id === option.id;
-                              const questionResults = getQuestionResults(question.id);
-                              const questionResult = questionResults.find(r => r.selected_option_id === option.id);
-                              const isSelectedCorrect = questionResult?.is_correct || false;
-                              const isCorrect = ('is_correct' in option) 
-                                ? option.is_correct 
-                                : !!correctOptions[question.id]?.includes(option.id);
-                              
-                               // Enhanced styling for quiz results
-                               let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
-                               
-                               // Check if user got the question wrong (for single answer questions)
-                               const userAnsweredIncorrectly = questionResults.length > 0 && questionResults.some(r => !r.is_correct);
-                               
+                          <OptionList>
+                            {question.options
+                              .sort((a, b) => a.order_index - b.order_index)
+                              .map((option) => {
+                                const isSelected = responses[question.id]?.selected_option_id === option.id;
+                                const questionResults = getQuestionResults(question.id);
+                                const questionResult = questionResults.find(r => r.selected_option_id === option.id);
+                                const isSelectedCorrect = questionResult?.is_correct || false;
+                                const isCorrect = ('is_correct' in option) 
+                                  ? option.is_correct 
+                                  : !!correctOptions[question.id]?.includes(option.id);
+                                
+                                // Check if user got the question wrong (for single answer questions)
+                                const userAnsweredIncorrectly = questionResults.length > 0 && questionResults.some(r => !r.is_correct);
+                                
+                                // Enhanced styling for quiz results - apply to OptionRow container
+                                let rowClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} transition-colors`;
+                                
                                 if (isSubmitted) {
                                   if (isSelected && isSelectedCorrect) {
-                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                    rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
                                   } else if (isSelected && !isSelectedCorrect) {
-                                    optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                    rowClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
                                   } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
-                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                    rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
                                   }
                                 }
-                              
-                              return (
-                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
-                                  <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={optionClassName} mutedOnDisabled={false}>
-                                    <span className="flex items-center">
-                                      {option.option_text === 'True' ? (
-                                        <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
-                                      ) : (
-                                        <XCircle className="inline w-4 h-4 mr-2 text-red-600" />
-                                      )}
-                                      {option.option_text}
-                                    </span>
-                                    <div className="flex items-center gap-2">
-                                      {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
-                                          Correct
-                                        </Badge>
-                                      )}
-                                      {isSubmitted && isSelected && !isSelectedCorrect && (
-                                        <Badge variant="destructive" className="text-xs">
-                                          Incorrect
-                                        </Badge>
-                                      )}
-                                       {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
-                                           Correct
-                                         </Badge>
-                                       )}
-                                       {isSubmitted && isSelected && (
-                                         isSelectedCorrect ? (
-                                           <CheckCircle className="w-5 h-5 text-emerald-600" />
-                                         ) : (
-                                           <XCircle className="w-5 h-5 text-red-600" />
-                                         )
-                                       )}
-                                       {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <CheckCircle className="w-5 h-5 text-emerald-600" />
-                                       )}
-                                    </div>
-                                  </Label>
-                                </OptionRow>
-                              );
-                            })}
+                                
+                                return (
+                                  <OptionRow key={option.id} className={rowClassName}>
+                                    <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
+                                    <Label htmlFor={option.id} className="flex-1 flex items-center justify-between">
+                                      <span className="flex-1">{option.option_text}</span>
+                                      <div className="flex items-center gap-2">
+                                        {isSubmitted && isSelected && isSelectedCorrect && (
+                                          <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                            Correct
+                                          </Badge>
+                                        )}
+                                        {isSubmitted && isSelected && !isSelectedCorrect && (
+                                          <Badge variant="destructive" className="text-xs">
+                                            Incorrect
+                                          </Badge>
+                                        )}
+                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
+                                          <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                            Correct
+                                          </Badge>
+                                        )}
+                                        {isSubmitted && isSelected && (
+                                          isSelectedCorrect ? (
+                                            <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                          ) : (
+                                            <XCircle className="w-5 h-5 text-red-600" />
+                                          )
+                                        )}
+                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
+                                          <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                        )}
+                                      </div>
+                                    </Label>
+                                  </OptionRow>
+                                );
+                              })}
+                          </OptionList>
                         </RadioGroup>
                       ) : (
                         <div className="text-muted-foreground italic">
                           No answer options available for this question.
                         </div>
                       )}
-                    </>
-                  )}
+                     </>
+                   )}
 
-                  {question.question_type === 'single_answer' && (
-                    <>
-                      {question.options && question.options.length > 0 ? (
-                        <RadioGroup
-                          value={responses[question.id]?.selected_option_id || ""}
-                          onValueChange={(value) => 
-                            handleResponseChange(question.id, { selected_option_id: value })
-                          }
-                          disabled={isSubmitted}
-                        >
-                          {question.options
-                            .sort((a, b) => a.order_index - b.order_index)
-                            .map((option) => {
-                              const isSelected = responses[question.id]?.selected_option_id === option.id;
-                              const questionResults = getQuestionResults(question.id);
-                              const questionResult = questionResults.find(r => r.selected_option_id === option.id);
-                              const isSelectedCorrect = questionResult?.is_correct || false;
-                              const isCorrect = ('is_correct' in option) 
-                                ? option.is_correct 
-                                : !!correctOptions[question.id]?.includes(option.id);
-                              
-                               // Enhanced styling for quiz results
-                               let optionClassName = `flex-1 ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} flex items-center justify-between transition-colors`;
-                               
-                               // Check if user got the question wrong (for single answer questions)
-                               const userAnsweredIncorrectly = questionResults.length > 0 && questionResults.some(r => !r.is_correct);
-                               
-                               if (isSubmitted) {
-                                 if (isSelected && isSelectedCorrect) {
-                                   optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                 } else if (isSelected && !isSelectedCorrect) {
-                                   optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
-                                  } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
-                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
-                                  }
+                   {question.question_type === 'single_answer' && question.options && (
+                     <RadioGroup
+                       value={responses[question.id]?.selected_option_id || ""}
+                       onValueChange={(value) => 
+                         handleResponseChange(question.id, { selected_option_id: value })
+                       }
+                       disabled={isSubmitted}
+                     >
+                       <OptionList>
+                         {question.options
+                           .sort((a, b) => a.order_index - b.order_index)
+                           .map((option) => {
+                             const isSelected = responses[question.id]?.selected_option_id === option.id;
+                             const questionResults = getQuestionResults(question.id);
+                             const questionResult = questionResults.find(r => r.selected_option_id === option.id);
+                             const isSelectedCorrect = questionResult?.is_correct || false;
+                             const isCorrect = ('is_correct' in option) 
+                               ? option.is_correct 
+                               : !!correctOptions[question.id]?.includes(option.id);
+                             
+                             // Check if user got the question wrong (for single answer questions)
+                             const userAnsweredIncorrectly = questionResults.length > 0 && questionResults.some(r => !r.is_correct);
+                             
+                             // Enhanced styling for quiz results - apply to OptionRow container
+                             let rowClassName = `${isSubmitted ? 'cursor-default' : 'cursor-pointer'} transition-colors`;
+                             
+                             if (isSubmitted) {
+                               if (isSelected && isSelectedCorrect) {
+                                 rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                               } else if (isSelected && !isSelectedCorrect) {
+                                 rowClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                               } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
+                                 rowClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
                                }
-                              
-                              return (
-                                <OptionRow key={option.id} className={isSubmitted ? 'mb-2' : ''}>
-                                  <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
-                                  <Label htmlFor={option.id} className={optionClassName} mutedOnDisabled={false}>
-                                    <span className="flex-1">{option.option_text}</span>
-                                    <div className="flex items-center gap-2">
-                                      {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
-                                          Correct
-                                        </Badge>
-                                      )}
-                                      {isSubmitted && isSelected && !isSelectedCorrect && (
-                                        <Badge variant="destructive" className="text-xs">
-                                          Incorrect
-                                        </Badge>
-                                      )}
-                                       {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
-                                           Correct
-                                         </Badge>
-                                       )}
-                                       {isSubmitted && isSelected && (
-                                         isSelectedCorrect ? (
-                                           <CheckCircle className="w-5 h-5 text-emerald-600" />
-                                         ) : (
-                                           <XCircle className="w-5 h-5 text-red-600" />
-                                         )
-                                       )}
-                                       {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
+                             }
+                             
+                             return (
+                               <OptionRow key={option.id} className={rowClassName}>
+                                 <RadioGroupItem value={option.id} id={option.id} disabled={isSubmitted} />
+                                 <Label htmlFor={option.id} className="flex-1 flex items-center justify-between">
+                                   <span className="flex-1">{option.option_text}</span>
+                                   <div className="flex items-center gap-2">
+                                     {isSubmitted && isSelected && isSelectedCorrect && (
+                                       <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                         Correct
+                                       </Badge>
+                                     )}
+                                     {isSubmitted && isSelected && !isSelectedCorrect && (
+                                       <Badge variant="destructive" className="text-xs">
+                                         Incorrect
+                                       </Badge>
+                                     )}
+                                     {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
+                                       <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                         Correct
+                                       </Badge>
+                                     )}
+                                     {isSubmitted && isSelected && (
+                                       isSelectedCorrect ? (
                                          <CheckCircle className="w-5 h-5 text-emerald-600" />
-                                       )}
-                                    </div>
-                                  </Label>
-                                </OptionRow>
-                              );
-                            })}
-                        </RadioGroup>
-                      ) : (
-                        <div className="text-muted-foreground italic">
-                          No answer options available for this question.
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                                       ) : (
+                                         <XCircle className="w-5 h-5 text-red-600" />
+                                       )
+                                     )}
+                                     {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
+                                       <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                     )}
+                                   </div>
+                                 </Label>
+                               </OptionRow>
+                             );
+                           })}
+                       </OptionList>
+                     </RadioGroup>
+                   )}
+                 </div>
+               </CardContent>
+             </Card>
+           ))}
 
-        </div>
-      </div>
-    </div>
-  );
-}
+         </div>
+
+         {!isSubmitted && (
+           <div className="mt-6 flex justify-end">
+             <Button 
+               onClick={handleSubmit} 
+               disabled={!allQuestionsAnswered || isSubmitting}
+               className="min-w-[120px]"
+             >
+               {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
+             </Button>
+           </div>
+         )}
+       </div>
+     </div>
+   );
+ }
