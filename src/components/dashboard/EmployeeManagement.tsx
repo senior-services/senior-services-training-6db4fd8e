@@ -4,10 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Mail, Users, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, ChevronUp, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Download, Trash2 } from 'lucide-react';
+import { UserPlus, Mail, Users, Clock, CheckCircle, XCircle, HelpCircle, ChevronDown, ChevronUp, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
 import { getTooltipText } from '@/utils/tooltipText';
-import * as XLSX from 'xlsx';
 import { employeeOperations } from '@/services/api';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
@@ -37,7 +36,6 @@ export const EmployeeManagement: React.FC<{
   const [sortColumn, setSortColumn] = useState<'employee' | 'status' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [videoSortState, setVideoSortState] = useState<Map<string, { column: 'title' | 'status'; direction: 'asc' | 'desc' }>>(new Map());
-  const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
 
   const handleSort = (column: 'employee' | 'status') => {
@@ -460,138 +458,30 @@ export const EmployeeManagement: React.FC<{
     const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
     
     if (requiredVideos.length === 0) {
-      return (
-        <div className="flex items-center space-x-2">
-          <HelpCircle className="w-4 h-4 text-muted-foreground" />
-          <span className="text-muted-foreground">No Required Training</span>
-        </div>
-      );
+      return <Badge variant="secondary">No Required Training</Badge>;
     }
 
     const completedRequired = requiredVideos.filter(assignment => {
       const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
       return !!quizAttempt;
     });
-    const overdueRequired = requiredVideos.filter(assignment => {
-      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
-      if (!!quizAttempt) return false;
-      if (!assignment.due_date) return false;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const due = new Date(assignment.due_date);
-      due.setHours(0, 0, 0, 0);
-      const daysUntilDue = differenceInDays(due, today);
-      return isPast(due) && daysUntilDue < 0;
-    });
-
-    if (overdueRequired.length > 0) {
-      return (
-        <div className="flex items-center space-x-2">
-          <XCircle className="w-4 h-4 text-destructive" />
-          <span className="text-destructive">Overdue Training ({overdueRequired.length})</span>
-        </div>
-      );
-    }
-
-    if (completedRequired.length === requiredVideos.length) {
-      return (
-        <div className="flex items-center space-x-2">
-          <CheckCircle className="w-4 h-4 text-success" />
-          <span className="text-success">All Training Complete</span>
-        </div>
-      );
-    }
 
     return (
-      <div className="flex items-center space-x-2">
-        <Clock className="w-4 h-4 text-warning" />
-        <span className="text-warning">Incomplete Training ({completedRequired.length}/{requiredVideos.length})</span>
-      </div>
+      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+        {completedRequired.length}/{requiredVideos.length} Complete
+      </Badge>
     );
   };
 
-  const handleDownloadData = async () => {
-    setIsDownloading(true);
-    try {
-      const data = await employeeOperations.getAll();
-      if (!data.success || !data.data) {
-        throw new Error(data.error || 'Failed to fetch employee data');
-      }
-
-      const worksheetData = [];
-      for (const employee of data.data) {
-        const assignments = employee.assignments || [];
-        
-        if (assignments.length === 0) {
-          worksheetData.push({
-            'Employee Name': employee.name || 'Unknown',
-            'Email': employee.email || 'Unknown',
-            'Video Title': 'No assignments',
-            'Video Type': '',
-            'Progress': '',
-            'Status': '',
-            'Due Date': '',
-            'Assigned Date': '',
-            'Completed Date': ''
-          });
-        } else {
-          for (const assignment of assignments) {
-            const videos = employeeVideos.get(employee.id) || [];
-            const assignmentDetails = videos.find(v => v.assignment_id === assignment.id);
-            const employeeQuizData = employeeQuizzes.get(employee.id);
-            const quizAttempt = employeeQuizData?.get(assignment.video_id);
-            
-            const isCompleted = !!quizAttempt;
-            const completionDate = isCompleted ? quizAttempt?.completed_at : null;
-            
-            let status = 'Not Started';
-            if (isCompleted) {
-              status = 'Completed';
-            }
-
-            worksheetData.push({
-              'Employee Name': employee.name || 'Unknown',
-              'Email': employee.email || 'Unknown',
-              'Video Title': assignmentDetails?.video_title || 'Unknown',
-              'Video Type': assignmentDetails?.video_type || 'Unknown',
-              'Progress': quizAttempt ? 'Completed' : 'Not Started',
-              'Status': status,
-              'Due Date': assignment.due_date ? formatDueDate(assignment.due_date) : 'No deadline',
-              'Assigned Date': formatDueDate(assignment.created_at),
-              'Completed Date': completionDate ? formatCompletionDate(completionDate) : ''
-            });
-          }
-        }
-      }
-
-      const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Training Data');
-      
-      const fileName = `employee-training-data-${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
-      XLSX.writeFile(workbook, fileName);
-      
-      toast({
-        title: "Success",
-        description: "Employee training data downloaded successfully"
-      });
-    } catch (error) {
-      logger.error('Error downloading employee data', error as Error);
-      toast({
-        title: "Error",
-        description: "Failed to download employee data",
-        variant: "destructive"
-      });
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Employee Management</h2>
+          <div>
+            <h2 className="text-2xl font-bold">Employee Video Assignments</h2>
+            <p className="text-muted-foreground">Assign video assignments to employees and monitor progress</p>
+          </div>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -607,21 +497,14 @@ export const EmployeeManagement: React.FC<{
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Employee Management</h2>
-        <div className="flex space-x-2">
-          <Button
-            onClick={handleDownloadData}
-            disabled={isDownloading}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            {isDownloading ? 'Downloading...' : 'Download Data'}
-          </Button>
-          <Button onClick={() => setShowAddModal(true)}>
-            <UserPlus className="w-4 h-4 mr-2" />
-            Add Employee
-          </Button>
+        <div>
+          <h2 className="text-2xl font-bold">Employee Video Assignments</h2>
+          <p className="text-muted-foreground">Assign video assignments to employees and monitor progress</p>
         </div>
+        <Button onClick={() => setShowAddModal(true)}>
+          <UserPlus className="w-4 h-4 mr-2" />
+          Add Employee
+        </Button>
       </div>
 
       <Card>
@@ -700,11 +583,13 @@ export const EmployeeManagement: React.FC<{
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <IconButtonWithTooltip
-                            icon={Edit}
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => handleAssignVideos(employee)}
-                            tooltip={getTooltipText('assign-videos')}
-                          />
+                          >
+                            Assign Videos
+                          </Button>
                           <IconButtonWithTooltip
                             icon={Trash2}
                             onClick={() => setDeleteConfirmEmployee(employee)}
@@ -754,8 +639,7 @@ export const EmployeeManagement: React.FC<{
                                       {videoSortState.get(employee.id)?.column !== 'status' && <ArrowUpDown className="w-4 h-4 ml-1" />}
                                     </Button>
                                   </TableHead>
-                                  <TableHead>Due Date</TableHead>
-                                  <TableHead>Progress</TableHead>
+                                   <TableHead>Due Date</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
@@ -777,20 +661,9 @@ export const EmployeeManagement: React.FC<{
                                     <TableCell>
                                       {getAssignmentStatus(assignment, employee.id)}
                                     </TableCell>
-                                    <TableCell>
-                                      {getDeadlineBadge(assignment, employee.id)}
-                                    </TableCell>
-                                    <TableCell>
-                                      <div className="flex items-center space-x-2">
-                                        <div className="w-24 bg-muted rounded-full h-2">
-                                          <div 
-                                            className="bg-primary h-2 rounded-full transition-all duration-300 ease-in-out" 
-                                            style={{ width: `${assignment.progress_percent || 0}%` }}
-                                          />
-                                        </div>
-                                        <span className="text-sm font-medium">{assignment.progress_percent || 0}%</span>
-                                      </div>
-                                    </TableCell>
+                                     <TableCell>
+                                       {getDeadlineBadge(assignment, employee.id)}
+                                     </TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
