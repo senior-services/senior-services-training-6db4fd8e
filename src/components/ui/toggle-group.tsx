@@ -1,9 +1,24 @@
 import * as React from "react"
 import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
-import { type VariantProps } from "class-variance-authority"
+import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 import { toggleVariants } from "@/components/ui/toggle"
+
+const toggleGroupVariants = cva(
+  "flex items-center justify-center",
+  {
+    variants: {
+      variant: {
+        default: "gap-1",
+        pill: "gap-0 bg-[hsl(var(--toggle-group-background))] dark:bg-[hsl(var(--toggle-group-background-dark))] rounded-full p-1.5",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
 const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleVariants>
@@ -15,17 +30,12 @@ const ToggleGroupContext = React.createContext<
 const ToggleGroup = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants>
+    VariantProps<typeof toggleVariants> &
+    VariantProps<typeof toggleGroupVariants>
 >(({ className, variant, size, children, ...props }, ref) => (
   <ToggleGroupPrimitive.Root
     ref={ref}
-    className={cn(
-      "flex items-center justify-center",
-      variant === "pill" 
-        ? "gap-0 bg-gray-300 rounded-full p-1.5" 
-        : "gap-1",
-      className
-    )}
+    className={cn(toggleGroupVariants({ variant }), className)}
     {...props}
   >
     <ToggleGroupContext.Provider value={{ variant, size }}>
@@ -62,4 +72,9 @@ const ToggleGroupItem = React.forwardRef<
 
 ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName
 
-export { ToggleGroup, ToggleGroupItem }
+export { ToggleGroup, ToggleGroupItem, toggleGroupVariants }
+export type ToggleGroupProps = React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
+  VariantProps<typeof toggleVariants> &
+  VariantProps<typeof toggleGroupVariants>
+export type ToggleGroupItemProps = React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
+  VariantProps<typeof toggleVariants>

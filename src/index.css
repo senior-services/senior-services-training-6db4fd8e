@@ -48,6 +48,13 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --accent-foreground: 215 25% 15%;
     --ring: 219 79% 22%;
 
+    /* Toggle Component Colors */
+    --toggle-group-background: 210 20% 88%;
+    --toggle-group-background-dark: 215 25% 25%;
+    --toggle-item-selected: 0 0% 100%;
+    --toggle-item-selected-foreground: 215 25% 15%;
+    --toggle-item-hover: 0 0% 100% / 0.6;
+
     --radius: 0.75rem;
 
     /* Progress & Training Status Colors - Enhanced Contrast */
@@ -116,6 +123,14 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --accent: 219 79% 15%;
     --accent-foreground: 210 20% 98%;
     --ring: 206 73% 70%;
+    
+    /* Toggle Component Colors - Dark Mode */
+    --toggle-group-background: 219 79% 18%;
+    --toggle-group-background-dark: 219 79% 18%;
+    --toggle-item-selected: 210 20% 98%;
+    --toggle-item-selected-foreground: 219 79% 6%;
+    --toggle-item-hover: 210 20% 98% / 0.2;
+    
     /* Dark mode progress & status colors - Enhanced */
     --progress-bg: 219 79% 12%;
     --progress-fill: 206 73% 70%;

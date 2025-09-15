@@ -12,11 +12,11 @@ const toggleVariants = cva(
         default: "bg-transparent text-sm",
         outline:
           "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground text-sm",
-        pill: "bg-transparent rounded-full hover:bg-white/60 text-sm data-[state=on]:bg-white data-[state=on]:text-gray-900 data-[state=on]:font-semibold data-[state=on]:shadow-md transition-all duration-200",
+        pill: "bg-transparent rounded-full hover:bg-[hsl(var(--toggle-item-hover))] text-sm data-[state=on]:bg-[hsl(var(--toggle-item-selected))] data-[state=on]:text-[hsl(var(--toggle-item-selected-foreground))] data-[state=on]:font-semibold data-[state=on]:shadow-md transition-all duration-200",
       },
       size: {
         default: "h-10 px-6",
-        sm: "h-9 px-2.5",
+        sm: "h-9 px-2.5", 
         lg: "h-11 px-5",
         pill: "h-8 px-4",
       },
