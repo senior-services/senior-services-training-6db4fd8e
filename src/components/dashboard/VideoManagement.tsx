@@ -113,7 +113,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       description: videoData.description ? sanitizeText(videoData.description) : null,
       video_url: videoData.url?.trim() || null,
       video_file_name: null,
-      type: 'Optional' as const,
+      type: 'Required' as const,
       file: videoData.file
     };
 
