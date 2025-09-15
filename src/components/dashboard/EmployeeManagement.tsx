@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { UserPlus, Mail, Users, Trash2, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { employeeOperations } from '@/services/api';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
@@ -34,6 +35,7 @@ export const EmployeeManagement: React.FC<{
   const [sortColumn, setSortColumn] = useState<'employee' | 'status' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [videoSortState, setVideoSortState] = useState<Map<string, { column: 'title' | 'status'; direction: 'asc' | 'desc' }>>(new Map());
+  const [isDownloading, setIsDownloading] = useState(false);
   const {
     toast
   } = useToast();
@@ -432,6 +434,88 @@ export const EmployeeManagement: React.FC<{
       text: "Due in over a month"
     };
   };
+
+  const handleDownloadData = async () => {
+    setIsDownloading(true);
+    try {
+      const exportData: any[] = [];
+      
+      // Process each employee and their video assignments
+      for (const employee of employees) {
+        const videos = employeeVideos.get(employee.id) || [];
+        const employeeQuizData = employeeQuizzes.get(employee.id) || new Map();
+        
+        if (videos.length === 0) {
+          // Include employees with no assignments
+          exportData.push({
+            'Employee Name': employee.full_name || 'Unknown',
+            'Employee Email': employee.email || 'No Email',
+            'Video Title': 'No videos assigned',
+            'Status': 'No Training',
+            'Quiz Results': 'N/A'
+          });
+        } else {
+          // Add a row for each video assignment
+          for (const assignment of videos) {
+            const quizAttempt = employeeQuizData.get(assignment.video_id);
+            const badge = getDeadlineBadge(
+              assignment.due_date, 
+              assignment.progress_percent, 
+              !!quizAttempt, 
+              assignment.completed_at
+            );
+            
+            // Format quiz results
+            let quizResults = 'N/A';
+            if (assignment.hasQuiz) {
+              if (quizAttempt) {
+                const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
+                quizResults = `${percentage}% (${quizAttempt.score}/${quizAttempt.total_questions})`;
+              } else {
+                quizResults = 'Not Attempted';
+              }
+            }
+            
+            exportData.push({
+              'Employee Name': employee.full_name || 'Unknown',
+              'Employee Email': employee.email || 'No Email',
+              'Video Title': assignment.video_title || 'Unknown Video',
+              'Status': badge.text,
+              'Quiz Results': quizResults
+            });
+          }
+        }
+      }
+      
+      // Create workbook and worksheet
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Training Data');
+      
+      // Generate filename with current date
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const filename = `employee-training-data-${dateStr}.xlsx`;
+      
+      // Download the file
+      XLSX.writeFile(workbook, filename);
+      
+      toast({
+        title: "Success",
+        description: `Training data exported successfully to ${filename}`
+      });
+    } catch (error) {
+      logger.error('Error exporting data', error as Error);
+      toast({
+        title: "Error",
+        description: "Failed to export training data",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
@@ -440,7 +524,14 @@ export const EmployeeManagement: React.FC<{
           <p className="text-muted-foreground">Assign video assignments to employees and monitor progress</p>
         </div>
         <div className="flex gap-2">
-          
+          <Button 
+            variant="outline" 
+            onClick={handleDownloadData} 
+            disabled={isDownloading || employees.length === 0}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            {isDownloading ? 'Downloading...' : 'Download Data'}
+          </Button>
           <Button onClick={() => setShowAddModal(true)}>
             <UserPlus className="w-4 h-4 mr-2" />
             Add Employee
