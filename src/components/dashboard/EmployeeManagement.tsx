@@ -5,7 +5,27 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Mail, Users, Archive, ArchiveRestore, Edit, Clock, CheckCircle, XCircle, HelpCircle, Play, ChevronDown, ChevronUp, ChevronRight, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Download } from 'lucide-react';
+import { 
+  UserPlus, 
+  Mail, 
+  Users, 
+  Archive, 
+  ArchiveRestore, 
+  Edit, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  HelpCircle, 
+  Play, 
+  ChevronDown, 
+  ChevronUp, 
+  ChevronRight, 
+  RefreshCw, 
+  ArrowUpDown, 
+  ArrowUp, 
+  ArrowDown, 
+  Download 
+} from 'lucide-react';
 import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
 import { getTooltipText } from '@/utils/tooltipText';
 import * as XLSX from 'xlsx';
@@ -813,7 +833,7 @@ export const EmployeeManagement: React.FC<{
                         <TableCell>
                           <div className="flex items-center justify-end gap-1">
                             <IconButtonWithTooltip
-                              icon={UserPlus}
+                              icon={() => <UserPlus className="h-4 w-4" />}
                               tooltip={getTooltipText('assign-videos')}
                               onClick={() => handleAssignVideos(employee)}
                               variant="ghost"
@@ -821,7 +841,7 @@ export const EmployeeManagement: React.FC<{
                               className="h-8 w-8"
                             />
                             <IconButtonWithTooltip
-                              icon={Archive}
+                              icon={() => <Archive className="h-4 w-4" />}
                               tooltip={getTooltipText('archive-employee')}
                               onClick={() => setArchiveConfirmEmployee(employee)}
                               variant="ghost"
@@ -1030,7 +1050,7 @@ export const EmployeeManagement: React.FC<{
                         </TableCell>
                         <TableCell>
                           <IconButtonWithTooltip
-                            icon={ArchiveRestore}
+                            icon={() => <ArchiveRestore className="h-4 w-4" />}
                             tooltip={getTooltipText('unarchive-employee')}
                             onClick={() => setUnarchiveConfirmEmployee(employee)}
                             variant="ghost"
