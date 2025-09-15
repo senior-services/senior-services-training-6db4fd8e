@@ -422,7 +422,24 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
               ) : (
                 <div className="space-y-0">
                   {filteredVideos
-                    .sort((a, b) => a.title.localeCompare(b.title))
+                    .sort((a, b) => {
+                      if (filterMode === 'all') {
+                        // In "Show All" mode, sort by completion status first, then alphabetically
+                        const aCompleted = completedVideoIds.has(a.id);
+                        const bCompleted = completedVideoIds.has(b.id);
+                        
+                        // If completion status differs, sort by completion (unassigned first)
+                        if (aCompleted !== bCompleted) {
+                          return aCompleted ? 1 : -1; // Unassigned (false) comes first
+                        }
+                        
+                        // Within same group, sort alphabetically
+                        return a.title.localeCompare(b.title);
+                      } else {
+                        // For "Unassigned" mode, keep alphabetical sorting
+                        return a.title.localeCompare(b.title);
+                      }
+                    })
                      .map((video, index) => {
                     const isSelected = selectedVideoIds.has(video.id);
                     const wasOriginallyAssigned = assignedVideoIds.has(video.id);
