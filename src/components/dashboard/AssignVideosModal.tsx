@@ -30,7 +30,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Video, Play, Check, X, CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, differenceInDays, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { videoOperations, assignmentOperations, progressOperations } from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
@@ -78,13 +78,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [assignedVideoIds, setAssignedVideoIds] = useState<Set<string>>(new Set());
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(new Set());
   const [completedVideoIds, setCompletedVideoIds] = useState<Set<string>>(new Set());
+  const [videoProgressData, setVideoProgressData] = useState<Map<string, { progress_percent: number; completed_at: string | null }>>(new Map());
   const [videoDeadlines, setVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [initialVideoDeadlines, setInitialVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [calendarOpen, setCalendarOpen] = useState<Map<string, boolean>>(new Map());
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
-  const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'assigned'>('all');
+  const [filterMode, setFilterMode] = useState<'all' | 'unassigned'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -111,15 +112,24 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         throw new Error(videosResult.error || 'Failed to load videos');
       }
 
-      // Process progress data to find completed videos
+      // Process progress data to find completed videos and store progress info
       if (progressResult.success && progressResult.data) {
         const completed = new Set<string>();
+        const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
+        
         progressResult.data.forEach(progress => {
+          progressMap.set(progress.video_id, {
+            progress_percent: progress.progress_percent,
+            completed_at: progress.completed_at
+          });
+          
           if (progress.progress_percent === 100 || progress.completed_at) {
             completed.add(progress.video_id);
           }
         });
+        
         setCompletedVideoIds(completed);
+        setVideoProgressData(progressMap);
       }
 
       if (assignmentsResult.success && assignmentsResult.data) {
@@ -305,17 +315,27 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     onOpenChange(false);
   };
 
+  // Helper function to get completion badge (similar to EmployeeManagement)
+  const getCompletionBadge = (progressData: { progress_percent: number; completed_at: string | null }) => {
+    const completionText = progressData.completed_at 
+      ? `Completed (${format(new Date(progressData.completed_at), 'MMM dd, yyyy')})`
+      : "Completed";
+    return {
+      variant: "ghost-success" as const,
+      showIcon: true,
+      text: completionText
+    };
+  };
+
   // Filter videos based on current filter mode
-  const getFilteredVideos = () => {
-    const availableVideos = videos.filter(v => !completedVideoIds.has(v.id));
-    
+  const getFilteredVideos = () => {    
     switch (filterMode) {
       case 'unassigned':
-        return availableVideos.filter(v => !assignedVideoIds.has(v.id));
-      case 'assigned':
-        return availableVideos.filter(v => assignedVideoIds.has(v.id));
-      default:
-        return availableVideos;
+        // Show videos that are not assigned and not completed
+        return videos.filter(v => !assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id));
+      default: // 'all'
+        // Show ALL videos including completed ones
+        return videos;
     }
   };
 
@@ -327,7 +347,8 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const selectedCount = selectedVideoIds.size;
   const filteredVideos = getFilteredVideos();
   const filteredVideosCount = filteredVideos.length;
-  const selectedFilteredCount = filteredVideos.filter(v => selectedVideoIds.has(v.id)).length;
+  const selectableVideosCount = filteredVideos.filter(v => !completedVideoIds.has(v.id)).length;
+  const selectedFilteredCount = filteredVideos.filter(v => selectedVideoIds.has(v.id) && !completedVideoIds.has(v.id)).length;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -362,32 +383,30 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                   <ToggleGroupItem value="unassigned" className="text-xs px-3 py-1">
                     Unassigned
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="assigned" className="text-xs px-3 py-1">
-                    Assigned
-                  </ToggleGroupItem>
                 </ToggleGroup>
 
                 <div className="flex items-center gap-3">
                    <Checkbox
                      id="select-all"
-                     checked={selectedFilteredCount === filteredVideosCount && filteredVideosCount > 0}
+                     checked={selectedFilteredCount === filteredVideos.filter(v => !completedVideoIds.has(v.id)).length && filteredVideos.filter(v => !completedVideoIds.has(v.id)).length > 0}
                      onCheckedChange={(checked) => {
+                       const selectableVideos = filteredVideos.filter(v => !completedVideoIds.has(v.id));
                        if (checked) {
                          setSelectedVideoIds(new Set([
-                           ...Array.from(selectedVideoIds).filter(id => completedVideoIds.has(id) || !filteredVideos.some(v => v.id === id)),
-                           ...filteredVideos.map(v => v.id)
+                           ...Array.from(selectedVideoIds).filter(id => completedVideoIds.has(id) || !selectableVideos.some(v => v.id === id)),
+                           ...selectableVideos.map(v => v.id)
                          ]));
                        } else {
                          setSelectedVideoIds(new Set(Array.from(selectedVideoIds).filter(id => 
-                           completedVideoIds.has(id) || !filteredVideos.some(v => v.id === id)
+                           completedVideoIds.has(id) || !selectableVideos.some(v => v.id === id)
                          )));
                        }
                      }}
-                     disabled={filteredVideosCount === 0}
+                     disabled={filteredVideos.filter(v => !completedVideoIds.has(v.id)).length === 0}
                    />
                    <div className="w-px h-4 bg-border"></div>
                    <Label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-                     {selectedFilteredCount} video{selectedFilteredCount !== 1 ? 's' : ''} selected
+                     {selectedFilteredCount} of {selectableVideosCount} video{selectableVideosCount !== 1 ? 's' : ''} selected
                    </Label>
                 </div>
               </div>
@@ -395,19 +414,20 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
               {filteredVideosCount === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>
-                    {filterMode === 'unassigned' && 'No unassigned videos available'}
-                    {filterMode === 'assigned' && 'No assigned videos available'}  
-                    {filterMode === 'all' && 'No training videos available'}
-                  </p>
+                   <p>
+                     {filterMode === 'unassigned' && 'No unassigned videos available'}
+                     {filterMode === 'all' && 'No training videos available'}
+                   </p>
                 </div>
               ) : (
                 <div className="space-y-0">
                   {filteredVideos
                     .sort((a, b) => a.title.localeCompare(b.title))
-                    .map((video, index) => {
+                     .map((video, index) => {
                     const isSelected = selectedVideoIds.has(video.id);
                     const wasOriginallyAssigned = assignedVideoIds.has(video.id);
+                    const isCompleted = completedVideoIds.has(video.id);
+                    const progressData = videoProgressData.get(video.id);
                     
                     return (
                        <div
@@ -418,6 +438,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                           <Checkbox
                             id={`video-${video.id}`}
                             checked={isSelected}
+                            disabled={isCompleted}
                             onCheckedChange={(checked) => 
                               handleVideoToggle(video.id, checked as boolean)
                             }
@@ -425,16 +446,26 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                           
                           <Label 
                             htmlFor={`video-${video.id}`}
-                            className="flex-1 min-w-0 cursor-pointer"
+                            className={cn(
+                              "flex-1 min-w-0",
+                              !isCompleted && "cursor-pointer"
+                            )}
                           >
-                            <div className="font-medium text-sm line-clamp-2">
+                            <div className={cn(
+                              "font-medium text-sm line-clamp-2",
+                              isCompleted && "text-muted-foreground"
+                            )}>
                               {video.title}
                             </div>
                           </Label>
                         </div>
 
                         <div className="flex items-center gap-4">
-                          {isSelected && (
+                          {isCompleted && progressData ? (
+                            <Badge variant="ghost-success" showIcon>
+                              {getCompletionBadge(progressData).text}
+                            </Badge>
+                          ) : isSelected && (
                             <Popover 
                               open={calendarOpen.get(video.id) || false}
                               onOpenChange={(open) => {
