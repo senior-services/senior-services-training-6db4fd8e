@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Mail, Users, Clock, CheckCircle, XCircle, HelpCircle, ChevronDown, ChevronUp, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { UserPlus, Mail, Users, Clock, CheckCircle, XCircle, HelpCircle, ChevronDown, ChevronUp, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Trash2, Edit } from 'lucide-react';
 import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
 import { getTooltipText } from '@/utils/tooltipText';
 import { employeeOperations } from '@/services/api';
@@ -17,6 +17,8 @@ import { AssignVideosModal } from './AssignVideosModal';
 import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { quizOperations } from '@/services/quizService';
+import { sanitizeText, createSafeDisplayName } from '@/utils/security';
+import { createTableAriaProps, createButtonAriaProps, announceToScreenReader } from '@/utils/accessibility';
 
 export const EmployeeManagement: React.FC<{
   onCountChange?: (count: number) => void;
@@ -99,14 +101,14 @@ export const EmployeeManagement: React.FC<{
     });
   };
   
-  const getSortedEmployees = () => {
+  const getSortedEmployees = useMemo(() => {
     if (!sortColumn) return employees;
     return [...employees].sort((a, b) => {
       let aValue: string;
       let bValue: string;
       if (sortColumn === 'employee') {
-        aValue = a.full_name || a.email || '';
-        bValue = b.full_name || b.email || '';
+        aValue = sanitizeText(a.full_name || a.email || '');
+        bValue = sanitizeText(b.full_name || b.email || '');
       } else {
         // status
         const aVideos = employeeVideos.get(a.id) || [];
@@ -175,7 +177,7 @@ export const EmployeeManagement: React.FC<{
       const comparison = aValue.localeCompare(bValue);
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  };
+  }, [employees, employeeVideos, employeeQuizzes, sortColumn, sortDirection]);
 
   useEffect(() => {
     loadEmployees();
@@ -453,7 +455,7 @@ export const EmployeeManagement: React.FC<{
     }
   };
 
-  const getEmployeeOverallStatus = (employeeId: string) => {
+  const getEmployeeOverallStatus = useCallback((employeeId: string) => {
     const videos = employeeVideos.get(employeeId) || [];
     const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
     
@@ -467,11 +469,11 @@ export const EmployeeManagement: React.FC<{
     });
 
     return (
-      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+      <Badge variant="soft-secondary">
         {completedRequired.length}/{requiredVideos.length} Complete
       </Badge>
     );
-  };
+  }, [employeeVideos, employeeQuizzes]);
 
 
   if (loading) {
@@ -479,8 +481,8 @@ export const EmployeeManagement: React.FC<{
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold">Employee Video Assignments</h2>
-            <p className="text-muted-foreground">Assign video assignments to employees and monitor progress</p>
+            <h2 className="text-2xl font-bold">Employee Management</h2>
+            <p className="text-muted-foreground">Manage employees and their video assignments</p>
           </div>
         </div>
         <Card>
@@ -492,16 +494,17 @@ export const EmployeeManagement: React.FC<{
     );
   }
 
-  const sortedEmployees = getSortedEmployees();
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Employee Video Assignments</h2>
-          <p className="text-muted-foreground">Assign video assignments to employees and monitor progress</p>
+          <h2 className="text-2xl font-bold">Employee Management</h2>
+          <p className="text-muted-foreground">Manage employees and their video assignments</p>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
+        <Button 
+          onClick={() => setShowAddModal(true)}
+          {...createButtonAriaProps('Add new employee')}
+        >
           <UserPlus className="w-4 h-4 mr-2" />
           Add Employee
         </Button>
@@ -509,7 +512,7 @@ export const EmployeeManagement: React.FC<{
 
       <Card>
         <CardContent className="p-0">
-          <Table>
+          <Table {...createTableAriaProps(sortColumn || undefined, sortDirection)}>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12"></TableHead>
@@ -517,9 +520,10 @@ export const EmployeeManagement: React.FC<{
                   <Button 
                     variant="ghost" 
                     onClick={() => handleSort('employee')}
-                    className="h-auto p-0 font-semibold"
+                    className="h-auto p-0 font-semibold uppercase tracking-wider"
+                    {...createButtonAriaProps(`Sort by employee ${sortColumn === 'employee' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
                   >
-                    Employee
+                    EMPLOYEE
                     {sortColumn === 'employee' && (
                       sortDirection === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />
                     )}
@@ -530,23 +534,25 @@ export const EmployeeManagement: React.FC<{
                   <Button 
                     variant="ghost" 
                     onClick={() => handleSort('status')}
-                    className="h-auto p-0 font-semibold"
+                    className="h-auto p-0 font-semibold uppercase tracking-wider"
+                    {...createButtonAriaProps(`Sort by status ${sortColumn === 'status' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
                   >
-                    Status
+                    STATUS
                     {sortColumn === 'status' && (
                       sortDirection === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />
                     )}
                     {sortColumn !== 'status' && <ArrowUpDown className="w-4 h-4 ml-1" />}
                   </Button>
                 </TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="uppercase tracking-wider font-semibold">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedEmployees.map((employee) => {
+              {getSortedEmployees.map((employee) => {
                 const isExpanded = expandedEmployees.has(employee.id);
                 const videos = employeeVideos.get(employee.id) || [];
                 const hasVideos = videos.length > 0;
+                const displayName = createSafeDisplayName(employee.full_name || '', employee.email || '');
 
                 return (
                   <React.Fragment key={employee.id}>
@@ -558,6 +564,7 @@ export const EmployeeManagement: React.FC<{
                             size="sm"
                             onClick={() => toggleEmployeeExpanded(employee.id)}
                             className="p-1"
+                            {...createButtonAriaProps(`${isExpanded ? 'Collapse' : 'Expand'} video assignments for ${displayName}`, isExpanded)}
                           >
                             {isExpanded ? (
                               <ChevronDown className="w-4 h-4" />
@@ -570,11 +577,11 @@ export const EmployeeManagement: React.FC<{
                       <TableCell>
                         <div>
                           <div className="font-medium">
-                            {employee.full_name || employee.email?.split('@')[0] || 'Unknown'}
+                            {displayName}
                           </div>
                           <div className="text-sm text-muted-foreground flex items-center">
                             <Mail className="w-3 h-3 mr-1" />
-                            {employee.email}
+                            {sanitizeText(employee.email || '')}
                           </div>
                         </div>
                       </TableCell>
@@ -587,14 +594,17 @@ export const EmployeeManagement: React.FC<{
                             variant="outline"
                             size="sm"
                             onClick={() => handleAssignVideos(employee)}
+                            {...createButtonAriaProps(`Assign videos to ${displayName}`)}
                           >
+                            <Edit className="w-4 h-4 mr-2" />
                             Assign Videos
                           </Button>
                           <IconButtonWithTooltip
                             icon={Trash2}
                             onClick={() => setDeleteConfirmEmployee(employee)}
-                            tooltip={getTooltipText('delete-item', { name: employee.full_name || 'employee' })}
+                            tooltip={getTooltipText('delete-item', { name: displayName })}
                             variant="destructive"
+                            ariaLabel={`Delete employee ${displayName}`}
                           />
                         </div>
                       </TableCell>
