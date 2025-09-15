@@ -33,6 +33,7 @@ export const EmployeeManagement: React.FC<{
   const [isDeleting, setIsDeleting] = useState(false);
   const [sortColumn, setSortColumn] = useState<'employee' | 'status' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [videoSortState, setVideoSortState] = useState<Map<string, { column: 'title' | 'status'; direction: 'asc' | 'desc' }>>(new Map());
   const {
     toast
   } = useToast();
@@ -43,6 +44,58 @@ export const EmployeeManagement: React.FC<{
       setSortColumn(column);
       setSortDirection('asc');
     }
+  };
+
+  const handleVideoSort = (employeeId: string, column: 'title' | 'status') => {
+    const currentSort = videoSortState.get(employeeId);
+    const newSort = {
+      column,
+      direction: (currentSort?.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc') as 'asc' | 'desc'
+    };
+    setVideoSortState(prev => new Map(prev).set(employeeId, newSort));
+  };
+
+  const getSortedVideosForEmployee = (employeeId: string, videos: any[]) => {
+    const sortState = videoSortState.get(employeeId);
+    if (!sortState) return videos;
+
+    return [...videos].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      if (sortState.column === 'title') {
+        aValue = a.video_title || '';
+        bValue = b.video_title || '';
+      } else {
+        // status sorting - get priority values based on getDeadlineBadge logic
+        const getStatusPriority = (assignment: any) => {
+          const employeeQuizData = employeeQuizzes.get(employeeId);
+          const quizAttempt = employeeQuizData?.get(assignment.video_id);
+          const isCompleted = assignment.progress_percent >= 100 || !!quizAttempt;
+          
+          if (isCompleted) return 7; // Completed - lowest priority
+          if (!assignment.due_date) return 6; // No deadline
+          
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const due = new Date(assignment.due_date);
+          due.setHours(0, 0, 0, 0);
+          const daysUntilDue = differenceInDays(due, today);
+          
+          if (isPast(due) && daysUntilDue < 0) return 1; // Overdue - highest priority
+          if (daysUntilDue === 0) return 2; // Due Today
+          if (daysUntilDue <= 7) return 3; // Due ≤ 7 days
+          if (daysUntilDue <= 30) return 4; // Due ≤ 30 days
+          return 5; // Due > 30 days
+        };
+
+        aValue = getStatusPriority(a).toString();
+        bValue = getStatusPriority(b).toString();
+      }
+
+      const comparison = aValue.localeCompare(bValue);
+      return sortState.direction === 'asc' ? comparison : -comparison;
+    });
   };
   const getSortedEmployees = () => {
     if (!sortColumn) return employees;
@@ -541,13 +594,45 @@ export const EmployeeManagement: React.FC<{
                                     </div> : <Table>
                                         <TableHeader className="[&_tr]:border-b [&_tr]:border-solid [&_tr]:border-muted-foreground/30">
                                           <TableRow>
-                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2">Video Title</TableHead>
+                                            <TableHead className="pb-2">
+                                              <Button 
+                                                variant="ghost" 
+                                                onClick={() => handleVideoSort(employee.id, 'title')} 
+                                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group ${videoSortState.get(employee.id)?.column === 'title' ? 'font-bold' : 'font-medium'}`}
+                                                aria-label="Sort by video title"
+                                              >
+                                                Video Title
+                                                {videoSortState.get(employee.id)?.column === 'title' ? 
+                                                  videoSortState.get(employee.id)?.direction === 'asc' ? 
+                                                    <ArrowUp className="ml-2 h-3 w-3" /> : 
+                                                    <ArrowDown className="ml-2 h-3 w-3" />
+                                                  : 
+                                                  <ArrowUpDown className="ml-2 h-3 w-3 opacity-50 group-hover:text-primary group-hover:opacity-100" />
+                                                }
+                                              </Button>
+                                            </TableHead>
                                             <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2 whitespace-nowrap">Quiz Results</TableHead>
-                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground pb-2">Status</TableHead>
+                                            <TableHead className="pb-2">
+                                              <Button 
+                                                variant="ghost" 
+                                                onClick={() => handleVideoSort(employee.id, 'status')} 
+                                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group ${videoSortState.get(employee.id)?.column === 'status' ? 'font-bold' : 'font-medium'}`}
+                                                aria-label="Sort by status"
+                                              >
+                                                Status
+                                                {videoSortState.get(employee.id)?.column === 'status' ? 
+                                                  videoSortState.get(employee.id)?.direction === 'asc' ? 
+                                                    <ArrowUp className="ml-2 h-3 w-3" /> : 
+                                                    <ArrowDown className="ml-2 h-3 w-3" />
+                                                  : 
+                                                  <ArrowUpDown className="ml-2 h-3 w-3 opacity-50 group-hover:text-primary group-hover:opacity-100" />
+                                                }
+                                              </Button>
+                                            </TableHead>
                                           </TableRow>
                                         </TableHeader>
                                         <TableBody className="[&>tr:first-child]:border-t [&>tr:first-child]:border-muted-foreground/30">
-                                           {videos.map(assignment => {
+                                           {getSortedVideosForEmployee(employee.id, videos).map(assignment => {
                                 const employeeQuizData = employeeQuizzes.get(employee.id);
                                 const quizAttempt = employeeQuizData?.get(assignment.video_id);
                                 const badge = getDeadlineBadge(assignment.due_date, assignment.progress_percent, !!quizAttempt, assignment.completed_at);
