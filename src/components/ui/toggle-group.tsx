@@ -22,7 +22,7 @@ const ToggleGroup = React.forwardRef<
     className={cn(
       "flex items-center justify-center",
       variant === "pill" 
-        ? "gap-0 bg-gray-200/80 rounded-full p-1.5" 
+        ? "gap-0 bg-gray-300 rounded-full p-1.5" 
         : "gap-1",
       className
     )}

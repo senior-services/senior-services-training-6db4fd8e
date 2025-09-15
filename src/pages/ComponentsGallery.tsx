@@ -795,6 +795,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           value={twoOptionToggle} 
                           onValueChange={(value) => value && setTwoOptionToggle(value)}
                           variant="pill"
+                          size="pill"
                           className="justify-start"
                         >
                           <ToggleGroupItem value="light" aria-label="Light mode">
@@ -815,6 +816,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                           value={multiOptionToggle} 
                           onValueChange={(value) => value && setMultiOptionToggle(value)}
                           variant="pill"
+                          size="pill"
                           className="justify-start"
                         >
                           <ToggleGroupItem value="small" aria-label="Small size">
