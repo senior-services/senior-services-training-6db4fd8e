@@ -369,7 +369,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="space-y-3 py-3 border-b">
+              <div className="space-y-3 pb-3 border-b">
                 <ToggleGroup 
                   type="single" 
                   value={filterMode} 
