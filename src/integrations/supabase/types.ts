@@ -16,6 +16,9 @@ export type Database = {
     Tables: {
       employees: {
         Row: {
+          archived: boolean | null
+          archived_at: string | null
+          archived_by: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -23,6 +26,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived?: boolean | null
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -30,6 +36,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived?: boolean | null
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -458,10 +467,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_employee: {
+        Args: { p_employee_id: string }
+        Returns: undefined
+      }
+      get_active_employee_assignments: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          assignments: Json
+          employee_email: string
+          employee_full_name: string
+          employee_id: string
+        }[]
+      }
       get_all_employee_assignments: {
         Args: Record<PropertyKey, never>
         Returns: {
           assignments: Json
+          employee_email: string
+          employee_full_name: string
+          employee_id: string
+        }[]
+      }
+      get_archived_employees: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          archived_at: string
+          archived_by: string
           employee_email: string
           employee_full_name: string
           employee_id: string
@@ -510,6 +542,10 @@ export type Database = {
       submit_quiz_attempt: {
         Args: { p_employee_email: string; p_quiz_id: string; p_responses: Json }
         Returns: string
+      }
+      unarchive_employee: {
+        Args: { p_employee_id: string }
+        Returns: undefined
       }
       update_video_progress: {
         Args: {

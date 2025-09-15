@@ -259,12 +259,12 @@ export const employeeOperations = {
     performanceTracker.start(operation);
     
     try {
-      // Use the database function to get employees with assignments
+      // Use the database function to get active employees with assignments
       const { data: employeeAssignments, error } = await supabase
-        .rpc('get_all_employee_assignments');
+        .rpc('get_active_employee_assignments');
 
       if (error) {
-        logger.error('Failed to fetch employees with assignments', undefined, { supabaseError: error.message });
+        logger.error('Failed to fetch active employees with assignments', undefined, { supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
@@ -287,10 +287,10 @@ export const employeeOperations = {
         };
       }) || [];
 
-      logger.info('Employees with assignments fetched successfully', { count: result.length });
+      logger.info('Active employees with assignments fetched successfully', { count: result.length });
       return { data: result, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching employees with assignments', error as Error);
+      logger.error('Unexpected error fetching active employees with assignments', error as Error);
       return { data: null, error: 'Failed to fetch employees', success: false };
     } finally {
       performanceTracker.end(operation);
@@ -348,26 +348,78 @@ export const employeeOperations = {
     }
   },
 
-  async delete(employeeId: string): Promise<ApiResult<boolean>> {
-    const operation = 'employee.delete';
+  async archive(employeeId: string): Promise<ApiResult<boolean>> {
+    const operation = 'employee.archive';
     performanceTracker.start(operation);
     
     try {
-      const { error } = await supabase
-        .from('employees')
-        .delete()
-        .eq('id', employeeId);
+      const { error } = await supabase.rpc('archive_employee', {
+        p_employee_id: employeeId
+      });
 
       if (error) {
-        logger.error('Failed to delete employee', undefined, { employeeId, supabaseError: error.message });
+        logger.error('Failed to archive employee', undefined, { employeeId, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
-      logger.info('Employee deleted successfully', { employeeId });
+      logger.info('Employee archived successfully', { employeeId });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error deleting employee', error as Error, { employeeId });
-      return { data: null, error: 'Failed to delete employee', success: false };
+      logger.error('Unexpected error archiving employee', error as Error, { employeeId });
+      return { data: null, error: 'Failed to archive employee', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async unarchive(employeeId: string): Promise<ApiResult<boolean>> {
+    const operation = 'employee.unarchive';
+    performanceTracker.start(operation);
+    
+    try {
+      const { error } = await supabase.rpc('unarchive_employee', {
+        p_employee_id: employeeId
+      });
+
+      if (error) {
+        logger.error('Failed to unarchive employee', undefined, { employeeId, supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Employee unarchived successfully', { employeeId });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error unarchiving employee', error as Error, { employeeId });
+      return { data: null, error: 'Failed to unarchive employee', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async getArchived(): Promise<ApiResult<{ id: string; email: string; full_name: string; archived_at: string }[]>> {
+    const operation = 'employee.getArchived';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data, error } = await supabase.rpc('get_archived_employees');
+
+      if (error) {
+        logger.error('Failed to fetch archived employees', undefined, { supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      const result = data?.map((emp: any) => ({
+        id: emp.employee_id,
+        email: emp.employee_email,
+        full_name: emp.employee_full_name,
+        archived_at: emp.archived_at
+      })) || [];
+
+      logger.info('Archived employees fetched successfully', { count: result.length });
+      return { data: result, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error fetching archived employees', error as Error);
+      return { data: null, error: 'Failed to fetch archived employees', success: false };
     } finally {
       performanceTracker.end(operation);
     }

@@ -28,6 +28,9 @@ export const getTooltipText = (action: string, context?: TooltipContext): string
     case 'assign-videos':
       return 'Assign Videos';
     
+    case 'unarchive-employee':
+      return 'Unarchive Employee';
+    
     default:
       return action;
   }
