@@ -361,20 +361,20 @@ export const EmployeeManagement: React.FC<{
     }
     if (daysUntilDue <= 7) {
       return {
-        variant: "ghost-secondary" as const,
+        variant: "ghost-tertiary" as const,
         showIcon: true,
         text: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`
       };
     }
     if (daysUntilDue <= 30) {
       return {
-        variant: "ghost-secondary" as const,
+        variant: "ghost-tertiary" as const,
         showIcon: true,
         text: `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`
       };
     }
     return {
-      variant: "ghost-secondary" as const,
+      variant: "ghost-tertiary" as const,
       showIcon: true,
       text: "Due in over a month"
     };
