@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -106,6 +108,8 @@ interface ComponentsGalleryProps {
 export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsGalleryProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [switchValue, setSwitchValue] = useState(false);
+  const [twoOptionToggle, setTwoOptionToggle] = useState<string>("light");
+  const [multiOptionToggle, setMultiOptionToggle] = useState<string>("medium");
   const [checkboxValue, setCheckboxValue] = useState(false);
   const [radioValue, setRadioValue] = useState("option1");
   const [selectValue, setSelectValue] = useState("");
@@ -769,13 +773,62 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="flex items-center space-x-2 p-3 rounded-md bg-card/50 shadow-sm">
-                      <Switch 
-                        id="switch" 
-                        checked={switchValue} 
-                        onCheckedChange={setSwitchValue} 
-                      />
-                      <Label htmlFor="switch">Switch Toggle</Label>
+                    <div className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Binary Switch (On/Off)</Label>
+                        <div className="flex items-center space-x-2">
+                          <Switch 
+                            id="switch" 
+                            checked={switchValue} 
+                            onCheckedChange={setSwitchValue} 
+                          />
+                          <Label htmlFor="switch">Enable notifications</Label>
+                        </div>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Two-Option Toggle</Label>
+                        <ToggleGroup 
+                          type="single" 
+                          value={twoOptionToggle} 
+                          onValueChange={(value) => value && setTwoOptionToggle(value)}
+                          className="justify-start"
+                        >
+                          <ToggleGroupItem value="light" aria-label="Light mode">
+                            Light
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="dark" aria-label="Dark mode">
+                            Dark
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div>
+                        <Label className="text-sm font-medium mb-2 block">Multi-Option Toggle</Label>
+                        <ToggleGroup 
+                          type="single" 
+                          value={multiOptionToggle} 
+                          onValueChange={(value) => value && setMultiOptionToggle(value)}
+                          className="justify-start"
+                        >
+                          <ToggleGroupItem value="small" aria-label="Small size">
+                            Small
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="medium" aria-label="Medium size">
+                            Medium
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="large" aria-label="Large size">
+                            Large
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="xl" aria-label="Extra large size">
+                            XL
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </div>
                     </div>
                     
                     <div className="flex items-center space-x-2 p-3 rounded-md bg-card/50 shadow-sm">
