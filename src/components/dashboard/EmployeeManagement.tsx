@@ -74,7 +74,7 @@ export const EmployeeManagement: React.FC<{
         const getStatusPriority = (assignment: any) => {
           const employeeQuizData = employeeQuizzes.get(employeeId);
           const quizAttempt = employeeQuizData?.get(assignment.video_id);
-          const isCompleted = assignment.progress_percent >= 100 || !!quizAttempt;
+          const isCompleted = !!quizAttempt;
           
           if (isCompleted) return 7; // Completed - lowest priority
           if (!assignment.due_date) return 6; // No deadline
@@ -116,9 +116,13 @@ export const EmployeeManagement: React.FC<{
 
         // Calculate status for employee A
         const aRequiredVideos = aVideos.filter(assignment => assignment.video_type === 'Required');
-        const aCompletedRequired = aRequiredVideos.filter(assignment => assignment.progress_percent >= 100);
+        const aCompletedRequired = aRequiredVideos.filter(assignment => {
+          const quizAttempt = employeeQuizzes.get(a.id)?.get(assignment.video_id);
+          return !!quizAttempt;
+        });
         const aOverdueRequired = aRequiredVideos.filter(assignment => {
-          if (assignment.progress_percent >= 100) return false;
+          const quizAttempt = employeeQuizzes.get(a.id)?.get(assignment.video_id);
+          if (!!quizAttempt) return false;
           if (!assignment.due_date) return false;
           const today = new Date();
           today.setHours(0, 0, 0, 0);
@@ -130,9 +134,13 @@ export const EmployeeManagement: React.FC<{
 
         // Calculate status for employee B
         const bRequiredVideos = bVideos.filter(assignment => assignment.video_type === 'Required');
-        const bCompletedRequired = bRequiredVideos.filter(assignment => assignment.progress_percent >= 100);
+        const bCompletedRequired = bRequiredVideos.filter(assignment => {
+          const quizAttempt = employeeQuizzes.get(b.id)?.get(assignment.video_id);
+          return !!quizAttempt;
+        });
         const bOverdueRequired = bRequiredVideos.filter(assignment => {
-          if (assignment.progress_percent >= 100) return false;
+          const quizAttempt = employeeQuizzes.get(b.id)?.get(assignment.video_id);
+          if (!!quizAttempt) return false;
           if (!assignment.due_date) return false;
           const today = new Date();
           today.setHours(0, 0, 0, 0);
@@ -383,7 +391,7 @@ export const EmployeeManagement: React.FC<{
   const getDeadlineBadge = (assignment: any, employeeId: string) => {
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
-    const isCompleted = assignment.progress_percent >= 100 || !!quizAttempt;
+    const isCompleted = !!quizAttempt;
     
     if (isCompleted) {
       return <Badge className="bg-success text-success-foreground">Completed</Badge>;
@@ -410,7 +418,7 @@ export const EmployeeManagement: React.FC<{
     if (daysUntilDue <= 7) {
       return <Badge className="bg-orange-500 text-white">Due in {daysUntilDue} days</Badge>;
     }
-    return <Badge variant="outline">Due in {daysUntilDue} days</Badge>;
+    return <Badge variant="secondary">Due in {daysUntilDue} days</Badge>;
   };
 
   const formatDueDate = (dateString: string | null) => {
@@ -427,21 +435,14 @@ export const EmployeeManagement: React.FC<{
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
     
-    if (assignment.progress_percent >= 100 || quizAttempt) {
-      const completionDate = quizAttempt?.completed_at || assignment.completed_at;
+    if (quizAttempt) {
+      const completionDate = quizAttempt?.completed_at;
       const completionText = completionDate ? formatCompletionDate(completionDate) : '';
       return (
         <div className="flex items-center space-x-2">
           <CheckCircle className="w-4 h-4 text-success" />
           <span className="text-success">Completed</span>
           {completionText && <span className="text-muted-foreground">({completionText})</span>}
-        </div>
-      );
-    } else if (assignment.progress_percent > 0) {
-      return (
-        <div className="flex items-center space-x-2">
-          <Play className="w-4 h-4 text-warning" />
-          <span className="text-warning">In Progress ({assignment.progress_percent}%)</span>
         </div>
       );
     } else {
@@ -467,9 +468,13 @@ export const EmployeeManagement: React.FC<{
       );
     }
 
-    const completedRequired = requiredVideos.filter(assignment => assignment.progress_percent >= 100);
+    const completedRequired = requiredVideos.filter(assignment => {
+      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
+      return !!quizAttempt;
+    });
     const overdueRequired = requiredVideos.filter(assignment => {
-      if (assignment.progress_percent >= 100) return false;
+      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
+      if (!!quizAttempt) return false;
       if (!assignment.due_date) return false;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -536,14 +541,12 @@ export const EmployeeManagement: React.FC<{
             const employeeQuizData = employeeQuizzes.get(employee.id);
             const quizAttempt = employeeQuizData?.get(assignment.video_id);
             
-            const isCompleted = assignment.progress_percent >= 100 || !!quizAttempt;
-            const completionDate = isCompleted ? (quizAttempt?.completed_at || assignment.completed_at) : null;
+            const isCompleted = !!quizAttempt;
+            const completionDate = isCompleted ? quizAttempt?.completed_at : null;
             
             let status = 'Not Started';
             if (isCompleted) {
               status = 'Completed';
-            } else if (assignment.progress_percent > 0) {
-              status = `In Progress (${assignment.progress_percent}%)`;
             }
 
             worksheetData.push({
@@ -551,7 +554,7 @@ export const EmployeeManagement: React.FC<{
               'Email': employee.email || 'Unknown',
               'Video Title': assignmentDetails?.video_title || 'Unknown',
               'Video Type': assignmentDetails?.video_type || 'Unknown',
-              'Progress': `${assignment.progress_percent || 0}%`,
+              'Progress': quizAttempt ? 'Completed' : 'Not Started',
               'Status': status,
               'Due Date': assignment.due_date ? formatDueDate(assignment.due_date) : 'No deadline',
               'Assigned Date': formatDueDate(assignment.created_at),
@@ -821,14 +824,14 @@ export const EmployeeManagement: React.FC<{
       <AddEmployeeModal
         open={showAddModal}
         onOpenChange={setShowAddModal}
-        onAddEmployee={handleAddEmployee}
+        onEmployeeAdded={handleAddEmployee}
       />
 
       <AssignVideosModal
         open={showAssignModal}
         onOpenChange={setShowAssignModal}
-        employeeId={selectedEmployee?.id || ''}
-        onAssignVideos={() => {
+        employee={selectedEmployee}
+        onAssignmentComplete={() => {
           setShowAssignModal(false);
           loadEmployees();
         }}
