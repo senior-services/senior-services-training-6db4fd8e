@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -83,6 +84,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'assigned'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -299,7 +301,22 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     setVideoDeadlines(new Map(initialVideoDeadlines));
     setCalendarOpen(new Map());
     setShowDiscardDialog(false);
+    setFilterMode('all');
     onOpenChange(false);
+  };
+
+  // Filter videos based on current filter mode
+  const getFilteredVideos = () => {
+    const availableVideos = videos.filter(v => !completedVideoIds.has(v.id));
+    
+    switch (filterMode) {
+      case 'unassigned':
+        return availableVideos.filter(v => !assignedVideoIds.has(v.id));
+      case 'assigned':
+        return availableVideos.filter(v => assignedVideoIds.has(v.id));
+      default:
+        return availableVideos;
+    }
   };
 
   if (!employee) return null;
@@ -308,8 +325,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const hasDeadlineChanges = !areDeadlineMapsEqual(videoDeadlines, initialVideoDeadlines);
   const hasChanges = hasSelectionChanges || hasDeadlineChanges;
   const selectedCount = selectedVideoIds.size;
-  const availableVideosCount = videos.filter(v => !completedVideoIds.has(v.id)).length;
-  const selectedAvailableCount = Array.from(selectedVideoIds).filter(id => !completedVideoIds.has(id)).length;
+  const filteredVideos = getFilteredVideos();
+  const filteredVideosCount = filteredVideos.length;
+  const selectedFilteredCount = filteredVideos.filter(v => selectedVideoIds.has(v.id)).length;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -330,41 +348,63 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="flex items-center py-2 flex-shrink-0 border-b">
+              <div className="space-y-3 py-3 flex-shrink-0 border-b">
+                <ToggleGroup 
+                  type="single" 
+                  value={filterMode} 
+                  onValueChange={(value) => setFilterMode(value as typeof filterMode || 'all')}
+                  variant="pill"
+                  className="justify-start"
+                >
+                  <ToggleGroupItem value="all" className="text-xs px-3 py-1">
+                    Show All
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="unassigned" className="text-xs px-3 py-1">
+                    Unassigned
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="assigned" className="text-xs px-3 py-1">
+                    Assigned
+                  </ToggleGroupItem>
+                </ToggleGroup>
+
                 <div className="flex items-center gap-3">
                    <Checkbox
                      id="select-all"
-                     checked={selectedAvailableCount === availableVideosCount && availableVideosCount > 0}
+                     checked={selectedFilteredCount === filteredVideosCount && filteredVideosCount > 0}
                      onCheckedChange={(checked) => {
-                       const availableVideos = videos.filter(v => !completedVideoIds.has(v.id));
                        if (checked) {
                          setSelectedVideoIds(new Set([
-                           ...Array.from(selectedVideoIds).filter(id => completedVideoIds.has(id)),
-                           ...availableVideos.map(v => v.id)
+                           ...Array.from(selectedVideoIds).filter(id => completedVideoIds.has(id) || !filteredVideos.some(v => v.id === id)),
+                           ...filteredVideos.map(v => v.id)
                          ]));
                        } else {
-                         setSelectedVideoIds(new Set(Array.from(selectedVideoIds).filter(id => completedVideoIds.has(id))));
+                         setSelectedVideoIds(new Set(Array.from(selectedVideoIds).filter(id => 
+                           completedVideoIds.has(id) || !filteredVideos.some(v => v.id === id)
+                         )));
                        }
                      }}
-                     disabled={availableVideosCount === 0}
+                     disabled={filteredVideosCount === 0}
                    />
                    <div className="w-px h-4 bg-border"></div>
                    <Label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-                     {selectedAvailableCount} video{selectedAvailableCount !== 1 ? 's' : ''} selected
+                     {selectedFilteredCount} video{selectedFilteredCount !== 1 ? 's' : ''} selected
                    </Label>
                 </div>
               </div>
 
               <DialogScrollArea>
-                   {availableVideosCount === 0 ? (
+                   {filteredVideosCount === 0 ? (
                      <div className="text-center py-8 text-muted-foreground">
                        <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                       <p>No training videos available</p>
+                       <p>
+                         {filterMode === 'unassigned' && 'No unassigned videos available'}
+                         {filterMode === 'assigned' && 'No assigned videos available'}  
+                         {filterMode === 'all' && 'No training videos available'}
+                       </p>
                      </div>
                    ) : (
                      <div className="space-y-0">
-                       {videos
-                         .filter(video => !completedVideoIds.has(video.id))
+                       {filteredVideos
                          .sort((a, b) => a.title.localeCompare(b.title))
                          .map((video, index) => {
                          const isSelected = selectedVideoIds.has(video.id);
