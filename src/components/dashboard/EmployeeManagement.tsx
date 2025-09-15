@@ -343,7 +343,7 @@ export const EmployeeManagement: React.FC<{
       const result = await employeeOperations.getArchived();
       
       if (!result.success) {
-        logger.error('Error loading archived employees:', result.error);
+        logger.error('Error loading archived employees:', new Error(result.error || 'Unknown error'));
         return;
       }
 
@@ -813,7 +813,7 @@ export const EmployeeManagement: React.FC<{
                         <TableCell>
                           <div className="flex items-center justify-end gap-1">
                             <IconButtonWithTooltip
-                              icon={<UserPlus className="h-4 w-4" />}
+                              icon={UserPlus}
                               tooltip={getTooltipText('assign-videos')}
                               onClick={() => handleAssignVideos(employee)}
                               variant="ghost"
@@ -821,7 +821,7 @@ export const EmployeeManagement: React.FC<{
                               className="h-8 w-8"
                             />
                             <IconButtonWithTooltip
-                              icon={<Archive className="h-4 w-4" />}
+                              icon={Archive}
                               tooltip={getTooltipText('archive-employee')}
                               onClick={() => setArchiveConfirmEmployee(employee)}
                               variant="ghost"
@@ -1030,7 +1030,7 @@ export const EmployeeManagement: React.FC<{
                         </TableCell>
                         <TableCell>
                           <IconButtonWithTooltip
-                            icon={<ArchiveRestore className="h-4 w-4" />}
+                            icon={ArchiveRestore}
                             tooltip={getTooltipText('unarchive-employee')}
                             onClick={() => setUnarchiveConfirmEmployee(employee)}
                             variant="ghost"
@@ -1050,15 +1050,15 @@ export const EmployeeManagement: React.FC<{
 
       <AddEmployeeModal
         open={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onAddEmployee={handleAddEmployee}
+        onOpenChange={(open) => setShowAddModal(open)}
+        onEmployeeAdded={handleAddEmployee}
       />
       
       <AssignVideosModal
         open={showAssignModal}
-        onClose={() => setShowAssignModal(false)}
-        employeeId={selectedEmployee?.id || null}
-        onAssignVideos={() => {
+        onOpenChange={(open) => setShowAssignModal(open)}
+        employee={selectedEmployee}
+        onAssignmentComplete={() => {
           setShowAssignModal(false);
           loadEmployees();
         }}
