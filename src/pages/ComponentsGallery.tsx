@@ -17,96 +17,30 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Banner } from "@/components/ui/banner";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialogTrigger 
-} from "@/components/ui/alert-dialog";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogScrollArea,
-  DialogTitle,
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogScrollArea, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { ComponentUpdateIndicator } from "@/components/ui/ComponentUpdateIndicator";
-import { 
-  Table, 
-  TableBody, 
-  TableCaption, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipTrigger 
-} from "@/components/ui/tooltip";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { IconButtonWithTooltip } from "@/components/ui/icon-button-with-tooltip";
 import { getTooltipText } from "@/utils/tooltipText";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Home, 
-  Settings, 
-  User, 
-  Bell, 
-  Search, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Download, 
-  Upload, 
-  Eye, 
-  EyeOff,
-  AlertCircle,
-  CheckCircle,
-  Info,
-  X,
-  ArrowUp,
-  ArrowDown,
-  ArrowUpDown,
-  ChevronDown,
-  ChevronUp
-} from "lucide-react";
-
+import { Home, Settings, User, Bell, Search, Plus, Edit, Trash2, Download, Upload, Eye, EyeOff, AlertCircle, CheckCircle, Info, X, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 interface ComponentsGalleryProps {
   userName: string;
   userEmail: string;
   onLogout: () => void;
 }
-
-export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsGalleryProps) => {
+export const ComponentsGallery = ({
+  userName,
+  userEmail,
+  onLogout
+}: ComponentsGalleryProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [switchValue, setSwitchValue] = useState(false);
   const [twoOptionToggle, setTwoOptionToggle] = useState<string>("light");
@@ -120,25 +54,39 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
   const [sortColumn, setSortColumn] = useState<string>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set());
-  
+
   // Icon state management for button examples
   const [buttonIcons, setButtonIcons] = useState({
     default: "Plus",
-    outline: "Edit", 
+    outline: "Edit",
     destructive: "Trash2",
     ghost: "Download",
     secondary: "Settings"
   });
-
   const availableIcons = {
-    Plus, Edit, Trash2, Download, Settings, Search, Bell, User, Home, Upload,
-    Eye, EyeOff, AlertCircle, CheckCircle, Info, X, ArrowUp, ArrowDown, ArrowUpDown
+    Plus,
+    Edit,
+    Trash2,
+    Download,
+    Settings,
+    Search,
+    Bell,
+    User,
+    Home,
+    Upload,
+    Eye,
+    EyeOff,
+    AlertCircle,
+    CheckCircle,
+    Info,
+    X,
+    ArrowUp,
+    ArrowDown,
+    ArrowUpDown
   };
-
   const getIconComponent = (iconName: string) => {
     return availableIcons[iconName as keyof typeof availableIcons] || Plus;
   };
-
   const cycleIcon = (variant: keyof typeof buttonIcons) => {
     const iconNames = Object.keys(availableIcons);
     const currentIndex = iconNames.indexOf(buttonIcons[variant]);
@@ -148,26 +96,38 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
       [variant]: iconNames[nextIndex]
     }));
   };
-
-  const tableData = [
-    { name: "Alice Johnson", email: "alice@example.com", department: "101" },
-    { name: "Bob Wilson", email: "bob@example.com", department: "205" },
-    { name: "Carol Smith", email: "carol@example.com", department: "150" },
-    { name: "David Brown", email: "david@example.com", department: "89" },
-    { name: "Emma Davis", email: "emma@example.com", department: "312" },
-  ];
-
+  const tableData = [{
+    name: "Alice Johnson",
+    email: "alice@example.com",
+    department: "101"
+  }, {
+    name: "Bob Wilson",
+    email: "bob@example.com",
+    department: "205"
+  }, {
+    name: "Carol Smith",
+    email: "carol@example.com",
+    department: "150"
+  }, {
+    name: "David Brown",
+    email: "david@example.com",
+    department: "89"
+  }, {
+    name: "Emma Davis",
+    email: "emma@example.com",
+    department: "312"
+  }];
   const sortedData = [...tableData].sort((a, b) => {
     const aValue = a[sortColumn as keyof typeof a];
     const bValue = b[sortColumn as keyof typeof b];
-    
+
     // Handle numerical sorting for department column
     if (sortColumn === "department") {
       const aNum = parseInt(aValue);
       const bNum = parseInt(bValue);
       return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
     }
-    
+
     // String sorting for other columns
     if (sortDirection === "asc") {
       return aValue.localeCompare(bValue);
@@ -175,9 +135,9 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
       return bValue.localeCompare(aValue);
     }
   });
-  
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -186,36 +146,33 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
       setSortDirection("asc");
     }
   };
-
   const showToast = (type: "default" | "destructive" | "success") => {
     switch (type) {
       case "success":
         toast({
           title: "Success!",
           description: "This is a success message.",
-          variant: "success",
+          variant: "success"
         });
         break;
       case "destructive":
         toast({
           title: "Error!",
           description: "This is an error message.",
-          variant: "destructive",
+          variant: "destructive"
         });
         break;
       default:
         toast({
           title: "Info",
-          description: "This is an info message.",
+          description: "This is an info message."
         });
     }
   };
-
   const toggleLoading = () => {
     setIsLoading(true);
     setTimeout(() => setIsLoading(false), 2000);
   };
-
   const toggleEmployeeExpanded = (employeeId: string) => {
     setExpandedEmployees(prev => {
       const newExpanded = new Set(prev);
@@ -227,23 +184,14 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
       return newExpanded;
     });
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-        <Header 
-          userRole="admin" 
-          userName={userName} 
-          userEmail={userEmail} 
-          onLogout={onLogout} 
-        />
+  return <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+        <Header userRole="admin" userName={userName} userEmail={userEmail} onLogout={onLogout} />
         
         <main className="container mx-auto px-4 py-8 space-y-12">
           {/* Page Header */}
           <div className="text-center space-y-4">
             <h1 className="text-4xl font-bold text-foreground">Components Gallery</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A comprehensive showcase of all UI components with their various states, variants, and themes.
-            </p>
+            
             
             {/* Anchor Navigation */}
             <nav className="pt-4">
@@ -659,71 +607,47 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                         <h4 className="text-sm font-medium mb-2">Icon Only (Click to cycle icons)</h4>
                         <div className="grid grid-cols-5 gap-4">
                           <div className="flex flex-col items-center gap-1">
-                            <Button 
-                              size="icon" 
-                              onClick={() => cycleIcon('default')}
-                              className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105"
-                            >
+                            <Button size="icon" onClick={() => cycleIcon('default')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
                               {(() => {
-                                const IconComponent = getIconComponent(buttonIcons.default);
-                                return <IconComponent className="w-4 h-4" />;
-                              })()}
+                            const IconComponent = getIconComponent(buttonIcons.default);
+                            return <IconComponent className="w-4 h-4" />;
+                          })()}
                             </Button>
                             <span className="text-xs text-muted-foreground">default</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
-                            <Button 
-                              size="icon" 
-                              variant="outline" 
-                              onClick={() => cycleIcon('outline')}
-                              className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105"
-                            >
+                            <Button size="icon" variant="outline" onClick={() => cycleIcon('outline')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
                               {(() => {
-                                const IconComponent = getIconComponent(buttonIcons.outline);
-                                return <IconComponent className="w-4 h-4" />;
-                              })()}
+                            const IconComponent = getIconComponent(buttonIcons.outline);
+                            return <IconComponent className="w-4 h-4" />;
+                          })()}
                             </Button>
                             <span className="text-xs text-muted-foreground">outline</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
-                            <Button 
-                              size="icon" 
-                              variant="destructive" 
-                              onClick={() => cycleIcon('destructive')}
-                              className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105"
-                            >
+                            <Button size="icon" variant="destructive" onClick={() => cycleIcon('destructive')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
                               {(() => {
-                                const IconComponent = getIconComponent(buttonIcons.destructive);
-                                return <IconComponent className="w-4 h-4" />;
-                              })()}
+                            const IconComponent = getIconComponent(buttonIcons.destructive);
+                            return <IconComponent className="w-4 h-4" />;
+                          })()}
                             </Button>
                             <span className="text-xs text-muted-foreground">destructive</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
-                            <Button 
-                              size="icon" 
-                              variant="ghost" 
-                              onClick={() => cycleIcon('ghost')}
-                              className="cursor-pointer hover:shadow-md transition-all hover:scale-105"
-                            >
+                            <Button size="icon" variant="ghost" onClick={() => cycleIcon('ghost')} className="cursor-pointer hover:shadow-md transition-all hover:scale-105">
                               {(() => {
-                                const IconComponent = getIconComponent(buttonIcons.ghost);
-                                return <IconComponent className="w-4 h-4" />;
-                              })()}
+                            const IconComponent = getIconComponent(buttonIcons.ghost);
+                            return <IconComponent className="w-4 h-4" />;
+                          })()}
                             </Button>
                             <span className="text-xs text-muted-foreground">ghost</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
-                            <Button 
-                              size="icon" 
-                              variant="secondary" 
-                              onClick={() => cycleIcon('secondary')}
-                              className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105"
-                            >
+                            <Button size="icon" variant="secondary" onClick={() => cycleIcon('secondary')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
                               {(() => {
-                                const IconComponent = getIconComponent(buttonIcons.secondary);
-                                return <IconComponent className="w-4 h-4" />;
-                              })()}
+                            const IconComponent = getIconComponent(buttonIcons.secondary);
+                            return <IconComponent className="w-4 h-4" />;
+                          })()}
                             </Button>
                             <span className="text-xs text-muted-foreground">secondary</span>
                           </div>
@@ -777,11 +701,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <div>
                         <Label className="text-sm font-medium mb-2 block">Binary Switch (On/Off)</Label>
                         <div className="flex items-center space-x-2">
-                          <Switch 
-                            id="switch" 
-                            checked={switchValue} 
-                            onCheckedChange={setSwitchValue} 
-                          />
+                          <Switch id="switch" checked={switchValue} onCheckedChange={setSwitchValue} />
                           <Label htmlFor="switch">Enable notifications</Label>
                         </div>
                       </div>
@@ -790,14 +710,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       
                       <div>
                         <Label className="text-sm font-medium mb-2 block">Two-Option Toggle</Label>
-                        <ToggleGroup 
-                          type="single" 
-                          value={twoOptionToggle} 
-                          onValueChange={(value) => value && setTwoOptionToggle(value)}
-                          variant="pill"
-                          size="pill"
-                          className="justify-start"
-                        >
+                        <ToggleGroup type="single" value={twoOptionToggle} onValueChange={value => value && setTwoOptionToggle(value)} variant="pill" size="pill" className="justify-start">
                           <ToggleGroupItem value="light" aria-label="Light mode">
                             Light
                           </ToggleGroupItem>
@@ -811,14 +724,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       
                       <div>
                         <Label className="text-sm font-medium mb-2 block">Multi-Option Toggle</Label>
-                        <ToggleGroup 
-                          type="single" 
-                          value={multiOptionToggle} 
-                          onValueChange={(value) => value && setMultiOptionToggle(value)}
-                          variant="pill"
-                          size="pill"
-                          className="justify-start"
-                        >
+                        <ToggleGroup type="single" value={multiOptionToggle} onValueChange={value => value && setMultiOptionToggle(value)} variant="pill" size="pill" className="justify-start">
                           <ToggleGroupItem value="small" aria-label="Small size">
                             Small
                           </ToggleGroupItem>
@@ -836,11 +742,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                     </div>
                     
                     <div className="flex items-center space-x-2 p-3 rounded-md bg-card/50 shadow-sm">
-                      <Checkbox 
-                        id="checkbox" 
-                        checked={checkboxValue} 
-                        onCheckedChange={(checked) => setCheckboxValue(checked as boolean)} 
-                      />
+                      <Checkbox id="checkbox" checked={checkboxValue} onCheckedChange={checked => setCheckboxValue(checked as boolean)} />
                       <Label htmlFor="checkbox">Checkbox</Label>
                     </div>
                     
@@ -869,22 +771,16 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                     <div>
                       <Label className="text-sm font-medium mb-2 block">Checkbox Group</Label>
                       <div className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
-                        {["Newsletter", "Marketing", "Updates", "Security Alerts"].map((option) => (
-                          <div key={option} className="flex items-center space-x-2">
-                            <Checkbox 
-                              id={`checkbox-${option.toLowerCase().replace(" ", "-")}`}
-                              checked={checkboxGroupValue.includes(option.toLowerCase().replace(" ", "-"))}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setCheckboxGroupValue(prev => [...prev, option.toLowerCase().replace(" ", "-")])
-                                } else {
-                                  setCheckboxGroupValue(prev => prev.filter(item => item !== option.toLowerCase().replace(" ", "-")))
-                                }
-                              }}
-                            />
+                        {["Newsletter", "Marketing", "Updates", "Security Alerts"].map(option => <div key={option} className="flex items-center space-x-2">
+                            <Checkbox id={`checkbox-${option.toLowerCase().replace(" ", "-")}`} checked={checkboxGroupValue.includes(option.toLowerCase().replace(" ", "-"))} onCheckedChange={checked => {
+                        if (checked) {
+                          setCheckboxGroupValue(prev => [...prev, option.toLowerCase().replace(" ", "-")]);
+                        } else {
+                          setCheckboxGroupValue(prev => prev.filter(item => item !== option.toLowerCase().replace(" ", "-")));
+                        }
+                      }} />
                             <Label htmlFor={`checkbox-${option.toLowerCase().replace(" ", "-")}`}>{option}</Label>
-                          </div>
-                        ))}
+                          </div>)}
                       </div>
                     </div>
                     
@@ -918,69 +814,35 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                 <h4 className="text-sm font-medium text-muted-foreground">Default Banner - All Variant Options</h4>
                 
                 {/* Default Banner - Basic */}
-                <Banner
-                  title="Default Banner"
-                  description="Basic banner with icon and no actions."
-                />
+                <Banner title="Default Banner" description="Basic banner with icon and no actions." />
 
                 {/* Default Banner - With Close Action */}
-                <Banner
-                  title="Default Banner with Close"
-                  description="Banner with dismissible close action."
-                  dismissible
-                  onDismiss={() => console.log("Banner dismissed")}
-                />
+                <Banner title="Default Banner with Close" description="Banner with dismissible close action." dismissible onDismiss={() => console.log("Banner dismissed")} />
 
                 {/* Default Banner - With Button */}
-                <Banner
-                  title="Default Banner with Action"
-                  description="Banner with action button."
-                  actions={
-                    <Button variant="outline" size="sm">
+                <Banner title="Default Banner with Action" description="Banner with action button." actions={<Button variant="outline" size="sm">
                       Learn More
-                    </Button>
-                  }
-                />
+                    </Button>} />
 
 
                 {/* Default Banner - Without Icon */}
-                <Banner
-                  title="Default Banner without Icon"
-                  description="Banner with icon hidden."
-                  showIcon={false}
-                />
+                <Banner title="Default Banner without Icon" description="Banner with icon hidden." showIcon={false} />
 
                 <Separator className="my-6" />
 
                 <h4 className="text-sm font-medium text-muted-foreground">Other Banner Types</h4>
 
                 {/* Info Banner */}
-                <Banner
-                  variant="info"
-                  title="Information"
-                  description="Informational banner for updates or announcements."
-                />
+                <Banner variant="info" title="Information" description="Informational banner for updates or announcements." />
 
                 {/* Success Banner */}
-                <Banner
-                  variant="success"
-                  title="Success"
-                  description="Success banner for completed operations."
-                />
+                <Banner variant="success" title="Success" description="Success banner for completed operations." />
 
                 {/* Warning Banner */}
-                <Banner
-                  variant="warning"
-                  title="Warning"
-                  description="Warning banner for important notices."
-                />
+                <Banner variant="warning" title="Warning" description="Warning banner for important notices." />
 
                 {/* Error Banner */}
-                <Banner
-                  variant="error"
-                  title="Error"
-                  description="Error banner for system issues or failures."
-                />
+                <Banner variant="error" title="Error" description="Error banner for system issues or failures." />
               </div>
             </CardContent>
           </Card>
@@ -1189,65 +1051,28 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       <TableHeader>
                         <TableRow>
                           <TableHead>
-                              <Button 
-                                variant="ghost" 
-                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:shadow-none hover:text-primary group ${
-                                  sortColumn === "name" ? "font-bold" : "font-medium"
-                                }`}
-                                onClick={() => handleSort("name")}
-                              >
+                              <Button variant="ghost" className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:shadow-none hover:text-primary group ${sortColumn === "name" ? "font-bold" : "font-medium"}`} onClick={() => handleSort("name")}>
                                Name 
-                               {sortColumn === "name" ? (
-                                 sortDirection === "asc" ? 
-                                   <ArrowUp className="w-4 h-4 ml-1" /> : 
-                                   <ArrowDown className="w-4 h-4 ml-1" />
-                                ) : (
-                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary group-hover:opacity-100" />
-                                )}
+                               {sortColumn === "name" ? sortDirection === "asc" ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" /> : <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                              </Button>
                           </TableHead>
                           <TableHead>
-                              <Button 
-                                variant="ghost" 
-                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:shadow-none hover:text-primary group ${
-                                  sortColumn === "email" ? "font-bold" : "font-medium"
-                                }`}
-                                onClick={() => handleSort("email")}
-                              >
+                              <Button variant="ghost" className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:shadow-none hover:text-primary group ${sortColumn === "email" ? "font-bold" : "font-medium"}`} onClick={() => handleSort("email")}>
                                Email
-                               {sortColumn === "email" ? (
-                                 sortDirection === "asc" ? 
-                                   <ArrowUp className="w-4 h-4 ml-1" /> : 
-                                   <ArrowDown className="w-4 h-4 ml-1" />
-                                ) : (
-                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary group-hover:opacity-100" />
-                                )}
+                               {sortColumn === "email" ? sortDirection === "asc" ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" /> : <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                              </Button>
                           </TableHead>
                           <TableHead>
-                              <Button 
-                                variant="ghost" 
-                                className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:shadow-none hover:text-primary group ${
-                                  sortColumn === "department" ? "font-bold" : "font-medium"
-                                }`}
-                                onClick={() => handleSort("department")}
-                              >
+                              <Button variant="ghost" className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:shadow-none hover:text-primary group ${sortColumn === "department" ? "font-bold" : "font-medium"}`} onClick={() => handleSort("department")}>
                                Department
-                               {sortColumn === "department" ? (
-                                 sortDirection === "asc" ? 
-                                   <ArrowUp className="w-4 h-4 ml-1" /> : 
-                                   <ArrowDown className="w-4 h-4 ml-1" />
-                                ) : (
-                                  <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary group-hover:opacity-100" />
-                                )}
+                               {sortColumn === "department" ? sortDirection === "asc" ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" /> : <ArrowUpDown className="w-4 h-4 ml-1 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                              </Button>
                           </TableHead>
                            <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                        <TableBody>
-                         {sortedData.map((user, index) => (
-                           <TableRow key={index}>
+                         {sortedData.map((user, index) => <TableRow key={index}>
                              <TableCell className="font-medium">{user.name}</TableCell>
                              <TableCell>{user.email}</TableCell>
                              <TableCell>{user.department}</TableCell>
@@ -1267,8 +1092,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                   </Button>
                                 </div>
                               </TableCell>
-                           </TableRow>
-                         ))}
+                           </TableRow>)}
                        </TableBody>
                     </Table>
                   </TabsContent>
@@ -1473,28 +1297,46 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                            </TableRow>
                          </TableHeader>
                          <TableBody>
-                           {[
-                             { id: "emp-1", name: "Alice Johnson", email: "alice@example.com", department: "Engineering", status: "Active", role: "Senior Developer", location: "San Francisco, CA", manager: "John Smith", skills: "React, TypeScript, Node.js" },
-                             { id: "emp-2", name: "Bob Wilson", email: "bob@example.com", department: "Marketing", status: "Active", role: "Marketing Manager", location: "New York, NY", manager: "Sarah Lee", skills: "SEO, Analytics, Content Strategy" },
-                             { id: "emp-3", name: "Carol Smith", email: "carol@example.com", department: "Finance", status: "On Leave", role: "Senior Analyst", location: "Chicago, IL", manager: "Michael Chen", skills: "Excel, Financial Modeling" }
-                           ].map((employee) => {
-                             const isExpanded = expandedEmployees.has(employee.id);
-                             return (
-                               <React.Fragment key={employee.id}>
+                           {[{
+                        id: "emp-1",
+                        name: "Alice Johnson",
+                        email: "alice@example.com",
+                        department: "Engineering",
+                        status: "Active",
+                        role: "Senior Developer",
+                        location: "San Francisco, CA",
+                        manager: "John Smith",
+                        skills: "React, TypeScript, Node.js"
+                      }, {
+                        id: "emp-2",
+                        name: "Bob Wilson",
+                        email: "bob@example.com",
+                        department: "Marketing",
+                        status: "Active",
+                        role: "Marketing Manager",
+                        location: "New York, NY",
+                        manager: "Sarah Lee",
+                        skills: "SEO, Analytics, Content Strategy"
+                      }, {
+                        id: "emp-3",
+                        name: "Carol Smith",
+                        email: "carol@example.com",
+                        department: "Finance",
+                        status: "On Leave",
+                        role: "Senior Analyst",
+                        location: "Chicago, IL",
+                        manager: "Michael Chen",
+                        skills: "Excel, Financial Modeling"
+                      }].map(employee => {
+                        const isExpanded = expandedEmployees.has(employee.id);
+                        return <React.Fragment key={employee.id}>
                                  <TableRow className={`group transition-colors ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`}>
                                    <TableCell className="py-3">
-                                     <Collapsible 
-                                       open={isExpanded}
-                                       onOpenChange={() => toggleEmployeeExpanded(employee.id)}
-                                     >
+                                     <Collapsible open={isExpanded} onOpenChange={() => toggleEmployeeExpanded(employee.id)}>
                                        <CollapsibleTrigger asChild>
                                          <div className="flex items-center gap-3 cursor-pointer">
                                            <div className="flex items-center gap-2">
-                                             {isExpanded ? (
-                                               <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                                             ) : (
-                                               <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                                             )}
+                                             {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                                              <div>
                                                <div className="font-medium">{employee.name}</div>
                                                <div className="text-sm text-muted-foreground">{employee.email}</div>
@@ -1519,23 +1361,17 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                    
                                    <TableCell className="text-right py-3">
                                      <div className="flex gap-2 justify-end">
-                                        <IconButtonWithTooltip
-                                          icon={Edit}
-                                          tooltip={getTooltipText('edit-item', { name: 'John Doe' })}
-                                          onClick={() => {}}
-                                        />
-                                        <IconButtonWithTooltip
-                                          icon={Trash2}
-                                          tooltip={getTooltipText('delete-item', { name: 'John Doe' })}
-                                          onClick={() => {}}
-                                          className="text-destructive hover:text-destructive"
-                                        />
+                                        <IconButtonWithTooltip icon={Edit} tooltip={getTooltipText('edit-item', {
+                                  name: 'John Doe'
+                                })} onClick={() => {}} />
+                                        <IconButtonWithTooltip icon={Trash2} tooltip={getTooltipText('delete-item', {
+                                  name: 'John Doe'
+                                })} onClick={() => {}} className="text-destructive hover:text-destructive" />
                                      </div>
                                    </TableCell>
                                  </TableRow>
                                  
-                                 {isExpanded && (
-                                   <TableRow className="bg-muted/50">
+                                 {isExpanded && <TableRow className="bg-muted/50">
                                      <TableCell colSpan={4} className="py-0">
                                        <Collapsible open={isExpanded}>
                                          <CollapsibleContent>
@@ -1556,11 +1392,9 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                          </CollapsibleContent>
                                        </Collapsible>
                                      </TableCell>
-                                   </TableRow>
-                                 )}
-                               </React.Fragment>
-                             );
-                           })}
+                                   </TableRow>}
+                               </React.Fragment>;
+                      })}
                          </TableBody>
                        </Table>
                      </div>
@@ -1689,12 +1523,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
               <CardDescription>Date picker component</CardDescription>
             </CardHeader>
             <CardContent>
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded-md border pointer-events-auto"
-              />
+              <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} className="rounded-md border pointer-events-auto" />
             </CardContent>
           </Card>
 
@@ -1706,11 +1535,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-8 md:grid-cols-12 gap-4">
-                {[
-                  Home, Settings, User, Bell, Search, Plus, Edit, Trash2,
-                  Download, Upload, Eye, EyeOff, AlertCircle, CheckCircle, Info, X
-                ].map((Icon, index) => (
-                  <Tooltip key={index}>
+                {[Home, Settings, User, Bell, Search, Plus, Edit, Trash2, Download, Upload, Eye, EyeOff, AlertCircle, CheckCircle, Info, X].map((Icon, index) => <Tooltip key={index}>
                     <TooltipTrigger asChild>
                       <div className="flex items-center justify-center p-3 border rounded-lg hover:bg-muted transition-colors">
                         <Icon className="w-5 h-5" />
@@ -1719,8 +1544,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                     <TooltipContent>
                       <p>{Icon.name}</p>
                     </TooltipContent>
-                  </Tooltip>
-                ))}
+                  </Tooltip>)}
               </div>
             </CardContent>
           </Card>
@@ -1791,6 +1615,5 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
             </CardContent>
           </Card>
         </main>
-      </div>
-  );
+      </div>;
 };
