@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
+import { UserPlus, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { employeeOperations } from '@/services/api';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
@@ -366,87 +366,95 @@ export const EmployeeManagement: React.FC<{
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {employees.map((employee) => (
-                  <React.Fragment key={employee.id}>
-                    <TableRow>
-                      <TableCell className="font-medium">
-                        <Collapsible
-                          open={expandedEmployees.has(employee.id)}
-                          onOpenChange={() => toggleEmployeeExpanded(employee.id)}
-                        >
-                          <CollapsibleTrigger className="flex items-center space-x-2 hover:bg-muted/50 p-2 -m-2 rounded">
-                            {expandedEmployees.has(employee.id) ? (
-                              <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4" />
-                            )}
-                            <span>{employee.full_name || employee.email?.split('@')[0] || 'Unknown'}</span>
-                          </CollapsibleTrigger>
-                        </Collapsible>
-                      </TableCell>
-                      <TableCell>{employee.email}</TableCell>
-                      <TableCell>
-                        {getEmployeeStatus(employee.id)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleAssignVideos(employee)}
+                {employees.map((employee) => {
+                  const isExpanded = expandedEmployees.has(employee.id);
+                  return (
+                    <React.Fragment key={employee.id}>
+                      <TableRow className={`group transition-colors ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`}>
+                        <TableCell className="py-3 font-medium">
+                          <Collapsible
+                            open={isExpanded}
+                            onOpenChange={() => toggleEmployeeExpanded(employee.id)}
                           >
-                            Assign Videos
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteConfirmEmployee(employee)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell colSpan={4} className="p-0">
-                        <Collapsible
-                          open={expandedEmployees.has(employee.id)}
-                          onOpenChange={() => toggleEmployeeExpanded(employee.id)}
-                        >
-                          <CollapsibleContent>
-                            <div className="bg-muted/30 p-4">
-                              {employeeVideos.get(employee.id)?.length === 0 ? (
-                                <p className="text-muted-foreground text-center py-4">
-                                  No video assignments found for this employee.
-                                </p>
-                              ) : (
-                                <Table>
-                                   <TableHeader>
-                                     <TableRow>
-                                       <TableHead className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</TableHead>
-                                       <TableHead className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</TableHead>
-                                       <TableHead className="text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
-                                     </TableRow>
-                                   </TableHeader>
-                                  <TableBody>
-                                    {employeeVideos.get(employee.id)?.map((assignment: any) => (
-                                      <TableRow key={assignment.video_id}>
-                                        <TableCell>{assignment.video_title}</TableCell>
-                                        <TableCell>{getQuizResults(assignment, employee.id)}</TableCell>
-                                        <TableCell>{getVideoStatus(assignment, employee.id)}</TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              )}
-                            </div>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                ))}
+                            <CollapsibleTrigger asChild>
+                              <div className="flex items-center gap-3 cursor-pointer">
+                                <div className="flex items-center gap-2">
+                                  {isExpanded ? (
+                                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                                  ) : (
+                                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                  <span>{employee.full_name || employee.email?.split('@')[0] || 'Unknown'}</span>
+                                </div>
+                              </div>
+                            </CollapsibleTrigger>
+                          </Collapsible>
+                        </TableCell>
+                        <TableCell className="py-3">{employee.email}</TableCell>
+                        <TableCell className="py-3">
+                          {getEmployeeStatus(employee.id)}
+                        </TableCell>
+                        <TableCell className="text-right py-3">
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleAssignVideos(employee)}
+                            >
+                              Assign Videos
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteConfirmEmployee(employee)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      
+                      {isExpanded && (
+                        <TableRow className="bg-muted/50">
+                          <TableCell colSpan={4} className="py-0">
+                            <Collapsible open={isExpanded}>
+                              <CollapsibleContent>
+                                <div className="px-4 pb-4 ml-6">
+                                  <div className="border-l-2 border-muted pl-4">
+                                    {employeeVideos.get(employee.id)?.length === 0 ? (
+                                      <p className="text-muted-foreground text-center py-4">
+                                        No video assignments found for this employee.
+                                      </p>
+                                    ) : (
+                                      <Table>
+                                        <TableHeader>
+                                          <TableRow>
+                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</TableHead>
+                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</TableHead>
+                                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
+                                          </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                          {employeeVideos.get(employee.id)?.map((assignment: any) => (
+                                            <TableRow key={assignment.video_id}>
+                                              <TableCell>{assignment.video_title}</TableCell>
+                                              <TableCell>{getQuizResults(assignment, employee.id)}</TableCell>
+                                              <TableCell>{getVideoStatus(assignment, employee.id)}</TableCell>
+                                            </TableRow>
+                                          ))}
+                                        </TableBody>
+                                      </Table>
+                                    )}
+                                  </div>
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>
