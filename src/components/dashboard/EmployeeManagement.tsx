@@ -549,79 +549,131 @@ export const EmployeeManagement: React.FC<{
                       </TableCell>
                     </TableRow>
 
-                    {isExpanded && hasVideos && <TableRow className="bg-muted/50">
+{isExpanded && hasVideos && <TableRow className="bg-muted/50">
                         <TableCell colSpan={4} className="py-0">
                           <Collapsible open={isExpanded}>
                             <CollapsibleContent>
-                              <div className="px-4 pb-4">
-                                <Table>
-                               <TableHeader>
-                                 <TableRow className="border-b">
-                                   <TableHead>
-                                     <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'title')} className="h-auto p-0 font-semibold">
-                                       Video Title
-                                       {videoSortState.get(employee.id)?.column === 'title' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                                       {videoSortState.get(employee.id)?.column !== 'title' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                                     </Button>
-                                   </TableHead>
-                                    <TableHead>
-                                      <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'status')} className="h-auto p-0 font-semibold">
-                                        Status
-                                        {videoSortState.get(employee.id)?.column === 'status' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                                        {videoSortState.get(employee.id)?.column !== 'status' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                                      </Button>
-                                    </TableHead>
-                                    <TableHead>
-                                      <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'quiz')} className="h-auto p-0 font-semibold">
-                                        Quiz Results
-                                        {videoSortState.get(employee.id)?.column === 'quiz' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                                        {videoSortState.get(employee.id)?.column !== 'quiz' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                                      </Button>
-                                    </TableHead>
-                                 </TableRow>
-                               </TableHeader>
-                              <TableBody>
-                                {getSortedVideosForEmployee(employee.id, videos).map(assignment => <TableRow key={assignment.assignment_id}>
-                                    <TableCell>
-                                      <div className="font-medium">{assignment.video_title}</div>
-                                      {assignment.video_description}
-                                    </TableCell>
-                                     <TableCell>
-                                       {getAssignmentStatus(assignment, employee.id)}
-                                     </TableCell>
-                                     <TableCell>
-                                       {(() => {
-                                const employeeQuizData = employeeQuizzes.get(employee.id);
-                                const quizAttempt = employeeQuizData?.get(assignment.video_id);
-                                if (!assignment.hasQuiz) {
-                                  return <span className="text-muted-foreground">No Quiz</span>;
-                                }
-                                if (!quizAttempt) {
-                                  return <Badge variant="soft-secondary">Not Taken</Badge>;
-                                }
-                                const scorePercentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
-                                const scoreDisplay = `${quizAttempt.score}/${quizAttempt.total_questions}`;
-                                let badgeVariant: string;
-                                if (scorePercentage >= 80) {
-                                  badgeVariant = "success";
-                                } else if (scorePercentage >= 60) {
-                                  badgeVariant = "warning";
-                                } else {
-                                  badgeVariant = "destructive";
-                                }
-                                return <div className="flex items-center space-x-2">
-                                             <Badge variant={badgeVariant as any}>
-                                               {scoreDisplay}
-                                             </Badge>
-                                             <span className="text-sm text-muted-foreground">
-                                               ({scorePercentage}%)
-                                             </span>
-                                           </div>;
-                              })()}
-                                     </TableCell>
-                                  </TableRow>)}
-                              </TableBody>
-                                </Table>
+                              <div className="px-4 pb-4 ml-6">
+                                {/* Sorting Controls */}
+                                <div className="flex items-center justify-between mb-3 pb-2 border-b border-border">
+                                  <h4 className="text-sm font-medium text-foreground">Video Assignments</h4>
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-xs text-muted-foreground">Sort by:</span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => handleVideoSort(employee.id, 'title')} 
+                                      className="h-7 px-2 text-xs"
+                                      {...createButtonAriaProps(`Sort by video title ${videoSortState.get(employee.id)?.column === 'title' ? videoSortState.get(employee.id)?.direction === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
+                                    >
+                                      Title
+                                      {videoSortState.get(employee.id)?.column === 'title' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />)}
+                                      {videoSortState.get(employee.id)?.column !== 'title' && <ArrowUpDown className="w-3 h-3 ml-1" />}
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => handleVideoSort(employee.id, 'status')} 
+                                      className="h-7 px-2 text-xs"
+                                      {...createButtonAriaProps(`Sort by status ${videoSortState.get(employee.id)?.column === 'status' ? videoSortState.get(employee.id)?.direction === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
+                                    >
+                                      Status
+                                      {videoSortState.get(employee.id)?.column === 'status' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />)}
+                                      {videoSortState.get(employee.id)?.column !== 'status' && <ArrowUpDown className="w-3 h-3 ml-1" />}
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => handleVideoSort(employee.id, 'quiz')} 
+                                      className="h-7 px-2 text-xs"
+                                      {...createButtonAriaProps(`Sort by quiz results ${videoSortState.get(employee.id)?.column === 'quiz' ? videoSortState.get(employee.id)?.direction === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
+                                    >
+                                      Quiz
+                                      {videoSortState.get(employee.id)?.column === 'quiz' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />)}
+                                      {videoSortState.get(employee.id)?.column !== 'quiz' && <ArrowUpDown className="w-3 h-3 ml-1" />}
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {/* Video Assignment Cards Grid */}
+                                <div className="space-y-3 border-l-2 border-muted pl-4">
+                                  {getSortedVideosForEmployee(employee.id, videos).map(assignment => (
+                                    <div 
+                                      key={assignment.assignment_id}
+                                      className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-3 rounded-lg bg-card border border-border hover:shadow-sm transition-shadow"
+                                    >
+                                      {/* Video Information */}
+                                      <div className="lg:col-span-1 space-y-1">
+                                        <h5 className="font-medium text-foreground leading-tight">
+                                          {assignment.video_title}
+                                        </h5>
+                                        {assignment.video_description && (
+                                          <p className="text-sm text-muted-foreground line-clamp-2">
+                                            {assignment.video_description}
+                                          </p>
+                                        )}
+                                        <div className="flex items-center gap-2 mt-2">
+                                          <Badge variant="hollow-secondary" className="text-xs">
+                                            {assignment.video_type}
+                                          </Badge>
+                                          {assignment.due_date && (
+                                            <span className="text-xs text-muted-foreground">
+                                              Due: {formatDueDate(assignment.due_date)}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Status Information */}
+                                      <div className="lg:col-span-1 flex flex-col justify-center">
+                                        <div className="space-y-2">
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</span>
+                                            {getDeadlineBadge(assignment, employee.id)}
+                                          </div>
+                                          {getAssignmentStatus(assignment, employee.id)}
+                                        </div>
+                                      </div>
+
+                                      {/* Quiz Results */}
+                                      <div className="lg:col-span-1 flex flex-col justify-center">
+                                        <div className="space-y-2">
+                                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Quiz Results</span>
+                                          {(() => {
+                                            const employeeQuizData = employeeQuizzes.get(employee.id);
+                                            const quizAttempt = employeeQuizData?.get(assignment.video_id);
+                                            if (!assignment.hasQuiz) {
+                                              return <span className="text-sm text-muted-foreground">No Quiz Required</span>;
+                                            }
+                                            if (!quizAttempt) {
+                                              return <Badge variant="soft-secondary">Not Taken</Badge>;
+                                            }
+                                            const scorePercentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
+                                            const scoreDisplay = `${quizAttempt.score}/${quizAttempt.total_questions}`;
+                                            let badgeVariant: string;
+                                            if (scorePercentage >= 80) {
+                                              badgeVariant = "success";
+                                            } else if (scorePercentage >= 60) {
+                                              badgeVariant = "warning";
+                                            } else {
+                                              badgeVariant = "destructive";
+                                            }
+                                            return (
+                                              <div className="flex items-center space-x-2">
+                                                <Badge variant={badgeVariant as any}>
+                                                  {scoreDisplay}
+                                                </Badge>
+                                                <span className="text-sm text-muted-foreground">
+                                                  ({scorePercentage}%)
+                                                </span>
+                                              </div>
+                                            );
+                                          })()}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             </CollapsibleContent>
                           </Collapsible>
