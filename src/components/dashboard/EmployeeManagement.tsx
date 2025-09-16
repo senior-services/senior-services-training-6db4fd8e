@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { UserPlus, Mail, Users, Clock, CheckCircle, XCircle, HelpCircle, ChevronDown, ChevronUp, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Trash2, Edit } from 'lucide-react';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
 import { getTooltipText } from '@/utils/tooltipText';
 import { employeeOperations } from '@/services/api';
@@ -497,116 +498,150 @@ export const EmployeeManagement: React.FC<{
               const videos = employeeVideos.get(employee.id) || [];
               const hasVideos = videos.length > 0;
               const displayName = createSafeDisplayName(employee.full_name || '', employee.email || '');
-              return <React.Fragment key={employee.id}>
-                    <TableRow>
-                      <TableCell>
-                        {hasVideos && <Button variant="ghost" size="sm" onClick={() => toggleEmployeeExpanded(employee.id)} className="p-1" {...createButtonAriaProps(`${isExpanded ? 'Collapse' : 'Expand'} video assignments for ${displayName}`, isExpanded)}>
-                            {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                          </Button>}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">
-                            {displayName}
+              return <Collapsible 
+                key={employee.id}
+                open={isExpanded}
+                onOpenChange={(open) => {
+                  setExpandedEmployees(prev => {
+                    const newExpanded = new Set(prev);
+                    if (open) {
+                      newExpanded.add(employee.id);
+                    } else {
+                      newExpanded.delete(employee.id);
+                    }
+                    return newExpanded;
+                  });
+                }}
+              >
+                <TableRow>
+                  <TableCell>
+                    {hasVideos && (
+                      <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                    )}
+                  </TableCell>
+                  {hasVideos ? (
+                    <CollapsibleTrigger asChild>
+                      <TableCell className="cursor-pointer hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center justify-between w-full">
+                          <div>
+                            <div className="font-medium">
+                              {displayName}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex items-center">
+                              <Mail className="w-3 h-3 mr-1" />
+                              {sanitizeText(employee.email || '')}
+                            </div>
                           </div>
-                          <div className="text-sm text-muted-foreground flex items-center">
-                            <Mail className="w-3 h-3 mr-1" />
-                            {sanitizeText(employee.email || '')}
-                          </div>
+                          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
                         </div>
                       </TableCell>
-                      <TableCell>
-                        {getEmployeeOverallStatus(employee.id)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => handleAssignVideos(employee)} {...createButtonAriaProps(`Assign videos to ${displayName}`)}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Assign Videos
-                          </Button>
-                          <IconButtonWithTooltip icon={Trash2} onClick={() => setDeleteConfirmEmployee(employee)} tooltip={getTooltipText('delete-item', {
-                        name: displayName
-                      })} variant="destructive" ariaLabel={`Delete employee ${displayName}`} />
+                    </CollapsibleTrigger>
+                  ) : (
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">
+                          {displayName}
                         </div>
-                      </TableCell>
-                    </TableRow>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          <Mail className="w-3 h-3 mr-1" />
+                          {sanitizeText(employee.email || '')}
+                        </div>
+                      </div>
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    {getEmployeeOverallStatus(employee.id)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleAssignVideos(employee)} {...createButtonAriaProps(`Assign videos to ${displayName}`)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Assign Videos
+                      </Button>
+                      <IconButtonWithTooltip icon={Trash2} onClick={() => setDeleteConfirmEmployee(employee)} tooltip={getTooltipText('delete-item', {
+                    name: displayName
+                  })} variant="destructive" ariaLabel={`Delete employee ${displayName}`} />
+                    </div>
+                  </TableCell>
+                </TableRow>
 
-                    {isExpanded && hasVideos && <TableRow>
-                        <TableCell colSpan={4} className="p-0">
-                          <div className="bg-muted/50 p-4">
-                            
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>
-                                    <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'title')} className="h-auto p-0 font-semibold">
-                                      Video Title
-                                      {videoSortState.get(employee.id)?.column === 'title' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                                      {videoSortState.get(employee.id)?.column !== 'title' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                                    </Button>
-                                  </TableHead>
-                                   <TableHead>
-                                     <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'status')} className="h-auto p-0 font-semibold">
-                                       Status
-                                       {videoSortState.get(employee.id)?.column === 'status' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                                       {videoSortState.get(employee.id)?.column !== 'status' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                                     </Button>
-                                   </TableHead>
-                                   <TableHead>
-                                     <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'quiz')} className="h-auto p-0 font-semibold">
-                                       Quiz Results
-                                       {videoSortState.get(employee.id)?.column === 'quiz' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                                       {videoSortState.get(employee.id)?.column !== 'quiz' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                                     </Button>
-                                   </TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {getSortedVideosForEmployee(employee.id, videos).map(assignment => <TableRow key={assignment.assignment_id}>
-                                    <TableCell>
-                                      <div className="font-medium">{assignment.video_title}</div>
-                                      {assignment.video_description}
-                                    </TableCell>
-                                     <TableCell>
-                                       {getAssignmentStatus(assignment, employee.id)}
-                                     </TableCell>
-                                     <TableCell>
-                                       {(() => {
-                                const employeeQuizData = employeeQuizzes.get(employee.id);
-                                const quizAttempt = employeeQuizData?.get(assignment.video_id);
-                                if (!assignment.hasQuiz) {
-                                  return <span className="text-muted-foreground">No Quiz</span>;
-                                }
-                                if (!quizAttempt) {
-                                  return <Badge variant="soft-secondary">Not Taken</Badge>;
-                                }
-                                const scorePercentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
-                                const scoreDisplay = `${quizAttempt.score}/${quizAttempt.total_questions}`;
-                                let badgeVariant: string;
-                                if (scorePercentage >= 80) {
-                                  badgeVariant = "success";
-                                } else if (scorePercentage >= 60) {
-                                  badgeVariant = "warning";
-                                } else {
-                                  badgeVariant = "destructive";
-                                }
-                                return <div className="flex items-center space-x-2">
-                                             <Badge variant={badgeVariant as any}>
-                                               {scoreDisplay}
-                                             </Badge>
-                                             <span className="text-sm text-muted-foreground">
-                                               ({scorePercentage}%)
-                                             </span>
-                                           </div>;
-                              })()}
-                                     </TableCell>
-                                  </TableRow>)}
-                              </TableBody>
-                            </Table>
-                          </div>
-                        </TableCell>
-                      </TableRow>}
-                  </React.Fragment>;
+                <CollapsibleContent asChild>
+                  <TableRow>
+                    <TableCell colSpan={4} className="p-0">
+                      <div className="bg-muted/50 p-4">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>
+                                <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'title')} className="h-auto p-0 font-semibold">
+                                  Video Title
+                                  {videoSortState.get(employee.id)?.column === 'title' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
+                                  {videoSortState.get(employee.id)?.column !== 'title' && <ArrowUpDown className="w-4 h-4 ml-1" />}
+                                </Button>
+                              </TableHead>
+                              <TableHead>
+                                <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'status')} className="h-auto p-0 font-semibold">
+                                  Status
+                                  {videoSortState.get(employee.id)?.column === 'status' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
+                                  {videoSortState.get(employee.id)?.column !== 'status' && <ArrowUpDown className="w-4 h-4 ml-1" />}
+                                </Button>
+                              </TableHead>
+                              <TableHead>
+                                <Button variant="ghost" onClick={() => handleVideoSort(employee.id, 'quiz')} className="h-auto p-0 font-semibold">
+                                  Quiz Results
+                                  {videoSortState.get(employee.id)?.column === 'quiz' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
+                                  {videoSortState.get(employee.id)?.column !== 'quiz' && <ArrowUpDown className="w-4 h-4 ml-1" />}
+                                </Button>
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {getSortedVideosForEmployee(employee.id, videos).map(assignment => <TableRow key={assignment.assignment_id}>
+                                <TableCell>
+                                  <div className="font-medium">{assignment.video_title}</div>
+                                  {assignment.video_description}
+                                </TableCell>
+                                <TableCell>
+                                  {getAssignmentStatus(assignment, employee.id)}
+                                </TableCell>
+                                <TableCell>
+                                  {(() => {
+                            const employeeQuizData = employeeQuizzes.get(employee.id);
+                            const quizAttempt = employeeQuizData?.get(assignment.video_id);
+                            if (!assignment.hasQuiz) {
+                              return <span className="text-muted-foreground">No Quiz</span>;
+                            }
+                            if (!quizAttempt) {
+                              return <Badge variant="soft-secondary">Not Taken</Badge>;
+                            }
+                            const scorePercentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
+                            const scoreDisplay = `${quizAttempt.score}/${quizAttempt.total_questions}`;
+                            let badgeVariant: string;
+                            if (scorePercentage >= 80) {
+                              badgeVariant = "success";
+                            } else if (scorePercentage >= 60) {
+                              badgeVariant = "warning";
+                            } else {
+                              badgeVariant = "destructive";
+                            }
+                            return <div className="flex items-center space-x-2">
+                                         <Badge variant={badgeVariant as any}>
+                                           {scoreDisplay}
+                                         </Badge>
+                                         <span className="text-sm text-muted-foreground">
+                                           ({scorePercentage}%)
+                                         </span>
+                                       </div>;
+                          })()}
+                                </TableCell>
+                            </TableRow>)}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </CollapsibleContent>
+              </Collapsible>;
             })}
             </TableBody>
           </Table>
