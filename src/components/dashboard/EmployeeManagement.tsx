@@ -436,7 +436,7 @@ export const EmployeeManagement: React.FC<{
                                     ) : (
                                       <Table>
                                         <TableHeader>
-                                          <TableRow className="border-b">
+                                          <TableRow>
                                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</TableHead>
                                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</TableHead>
                                             <TableHead className="text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
