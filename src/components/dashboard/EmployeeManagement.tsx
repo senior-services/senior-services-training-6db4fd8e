@@ -359,16 +359,17 @@ export const EmployeeManagement: React.FC<{
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>EMPLOYEE</TableHead>
-                  <TableHead>STATUS</TableHead>
-                  <TableHead>ACTIONS</TableHead>
+                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">NAME</TableHead>
+                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">EMAIL</TableHead>
+                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
+                  <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {employees.map((employee) => (
                   <React.Fragment key={employee.id}>
                     <TableRow>
-                      <TableCell>
+                      <TableCell className="font-medium">
                         <Collapsible
                           open={expandedEmployees.has(employee.id)}
                           onOpenChange={() => toggleEmployeeExpanded(employee.id)}
@@ -379,18 +380,16 @@ export const EmployeeManagement: React.FC<{
                             ) : (
                               <ChevronRight className="h-4 w-4" />
                             )}
-                            <div>
-                              <div className="font-medium">{employee.full_name || employee.email?.split('@')[0] || 'Unknown'}</div>
-                              <div className="text-sm text-muted-foreground">{employee.email}</div>
-                            </div>
+                            <span>{employee.full_name || employee.email?.split('@')[0] || 'Unknown'}</span>
                           </CollapsibleTrigger>
                         </Collapsible>
                       </TableCell>
+                      <TableCell>{employee.email}</TableCell>
                       <TableCell>
                         {getEmployeeStatus(employee.id)}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
                           <Button
                             variant="outline"
                             size="sm"
@@ -410,7 +409,7 @@ export const EmployeeManagement: React.FC<{
                     </TableRow>
                     
                     <TableRow>
-                      <TableCell colSpan={3} className="p-0">
+                      <TableCell colSpan={4} className="p-0">
                         <Collapsible
                           open={expandedEmployees.has(employee.id)}
                           onOpenChange={() => toggleEmployeeExpanded(employee.id)}
@@ -423,13 +422,13 @@ export const EmployeeManagement: React.FC<{
                                 </p>
                               ) : (
                                 <Table>
-                                  <TableHeader>
-                                    <TableRow>
-                                      <TableHead>VIDEO TITLE</TableHead>
-                                      <TableHead>QUIZ RESULTS</TableHead>
-                                      <TableHead>STATUS</TableHead>
-                                    </TableRow>
-                                  </TableHeader>
+                                   <TableHeader>
+                                     <TableRow>
+                                       <TableHead className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</TableHead>
+                                       <TableHead className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</TableHead>
+                                       <TableHead className="text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
+                                     </TableRow>
+                                   </TableHeader>
                                   <TableBody>
                                     {employeeVideos.get(employee.id)?.map((assignment: any) => (
                                       <TableRow key={assignment.video_id}>
