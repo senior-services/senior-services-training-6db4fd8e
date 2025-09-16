@@ -1481,7 +1481,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                              const isExpanded = expandedEmployees.has(employee.id);
                              return (
                                <React.Fragment key={employee.id}>
-                                 <TableRow className={`group hover:bg-muted/50 transition-colors ${isExpanded ? 'border-b-0 bg-muted' : ''}`}>
+                                 <TableRow className={`group transition-colors ${isExpanded ? 'border-b-0 bg-muted hover:bg-muted-foreground/10' : 'hover:bg-muted/80'}`}>
                                    <TableCell className="py-3">
                                      <Collapsible 
                                        open={isExpanded}
@@ -1535,7 +1535,7 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                                  </TableRow>
                                  
                                  {isExpanded && (
-                                   <TableRow className="bg-muted">
+                                   <TableRow className="bg-muted hover:bg-muted-foreground/10">
                                      <TableCell colSpan={4} className="py-0">
                                        <Collapsible open={isExpanded}>
                                          <CollapsibleContent>
