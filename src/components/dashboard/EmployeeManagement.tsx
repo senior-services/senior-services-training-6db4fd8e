@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Mail, Users, Clock, CheckCircle, XCircle, HelpCircle, ChevronDown, ChevronUp, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Trash2, Edit } from 'lucide-react';
-import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
-import { getTooltipText } from '@/utils/tooltipText';
+import { UserPlus, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 import { employeeOperations } from '@/services/api';
 import type { EmployeeWithAssignments, Employee } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
@@ -18,13 +16,10 @@ import { AssignVideosModal } from './AssignVideosModal';
 import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { quizOperations } from '@/services/quizService';
-import { sanitizeText, createSafeDisplayName } from '@/utils/security';
-import { createTableAriaProps, createButtonAriaProps, announceToScreenReader } from '@/utils/accessibility';
+
 export const EmployeeManagement: React.FC<{
   onCountChange?: (count: number) => void;
-}> = ({
-  onCountChange
-}) => {
+}> = ({ onCountChange }) => {
   const [employees, setEmployees] = useState<EmployeeWithAssignments[]>([]);
   const [employeeVideos, setEmployeeVideos] = useState<Map<string, any[]>>(new Map());
   const [employeeQuizzes, setEmployeeQuizzes] = useState<Map<string, Map<string, any>>>(new Map());
@@ -35,190 +30,53 @@ export const EmployeeManagement: React.FC<{
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState<Employee | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [sortColumn, setSortColumn] = useState<'employee' | 'status' | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [videoSortState, setVideoSortState] = useState<Map<string, {
-    column: 'title' | 'status' | 'quiz';
-    direction: 'asc' | 'desc';
-  }>>(new Map());
-  const {
-    toast
-  } = useToast();
-  const handleSort = (column: 'employee' | 'status') => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
-  const handleVideoSort = (employeeId: string, column: 'title' | 'status' | 'quiz') => {
-    const currentSort = videoSortState.get(employeeId);
-    const newSort = {
-      column,
-      direction: (currentSort?.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc') as 'asc' | 'desc'
-    };
-    setVideoSortState(prev => new Map(prev).set(employeeId, newSort));
-  };
-  const getSortedVideosForEmployee = (employeeId: string, videos: any[]) => {
-    const sortState = videoSortState.get(employeeId);
-    if (!sortState) return videos;
-    return [...videos].sort((a, b) => {
-      let aValue: string;
-      let bValue: string;
-      if (sortState.column === 'title') {
-        aValue = a.video_title || '';
-        bValue = b.video_title || '';
-      } else if (sortState.column === 'quiz') {
-        // quiz sorting - sort by quiz score (completed first, then by score percentage)
-        const aQuizAttempt = employeeQuizzes.get(employeeId)?.get(a.video_id);
-        const bQuizAttempt = employeeQuizzes.get(employeeId)?.get(b.video_id);
-        const aScore = aQuizAttempt ? aQuizAttempt.score / aQuizAttempt.total_questions * 100 : -1;
-        const bScore = bQuizAttempt ? bQuizAttempt.score / bQuizAttempt.total_questions * 100 : -1;
-        aValue = aScore.toString().padStart(6, '0');
-        bValue = bScore.toString().padStart(6, '0');
-      } else {
-        // status sorting - get priority values based on getDeadlineBadge logic
-        const getStatusPriority = (assignment: any) => {
-          const employeeQuizData = employeeQuizzes.get(employeeId);
-          const quizAttempt = employeeQuizData?.get(assignment.video_id);
-          const isCompleted = !!quizAttempt;
-          if (isCompleted) return 7; // Completed - lowest priority
-          if (!assignment.due_date) return 6; // No deadline
+  const { toast } = useToast();
 
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const due = new Date(assignment.due_date);
-          due.setHours(0, 0, 0, 0);
-          const daysUntilDue = differenceInDays(due, today);
-          if (isPast(due) && daysUntilDue < 0) return 1; // Overdue - highest priority
-          if (daysUntilDue === 0) return 2; // Due Today
-          if (daysUntilDue <= 7) return 3; // Due ≤ 7 days
-          if (daysUntilDue <= 30) return 4; // Due ≤ 30 days
-          return 5; // Due > 30 days
-        };
-        aValue = getStatusPriority(a).toString();
-        bValue = getStatusPriority(b).toString();
-      }
-      const comparison = aValue.localeCompare(bValue);
-      return sortState.direction === 'asc' ? comparison : -comparison;
-    });
-  };
-  const getSortedEmployees = useMemo(() => {
-    if (!sortColumn) return employees;
-    return [...employees].sort((a, b) => {
-      let aValue: string;
-      let bValue: string;
-      if (sortColumn === 'employee') {
-        aValue = sanitizeText(a.full_name || a.email || '');
-        bValue = sanitizeText(b.full_name || b.email || '');
-      } else {
-        // status
-        const aVideos = employeeVideos.get(a.id) || [];
-        const bVideos = employeeVideos.get(b.id) || [];
-
-        // Calculate status for employee A
-        const aRequiredVideos = aVideos.filter(assignment => assignment.video_type === 'Required');
-        const aCompletedRequired = aRequiredVideos.filter(assignment => {
-          const quizAttempt = employeeQuizzes.get(a.id)?.get(assignment.video_id);
-          return !!quizAttempt;
-        });
-        const aOverdueRequired = aRequiredVideos.filter(assignment => {
-          const quizAttempt = employeeQuizzes.get(a.id)?.get(assignment.video_id);
-          if (!!quizAttempt) return false;
-          if (!assignment.due_date) return false;
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const due = new Date(assignment.due_date);
-          due.setHours(0, 0, 0, 0);
-          const daysUntilDue = differenceInDays(due, today);
-          return isPast(due) && daysUntilDue < 0;
-        });
-
-        // Calculate status for employee B
-        const bRequiredVideos = bVideos.filter(assignment => assignment.video_type === 'Required');
-        const bCompletedRequired = bRequiredVideos.filter(assignment => {
-          const quizAttempt = employeeQuizzes.get(b.id)?.get(assignment.video_id);
-          return !!quizAttempt;
-        });
-        const bOverdueRequired = bRequiredVideos.filter(assignment => {
-          const quizAttempt = employeeQuizzes.get(b.id)?.get(assignment.video_id);
-          if (!!quizAttempt) return false;
-          if (!assignment.due_date) return false;
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const due = new Date(assignment.due_date);
-          due.setHours(0, 0, 0, 0);
-          const daysUntilDue = differenceInDays(due, today);
-          return isPast(due) && daysUntilDue < 0;
-        });
-
-        // Status priority: 4=overdue, 3=incomplete, 2=completed, 1=no required training
-        let aPriority = 1; // No required training
-        if (aRequiredVideos.length > 0) {
-          if (aOverdueRequired.length > 0) {
-            aPriority = 4; // Overdue
-          } else if (aCompletedRequired.length === aRequiredVideos.length) {
-            aPriority = 2; // All training complete
-          } else {
-            aPriority = 3; // Incomplete training
-          }
-        }
-        let bPriority = 1; // No required training
-        if (bRequiredVideos.length > 0) {
-          if (bOverdueRequired.length > 0) {
-            bPriority = 4; // Overdue
-          } else if (bCompletedRequired.length === bRequiredVideos.length) {
-            bPriority = 2; // All training complete
-          } else {
-            bPriority = 3; // Incomplete training
-          }
-        }
-        aValue = aPriority.toString();
-        bValue = bPriority.toString();
-      }
-      const comparison = aValue.localeCompare(bValue);
-      return sortDirection === 'asc' ? comparison : -comparison;
-    });
-  }, [employees, employeeVideos, employeeQuizzes, sortColumn, sortDirection]);
   useEffect(() => {
     loadEmployees();
 
     // Set up real-time subscription for employee data changes
     let channel: any = null;
     try {
-      channel = supabase.channel('employee-management').on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'video_assignments'
-      }, () => {
-        logger.info('Video assignment changed, refreshing employees...');
-        loadEmployees();
-      }).on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'employees'
-      }, () => {
-        logger.info('Employee changed, refreshing data...');
-        loadEmployees();
-      }).on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'video_progress'
-      }, () => {
-        logger.info('Video progress changed, refreshing employees...');
-        loadEmployees();
-      }).on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'quiz_attempts'
-      }, () => {
-        logger.info('Quiz attempt changed, refreshing employees...');
-        loadEmployees();
-      }).subscribe();
+      channel = supabase
+        .channel('employee-management')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'video_assignments'
+        }, () => {
+          logger.info('Video assignment changed, refreshing employees...');
+          loadEmployees();
+        })
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'employees'
+        }, () => {
+          logger.info('Employee changed, refreshing data...');
+          loadEmployees();
+        })
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'video_progress'
+        }, () => {
+          logger.info('Video progress changed, refreshing employees...');
+          loadEmployees();
+        })
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'quiz_attempts'
+        }, () => {
+          logger.info('Quiz attempt changed, refreshing employees...');
+          loadEmployees();
+        })
+        .subscribe();
     } catch (error) {
       logger.error('Failed to set up real-time subscription for employee data', error as Error);
     }
+
     return () => {
       if (channel) {
         try {
@@ -229,31 +87,35 @@ export const EmployeeManagement: React.FC<{
       }
     };
   }, []);
+
   const loadEmployees = async () => {
     try {
       setLoading(true);
       const data = await employeeOperations.getAll();
+      
       if (data.success && data.data) {
         // Transform API data to match local types
         const transformedEmployees: EmployeeWithAssignments[] = data.data.map(employee => ({
           id: employee.id,
           email: employee.email,
-          full_name: employee.name,
-          // API uses 'name', component expects 'full_name'
+          full_name: employee.name, // API uses 'name', component expects 'full_name'
           created_at: employee.created_at || new Date().toISOString(),
           updated_at: employee.updated_at || new Date().toISOString(),
           assignments: employee.assignments || []
         }));
+
         setEmployees(transformedEmployees);
         onCountChange?.(transformedEmployees.length);
 
         // Load quizzes and map quiz attempts per employee
-        const {
-          data: quizzesData
-        } = await supabase.from('quizzes').select('video_id');
+        const { data: quizzesData } = await supabase
+          .from('quizzes')
+          .select('video_id');
+        
         const videoIdsWithQuizzes = new Set(quizzesData?.map(quiz => quiz.video_id) || []);
         const videoMap = new Map();
         const quizMap = new Map();
+
         for (const employee of transformedEmployees) {
           if (employee.assignments && Array.isArray(employee.assignments)) {
             const assignmentsWithQuizInfo = employee.assignments.map(assignment => ({
@@ -264,18 +126,18 @@ export const EmployeeManagement: React.FC<{
           } else {
             videoMap.set(employee.id, []);
           }
+
           if (employee.email) {
             try {
               const quizAttempts = await quizOperations.getUserAttempts(employee.email);
               const videoQuizMap = new Map();
+              
               for (const attempt of quizAttempts) {
                 if (attempt.quiz?.video_id) {
                   const existingAttempt = videoQuizMap.get(attempt.quiz.video_id);
                   const currentAttemptDate = new Date(attempt.completed_at);
+                  
                   if (!existingAttempt || new Date(existingAttempt.completed_at) < currentAttemptDate) {
-                    if (existingAttempt) {
-                      logger.info(`Replacing older quiz attempt for video ${attempt.quiz.video_id} with newer attempt from ${attempt.completed_at}`);
-                    }
                     videoQuizMap.set(attempt.quiz.video_id, {
                       score: attempt.score,
                       total_questions: attempt.total_questions,
@@ -293,6 +155,7 @@ export const EmployeeManagement: React.FC<{
             quizMap.set(employee.id, new Map());
           }
         }
+
         setEmployeeVideos(videoMap);
         setEmployeeQuizzes(quizMap);
       } else {
@@ -309,6 +172,7 @@ export const EmployeeManagement: React.FC<{
       setLoading(false);
     }
   };
+
   const handleAddEmployee = (employee: Employee) => {
     setEmployees(prev => {
       const transformedEmployee: EmployeeWithAssignments = {
@@ -329,12 +193,15 @@ export const EmployeeManagement: React.FC<{
       description: "Employee added successfully"
     });
   };
+
   const handleAssignVideos = (employee: Employee) => {
     setSelectedEmployee(employee);
     setShowAssignModal(true);
   };
+
   const handleDeleteEmployee = async () => {
     if (!deleteConfirmEmployee) return;
+    
     setIsDeleting(true);
     try {
       const result = await employeeOperations.delete(deleteConfirmEmployee.id);
@@ -363,6 +230,7 @@ export const EmployeeManagement: React.FC<{
       setIsDeleting(false);
     }
   };
+
   const toggleEmployeeExpanded = (employeeId: string) => {
     setExpandedEmployees(prev => {
       const newExpanded = new Set(prev);
@@ -375,350 +243,250 @@ export const EmployeeManagement: React.FC<{
     });
   };
 
-  // Helper function to get deadline badge props
-  const getDeadlineBadge = (assignment: any, employeeId: string) => {
+  const getEmployeeStatus = (employeeId: string) => {
+    const videos = employeeVideos.get(employeeId) || [];
+    const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
+    
+    if (requiredVideos.length === 0) {
+      return <Badge variant="secondary">No Required Training</Badge>;
+    }
+
+    const completedRequired = requiredVideos.filter(assignment => {
+      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
+      return !!quizAttempt;
+    });
+
+    const overdueRequired = requiredVideos.filter(assignment => {
+      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
+      if (!!quizAttempt) return false;
+      if (!assignment.due_date) return false;
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(assignment.due_date);
+      due.setHours(0, 0, 0, 0);
+      const daysUntilDue = differenceInDays(due, today);
+      return isPast(due) && daysUntilDue < 0;
+    });
+
+    if (overdueRequired.length > 0) {
+      return <Badge variant="destructive">{overdueRequired.length} Overdue</Badge>;
+    }
+
+    if (completedRequired.length === requiredVideos.length) {
+      return <Badge className="bg-success text-success-foreground">All Training Complete</Badge>;
+    }
+
+    return <Badge variant="secondary">{completedRequired.length}/{requiredVideos.length} Complete</Badge>;
+  };
+
+  const getVideoStatus = (assignment: any, employeeId: string) => {
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
-    const isCompleted = !!quizAttempt;
-    if (isCompleted) {
+    
+    if (quizAttempt) {
       return <Badge className="bg-success text-success-foreground">Completed</Badge>;
     }
+
     if (!assignment.due_date) {
       return <Badge variant="secondary">No Deadline</Badge>;
     }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const due = new Date(assignment.due_date);
     due.setHours(0, 0, 0, 0);
     const daysUntilDue = differenceInDays(due, today);
+
     if (isPast(due) && daysUntilDue < 0) {
-      return <Badge className="bg-destructive text-destructive-foreground">Overdue ({Math.abs(daysUntilDue)} days)</Badge>;
+      return <Badge variant="destructive">Overdue ({Math.abs(daysUntilDue)} days)</Badge>;
     }
+
     if (daysUntilDue === 0) {
       return <Badge className="bg-yellow-500 text-white">Due Today</Badge>;
     }
+
     if (daysUntilDue <= 7) {
       return <Badge className="bg-orange-500 text-white">Due in {daysUntilDue} days</Badge>;
     }
+
     return <Badge variant="secondary">Due in {daysUntilDue} days</Badge>;
   };
-  const formatDueDate = (dateString: string | null) => {
-    if (!dateString) return '';
-    return format(new Date(dateString), 'MMM dd, yyyy');
-  };
-  const formatCompletionDate = (dateString: string | null) => {
-    if (!dateString) return '';
-    return format(new Date(dateString), 'MMM dd, yyyy');
-  };
-  const getAssignmentStatus = (assignment: any, employeeId: string) => {
+
+  const getQuizResults = (assignment: any, employeeId: string) => {
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
-    if (quizAttempt) {
-      const completionDate = quizAttempt?.completed_at;
-      const completionText = completionDate ? formatCompletionDate(completionDate) : '';
-      return <div className="flex items-center space-x-2">
-          <CheckCircle className="w-4 h-4 text-success" />
-          <span className="text-success">Completed</span>
-          {completionText && <span className="text-muted-foreground">({completionText})</span>}
-        </div>;
-    } else {
-      return <div className="flex items-center space-x-2">
-          <Clock className="w-4 h-4 text-muted-foreground" />
-          <span className="text-muted-foreground">Not Started</span>
-        </div>;
+    
+    if (!assignment.hasQuiz) {
+      return <span className="text-muted-foreground">--</span>;
     }
+
+    if (!quizAttempt) {
+      return <span className="text-muted-foreground">Not Completed</span>;
+    }
+
+    const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
+    return <span>{percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)</span>;
   };
-  const getEmployeeOverallStatus = useCallback((employeeId: string) => {
-    const videos = employeeVideos.get(employeeId) || [];
-    const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
-    if (requiredVideos.length === 0) {
-      return <Badge variant="secondary">No Required Training</Badge>;
-    }
-    const completedRequired = requiredVideos.filter(assignment => {
-      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
-      return !!quizAttempt;
-    });
-    return <Badge variant="soft-secondary">
-        {completedRequired.length}/{requiredVideos.length} Complete
-      </Badge>;
-  }, [employeeVideos, employeeQuizzes]);
+
   if (loading) {
-    return <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold">Employee Management</h2>
-            <p className="text-muted-foreground">Manage employees and their video assignments</p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="p-6">
-            <LoadingSkeleton />
-          </CardContent>
-        </Card>
-      </div>;
+    return <LoadingSkeleton />;
   }
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Employee Management</h2>
-          <p className="text-muted-foreground">Manage employees and their video assignments</p>
-        </div>
-        <Button onClick={() => setShowAddModal(true)} {...createButtonAriaProps('Add new employee')}>
-          <UserPlus className="w-4 h-4 mr-2" />
+        <h2 className="text-2xl font-bold">Employee Management</h2>
+        <Button onClick={() => setShowAddModal(true)}>
+          <UserPlus className="h-4 w-4 mr-2" />
           Add Employee
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table {...createTableAriaProps(sortColumn || undefined, sortDirection)}>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead>
-                  <Button variant="ghost" onClick={() => handleSort('employee')} className="h-auto p-0 font-semibold uppercase tracking-wider" {...createButtonAriaProps(`Sort by employee ${sortColumn === 'employee' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}>
-                    EMPLOYEE
-                    {sortColumn === 'employee' && (sortDirection === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                    {sortColumn !== 'employee' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                  </Button>
-                </TableHead>
-                <TableHead>
-                  <Button variant="ghost" onClick={() => handleSort('status')} className="h-auto p-0 font-semibold uppercase tracking-wider" {...createButtonAriaProps(`Sort by status ${sortColumn === 'status' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}>
-                    STATUS
-                    {sortColumn === 'status' && (sortDirection === 'asc' ? <ArrowUp className="w-4 h-4 ml-1" /> : <ArrowDown className="w-4 h-4 ml-1" />)}
-                    {sortColumn !== 'status' && <ArrowUpDown className="w-4 h-4 ml-1" />}
-                  </Button>
-                </TableHead>
-                <TableHead className="uppercase tracking-wider font-semibold">ACTIONS</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {getSortedEmployees.map(employee => {
-              const isExpanded = expandedEmployees.has(employee.id);
-              const videos = employeeVideos.get(employee.id) || [];
-              const hasVideos = videos.length > 0;
-              const displayName = createSafeDisplayName(employee.full_name || '', employee.email || '');
-              return <React.Fragment key={employee.id}>
-                    <TableRow className={`group transition-colors ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`}>
-                      <TableCell className="py-3" colSpan={2}>
-                        {hasVideos ? (
-                          <Collapsible open={isExpanded} onOpenChange={() => toggleEmployeeExpanded(employee.id)}>
-                            <CollapsibleTrigger asChild>
-                              <div className="flex items-center gap-3 cursor-pointer w-full" {...createButtonAriaProps(`${isExpanded ? 'Collapse' : 'Expand'} video assignments for ${displayName}`, isExpanded)}>
-                                {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                                <div className="flex-1">
-                                  <div className="font-medium">
-                                    {displayName}
-                                  </div>
-                                  <div className="text-sm text-muted-foreground flex items-center">
-                                    <Mail className="w-3 h-3 mr-1" />
-                                    {sanitizeText(employee.email || '')}
-                                  </div>
-                                </div>
-                              </div>
-                            </CollapsibleTrigger>
-                          </Collapsible>
-                        ) : (
-                          <div className="flex items-center gap-3">
-                            <div className="w-4 h-4" />
-                            <div className="flex-1">
-                              <div className="font-medium">
-                                {displayName}
-                              </div>
-                              <div className="text-sm text-muted-foreground flex items-center">
-                                <Mail className="w-3 h-3 mr-1" />
-                                {sanitizeText(employee.email || '')}
-                              </div>
+      {employees.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-8">
+            <p className="text-muted-foreground mb-4">No employees found.</p>
+            <Button onClick={() => setShowAddModal(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Employee
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>EMPLOYEE</TableHead>
+                  <TableHead>STATUS</TableHead>
+                  <TableHead>ACTIONS</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {employees.map((employee) => (
+                  <React.Fragment key={employee.id}>
+                    <TableRow>
+                      <TableCell>
+                        <Collapsible
+                          open={expandedEmployees.has(employee.id)}
+                          onOpenChange={() => toggleEmployeeExpanded(employee.id)}
+                        >
+                          <CollapsibleTrigger className="flex items-center space-x-2 hover:bg-muted/50 p-2 -m-2 rounded">
+                            {expandedEmployees.has(employee.id) ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4" />
+                            )}
+                            <div>
+                              <div className="font-medium">{employee.full_name || employee.email?.split('@')[0] || 'Unknown'}</div>
+                              <div className="text-sm text-muted-foreground">{employee.email}</div>
                             </div>
-                          </div>
-                        )}
+                          </CollapsibleTrigger>
+                        </Collapsible>
                       </TableCell>
-                      <TableCell className="py-3">
-                        {getEmployeeOverallStatus(employee.id)}
+                      <TableCell>
+                        {getEmployeeStatus(employee.id)}
                       </TableCell>
-                      <TableCell className="py-3">
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => handleAssignVideos(employee)} {...createButtonAriaProps(`Assign videos to ${displayName}`)}>
-                            <Edit className="w-4 h-4 mr-2" />
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAssignVideos(employee)}
+                          >
                             Assign Videos
                           </Button>
-                          <IconButtonWithTooltip icon={Trash2} onClick={() => setDeleteConfirmEmployee(employee)} tooltip={getTooltipText('delete-item', {
-                        name: displayName
-                      })} variant="destructive" ariaLabel={`Delete employee ${displayName}`} />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteConfirmEmployee(employee)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-
-{isExpanded && hasVideos && <TableRow className="bg-muted/50">
-                        <TableCell colSpan={4} className="py-0">
-                          <Collapsible open={isExpanded}>
-                            <CollapsibleContent>
-                              <div className="px-4 pb-4 ml-6">
-                                {/* Sorting Controls */}
-                                <div className="flex items-center justify-between mb-3 pb-2 border-b border-border">
-                                  <h4 className="text-sm font-medium text-foreground">Video Assignments</h4>
-                                  <div className="flex items-center space-x-2">
-                                    <span className="text-xs text-muted-foreground">Sort by:</span>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      onClick={() => handleVideoSort(employee.id, 'title')} 
-                                      className="h-7 px-2 text-xs"
-                                      {...createButtonAriaProps(`Sort by video title ${videoSortState.get(employee.id)?.column === 'title' ? videoSortState.get(employee.id)?.direction === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
-                                    >
-                                      Title
-                                      {videoSortState.get(employee.id)?.column === 'title' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />)}
-                                      {videoSortState.get(employee.id)?.column !== 'title' && <ArrowUpDown className="w-3 h-3 ml-1" />}
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      onClick={() => handleVideoSort(employee.id, 'status')} 
-                                      className="h-7 px-2 text-xs"
-                                      {...createButtonAriaProps(`Sort by status ${videoSortState.get(employee.id)?.column === 'status' ? videoSortState.get(employee.id)?.direction === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
-                                    >
-                                      Status
-                                      {videoSortState.get(employee.id)?.column === 'status' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />)}
-                                      {videoSortState.get(employee.id)?.column !== 'status' && <ArrowUpDown className="w-3 h-3 ml-1" />}
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      onClick={() => handleVideoSort(employee.id, 'quiz')} 
-                                      className="h-7 px-2 text-xs"
-                                      {...createButtonAriaProps(`Sort by quiz results ${videoSortState.get(employee.id)?.column === 'quiz' ? videoSortState.get(employee.id)?.direction === 'asc' ? 'descending' : 'ascending' : 'ascending'}`)}
-                                    >
-                                      Quiz
-                                      {videoSortState.get(employee.id)?.column === 'quiz' && (videoSortState.get(employee.id)?.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />)}
-                                      {videoSortState.get(employee.id)?.column !== 'quiz' && <ArrowUpDown className="w-3 h-3 ml-1" />}
-                                    </Button>
-                                  </div>
-                                </div>
-
-                                {/* Video Assignment Table */}
-                                <div className="border-l-2 border-muted pl-4">
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead className="border-b">VIDEO TITLE</TableHead>
-                                        <TableHead className="border-b">QUIZ RESULTS</TableHead>
-                                        <TableHead className="border-b">STATUS</TableHead>
+                    
+                    <TableRow>
+                      <TableCell colSpan={3} className="p-0">
+                        <Collapsible
+                          open={expandedEmployees.has(employee.id)}
+                          onOpenChange={() => toggleEmployeeExpanded(employee.id)}
+                        >
+                          <CollapsibleContent>
+                            <div className="bg-muted/30 p-4">
+                              {employeeVideos.get(employee.id)?.length === 0 ? (
+                                <p className="text-muted-foreground text-center py-4">
+                                  No video assignments found for this employee.
+                                </p>
+                              ) : (
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead>VIDEO TITLE</TableHead>
+                                      <TableHead>QUIZ RESULTS</TableHead>
+                                      <TableHead>STATUS</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {employeeVideos.get(employee.id)?.map((assignment: any) => (
+                                      <TableRow key={assignment.video_id}>
+                                        <TableCell>{assignment.video_title}</TableCell>
+                                        <TableCell>{getQuizResults(assignment, employee.id)}</TableCell>
+                                        <TableCell>{getVideoStatus(assignment, employee.id)}</TableCell>
                                       </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {getSortedVideosForEmployee(employee.id, videos).map(assignment => (
-                                        <TableRow key={assignment.assignment_id}>
-                                          <TableCell>
-                                            <div className="space-y-1">
-                                              <h5 className="font-medium text-foreground leading-tight">
-                                                {assignment.video_title}
-                                              </h5>
-                                              {assignment.video_description && (
-                                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                                  {assignment.video_description}
-                                                </p>
-                                              )}
-                                              <div className="flex items-center gap-2 mt-2">
-                                                <Badge variant="hollow-secondary" className="text-xs">
-                                                  {assignment.video_type}
-                                                </Badge>
-                                                {assignment.due_date && (
-                                                  <span className="text-xs text-muted-foreground">
-                                                    Due: {formatDueDate(assignment.due_date)}
-                                                  </span>
-                                                )}
-                                              </div>
-                                            </div>
-                                          </TableCell>
-                                          <TableCell>
-                                            {(() => {
-                                              const employeeQuizData = employeeQuizzes.get(employee.id);
-                                              const quizAttempt = employeeQuizData?.get(assignment.video_id);
-                                              if (!assignment.hasQuiz) {
-                                                return <span className="text-sm text-muted-foreground">No Quiz Required</span>;
-                                              }
-                                              if (!quizAttempt) {
-                                                return <Badge variant="soft-secondary">Not Taken</Badge>;
-                                              }
-                                              const scorePercentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
-                                              const scoreDisplay = `${quizAttempt.score}/${quizAttempt.total_questions}`;
-                                              let badgeVariant: string;
-                                              if (scorePercentage >= 80) {
-                                                badgeVariant = "success";
-                                              } else if (scorePercentage >= 60) {
-                                                badgeVariant = "warning";
-                                              } else {
-                                                badgeVariant = "destructive";
-                                              }
-                                              return (
-                                                <div className="flex items-center space-x-2">
-                                                  <Badge variant={badgeVariant as any}>
-                                                    {scoreDisplay}
-                                                  </Badge>
-                                                  <span className="text-sm text-muted-foreground">
-                                                    ({scorePercentage}%)
-                                                  </span>
-                                                </div>
-                                              );
-                                            })()}
-                                          </TableCell>
-                                          <TableCell>
-                                            <div className="flex flex-col space-y-2">
-                                              {getDeadlineBadge(assignment, employee.id)}
-                                              {getAssignmentStatus(assignment, employee.id)}
-                                            </div>
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                              </div>
-                            </CollapsibleContent>
-                          </Collapsible>
-                        </TableCell>
-                      </TableRow>}
-                  </React.Fragment>;
-            })}
-            </TableBody>
-          </Table>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              )}
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
-          {employees.length === 0 && <div className="p-8 text-center">
-              <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-semibold mb-2">No employees found</h3>
-              <p className="text-muted-foreground mb-4">
-                Get started by adding your first employee.
-              </p>
-              <Button onClick={() => setShowAddModal(true)}>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add Employee
-              </Button>
-            </div>}
-        </CardContent>
-      </Card>
+      <AddEmployeeModal
+        open={showAddModal}
+        onOpenChange={setShowAddModal}
+        onEmployeeAdded={handleAddEmployee}
+      />
 
-      <AddEmployeeModal open={showAddModal} onOpenChange={setShowAddModal} onEmployeeAdded={handleAddEmployee} />
-
-      <AssignVideosModal open={showAssignModal} onOpenChange={setShowAssignModal} employee={selectedEmployee} onAssignmentComplete={() => {
-      setShowAssignModal(false);
-      loadEmployees();
-    }} />
+      <AssignVideosModal
+        open={showAssignModal}
+        onOpenChange={setShowAssignModal}
+        employee={selectedEmployee}
+        onAssignmentComplete={() => {
+          setShowAssignModal(false);
+          loadEmployees();
+        }}
+      />
 
       <AlertDialog open={!!deleteConfirmEmployee} onOpenChange={() => setDeleteConfirmEmployee(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Employee</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this employee? This action cannot be undone.
+              Are you sure you want to delete {deleteConfirmEmployee?.full_name || deleteConfirmEmployee?.email}? 
+              This will also remove all their video assignments and progress. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteEmployee} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {isDeleting ? 'Deleting...' : 'Delete'}
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteEmployee} disabled={isDeleting}>
+              {isDeleting ? 'Deleting...' : 'Delete Employee'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>;
+    </div>
+  );
 };
