@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogScrollArea, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -197,7 +197,7 @@ export const AdminManagement: React.FC = () => {
       </div>
 
       {/* Admins Table */}
-      <Card>
+      <Card className="shadow-card-elevated">
         <CardContent className="p-0">
           {loading ? <div className="p-6 space-y-4">
               <LoadingSkeleton lines={1} className="h-12" />
@@ -244,7 +244,7 @@ export const AdminManagement: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <div>
                           <span>{admin.isPending ? '--' : admin.full_name || 'Unknown'}</span>
-                          <Badge variant={admin.isPending ? "soft-warning" : "soft-attention"} showIcon className="ml-2 text-xs">
+                          <Badge variant={admin.isPending ? "soft-secondary" : "soft-primary"} showIcon className="ml-2 text-xs">
                             {admin.isPending ? 'Pending' : 'Admin'}
                           </Badge>
                         </div>
@@ -275,24 +275,26 @@ export const AdminManagement: React.FC = () => {
 
       {/* Add Admin Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Add Administrator</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="admin-email">Email Address</Label>
-              <Input id="admin-email" type="email" placeholder="admin@example.com" value={newAdminEmail} onChange={e => {
-              setNewAdminEmail(e.target.value);
-              setHasChanges(true);
-            }} onKeyDown={e => {
-              if (e.key === 'Enter') {
-                handleAddAdmin();
-              }
-            }} />
+          <DialogScrollArea>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="admin-email">Email Address</Label>
+                <Input id="admin-email" type="email" placeholder="admin@example.com" value={newAdminEmail} onChange={e => {
+                setNewAdminEmail(e.target.value);
+                setHasChanges(true);
+              }} onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleAddAdmin();
+                }
+              }} />
+              </div>
             </div>
-          </div>
+          </DialogScrollArea>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => {

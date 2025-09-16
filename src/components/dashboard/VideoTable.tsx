@@ -170,7 +170,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
       </div>
 
       {/* Video table */}
-      <Card>
+      <Card className="shadow-card-elevated">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table aria-label="Training videos management table">
