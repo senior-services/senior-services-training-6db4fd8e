@@ -332,6 +332,26 @@ export const EmployeeManagement: React.FC<{
     return <span>{percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)</span>;
   };
 
+  const getCompletionDate = (assignment: any, employeeId: string) => {
+    // First check if there's a quiz completion date (most accurate)
+    const employeeQuizData = employeeQuizzes.get(employeeId);
+    const quizAttempt = employeeQuizData?.get(assignment.video_id);
+    
+    if (quizAttempt && quizAttempt.completed_at) {
+      const completedDate = new Date(quizAttempt.completed_at);
+      return <span>{format(completedDate, 'MMM dd, yyyy')}</span>;
+    }
+    
+    // Fallback to video progress completion date if available
+    if (assignment.completed_at) {
+      const completedDate = new Date(assignment.completed_at);
+      return <span>{format(completedDate, 'MMM dd, yyyy')}</span>;
+    }
+    
+    // No completion date available
+    return <span className="text-muted-foreground">--</span>;
+  };
+
   if (loading) {
     return <LoadingSkeleton />;
   }
@@ -438,22 +458,24 @@ export const EmployeeManagement: React.FC<{
                                  </p>
                                ) : (
                                  <div className="space-y-3">
-                                   {/* Headers for video assignments */}
-                                   <div className="grid grid-cols-3 gap-6 px-4 py-2 border-b">
-                                     <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
-                                     <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
-                                     <div className="text-xs font-medium uppercase text-muted-foreground">STATUS</div>
-                                   </div>
+                                    {/* Headers for video assignments */}
+                                    <div className="grid grid-cols-4 gap-6 px-4 py-2 border-b">
+                                      <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
+                                      <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
+                                      <div className="text-xs font-medium uppercase text-muted-foreground">STATUS</div>
+                                      <div className="text-xs font-medium uppercase text-muted-foreground">DATE COMPLETED</div>
+                                    </div>
                                    
                                    {/* Video assignments */}
                                    <div className="space-y-2">
-                                     {employeeVideos.get(employee.id)?.map((assignment: any) => (
-                                       <div key={assignment.video_id} className="grid grid-cols-3 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
-                                         <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
-                                         <div>{getQuizResults(assignment, employee.id)}</div>
-                                         <div>{getVideoStatus(assignment, employee.id)}</div>
-                                       </div>
-                                     ))}
+                                      {employeeVideos.get(employee.id)?.map((assignment: any) => (
+                                        <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
+                                          <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
+                                          <div>{getQuizResults(assignment, employee.id)}</div>
+                                          <div>{getVideoStatus(assignment, employee.id)}</div>
+                                          <div>{getCompletionDate(assignment, employee.id)}</div>
+                                        </div>
+                                      ))}
                                    </div>
                                  </div>
                                )}
