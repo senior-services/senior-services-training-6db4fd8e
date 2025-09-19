@@ -382,10 +382,10 @@ export const EmployeeManagement: React.FC<{
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">NAME</TableHead>
-                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">EMAIL</TableHead>
-                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
-                  <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">NAME</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">EMAIL</TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
+                  <TableHead className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -411,7 +411,7 @@ export const EmployeeManagement: React.FC<{
                               }
                             }}
                           >
-                            <TableCell className="py-3 font-medium">
+                            <TableCell className="px-4 py-3 font-medium">
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
                                   {isExpanded ? (
@@ -423,11 +423,11 @@ export const EmployeeManagement: React.FC<{
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className="py-3">{sanitizeText(employee.email || '')}</TableCell>
-                            <TableCell className="py-3">
+                            <TableCell className="px-4 py-3">{sanitizeText(employee.email || '')}</TableCell>
+                            <TableCell className="px-4 py-3">
                               {getEmployeeStatus(employee.id)}
                             </TableCell>
-                            <TableCell className="text-right py-3 pointer-events-none">
+                            <TableCell className="px-4 py-3 text-right pointer-events-none">
                               <div className="flex gap-2 justify-end pointer-events-auto">
                                  <Button
                                    variant="outline"
