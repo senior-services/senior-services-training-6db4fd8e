@@ -373,55 +373,62 @@ export const EmployeeManagement: React.FC<{
                   const isExpanded = expandedEmployees.has(employee.id);
                   return (
                     <React.Fragment key={employee.id}>
-                      <TableRow className={`group transition-colors ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`}>
-                        <TableCell className="py-3 font-medium">
-                          <Collapsible
-                            open={isExpanded}
-                            onOpenChange={() => toggleEmployeeExpanded(employee.id)}
+                      <Collapsible
+                        open={isExpanded}
+                        onOpenChange={() => toggleEmployeeExpanded(employee.id)}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <TableRow 
+                            className={`group transition-colors cursor-pointer ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`}
+                            role="button"
+                            tabIndex={0}
+                            aria-expanded={isExpanded}
+                            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} details for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                toggleEmployeeExpanded(employee.id);
+                              }
+                            }}
                           >
-                            <CollapsibleTrigger asChild>
-                               <div className="flex items-center gap-3 cursor-pointer" 
-                                    role="button"
-                                    tabIndex={0}
-                                    aria-expanded={isExpanded}
-                                    aria-label={`${isExpanded ? 'Collapse' : 'Expand'} details for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
-                                    onKeyDown={(e) => e.key === 'Enter' && toggleEmployeeExpanded(employee.id)}>
-                                 <div className="flex items-center gap-2">
-                                   {isExpanded ? (
-                                     <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                                   ) : (
-                                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                                   )}
-                                   <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
-                                 </div>
-                               </div>
-                            </CollapsibleTrigger>
-                          </Collapsible>
-                        </TableCell>
-                        <TableCell className="py-3">{sanitizeText(employee.email || '')}</TableCell>
-                        <TableCell className="py-3">
-                          {getEmployeeStatus(employee.id)}
-                        </TableCell>
-                        <TableCell className="text-right py-3">
-                          <div className="flex gap-2 justify-end">
-                             <Button
-                               variant="outline"
-                               size="sm"
-                               onClick={() => handleAssignVideos(employee)}
-                               aria-label={`Assign videos to ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
-                             >
-                               Assign Videos
-                             </Button>
-                             <IconButtonWithTooltip
-                               icon={Trash2}
-                               tooltip={getTooltipText('delete-item', { name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown') })}
-                               onClick={() => setDeleteConfirmEmployee(employee)}
-                               variant="ghost"
-                               className="text-destructive hover:text-destructive"
-                             />
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                            <TableCell className="py-3 font-medium">
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
+                                  {isExpanded ? (
+                                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                                  ) : (
+                                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                  <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3">{sanitizeText(employee.email || '')}</TableCell>
+                            <TableCell className="py-3">
+                              {getEmployeeStatus(employee.id)}
+                            </TableCell>
+                            <TableCell className="text-right py-3 pointer-events-none">
+                              <div className="flex gap-2 justify-end pointer-events-auto">
+                                 <Button
+                                   variant="outline"
+                                   size="sm"
+                                   onClick={() => handleAssignVideos(employee)}
+                                   aria-label={`Assign videos to ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
+                                 >
+                                   Assign Videos
+                                 </Button>
+                                 <IconButtonWithTooltip
+                                   icon={Trash2}
+                                   tooltip={getTooltipText('delete-item', { name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown') })}
+                                   onClick={() => setDeleteConfirmEmployee(employee)}
+                                   variant="ghost"
+                                   className="text-destructive hover:text-destructive"
+                                 />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        </CollapsibleTrigger>
+                      </Collapsible>
                       
                       {isExpanded && (
                         <TableRow className="bg-muted/50">
