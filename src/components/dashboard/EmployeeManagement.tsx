@@ -469,7 +469,7 @@ export const EmployeeManagement: React.FC<{
                                 {/* Video assignments */}
                                 <div className="space-y-2">
                                    {employeeVideos.get(employee.id)?.map((assignment: any) => (
-                                     <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
+                                     <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 border-b border-border/50 last:border-b-0">
                                        <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
                                        <div>{getVideoStatus(assignment, employee.id)}</div>
                                        <div>{getQuizResults(assignment, employee.id)}</div>
