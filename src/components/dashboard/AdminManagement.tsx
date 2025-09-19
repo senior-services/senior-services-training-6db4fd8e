@@ -244,7 +244,7 @@ export const AdminManagement: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <div>
                           <span>{admin.isPending ? '--' : admin.full_name || 'Unknown'}</span>
-                          <Badge variant={admin.isPending ? "soft-secondary" : "soft-primary"} showIcon className="ml-2 text-xs">
+                          <Badge variant="soft-attention" showIcon className="ml-2 text-xs">
                             {admin.isPending ? 'Pending' : 'Admin'}
                           </Badge>
                         </div>
