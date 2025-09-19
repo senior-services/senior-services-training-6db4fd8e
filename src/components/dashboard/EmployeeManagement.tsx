@@ -433,35 +433,33 @@ export const EmployeeManagement: React.FC<{
                       {isExpanded && (
                         <TableRow className="bg-muted/50">
                           <TableCell colSpan={4} className="py-4">
-                            <CollapsibleContent>
-                              {employeeVideos.get(employee.id)?.length === 0 ? (
-                                <p className="text-muted-foreground text-center py-4">
-                                  No video assignments found for this employee.
-                                </p>
-                              ) : (
-                                <div className="space-y-3">
-                                  {/* Headers aligned with table columns */}
-                                  <div className="grid grid-cols-4 gap-4 px-4 py-2 border-b">
-                                    <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
-                                    <div className="text-xs font-medium uppercase text-muted-foreground">EMAIL</div>
-                                    <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
-                                    <div className="text-xs font-medium uppercase text-muted-foreground">STATUS</div>
-                                  </div>
-                                  
-                                  {/* Video assignments */}
-                                  <div className="space-y-2">
-                                    {employeeVideos.get(employee.id)?.map((assignment: any) => (
-                                      <div key={assignment.video_id} className="grid grid-cols-4 gap-4 px-4 py-2 border-b border-border/50 last:border-b-0">
-                                        <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
-                                        <div className="text-muted-foreground">-</div>
-                                        <div>{getQuizResults(assignment, employee.id)}</div>
-                                        <div>{getVideoStatus(assignment, employee.id)}</div>
-                                      </div>
-                                    ))}
-                                  </div>
+                            {employeeVideos.get(employee.id)?.length === 0 ? (
+                              <p className="text-muted-foreground text-center py-4">
+                                No video assignments found for this employee.
+                              </p>
+                            ) : (
+                              <div className="space-y-3">
+                                {/* Headers aligned with table columns */}
+                                <div className="grid grid-cols-4 gap-4 px-4 py-2 border-b">
+                                  <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
+                                  <div className="text-xs font-medium uppercase text-muted-foreground">EMAIL</div>
+                                  <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
+                                  <div className="text-xs font-medium uppercase text-muted-foreground">STATUS</div>
                                 </div>
-                              )}
-                            </CollapsibleContent>
+                                
+                                {/* Video assignments */}
+                                <div className="space-y-2">
+                                  {employeeVideos.get(employee.id)?.map((assignment: any) => (
+                                    <div key={assignment.video_id} className="grid grid-cols-4 gap-4 px-4 py-2 border-b border-border/50 last:border-b-0">
+                                      <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
+                                      <div className="text-muted-foreground">-</div>
+                                      <div>{getQuizResults(assignment, employee.id)}</div>
+                                      <div>{getVideoStatus(assignment, employee.id)}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </TableCell>
                         </TableRow>
                       )}
