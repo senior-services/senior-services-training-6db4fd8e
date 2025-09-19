@@ -81,6 +81,8 @@ export const EditVideoModal = ({
   const [originalQuizDescription, setOriginalQuizDescription] = useState('');
   const [originalQuestions, setOriginalQuestions] = useState<EditableQuestionFormData[]>([]);
   const [unsavedChangesDialogOpen, setUnsavedChangesDialogOpen] = useState(false);
+  const [deleteQuizDialogOpen, setDeleteQuizDialogOpen] = useState(false);
+  const [isDeletingQuiz, setIsDeletingQuiz] = useState(false);
   
   const { toast } = useToast();
   useEffect(() => {
@@ -430,6 +432,44 @@ export const EditVideoModal = ({
     } else {
       // No changes, just close
       onOpenChange(false);
+    }
+  };
+
+  const handleQuizDelete = async () => {
+    if (!quiz) return;
+    
+    setIsDeletingQuiz(true);
+    try {
+      await quizOperations.delete(quiz.id);
+      
+      toast({
+        title: 'Quiz Deleted Successfully',
+        description: 'The quiz has been removed from this video.'
+      });
+      
+      // Reset quiz-related state to empty
+      setQuiz(null);
+      setQuizTitle('');
+      setQuizDescription('');
+      setQuestions([]);
+      setOriginalQuizTitle('');
+      setOriginalQuizDescription('');
+      setOriginalQuestions([]);
+      setQuestionValidationErrors({});
+      setShowQuizValidation(false);
+      
+      // Notify parent component
+      onQuizSaved?.(video!.id);
+      
+      setDeleteQuizDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: 'Error Deleting Quiz',
+        description: error instanceof Error ? error.message : 'Failed to delete quiz',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsDeletingQuiz(false);
     }
   };
   const handleDiscardChanges = () => {
@@ -885,10 +925,23 @@ export const EditVideoModal = ({
 
               <TabsContent value="quiz" className="space-y-6 mt-2">
                 <div className="space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">
-                      {quiz ? 'Edit Quiz' : 'Create Quiz'}
-                    </h3>
+                   <div className="space-y-4">
+                     <div className="flex items-center justify-between">
+                       <h3 className="text-lg font-semibold">
+                         {quiz ? 'Edit Quiz' : 'Create Quiz'}
+                       </h3>
+                       {quiz && (
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                           onClick={() => setDeleteQuizDialogOpen(true)}
+                         >
+                           <Trash2 className="w-4 h-4 mr-1" />
+                           Delete Quiz
+                         </Button>
+                       )}
+                     </div>
                     
                     <div>
                       <Label htmlFor="quiz-title">Quiz Title</Label>
@@ -1214,6 +1267,28 @@ export const EditVideoModal = ({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Quiz Confirmation Dialog */}
+      <AlertDialog open={deleteQuizDialogOpen} onOpenChange={setDeleteQuizDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the quiz "{quiz?.title}"? This action cannot be undone and all quiz attempts will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleQuizDelete} 
+              disabled={isDeletingQuiz} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeletingQuiz ? 'Deleting...' : 'Delete Quiz'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
