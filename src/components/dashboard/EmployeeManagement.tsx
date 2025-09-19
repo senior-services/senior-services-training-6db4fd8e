@@ -290,7 +290,7 @@ export const EmployeeManagement: React.FC<{
     }
 
     if (!assignment.due_date) {
-      return <Badge variant="secondary">No Deadline</Badge>;
+      return <Badge variant="ghost-secondary">No Deadline</Badge>;
     }
 
     const today = new Date();
@@ -311,7 +311,7 @@ export const EmployeeManagement: React.FC<{
       return <Badge variant="ghost-warning">Due in {daysUntilDue} days</Badge>;
     }
 
-    return <Badge variant="secondary">Due in {daysUntilDue} days</Badge>;
+    return <Badge variant="ghost-secondary">Due in {daysUntilDue} days</Badge>;
   };
 
   const getQuizResults = (assignment: any, employeeId: string) => {
