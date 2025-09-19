@@ -164,54 +164,19 @@ export const AdminManagement: React.FC = () => {
   const handleDeleteAdmin = async () => {
     if (!deleteConfirmAdmin) return;
     setIsDeleting(true);
-    
-    // Optimistic update - remove admin from local state immediately
-    const originalAdmins = [...admins];
-    const optimisticAdmins = admins.filter(admin => admin.id !== deleteConfirmAdmin.id);
-    setAdmins(optimisticAdmins);
-    
     try {
       await AdminService.removeAdminRole(deleteConfirmAdmin.id, deleteConfirmAdmin.isPending);
       setDeleteConfirmAdmin(null);
       
-      // Retry logic with exponential backoff to handle race condition
-      const loadAdminsWithRetry = async (retries = 3, delay = 100): Promise<void> => {
-        for (let attempt = 0; attempt < retries; attempt++) {
-          try {
-            // Add delay before each attempt to allow database consistency
-            if (attempt > 0) {
-              await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, attempt - 1)));
-            }
-            
-            const data = await AdminService.getAdmins();
-            
-            // Verify the admin was actually removed
-            const stillExists = data.some(admin => admin.id === deleteConfirmAdmin.id);
-            if (stillExists && attempt < retries - 1) {
-              logger.warn(`Admin still exists after removal, retrying... (attempt ${attempt + 1})`, { adminId: deleteConfirmAdmin.id });
-              continue;
-            }
-            
-            setAdmins(data);
-            return;
-          } catch (error) {
-            logger.warn(`Failed to load admins on attempt ${attempt + 1}`, { error: error as Error });
-            if (attempt === retries - 1) {
-              throw error;
-            }
-          }
-        }
-      };
-      
-      await loadAdminsWithRetry();
+      // Simple delay then reload
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await loadAdmins();
       
       toast({
         title: "Success",
         description: deleteConfirmAdmin.isPending ? "Pending admin invitation removed" : "Admin removed successfully"
       });
     } catch (error: any) {
-      // Revert optimistic update on error
-      setAdmins(originalAdmins);
       logger.error('Error removing admin', error as Error);
       toast({
         title: "Error",

@@ -291,46 +291,21 @@ export class AdminService {
       throw new Error('Cannot remove the last admin. There must be at least one admin.');
     }
 
-    // Execute role changes in sequence with proper error handling
-    try {
-      logger.info(`Removing admin role for user ${userId}`);
-      
-      // Remove admin role first
-      const { error: deleteError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('role', 'admin');
+    // Remove admin role
+    const { error } = await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+      .eq('role', 'admin');
 
-      if (deleteError) {
-        logger.error('Error removing admin role', deleteError as Error);
-        throw deleteError;
-      }
-
-      logger.info(`Admin role removed for user ${userId}, adding employee role`);
-      
-      // Add employee role back to ensure user has a role
-      const { error: insertError } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role: 'employee' });
-
-      if (insertError) {
-        logger.error('Error adding employee role back', insertError as Error);
-        // Try to rollback by re-adding admin role
-        await supabase
-          .from('user_roles')
-          .insert({ user_id: userId, role: 'admin' });
-        throw insertError;
-      }
-
-      logger.info(`Successfully demoted user ${userId} from admin to employee`);
-      
-      // Add a small delay to ensure database consistency before returning
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-    } catch (error) {
-      logger.error('Failed to remove admin role, operation may be incomplete', error as Error);
+    if (error) {
+      logger.error('Error removing admin role', error as Error);
       throw error;
     }
+
+    // Add employee role back to ensure user has a role
+    await supabase
+      .from('user_roles')
+      .insert({ user_id: userId, role: 'employee' });
   }
 }
