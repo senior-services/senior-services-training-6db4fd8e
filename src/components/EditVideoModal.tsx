@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogScrollArea, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,19 +86,29 @@ export const EditVideoModal = ({
   
   const { toast } = useToast();
   useEffect(() => {
+    const abortController = new AbortController();
+    
     if (video) {
       setTitle(video.title || '');
       setDescription(video.description || '');
-      loadQuiz();
+      loadQuiz(abortController.signal);
     }
-  }, [video]);
+    
+    return () => {
+      abortController.abort();
+    };
+  }, [video?.id, video?.updated_at]);
 
-  const loadQuiz = async () => {
+  const loadQuiz = useCallback(async (abortSignal?: AbortSignal) => {
     if (!video) return;
     
     setQuizLoading(true);
     try {
       const quizData = await quizOperations.getByVideoId(video.id);
+      
+      // Check if the operation was aborted
+      if (abortSignal?.aborted) return;
+      
       setQuiz(quizData);
       if (quizData) {
         setQuizTitle(quizData.title);
@@ -140,7 +150,7 @@ export const EditVideoModal = ({
     } finally {
       setQuizLoading(false);
     }
-  };
+  }, [video]);
   // Helper function to ensure minimum options are always visible
   const ensureMinOptions = (options: EditableOptionFormData[], minCount: number = 2): EditableOptionFormData[] => {
     // Keep all existing options (both empty and non-empty)
