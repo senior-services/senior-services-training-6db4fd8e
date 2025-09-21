@@ -358,8 +358,20 @@ export const EmployeeManagement: React.FC<{
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
     
-    if (quizAttempt) {
-      return <Badge variant="soft-success">Completed</Badge>;
+    // Check if video is completed (progress 100% or has completed_at timestamp)
+    const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
+    
+    // Determine completion based on whether video has a quiz
+    if (assignment.hasQuiz) {
+      // For videos with quiz: require both video and quiz completion
+      if (videoCompleted && quizAttempt) {
+        return <Badge variant="soft-success">Completed</Badge>;
+      }
+    } else {
+      // For videos without quiz: only require video completion
+      if (videoCompleted) {
+        return <Badge variant="soft-success">Completed</Badge>;
+      }
     }
 
     if (!assignment.due_date) {
