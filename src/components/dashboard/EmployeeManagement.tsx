@@ -571,8 +571,8 @@ export const EmployeeManagement: React.FC<{
                                  <div className="grid grid-cols-4 gap-6 px-4 py-2 border-b">
                                    <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
                                    <div className="text-xs font-medium uppercase text-muted-foreground">STATUS</div>
-                                   <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
-                                   <div className="text-xs font-medium uppercase text-muted-foreground">DATE COMPLETED</div>
+                                    <div className="text-xs font-medium uppercase text-muted-foreground">DATE COMPLETED</div>
+                                    <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
                                  </div>
                                 
                                 {/* Video assignments */}
@@ -581,8 +581,8 @@ export const EmployeeManagement: React.FC<{
                                      <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
                                        <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
                                        <div>{getVideoStatus(assignment, employee.id)}</div>
-                                       <div>{getQuizResults(assignment, employee.id)}</div>
-                                       <div>{getCompletionDate(assignment, employee.id)}</div>
+                                        <div>{getCompletionDate(assignment, employee.id)}</div>
+                                        <div>{getQuizResults(assignment, employee.id)}</div>
                                      </div>
                                    ))}
                                 </div>
