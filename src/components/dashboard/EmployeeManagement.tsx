@@ -568,7 +568,7 @@ export const EmployeeManagement: React.FC<{
                                 No video assignments found for this employee.
                               </p>
                             ) : (
-                              <div className="space-y-3 bg-muted/30 rounded-md p-4">
+                              <div className="space-y-3 bg-muted/100 rounded-md p-4">
                                  {/* Headers for video assignments */}
                                  <div className="grid grid-cols-4 gap-6 px-4 py-2 border-b">
                                    <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
