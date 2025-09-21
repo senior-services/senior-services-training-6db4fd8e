@@ -22,6 +22,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -81,6 +87,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [videoProgressData, setVideoProgressData] = useState<Map<string, { progress_percent: number; completed_at: string | null }>>(new Map());
   const [videoDeadlines, setVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [initialVideoDeadlines, setInitialVideoDeadlines] = useState<Map<string, Date>>(new Map());
+  const [assignmentData, setAssignmentData] = useState<Map<string, VideoAssignment>>(new Map());
   const [calendarOpen, setCalendarOpen] = useState<Map<string, boolean>>(new Map());
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -136,6 +143,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         const currentlyAssigned = new Set(assignmentsResult.data.map(a => a.video_id));
         setAssignedVideoIds(currentlyAssigned);
         setSelectedVideoIds(new Set(currentlyAssigned));
+
+        // Store assignment data for tooltip information
+        const assignments = new Map<string, VideoAssignment>();
+        assignmentsResult.data.forEach(a => {
+          assignments.set(a.video_id, a);
+        });
+        setAssignmentData(assignments);
 
         // Load existing deadlines for assigned videos
         const deadlines = new Map<string, Date>();
@@ -469,10 +483,22 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             )}
                           >
                             <div className={cn(
-                              "font-medium text-sm line-clamp-2",
+                              "font-medium text-sm line-clamp-2 flex items-center gap-2",
                               isCompleted && "text-muted-foreground"
                             )}>
                               {video.title}
+                              {wasOriginallyAssigned && assignmentData.get(video.id) && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Assigned {format(new Date(assignmentData.get(video.id)!.created_at), 'MMM dd, yyyy')}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
                             </div>
                           </Label>
                         </div>
