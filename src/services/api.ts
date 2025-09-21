@@ -260,24 +260,25 @@ export const videoOperations = {
     performanceTracker.start(operation);
     
     try {
-      const { data, error } = await supabase
-        .rpc('check_video_usage', { video_id: id });
+      // Use direct queries instead of RPC for now to avoid TypeScript issues
+      const [assignedData, completedData, quizData] = await Promise.all([
+        supabase.from('video_assignments').select('employee_id').eq('video_id', id),
+        supabase.from('video_progress').select('employee_id').eq('video_id', id).not('completed_at', 'is', null),
+        supabase.from('quizzes').select('id').eq('video_id', id).then(async (quizResult) => {
+          if (quizResult.data && quizResult.data.length > 0) {
+            return supabase.from('quiz_attempts').select('employee_id').eq('quiz_id', quizResult.data[0].id);
+          }
+          return { data: [], error: null };
+        })
+      ]);
 
-      if (error) {
-        logger.error('Failed to check video usage', undefined, { videoId: id, supabaseError: error.message });
-        return { data: null, error: error.message, success: false };
-      }
-
-      const result = data[0] || { assigned_count: 0, completed_count: 0, quiz_completed_count: 0 };
-      const canDelete = result.assigned_count === 0 && result.completed_count === 0 && result.quiz_completed_count === 0;
+      const assignedCount = assignedData.data?.length || 0;
+      const completedCount = completedData.data?.length || 0;
+      const quizCompletedCount = quizData.data?.length || 0;
+      const canDelete = assignedCount === 0 && completedCount === 0 && quizCompletedCount === 0;
 
       return { 
-        data: { 
-          canDelete, 
-          assignedCount: result.assigned_count, 
-          completedCount: result.completed_count, 
-          quizCompletedCount: result.quiz_completed_count 
-        }, 
+        data: { canDelete, assignedCount, completedCount, quizCompletedCount }, 
         error: null, 
         success: true 
       };

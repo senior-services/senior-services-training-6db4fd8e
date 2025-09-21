@@ -10,15 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Play, FileVideo, Trash2, Copy, ExternalLink, Plus, FileQuestion } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { videoOperations } from '@/services/api';
+import { quizOperations, questionOperations, optionOperations } from '@/services/quizService';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "@/utils/logger";
 import { sanitizeText } from "@/utils/security";
 import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveEmbedUrl, getGoogleDriveViewUrl, getYouTubeWatchUrl } from "@/utils/videoUtils";
-import { quizOperations, questionOperations, optionOperations } from "@/services/quizService";
 import { QuizWithQuestions } from "@/types/quiz";
 import { QuestionFormData, OptionFormData } from "@/components/quiz/CreateQuizModal";
 
@@ -84,7 +86,37 @@ export const EditVideoModal = ({
   const [deleteQuizDialogOpen, setDeleteQuizDialogOpen] = useState(false);
   const [isDeletingQuiz, setIsDeletingQuiz] = useState(false);
   
+  // New state for usage checking
+  const [videoUsage, setVideoUsage] = useState<{ canDelete: boolean; assignedCount: number; completedCount: number; quizCompletedCount: number } | null>(null);
+  const [quizUsage, setQuizUsage] = useState<{ canDelete: boolean; attemptCount: number } | null>(null);
+  const [usageLoading, setUsageLoading] = useState(false);
+  
   const { toast } = useToast();
+  
+  // Load usage information for both video and quiz
+  const loadUsageInfo = useCallback(async () => {
+    if (!video) return;
+    
+    setUsageLoading(true);
+    try {
+      // Load video usage
+      const videoUsageResult = await videoOperations.checkUsage(video.id);
+      if (videoUsageResult.success && videoUsageResult.data) {
+        setVideoUsage(videoUsageResult.data);
+      }
+
+      // Load quiz usage if quiz exists
+      if (quiz?.id) {
+        const quizUsageResult = await quizOperations.checkUsage(quiz.id);
+        setQuizUsage(quizUsageResult);
+      }
+    } catch (error) {
+      console.error('Error loading usage info:', error);
+    } finally {
+      setUsageLoading(false);
+    }
+  }, [video, quiz]);
+
   useEffect(() => {
     const abortController = new AbortController();
     
@@ -92,6 +124,7 @@ export const EditVideoModal = ({
       setTitle(video.title || '');
       setDescription(video.description || '');
       loadQuiz(abortController.signal);
+      loadUsageInfo();
     }
     
     return () => {
@@ -937,20 +970,44 @@ export const EditVideoModal = ({
                 <div className="space-y-6">
                    <div className="space-y-4">
                      <div className="flex items-center justify-between">
-                       <h3 className="text-lg font-semibold">
-                         {quiz ? 'Edit Quiz' : 'Create Quiz'}
-                       </h3>
-                       {quiz && (
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                           onClick={() => setDeleteQuizDialogOpen(true)}
-                         >
-                           <Trash2 className="w-4 h-4 mr-1" />
-                           Delete Quiz
-                         </Button>
-                       )}
+                        <h3 className="text-lg font-semibold">
+                          {quiz ? 'Edit Quiz' : 'Create Quiz'}
+                        </h3>
+                        {quiz && (
+                          <div className="flex items-center space-x-2">
+                            {quizUsage && !quizUsage.canDelete && (
+                              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                                <span>Cannot delete: {quizUsage.attemptCount} completion(s)</span>
+                              </div>
+                            )}
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                      "text-destructive hover:text-destructive hover:bg-destructive/10",
+                                      quizUsage && !quizUsage.canDelete && "opacity-50 cursor-not-allowed"
+                                    )}
+                                    onClick={() => quizUsage?.canDelete && setDeleteQuizDialogOpen(true)}
+                                    disabled={!quizUsage?.canDelete || usageLoading}
+                                    aria-label={quizUsage?.canDelete ? "Delete Quiz" : `Cannot delete quiz: ${quizUsage?.attemptCount || 0} completions`}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-1" />
+                                    Delete Quiz
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {quizUsage?.canDelete 
+                                    ? "Delete Quiz" 
+                                    : `Cannot delete: Quiz has ${quizUsage?.attemptCount || 0} completion(s) by users`
+                                  }
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        )}
                      </div>
                     
                     <div>
@@ -1247,10 +1304,39 @@ export const EditVideoModal = ({
           </DialogScrollArea>
 
           <DialogFooter className="!flex !flex-row !justify-between !items-center">
-            <Button variant="link" onClick={() => setDeleteDialogOpen(true)} className="text-destructive hover:text-destructive p-0 h-auto font-normal">
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete Video
-            </Button>
+            <div className="flex items-center space-x-4">
+              {videoUsage && !videoUsage.canDelete && (
+                <div className="text-sm text-muted-foreground">
+                  Cannot delete: {videoUsage.assignedCount} assigned, {videoUsage.completedCount} completed
+                  {videoUsage.quizCompletedCount > 0 && `, ${videoUsage.quizCompletedCount} quiz completions`}
+                </div>
+              )}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="link" 
+                      onClick={() => videoUsage?.canDelete && setDeleteDialogOpen(true)} 
+                      className={cn(
+                        "text-destructive hover:text-destructive p-0 h-auto font-normal",
+                        videoUsage && !videoUsage.canDelete && "opacity-50 cursor-not-allowed"
+                      )}
+                      disabled={!videoUsage?.canDelete || usageLoading}
+                      aria-label={videoUsage?.canDelete ? "Delete Video" : "Cannot delete video: has user assignments or completions"}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Video
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {videoUsage?.canDelete 
+                      ? "Delete Video" 
+                      : "Cannot delete: Video has been assigned or completed by users. Hide video instead to remove from list."
+                    }
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             
             <div className="flex space-x-2">
               <Button variant="outline" onClick={handleCancel}>

@@ -461,6 +461,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_quiz_usage: {
+        Args: { quiz_id: string }
+        Returns: {
+          attempt_count: number
+        }[]
+      }
+      check_video_usage: {
+        Args: { video_id: string }
+        Returns: {
+          assigned_count: number
+          completed_count: number
+          quiz_completed_count: number
+        }[]
+      }
       get_all_employee_assignments: {
         Args: Record<PropertyKey, never>
         Returns: {

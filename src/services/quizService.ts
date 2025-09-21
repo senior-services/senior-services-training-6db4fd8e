@@ -300,9 +300,35 @@ export const quizOperations = {
     }
   },
 
+  // Check quiz usage
+  async checkUsage(id: string): Promise<{ canDelete: boolean; attemptCount: number }> {
+    try {
+      const { data, error } = await supabase
+        .from('quiz_attempts')
+        .select('employee_id')
+        .eq('quiz_id', id);
+
+      if (error) throw error;
+
+      const attemptCount = data?.length || 0;
+      const canDelete = attemptCount === 0;
+
+      return { canDelete, attemptCount };
+    } catch (error) {
+      logger.error('Error checking quiz usage:', error);
+      throw error;
+    }
+  },
+
   // Delete quiz
   async delete(id: string): Promise<void> {
     try {
+      // Check usage before allowing deletion
+      const { canDelete, attemptCount } = await this.checkUsage(id);
+      if (!canDelete) {
+        throw new Error(`Cannot delete quiz: it has ${attemptCount} completion(s) by users`);
+      }
+
       const { error } = await supabase
         .from('quizzes')
         .delete()
