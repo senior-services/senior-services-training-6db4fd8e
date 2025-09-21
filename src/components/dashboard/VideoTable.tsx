@@ -24,7 +24,7 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
-  Archive
+  EyeOff
 } from 'lucide-react';
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveFileId } from '@/utils/videoUtils';
 import { Video } from '@/types';
@@ -44,7 +44,7 @@ interface VideoTableProps {
   onEdit: (video: Video) => void;
   onPlay: (video: Video) => void;
   onAddVideo: () => void;
-  onArchive?: (video: Video) => void;
+  onHide?: (video: Video) => void;
   className?: string;
 }
 
@@ -68,7 +68,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
   onEdit,
   onPlay,
   onAddVideo,
-  onArchive,
+  onHide,
   className,
 }) => {
   const [sortColumn, setSortColumn] = useState<'title'>('title');
@@ -366,15 +366,15 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                             <Edit className="w-4 h-4 mr-2" aria-hidden="true" />
                             Edit
                           </Button>
-                          {onArchive && (
+                          {onHide && (
                             <IconButtonWithTooltip
-                              icon={Archive}
-                              tooltip="Archive video"
-                              onClick={() => handleVideoAction('Archive video', video, () => onArchive(video))}
+                              icon={EyeOff}
+                              tooltip="Hide video from list"
+                              onClick={() => handleVideoAction('Hide video', video, () => onHide(video))}
                               variant="ghost"
                               size="sm"
-                              className="text-destructive hover:text-destructive"
-                              ariaLabel={`Archive ${video.title}`}
+                              className="text-muted-foreground hover:text-foreground"
+                              ariaLabel={`Hide ${video.title} from video list`}
                             />
                           )}
                         </div>

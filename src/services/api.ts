@@ -328,6 +328,30 @@ export const videoOperations = {
     } finally {
       performanceTracker.end(operation);
     }
+  },
+
+  // ============ SEMANTIC WRAPPER METHODS FOR HIDE/SHOW ============
+  // These methods provide user-friendly terminology while maintaining database compatibility
+  
+  /**
+   * Hides a video from the main list (semantic wrapper for archive)
+   */
+  async hide(id: string): Promise<ApiResult<boolean>> {
+    return this.archive(id);
+  },
+
+  /**
+   * Shows a hidden video in the main list (semantic wrapper for unarchive)
+   */
+  async show(id: string): Promise<ApiResult<boolean>> {
+    return this.unarchive(id);
+  },
+
+  /**
+   * Gets all hidden videos (semantic wrapper for getArchived)
+   */
+  async getHidden(): Promise<ApiResult<Video[]>> {
+    return this.getArchived();
   }
 };
 

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Archive, ChevronDown, RotateCcw } from 'lucide-react';
+import { EyeOff, ChevronDown, Eye } from 'lucide-react';
 import { VideoTable } from './VideoTable';
 import { AddVideoModal, VideoFormData } from '../AddVideoModal';
 import { EditVideoModal } from '../EditVideoModal';
@@ -32,7 +32,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
 }) => {
   // State management
   const [videos, setVideos] = useState<Video[]>([]);
-  const [archivedVideos, setArchivedVideos] = useState<Video[]>([]);
+  const [hiddenVideos, setHiddenVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddVideoModalOpen, setIsAddVideoModalOpen] = useState(false);
   const [isEditVideoModalOpen, setIsEditVideoModalOpen] = useState(false);
@@ -43,7 +43,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   // Load videos on mount
   useEffect(() => {
     loadVideos();
-    loadArchivedVideos();
+    loadHiddenVideos();
   }, []);
 
   /**
@@ -86,22 +86,22 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   /**
-   * Loads archived videos
+   * Loads hidden videos (using semantic wrapper)
    */
-  const loadArchivedVideos = async () => {
+  const loadHiddenVideos = async () => {
     try {
-      const result = await videoOperations.getArchived();
+      const result = await videoOperations.getHidden();
       
       if (result.success && result.data) {
-        setArchivedVideos(result.data);
+        setHiddenVideos(result.data);
       } else {
-        logger.error('Failed to load archived videos', undefined, { 
+        logger.error('Failed to load hidden videos', undefined, { 
           error: result.error,
           adminUser: userEmail 
         });
       }
     } catch (error) {
-      logger.error('Error loading archived videos', error as Error);
+      logger.error('Error loading hidden videos', error as Error);
     }
   };
 
@@ -214,32 +214,32 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   /**
-   * Handles archiving a video
+   * Handles hiding a video (semantic wrapper for archive)
    */
-  const handleArchiveVideo = async (video: Video) => {
-    const result = await videoOperations.archive(video.id);
+  const handleHideVideo = async (video: Video) => {
+    const result = await videoOperations.hide(video.id);
     
     if (result.success) {
-      toast.success(`"${video.title}" has been archived`);
+      toast.success(`"${video.title}" has been hidden from the video list`);
       await loadVideos();
-      await loadArchivedVideos();
+      await loadHiddenVideos();
     } else {
-      toast.error(result.error || 'Failed to archive video');
+      toast.error(result.error || 'Failed to hide video');
     }
   };
 
   /**
-   * Handles unarchiving a video
+   * Handles showing a hidden video (semantic wrapper for unarchive)
    */
-  const handleUnarchiveVideo = async (video: Video) => {
-    const result = await videoOperations.unarchive(video.id);
+  const handleShowVideo = async (video: Video) => {
+    const result = await videoOperations.show(video.id);
     
     if (result.success) {
-      toast.success(`"${video.title}" has been unarchived`);
+      toast.success(`"${video.title}" is now visible in the video list`);
       await loadVideos();
-      await loadArchivedVideos();
+      await loadHiddenVideos();
     } else {
-      toast.error(result.error || 'Failed to unarchive video');
+      toast.error(result.error || 'Failed to show video');
     }
   };
 
@@ -263,24 +263,29 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
         onEdit={handleEditVideo}
         onPlay={handlePlayVideo}
         onAddVideo={() => setIsAddVideoModalOpen(true)}
-        onArchive={handleArchiveVideo}
+        onHide={handleHideVideo}
       />
 
-      {/* Archive Section */}
-      {archivedVideos.length > 0 && (
+      {/* Hidden Videos Section */}
+      {hiddenVideos.length > 0 && (
         <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="archived" className="border-0">
+          <AccordionItem value="hidden" className="border-0">
             <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/30 [&>svg]:hidden group">
               <div className="flex items-center gap-3 w-full">
                 <ChevronDown 
                   className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" 
                   aria-hidden="true"
                 />
-                <Archive className="w-5 h-5 text-muted-foreground" />
-                <span className="text-lg font-semibold">Archived Videos</span>
+                <EyeOff className="w-5 h-5 text-muted-foreground" />
+                <span className="text-lg font-semibold">Hidden Videos</span>
                 <Badge variant="soft-destructive" className="ml-2">
-                  {archivedVideos.length}
+                  {hiddenVideos.length}
                 </Badge>
+                <div className="ml-auto">
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                    Hidden videos remain functional for employees with assignments
+                  </span>
+                </div>
               </div>
             </AccordionTrigger>
             <AccordionContent className="pb-6">
@@ -295,7 +300,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                          </TableRow>
                        </TableHeader>
                       <TableBody>
-                        {archivedVideos.map((video) => (
+                        {hiddenVideos.map((video) => (
                            <TableRow key={video.id}>
                              <TableCell>
                               <div>
@@ -310,13 +315,13 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                             <TableCell>
                               <div className="flex justify-center">
                                 <IconButtonWithTooltip
-                                  icon={RotateCcw}
-                                  tooltip="Unarchive video"
-                                  onClick={() => handleUnarchiveVideo(video)}
+                                  icon={Eye}
+                                  tooltip="Show video in main list"
+                                  onClick={() => handleShowVideo(video)}
                                   variant="ghost"
                                   size="sm"
                                   className="text-muted-foreground hover:text-foreground"
-                                  ariaLabel={`Unarchive ${video.title}`}
+                                  ariaLabel={`Show ${video.title} in video list`}
                                 />
                               </div>
                             </TableCell>

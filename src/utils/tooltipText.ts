@@ -31,6 +31,12 @@ export const getTooltipText = (action: string, context?: TooltipContext): string
     case 'unarchive-employee':
       return 'Unarchive Employee';
     
+    case 'hide-video':
+      return 'Hide Video from List';
+    
+    case 'show-video':
+      return 'Show Video in List';
+    
     default:
       return action;
   }
