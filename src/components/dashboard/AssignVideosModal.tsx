@@ -378,11 +378,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
           
           // Priority: Assigned (0), Unassigned (1), Completed (2), Hidden (3)
           const getPriority = (assigned: boolean, completed: boolean, hidden: boolean) => {
-            if (assigned) return 0; // Assigned (both complete and incomplete)
-            if (!assigned && !completed && !hidden) return 1; // Unassigned
-            if (completed && !assigned) return 2; // Completed only
-            if (hidden) return 3; // Hidden
-            return 4;
+            if (completed) return 2; // Completed videos (regardless of assignment)
+            if (assigned) return 0; // Assigned incomplete videos
+            if (hidden) return 3; // Hidden videos
+            return 1; // Unassigned videos (not assigned, not completed, not hidden)
           };
           
           const aPriority = getPriority(aAssigned, aCompleted, aHidden);
