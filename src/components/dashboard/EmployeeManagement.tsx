@@ -678,7 +678,7 @@ export const EmployeeManagement: React.FC<{
                                 
                                 {/* Video assignments */}
                                 <div>
-                                   {employeeVideos.get(employee.id)?.map((assignment: any) => (
+                                   {employeeVideos.get(employee.id)?.sort((a, b) => (a.video_title || '').localeCompare(b.video_title || '')).map((assignment: any) => (
                                      <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
                                        <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
                                        <div>{getVideoStatus(assignment, employee.id)}</div>
