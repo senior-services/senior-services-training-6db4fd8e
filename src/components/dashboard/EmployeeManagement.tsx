@@ -527,8 +527,8 @@ export const EmployeeManagement: React.FC<{
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="py-3">
-                          <div className="truncate max-w-0">{sanitizeText(employee.email || '')}</div>
+                        <TableCell className="py-3 truncate min-w-0">
+                          {sanitizeText(employee.email || '')}
                         </TableCell>
                         <TableCell className="py-3">
                           {getEmployeeStatus(employee.id)}
