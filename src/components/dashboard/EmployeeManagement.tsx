@@ -475,7 +475,7 @@ export const EmployeeManagement: React.FC<{
       </div>
 
       {employees.length === 0 ? (
-        <Card>
+        <Card className="shadow-lg">
           <CardContent className="text-center py-8">
             <p className="text-muted-foreground mb-4">No employees found.</p>
             <Button onClick={() => setShowAddModal(true)}>
@@ -485,7 +485,7 @@ export const EmployeeManagement: React.FC<{
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className="shadow-lg">
           <CardContent className="p-0">
             <Table className="table-fixed w-full">
               <TableHeader>
