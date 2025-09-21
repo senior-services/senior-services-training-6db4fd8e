@@ -37,6 +37,7 @@ export interface EmployeeAssignmentWithProgress {
   assigned_by: string;
   progress_percent: number;
   completed_at?: string;
+  hasQuiz?: boolean;
 }
 
 export interface EmployeeBatchData {

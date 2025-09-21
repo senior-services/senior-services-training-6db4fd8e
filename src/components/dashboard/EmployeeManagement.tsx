@@ -8,7 +8,7 @@ import { UserPlus, ChevronDown, ChevronUp, Trash2, Download, ArrowUpDown, ArrowU
 import { employeeOperations } from '@/services/api';
 import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
 import { getTooltipText } from '@/utils/tooltipText';
-import type { EmployeeWithAssignments, Employee } from '@/types/employee';
+import type { EmployeeWithAssignments, Employee, EmployeeAssignmentWithProgress } from '@/types/employee';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -325,14 +325,26 @@ export const EmployeeManagement: React.FC<{
       return <Badge variant="secondary">No Required Training</Badge>;
     }
 
-    const completedRequired = requiredVideos.filter(assignment => {
+    // Helper function to check if assignment is completed (same logic as getVideoStatus)
+    const isAssignmentCompleted = (assignment: EmployeeAssignmentWithProgress) => {
       const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
-      return !!quizAttempt;
+      const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
+      
+      if (assignment.hasQuiz) {
+        // For videos with quiz: require both video and quiz completion
+        return videoCompleted && quizAttempt;
+      } else {
+        // For videos without quiz: only require video completion
+        return videoCompleted;
+      }
+    };
+
+    const completedRequired = requiredVideos.filter(assignment => {
+      return isAssignmentCompleted(assignment);
     });
 
     const overdueRequired = requiredVideos.filter(assignment => {
-      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
-      if (!!quizAttempt) return false;
+      if (isAssignmentCompleted(assignment)) return false;
       if (!assignment.due_date) return false;
       
       const today = new Date();
