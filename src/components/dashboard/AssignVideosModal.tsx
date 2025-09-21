@@ -463,7 +463,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                     return (
                        <div
                          key={video.id}
-                         className="flex items-center justify-between py-3 border-b last:border-b-0 border-border-primary/50 transition-colors min-h-[69px]"
+                         className="flex items-center justify-between py-2 border-b last:border-b-0 border-border-primary/50 transition-colors"
                        >
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <Checkbox
