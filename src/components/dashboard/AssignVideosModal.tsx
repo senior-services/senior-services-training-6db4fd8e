@@ -487,7 +487,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                               isCompleted && "text-muted-foreground"
                             )}>
                               {video.title}
-                              {wasOriginallyAssigned && assignmentData.get(video.id) && (
+                              {wasOriginallyAssigned && !isCompleted && assignmentData.get(video.id) && (
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
