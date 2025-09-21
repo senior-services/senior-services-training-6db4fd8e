@@ -270,9 +270,12 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       {archivedVideos.length > 0 && (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="archived" className="border-0">
-            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/30 [&>svg]:hidden">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/30 [&>svg]:hidden group">
               <div className="flex items-center gap-3 w-full">
-                <ChevronDown className="w-8 h-8 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                <ChevronDown 
+                  className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" 
+                  aria-hidden="true"
+                />
                 <Archive className="w-5 h-5 text-muted-foreground" />
                 <span className="text-lg font-semibold">Archived Videos</span>
                 <Badge variant="soft-destructive" className="ml-2">
