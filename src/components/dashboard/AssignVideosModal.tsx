@@ -29,6 +29,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Video, Play, X, CalendarIcon, EyeOff } from 'lucide-react';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -38,7 +43,7 @@ import type { Employee, VideoAssignment } from '@/types/employee';
 import type { Video as VideoType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
-import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
+import { TOOLTIP_CONFIG } from '@/constants/tooltip-config';
 import { logger } from '@/utils/logger';
 
 interface AssignVideosModalProps {
@@ -510,14 +515,21 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             )}>
                               {video.title}
                               {hiddenVideoIds.has(video.id) && (
-                                <IconButtonWithTooltip
-                                  icon={EyeOff}
-                                  tooltip="This video is hidden from view on videos tab"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-warning h-4 w-4 p-0"
-                                  aria-label="Hidden video indicator"
-                                />
+                                <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
+                                  <TooltipTrigger asChild>
+                                    <span 
+                                      className="text-warning cursor-default inline-flex items-center justify-center p-1"
+                                      role="img"
+                                      aria-label="This video is hidden from view on videos tab"
+                                      tabIndex={0}
+                                    >
+                                      <EyeOff className="h-4 w-4" />
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">
+                                    <p>This video is hidden from view on videos tab</p>
+                                  </TooltipContent>
+                                </Tooltip>
                               )}
                             </div>
                           </Label>
