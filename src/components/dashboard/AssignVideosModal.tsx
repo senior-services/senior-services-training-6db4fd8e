@@ -29,7 +29,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Video, Play, X, CalendarIcon } from 'lucide-react';
+import { Video, Play, X, CalendarIcon, EyeOff } from 'lucide-react';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { videoOperations, assignmentOperations, progressOperations } from '@/services/api';
@@ -38,6 +38,7 @@ import type { Employee, VideoAssignment } from '@/types/employee';
 import type { Video as VideoType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
+import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
 import { logger } from '@/utils/logger';
 
 interface AssignVideosModalProps {
@@ -344,14 +345,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     };
   };
 
-  // Helper function to get hidden badge
-  const getHiddenBadge = () => {
-    return {
-      variant: "ghost-warning" as const,
-      showIcon: true,
-      text: "Hidden"
-    };
-  };
 
   // Filter videos based on current filter mode
   const getFilteredVideos = () => {    
@@ -512,10 +505,20 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             )}
                           >
                             <div className={cn(
-                              "font-medium text-sm line-clamp-2",
+                              "font-medium text-sm line-clamp-2 flex items-center gap-2",
                               isCompleted && "text-muted-foreground"
                             )}>
                               {video.title}
+                              {hiddenVideoIds.has(video.id) && (
+                                <IconButtonWithTooltip
+                                  icon={EyeOff}
+                                  tooltip="This video is hidden from view on videos tab"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-warning h-4 w-4 p-0"
+                                  aria-label="Hidden video indicator"
+                                />
+                              )}
                             </div>
                           </Label>
                         </div>
@@ -575,11 +578,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                              </Popover>
                            )}
                            
-                           {hiddenVideoIds.has(video.id) && (
-                             <Badge variant="ghost-warning" showIcon aria-describedby={`video-${video.id}-hidden`}>
-                               {getHiddenBadge().text}
-                             </Badge>
-                           )}
                          </div>
                       </div>
                     );
