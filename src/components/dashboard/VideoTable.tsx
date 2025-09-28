@@ -26,6 +26,7 @@ import {
   ArrowUpDown,
   EyeOff
 } from 'lucide-react';
+import { format } from 'date-fns';
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveFileId } from '@/utils/videoUtils';
 import { Video } from '@/types';
 import { VIDEO_CONFIG } from '@/constants';
@@ -71,7 +72,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
   onHide,
   className,
 }) => {
-  const [sortColumn, setSortColumn] = useState<'title'>('title');
+  const [sortColumn, setSortColumn] = useState<'title' | 'created_at'>('title');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [videoQuizzes, setVideoQuizzes] = useState<Set<string>>(new Set());
 
@@ -119,6 +120,9 @@ export const VideoTable: React.FC<VideoTableProps> = ({
         case 'title':
           comparison = a.title.localeCompare(b.title);
           break;
+        case 'created_at':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
       }
 
       return sortDirection === 'asc' ? comparison : -comparison;
@@ -128,7 +132,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
   /**
    * Handles sorting of video table
    */
-  const handleSort = useCallback((column: 'title') => {
+  const handleSort = useCallback((column: 'title' | 'created_at') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -203,13 +207,35 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                     </Button>
                   </TableHead>
                   <TableHead className="text-center text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
+                  <TableHead className="text-center text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort('created_at')}
+                      className={`text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group ${
+                        sortColumn === 'created_at' 
+                          ? 'font-bold' 
+                          : 'font-medium'
+                      }`}
+                    >
+                      Date Added
+                      {sortColumn === 'created_at' ? (
+                        sortDirection === 'asc' ? (
+                          <ArrowUp className="ml-2 h-4 w-4" />
+                        ) : (
+                          <ArrowDown className="ml-2 h-4 w-4" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />
+                      )}
+                    </Button>
+                  </TableHead>
                   <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="py-12">
+                    <TableCell colSpan={4} className="py-12">
                       <div className="space-y-4">
                         <LoadingSkeleton lines={1} className="h-16" />
                         <LoadingSkeleton lines={1} className="h-16" />
@@ -219,7 +245,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   </TableRow>
                 ) : videos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center py-12">
+                    <TableCell colSpan={4} className="text-center py-12">
                       <div className="space-y-3">
                     <VideoIcon 
                       className="w-12 h-12 text-muted-foreground mx-auto" 
@@ -348,6 +374,13 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                             </svg>
                           </div>
                         )}
+                      </TableCell>
+
+                      {/* Date Added */}
+                      <TableCell className="text-center py-2">
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(video.created_at), 'MMM dd, yyyy')}
+                        </span>
                       </TableCell>
 
                       {/* Action buttons */}
