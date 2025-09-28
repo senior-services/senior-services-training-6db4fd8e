@@ -468,7 +468,7 @@ export const EmployeeManagement: React.FC<{
           Email: employeeEmail,
           'Video Title': 'No assignments',
           Status: 'No Required Training',
-          'Date Completed': '--',
+          'Date': '--',
           'Quiz Results': '--'
         });
       } else {
@@ -533,7 +533,7 @@ export const EmployeeManagement: React.FC<{
             Email: employeeEmail,
             'Video Title': assignment.video_title || '',
             Status: status,
-            'Date Completed': completionDate,
+            'Date': completionDate,
             'Quiz Results': quizResults
           });
         });
