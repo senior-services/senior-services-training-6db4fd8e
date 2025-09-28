@@ -483,13 +483,13 @@ export const EmployeeManagement: React.FC<{
             const daysUntilDue = differenceInDays(due, today);
             
             if (isPast(due) && daysUntilDue < 0) {
-              status = `Overdue (${Math.abs(daysUntilDue)} days)`;
+              status = `Overdue ${format(due, 'MMM dd, yyyy')}`;
             } else if (daysUntilDue === 0) {
-              status = 'Due Today';
+              status = `Due ${format(due, 'MMM dd, yyyy')}`;
             } else if (daysUntilDue <= 7) {
-              status = `Due in ${daysUntilDue} days`;
+              status = `Due ${format(due, 'MMM dd, yyyy')}`;
             } else {
-              status = `Due in ${daysUntilDue} days`;
+              status = `Due ${format(due, 'MMM dd, yyyy')}`;
             }
           } else {
             status = 'No Deadline';
