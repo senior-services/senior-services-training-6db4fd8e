@@ -483,13 +483,13 @@ export const EmployeeManagement: React.FC<{
             const daysUntilDue = differenceInDays(due, today);
             
             if (isPast(due) && daysUntilDue < 0) {
-              status = `Overdue ${format(due, 'MMM dd, yyyy')}`;
+              status = 'Overdue';
             } else if (daysUntilDue === 0) {
-              status = `Due ${format(due, 'MMM dd, yyyy')}`;
+              status = 'Due Today';
             } else if (daysUntilDue <= 7) {
-              status = `Due ${format(due, 'MMM dd, yyyy')}`;
+              status = 'Due';
             } else {
-              status = `Due ${format(due, 'MMM dd, yyyy')}`;
+              status = 'Due';
             }
           } else {
             status = 'No Deadline';
@@ -506,12 +506,20 @@ export const EmployeeManagement: React.FC<{
             quizResults = `${percentage}% (${quizAttempt.score}/${quizAttempt.total_questions} Correct)`;
           }
           
-          // Get completion date
+          // Get completion date - show due date for non-completed, completion date for completed
           let completionDate = '--';
-          if (quizAttempt && quizAttempt.completed_at) {
-            completionDate = format(new Date(quizAttempt.completed_at), 'MMM dd, yyyy');
-          } else if (assignment.completed_at) {
-            completionDate = format(new Date(assignment.completed_at), 'MMM dd, yyyy');
+          const isCompleted = assignment.completed_at || (quizAttempt && quizAttempt.completed_at);
+          
+          if (isCompleted) {
+            // Show completion date for completed items
+            if (quizAttempt && quizAttempt.completed_at) {
+              completionDate = format(new Date(quizAttempt.completed_at), 'MMM dd, yyyy');
+            } else if (assignment.completed_at) {
+              completionDate = format(new Date(assignment.completed_at), 'MMM dd, yyyy');
+            }
+          } else if (assignment.due_date) {
+            // Show due date for non-completed items
+            completionDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
           }
           
           exportData.push({
