@@ -54,7 +54,8 @@ export const getGoogleDriveThumbnail = (url: string): string | null => {
 };
 
 /**
- * Checks if URL is a Google Drive video
+ * Checks if URL is a Google Drive file URL
+ * Note: Cannot determine file type (video/presentation/PDF/etc.) without API access
  */
 export const isGoogleDriveUrl = (url: string): boolean => {
   return url.includes('drive.google.com') && getGoogleDriveFileId(url) !== null;
@@ -158,14 +159,30 @@ export const getGooglePresentationThumbnail = (url: string): string | null => {
 
 /**
  * Detects content type from URL
+ * @returns 'video' | 'presentation' if detectable, null if ambiguous (requires manual selection)
+ * 
+ * Detection priority:
+ * 1. Google Slides URLs (docs.google.com/presentation) → 'presentation'
+ * 2. YouTube URLs (youtube.com, youtu.be) → 'video'
+ * 3. Generic Google Drive URLs (drive.google.com) → null (ambiguous, file type unknown)
  */
 export const detectContentTypeFromUrl = (url: string): 'video' | 'presentation' | null => {
-  if (isYouTubeUrl(url) || isGoogleDriveUrl(url)) {
-    return 'video';
-  }
+  // Check Google Slides FIRST (before generic Drive URLs)
   if (isGooglePresentationUrl(url)) {
     return 'presentation';
   }
+  
+  // Check YouTube
+  if (isYouTubeUrl(url)) {
+    return 'video';
+  }
+  
+  // Generic Google Drive URLs are ambiguous - we cannot determine file type
+  // without API access. Return null to force manual selection.
+  if (isGoogleDriveUrl(url)) {
+    return null;
+  }
+  
   return null;
 };
 

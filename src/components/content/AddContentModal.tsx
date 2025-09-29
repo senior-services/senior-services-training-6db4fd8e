@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Upload, FileVideo, Presentation, Link } from 'lucide-react';
 import { CONTENT_CONFIG } from '@/constants';
 import { detectContentTypeFromFile, detectContentTypeFromUrl } from '@/utils/videoUtils';
@@ -37,6 +38,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
   const [url, setUrl] = useState('');
   const [contentType, setContentType] = useState<ContentType>('video');
   const [dragActive, setDragActive] = useState(false);
+  const [showManualSelector, setShowManualSelector] = useState(false);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -81,14 +83,28 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUrl = e.target.value;
+    const newUrl = e.target.value.trim();
     setUrl(newUrl);
     
     if (newUrl) {
+      // Validate URL format
+      try {
+        new URL(newUrl);
+      } catch {
+        setShowManualSelector(false);
+        return;
+      }
+      
       const detectedType = detectContentTypeFromUrl(newUrl);
       if (detectedType) {
         setContentType(detectedType);
+        setShowManualSelector(false);
+      } else {
+        // Ambiguous URL - show manual selector
+        setShowManualSelector(true);
       }
+    } else {
+      setShowManualSelector(false);
     }
   };
 
@@ -118,6 +134,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
     setUrl('');
     setContentType('video');
     setDragActive(false);
+    setShowManualSelector(false);
     onOpenChange(false);
   };
 
@@ -230,12 +247,42 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
                   onChange={handleUrlChange}
                   placeholder="Enter YouTube, Google Drive, or Google Slides URL"
                 />
-                {url && (
+                {url && !showManualSelector && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Detected: {contentType === 'presentation' ? 'Presentation' : 'Video'}
+                    ✓ Auto-detected: {contentType === 'presentation' ? 'Presentation' : 'Video'}
                   </p>
                 )}
               </div>
+
+              {showManualSelector && (
+                <div className="space-y-2 pt-2 border-t">
+                  <Label htmlFor="manual-content-type">
+                    Content Type
+                    <span className="text-xs text-muted-foreground block mt-1">
+                      Unable to detect content type automatically. Please select:
+                    </span>
+                  </Label>
+                  <RadioGroup
+                    id="manual-content-type"
+                    value={contentType}
+                    onValueChange={(value) => setContentType(value as ContentType)}
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="video" id="type-video" />
+                      <Label htmlFor="type-video" className="cursor-pointer font-normal">
+                        Video
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="presentation" id="type-presentation" />
+                      <Label htmlFor="type-presentation" className="cursor-pointer font-normal">
+                        Presentation
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
 
