@@ -144,7 +144,8 @@ export const getGooglePresentationEmbedUrl = (url: string): string | null => {
   const presentationId = getGooglePresentationId(url);
   if (!presentationId) return null;
   
-  return `https://docs.google.com/presentation/d/${presentationId}/embed?rm=minimal`;
+  // Return embed URL with native Google Slides controls
+  return `https://docs.google.com/presentation/d/${presentationId}/embed`;
 };
 
 /**
