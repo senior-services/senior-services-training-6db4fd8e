@@ -116,6 +116,7 @@ export interface VideoUpdateData {
   title: string;
   description: string;
   type?: VideoType;
+  content_type?: ContentType;
 }
 
 export interface VideoCreateData extends VideoUpdateData {

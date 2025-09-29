@@ -234,6 +234,7 @@ export const videoOperations = {
           title: updates.title,
           description: updates.description,
           ...(updates.type && { type: updates.type }),
+          ...(updates.content_type && { content_type: updates.content_type }),
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
