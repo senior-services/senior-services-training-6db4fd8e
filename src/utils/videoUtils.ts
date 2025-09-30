@@ -139,13 +139,21 @@ export const getGooglePresentationId = (url: string): string | null => {
 
 /**
  * Converts Google Presentation URL to embed format
+ * Also handles Google Drive file URLs as fallback
  */
 export const getGooglePresentationEmbedUrl = (url: string): string | null => {
+  // First, try Google Slides URL
   const presentationId = getGooglePresentationId(url);
-  if (!presentationId) return null;
+  if (presentationId) {
+    return `https://docs.google.com/presentation/d/${presentationId}/embed`;
+  }
   
-  // Return embed URL with native Google Slides controls
-  return `https://docs.google.com/presentation/d/${presentationId}/embed`;
+  // Fallback: Check if it's a Google Drive file URL
+  if (isGoogleDriveUrl(url)) {
+    return getGoogleDriveEmbedUrl(url);
+  }
+  
+  return null;
 };
 
 /**
