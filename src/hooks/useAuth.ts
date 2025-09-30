@@ -60,80 +60,31 @@ export function useAuth() {
   });
 
   useEffect(() => {
-    let mounted = true;
-    let initialSessionHandled = false;
-
-    // Check for existing session first
-    const getInitialSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (!mounted) return;
-        
-        if (error) {
-          logger.error('Error getting session', error as Error);
-        }
-        
-        setState({
-          session,
-          user: session?.user ?? null,
-          loading: false,
-        });
-        
-        initialSessionHandled = true;
-      } catch (error) {
-        logger.error('Error getting initial session', error as Error);
-        if (mounted) {
-          setState({
-            session: null,
-            user: null,
-            loading: false,
-          });
-        }
-      }
-    };
-
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (!mounted) return;
-        
-        // Skip INITIAL_SESSION if we already handled it
-        if (event === 'INITIAL_SESSION' && initialSessionHandled) {
-          return;
-        }
-        
         setState({
           session,
           user: session?.user ?? null,
           loading: false,
         });
-
-        // Handle auth errors that occur during OAuth flow
-        if (event === 'SIGNED_OUT' && !session) {
-          // Check if this is due to an authentication error
-          // This is a non-blocking check to catch OAuth failures
-          setTimeout(() => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const errorParam = urlParams.get('error');
-            const errorDescription = urlParams.get('error_description');
-            
-            if (errorParam || errorDescription) {
-              const errorMsg = errorDescription || errorParam || 'Authentication failed';
-              const userMessage = getAuthErrorMessage(new Error(errorMsg));
-              logger.error('OAuth error detected in URL params', new Error(errorMsg), { errorParam, errorDescription });
-              toast.error(userMessage);
-            }
-          }, 0);
-        }
       }
     );
 
-    getInitialSession();
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        logger.error('Error getting session', error as Error);
+      }
+      
+      setState({
+        session,
+        user: session?.user ?? null,
+        loading: false,
+      });
+    });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const signInWithGoogle = async () => {
@@ -215,59 +166,34 @@ export function useAuth() {
     try {
       const { error } = await supabase.auth.signOut();
       
-      // If there's a session_not_found error, we should still consider it a successful logout
-      // because the user is effectively logged out already
-      const isSessionError = error && (
-        error.message?.includes('session_not_found') || 
-        error.message?.includes('Session not found') ||
-        error.message?.includes('Session from session_id claim in JWT does not exist') ||
-        (error as any).__isAuthError
-      );
-      
-      if (error && !isSessionError) {
+      if (error) {
         logger.error('Sign out error', error as Error);
-        toast.error('Failed to sign out');
-        return;
       }
       
-      // Clear local state immediately for better UX
+      // Clear local state
       setState({
         session: null,
         user: null,
         loading: false,
       });
       
-      // Clear role cache on sign out
+      // Clear role cache
       clearUserRoleCache();
       
-      toast.success('Successfully signed out');
-      
-    } catch (error: any) {
+      if (!error) {
+        toast.success('Successfully signed out');
+      }
+    } catch (error) {
       logger.error('Sign out error', error as Error);
       
-      // Check if it's a session-related error (AuthSessionMissingError, etc.)
-      const isSessionError = 
-        error.name === 'AuthSessionMissingError' ||
-        error.message?.includes('Auth session missing') ||
-        error.message?.includes('session_not_found') ||
-        error.message?.includes('Session not found') ||
-        error.message?.includes('Session from session_id claim in JWT does not exist');
-      
-      // Clear local state regardless - user should appear logged out
+      // Clear local state regardless
       setState({
         session: null,
         user: null,
         loading: false,
       });
       
-      // Clear role cache on sign out
       clearUserRoleCache();
-      
-      if (isSessionError) {
-        toast.success('Successfully signed out');
-      } else {
-        toast.error('Failed to sign out');
-      }
     }
   };
 

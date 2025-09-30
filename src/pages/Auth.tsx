@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Banner } from "@/components/ui/banner";
-import { LogIn, Mail, Shield, User, Info } from "lucide-react";
+import { LogIn, Mail, User, Info } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { APP_CONFIG } from '@/constants';
 export const Auth = () => {
@@ -64,14 +64,7 @@ export const Auth = () => {
     setIsLoading(false);
   };
 
-  // Test login functions
-  const handleTestAdminLogin = async () => {
-    setEmail('admin@gmail.com');
-    setPassword('admin123');
-    setIsLoading(true);
-    await signIn('admin@gmail.com', 'admin123');
-    setIsLoading(false);
-  };
+  // Test login functions - removed admin@gmail.com test as it bypasses company email requirement
   const handleTestEmployeeLogin = async () => {
     setEmail('jane.doe@southsoundseniors.org');
     setPassword('test123');
@@ -138,13 +131,9 @@ export const Auth = () => {
             <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="text-center mb-3">
                 <h3 className="font-semibold text-yellow-800 text-sm">Development Testing</h3>
-                <p className="text-xs text-yellow-700">Quick login for testing purposes</p>
+                <p className="text-xs text-yellow-700">Quick login for testing (@southsoundseniors.org only)</p>
               </div>
               <div className="space-y-2">
-                <Button onClick={handleTestAdminLogin} disabled={isLoading} variant="outline" size="sm" className="w-full border-red-200 text-red-700 hover:bg-red-50">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Admin Test
-                </Button>
                 <div className="grid grid-cols-2 gap-2">
                   <Button onClick={handleTestEmployeeLogin} disabled={isLoading} variant="outline" size="sm" className="border-blue-200 text-blue-700 hover:bg-blue-50">
                     <User className="w-4 h-4 mr-1" />
@@ -157,7 +146,7 @@ export const Auth = () => {
                 </div>
               </div>
               <div className="mt-2 text-xs text-yellow-600 text-center">
-                Admin: admin@gmail.com | Employee 1: jane.doe@southsoundseniors.org | Employee 2: john.doe@southsoundseniors.org
+                Employee 1: jane.doe@southsoundseniors.org | Employee 2: john.doe@southsoundseniors.org
               </div>
             </div>
 
