@@ -2,7 +2,9 @@ import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Presentation } from 'lucide-react';
 import { TrainingContent } from '@/types';
-import { getGooglePresentationEmbedUrl, isGoogleDriveUrl, isGooglePresentationUrl } from '@/utils/videoUtils';
+import { getGooglePresentationEmbedUrl, isGoogleDriveUrl, isGooglePresentationUrl, isUrlFromTrustedDomain } from '@/utils/videoUtils';
+import { PRESENTATION_CONFIG } from '@/constants/presentation-config';
+import { logger } from '@/utils/logger';
 
 interface PresentationViewerProps {
   content: TrainingContent;
@@ -26,16 +28,51 @@ export const PresentationViewer: React.FC<PresentationViewerProps> = ({
         : 'unknown'
     : 'unknown';
 
+  // Validate URL is from trusted domain
+  const isUrlTrusted = embedUrl ? isUrlFromTrustedDomain(embedUrl) : false;
+  
+  // Log presentation load attempt
+  React.useEffect(() => {
+    if (embedUrl && isUrlTrusted) {
+      logger.info('Loading presentation', { 
+        contentId: content.id,
+        contentTitle: content.title,
+        urlType,
+        embedUrl: embedUrl.substring(0, 100)
+      });
+    }
+  }, [embedUrl, isUrlTrusted, content.id, content.title, urlType]);
+
   const handleIframeError = () => {
+    logger.error('Presentation iframe failed to load', undefined, { 
+      contentId: content.id,
+      contentTitle: content.title,
+      urlType,
+      embedUrl: embedUrl?.substring(0, 100)
+    });
     setHasError(true);
     setIsLoading(false);
   };
 
   const handleIframeLoad = () => {
+    logger.info('Presentation loaded successfully', { 
+      contentId: content.id,
+      urlType
+    });
     setIsLoading(false);
   };
 
-  if (!embedUrl) {
+  if (!embedUrl || !isUrlTrusted) {
+    const errorMessage = !embedUrl 
+      ? PRESENTATION_CONFIG.ERROR_MESSAGES.INVALID_URL
+      : PRESENTATION_CONFIG.ERROR_MESSAGES.UNTRUSTED_DOMAIN;
+    
+    logger.warn('Presentation cannot be embedded', { 
+      contentId: content.id,
+      reason: !embedUrl ? 'invalid_url' : 'untrusted_domain',
+      originalUrl: content.video_url?.substring(0, 100)
+    });
+    
     return (
       <div 
         className="flex items-center justify-center h-64 bg-muted rounded-lg"
@@ -48,7 +85,7 @@ export const PresentationViewer: React.FC<PresentationViewerProps> = ({
             Unable to load presentation
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            The presentation URL format is not supported
+            {errorMessage}
           </p>
         </div>
       </div>
@@ -67,10 +104,10 @@ export const PresentationViewer: React.FC<PresentationViewerProps> = ({
         <div className="text-center">
           <Presentation className="h-12 w-12 mx-auto text-muted-foreground mb-2" aria-hidden="true" />
           <p className="text-muted-foreground" id="presentation-load-error">
-            Failed to load presentation
+            {PRESENTATION_CONFIG.ERROR_MESSAGES.LOAD_FAILED}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            The presentation may be private or require permissions
+            {PRESENTATION_CONFIG.ERROR_MESSAGES.PERMISSION_REQUIRED}
           </p>
           <Button 
             variant="outline" 
@@ -102,10 +139,11 @@ export const PresentationViewer: React.FC<PresentationViewerProps> = ({
         className="w-full h-full"
         frameBorder="0"
         allowFullScreen
+        sandbox={PRESENTATION_CONFIG.SANDBOX_PERMISSIONS}
         onError={handleIframeError}
         onLoad={handleIframeLoad}
         title={`Presentation: ${content.title}`}
-        aria-label={`Presentation viewer for ${content.title}`}
+        aria-label={`${urlType === 'slides' ? 'Google Slides' : 'Google Drive'} presentation viewer for ${content.title}`}
       />
     </div>
   );

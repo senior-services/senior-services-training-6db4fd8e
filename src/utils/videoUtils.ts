@@ -2,6 +2,38 @@
  * Video utility functions for handling different video platforms
  */
 
+import { PRESENTATION_CONFIG } from '@/constants/presentation-config';
+import { logger } from './logger';
+
+/**
+ * Validates if a URL is from a trusted domain for embedding
+ */
+export const isUrlFromTrustedDomain = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    const hostname = parsedUrl.hostname.toLowerCase();
+    
+    const isTrusted = PRESENTATION_CONFIG.TRUSTED_DOMAINS.some(domain => 
+      hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+    
+    if (!isTrusted) {
+      logger.warn('Untrusted domain detected', { 
+        hostname, 
+        url: url.substring(0, 100),
+        trustedDomains: PRESENTATION_CONFIG.TRUSTED_DOMAINS 
+      });
+    }
+    
+    return isTrusted;
+  } catch (error) {
+    logger.error('Invalid URL format', error instanceof Error ? error : undefined, { 
+      url: url.substring(0, 100) 
+    });
+    return false;
+  }
+};
+
 /**
  * Extracts Google Drive file ID from various Google Drive URL formats
  */
