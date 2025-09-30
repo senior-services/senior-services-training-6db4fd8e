@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogScrollArea, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -149,12 +149,12 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Add Training Content</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <DialogScrollArea className="space-y-4">
           <div>
             <Label htmlFor="title">Title</Label>
             <Input
@@ -285,16 +285,16 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
               )}
             </TabsContent>
           </Tabs>
+        </DialogScrollArea>
 
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={!isValid}>
-              Add Content
-            </Button>
-          </div>
-        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!isValid}>
+            Add Content
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
