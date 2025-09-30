@@ -98,16 +98,16 @@ export const Auth = () => {
 
   const handleTestAdminLogin = async () => {
     setEmail('admin@southsoundseniors.org');
-    setPassword('test123');
+    setPassword('admin123');
     setIsLoading(true);
 
     // Try to sign in, if fails, create the account first
-    const result = await signIn('admin@southsoundseniors.org', 'test123');
+    const result = await signIn('admin@southsoundseniors.org', 'admin123');
     if (!result || result.error) {
       // Account doesn't exist, create it
-      await signUp('admin@southsoundseniors.org', 'test123', 'Test Admin');
+      await signUp('admin@southsoundseniors.org', 'admin123', 'Test Admin');
       // Then sign in
-      await signIn('admin@southsoundseniors.org', 'test123');
+      await signIn('admin@southsoundseniors.org', 'admin123');
     }
     setIsLoading(false);
   };
