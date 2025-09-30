@@ -20,10 +20,11 @@ import { quizOperations } from '@/services/quizService';
 import { sanitizeText, createSafeDisplayName, validateUserRole } from '@/utils/security';
 import { createTableAriaProps } from '@/utils/accessibility';
 import * as XLSX from 'xlsx';
-
 export const EmployeeManagement: React.FC<{
   onCountChange?: (count: number) => void;
-}> = ({ onCountChange }) => {
+}> = ({
+  onCountChange
+}) => {
   const [employees, setEmployees] = useState<EmployeeWithAssignments[]>([]);
   const [employeeVideos, setEmployeeVideos] = useState<Map<string, any[]>>(new Map());
   const [employeeQuizzes, setEmployeeQuizzes] = useState<Map<string, Map<string, any>>>(new Map());
@@ -36,53 +37,47 @@ export const EmployeeManagement: React.FC<{
   const [isDeleting, setIsDeleting] = useState(false);
   const [sortColumn, setSortColumn] = useState<'name' | 'status' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     loadEmployees();
 
     // Set up real-time subscription for employee data changes
     let channel: any = null;
     try {
-      channel = supabase
-        .channel('employee-management')
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'video_assignments'
-        }, () => {
-          logger.info('Video assignment changed, refreshing employees...');
-          loadEmployees();
-        })
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'employees'
-        }, () => {
-          logger.info('Employee changed, refreshing data...');
-          loadEmployees();
-        })
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'video_progress'
-        }, () => {
-          logger.info('Video progress changed, refreshing employees...');
-          loadEmployees();
-        })
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'quiz_attempts'
-        }, () => {
-          logger.info('Quiz attempt changed, refreshing employees...');
-          loadEmployees();
-        })
-        .subscribe();
+      channel = supabase.channel('employee-management').on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'video_assignments'
+      }, () => {
+        logger.info('Video assignment changed, refreshing employees...');
+        loadEmployees();
+      }).on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'employees'
+      }, () => {
+        logger.info('Employee changed, refreshing data...');
+        loadEmployees();
+      }).on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'video_progress'
+      }, () => {
+        logger.info('Video progress changed, refreshing employees...');
+        loadEmployees();
+      }).on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'quiz_attempts'
+      }, () => {
+        logger.info('Quiz attempt changed, refreshing employees...');
+        loadEmployees();
+      }).subscribe();
     } catch (error) {
       logger.error('Failed to set up real-time subscription for employee data', error as Error);
     }
-
     return () => {
       if (channel) {
         try {
@@ -93,35 +88,31 @@ export const EmployeeManagement: React.FC<{
       }
     };
   }, []);
-
   const loadEmployees = useCallback(async () => {
     try {
       setLoading(true);
       const data = await employeeOperations.getAll();
-      
       if (data.success && data.data) {
         // Transform API data to match local types with sanitization
         const transformedEmployees: EmployeeWithAssignments[] = data.data.map(employee => ({
           id: employee.id,
           email: employee.email,
-          full_name: createSafeDisplayName(employee.name || '', employee.email || ''), // Sanitized display name
+          full_name: createSafeDisplayName(employee.name || '', employee.email || ''),
+          // Sanitized display name
           created_at: employee.created_at || new Date().toISOString(),
           updated_at: employee.updated_at || new Date().toISOString(),
           assignments: employee.assignments || []
         }));
-
         setEmployees(transformedEmployees);
         onCountChange?.(transformedEmployees.length);
 
         // Load quizzes and map quiz attempts per employee
-        const { data: quizzesData } = await supabase
-          .from('quizzes')
-          .select('video_id');
-        
+        const {
+          data: quizzesData
+        } = await supabase.from('quizzes').select('video_id');
         const videoIdsWithQuizzes = new Set(quizzesData?.map(quiz => quiz.video_id) || []);
         const videoMap = new Map();
         const quizMap = new Map();
-
         for (const employee of transformedEmployees) {
           if (employee.assignments && Array.isArray(employee.assignments)) {
             const assignmentsWithQuizInfo = employee.assignments.map(assignment => ({
@@ -132,17 +123,14 @@ export const EmployeeManagement: React.FC<{
           } else {
             videoMap.set(employee.id, []);
           }
-
           if (employee.email) {
             try {
               const quizAttempts = await quizOperations.getUserAttempts(employee.email);
               const videoQuizMap = new Map();
-              
               for (const attempt of quizAttempts) {
                 if (attempt.quiz?.video_id) {
                   const existingAttempt = videoQuizMap.get(attempt.quiz.video_id);
                   const currentAttemptDate = new Date(attempt.completed_at);
-                  
                   if (!existingAttempt || new Date(existingAttempt.completed_at) < currentAttemptDate) {
                     videoQuizMap.set(attempt.quiz.video_id, {
                       score: attempt.score,
@@ -161,7 +149,6 @@ export const EmployeeManagement: React.FC<{
             quizMap.set(employee.id, new Map());
           }
         }
-
         setEmployeeVideos(videoMap);
         setEmployeeQuizzes(quizMap);
       } else {
@@ -178,7 +165,6 @@ export const EmployeeManagement: React.FC<{
       setLoading(false);
     }
   }, [onCountChange, toast]);
-
   const handleAddEmployee = useCallback((employee: Employee) => {
     setEmployees(prev => {
       const transformedEmployee: EmployeeWithAssignments = {
@@ -199,15 +185,12 @@ export const EmployeeManagement: React.FC<{
       description: "Employee added successfully"
     });
   }, [onCountChange, toast]);
-
   const handleAssignVideos = useCallback((employee: Employee) => {
     setSelectedEmployee(employee);
     setShowAssignModal(true);
   }, []);
-
   const handleDeleteEmployee = async () => {
     if (!deleteConfirmEmployee) return;
-    
     setIsDeleting(true);
     try {
       const result = await employeeOperations.delete(deleteConfirmEmployee.id);
@@ -236,7 +219,6 @@ export const EmployeeManagement: React.FC<{
       setIsDeleting(false);
     }
   };
-
   const toggleEmployeeExpanded = useCallback((employeeId: string) => {
     setExpandedEmployees(prev => {
       const newExpanded = new Set(prev);
@@ -252,22 +234,18 @@ export const EmployeeManagement: React.FC<{
   // Status priority constants for sorting
   const STATUS_PRIORITY = {
     OVERDUE: 0,
-    INCOMPLETE: 1, 
+    INCOMPLETE: 1,
     COMPLETE: 2,
     NO_TRAINING: 3
   } as const;
-
   const getStatusPriority = useCallback((employeeId: string): number => {
     const videos = employeeVideos.get(employeeId) || [];
     const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
-    
     if (requiredVideos.length === 0) return STATUS_PRIORITY.NO_TRAINING;
-    
     const overdueRequired = requiredVideos.filter(assignment => {
       const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
       if (!!quizAttempt) return false;
       if (!assignment.due_date) return false;
-      
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const due = new Date(assignment.due_date);
@@ -275,19 +253,14 @@ export const EmployeeManagement: React.FC<{
       const daysUntilDue = differenceInDays(due, today);
       return isPast(due) && daysUntilDue < 0;
     });
-    
     if (overdueRequired.length > 0) return STATUS_PRIORITY.OVERDUE;
-    
     const completedRequired = requiredVideos.filter(assignment => {
       const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
       return !!quizAttempt;
     });
-    
     if (completedRequired.length === requiredVideos.length) return STATUS_PRIORITY.COMPLETE;
-    
     return STATUS_PRIORITY.INCOMPLETE;
   }, [employeeVideos, employeeQuizzes]);
-
   const handleSort = useCallback((column: 'name' | 'status') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -296,13 +269,10 @@ export const EmployeeManagement: React.FC<{
       setSortDirection('asc');
     }
   }, [sortColumn, sortDirection]);
-
   const getSortedEmployees = useMemo(() => {
     if (!sortColumn) return employees;
-    
     return [...employees].sort((a, b) => {
       let comparison = 0;
-      
       if (sortColumn === 'name') {
         const aName = a.full_name || a.email?.split('@')[0] || '';
         const bName = b.full_name || b.email?.split('@')[0] || '';
@@ -312,15 +282,12 @@ export const EmployeeManagement: React.FC<{
         const bPriority = getStatusPriority(b.id);
         comparison = aPriority - bPriority;
       }
-      
       return sortDirection === 'asc' ? comparison : -comparison;
     });
   }, [employees, sortColumn, sortDirection, getStatusPriority]);
-
   const getEmployeeStatus = (employeeId: string) => {
     const videos = employeeVideos.get(employeeId) || [];
     const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
-    
     if (requiredVideos.length === 0) {
       return <Badge variant="secondary">No Required Training</Badge>;
     }
@@ -329,7 +296,6 @@ export const EmployeeManagement: React.FC<{
     const isAssignmentCompleted = (assignment: EmployeeAssignmentWithProgress) => {
       const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
       const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
-      
       if (assignment.hasQuiz) {
         // For videos with quiz: require both video and quiz completion
         return videoCompleted && quizAttempt;
@@ -338,15 +304,12 @@ export const EmployeeManagement: React.FC<{
         return videoCompleted;
       }
     };
-
     const completedRequired = requiredVideos.filter(assignment => {
       return isAssignmentCompleted(assignment);
     });
-
     const overdueRequired = requiredVideos.filter(assignment => {
       if (isAssignmentCompleted(assignment)) return false;
       if (!assignment.due_date) return false;
-      
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const due = new Date(assignment.due_date);
@@ -354,25 +317,21 @@ export const EmployeeManagement: React.FC<{
       const daysUntilDue = differenceInDays(due, today);
       return isPast(due) && daysUntilDue < 0;
     });
-
     if (overdueRequired.length > 0) {
       return <Badge variant="destructive">{overdueRequired.length} Overdue</Badge>;
     }
-
     if (completedRequired.length === requiredVideos.length) {
       return <Badge variant="success">All Training Complete</Badge>;
     }
-
     return <Badge variant="secondary">{completedRequired.length}/{requiredVideos.length} Complete</Badge>;
   };
-
   const getVideoStatus = (assignment: any, employeeId: string) => {
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
-    
+
     // Check if video is completed (progress 100% or has completed_at timestamp)
     const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
-    
+
     // Determine completion based on whether video has a quiz
     if (assignment.hasQuiz) {
       // For videos with quiz: require both video and quiz completion
@@ -385,55 +344,43 @@ export const EmployeeManagement: React.FC<{
         return <Badge variant="soft-success">Completed</Badge>;
       }
     }
-
     if (!assignment.due_date) {
       return <Badge variant="soft-tertiary">No Deadline</Badge>;
     }
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const due = new Date(assignment.due_date);
     due.setHours(0, 0, 0, 0);
     const daysUntilDue = differenceInDays(due, today);
-
     if (isPast(due) && daysUntilDue < 0) {
       return <Badge variant="soft-destructive">Overdue</Badge>;
     }
-
     if (daysUntilDue === 0) {
       return <Badge variant="soft-warning">Due Today</Badge>;
     }
-
     if (daysUntilDue <= 7) {
       return <Badge variant="soft-warning">Due</Badge>;
     }
-
     return <Badge variant="soft-tertiary">Due</Badge>;
   };
-
   const getQuizResults = (assignment: any, employeeId: string) => {
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
-    
     if (!assignment.hasQuiz) {
       return <span className="text-muted-foreground">--</span>;
     }
-
     if (!quizAttempt) {
       return <span className="text-muted-foreground">Not Completed</span>;
     }
-
-    const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
+    const percentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
     return <span>{percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)</span>;
   };
-
   const getCompletionDate = (assignment: any, employeeId: string) => {
     const employeeQuizData = employeeQuizzes.get(employeeId);
     const quizAttempt = employeeQuizData?.get(assignment.video_id);
-    
+
     // Check if assignment is completed
-    const isCompleted = assignment.completed_at || (quizAttempt && quizAttempt.completed_at);
-    
+    const isCompleted = assignment.completed_at || quizAttempt && quizAttempt.completed_at;
     if (isCompleted) {
       // Show completion date for completed items
       if (quizAttempt && quizAttempt.completed_at) {
@@ -448,19 +395,16 @@ export const EmployeeManagement: React.FC<{
       const dueDate = new Date(assignment.due_date);
       return <span>{format(dueDate, 'MMM dd, yyyy')}</span>;
     }
-    
+
     // No relevant date available
     return <span className="text-muted-foreground">--</span>;
   };
-
   const exportToExcel = useCallback(() => {
     const exportData: any[] = [];
-    
     employees.forEach(employee => {
       const videos = employeeVideos.get(employee.id) || [];
       const employeeName = employee.full_name || employee.email?.split('@')[0] || 'Unknown';
       const employeeEmail = employee.email || '';
-      
       if (videos.length === 0) {
         // Employee with no assignments
         exportData.push({
@@ -476,7 +420,7 @@ export const EmployeeManagement: React.FC<{
         videos.forEach(assignment => {
           const employeeQuizData = employeeQuizzes.get(employee.id);
           const quizAttempt = employeeQuizData?.get(assignment.video_id);
-          
+
           // Get status
           let status = 'Pending';
           if (quizAttempt) {
@@ -487,7 +431,6 @@ export const EmployeeManagement: React.FC<{
             const due = new Date(assignment.due_date);
             due.setHours(0, 0, 0, 0);
             const daysUntilDue = differenceInDays(due, today);
-            
             if (isPast(due) && daysUntilDue < 0) {
               status = 'Overdue';
             } else if (daysUntilDue === 0) {
@@ -500,7 +443,7 @@ export const EmployeeManagement: React.FC<{
           } else {
             status = 'No Deadline';
           }
-          
+
           // Get quiz results
           let quizResults = '--';
           if (!assignment.hasQuiz) {
@@ -508,14 +451,13 @@ export const EmployeeManagement: React.FC<{
           } else if (!quizAttempt) {
             quizResults = 'Not Completed';
           } else {
-            const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
+            const percentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
             quizResults = `${percentage}% (${quizAttempt.score}/${quizAttempt.total_questions} Correct)`;
           }
-          
+
           // Get completion date - show due date for non-completed, completion date for completed
           let completionDate = '--';
-          const isCompleted = assignment.completed_at || (quizAttempt && quizAttempt.completed_at);
-          
+          const isCompleted = assignment.completed_at || quizAttempt && quizAttempt.completed_at;
           if (isCompleted) {
             // Show completion date for completed items
             if (quizAttempt && quizAttempt.completed_at) {
@@ -527,7 +469,6 @@ export const EmployeeManagement: React.FC<{
             // Show due date for non-completed items
             completionDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
           }
-          
           exportData.push({
             Name: employeeName,
             Email: employeeEmail,
@@ -539,33 +480,29 @@ export const EmployeeManagement: React.FC<{
         });
       }
     });
-    
+
     // Create workbook and worksheet
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(exportData);
-    
+
     // Add worksheet to workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Training Data');
-    
+
     // Generate filename with current date
     const now = new Date();
     const filename = `employee_training_data_${format(now, 'yyyy-MM-dd')}.xlsx`;
-    
+
     // Save the file
     XLSX.writeFile(workbook, filename);
-    
     toast({
       title: "Success",
       description: "Employee training data exported successfully"
     });
   }, [employees, employeeVideos, employeeQuizzes, toast]);
-
   if (loading) {
     return <LoadingSkeleton />;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-xl font-semibold">Employee Management</h3>
@@ -583,8 +520,7 @@ export const EmployeeManagement: React.FC<{
         </div>
       </div>
 
-      {employees.length === 0 ? (
-        <Card className="shadow-md">
+      {employees.length === 0 ? <Card className="shadow-md">
           <CardContent className="text-center py-8">
             <p className="text-muted-foreground mb-4">No employees found.</p>
             <Button onClick={() => setShowAddModal(true)}>
@@ -592,74 +528,41 @@ export const EmployeeManagement: React.FC<{
               Add Employee
             </Button>
           </CardContent>
-        </Card>
-      ) : (
-        <Card className="shadow-md">
+        </Card> : <Card className="shadow-md">
           <CardContent className="p-0">
             <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead>
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => handleSort('name')}
-                      className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group"
-                      aria-label={`Sort by name ${sortColumn === 'name' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
-                      {...createTableAriaProps(sortColumn === 'name' ? sortColumn : undefined, sortColumn === 'name' ? sortDirection : undefined)}
-                    >
+                    <Button variant="ghost" onClick={() => handleSort('name')} className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group" aria-label={`Sort by name ${sortColumn === 'name' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`} {...createTableAriaProps(sortColumn === 'name' ? sortColumn : undefined, sortColumn === 'name' ? sortDirection : undefined)}>
                       Name
-                      {sortColumn === 'name' 
-                        ? (sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />)
-                        : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />
-                      }
+                      {sortColumn === 'name' ? sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                     </Button>
                   </TableHead>
                   <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">EMAIL</TableHead>
                   <TableHead>
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => handleSort('status')}
-                      className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group"
-                      aria-label={`Sort by status ${sortColumn === 'status' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
-                      {...createTableAriaProps(sortColumn === 'status' ? sortColumn : undefined, sortColumn === 'status' ? sortDirection : undefined)}
-                    >
+                    <Button variant="ghost" onClick={() => handleSort('status')} className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group" aria-label={`Sort by status ${sortColumn === 'status' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`} {...createTableAriaProps(sortColumn === 'status' ? sortColumn : undefined, sortColumn === 'status' ? sortDirection : undefined)}>
                       Status
-                      {sortColumn === 'status' 
-                        ? (sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />)
-                        : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />
-                      }
+                      {sortColumn === 'status' ? sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                     </Button>
                   </TableHead>
                   <TableHead className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getSortedEmployees.map((employee) => {
-                  const isExpanded = expandedEmployees.has(employee.id);
-                  return (
-                    <React.Fragment key={employee.id}>
-                      <TableRow 
-                        className={`group transition-colors cursor-pointer ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`}
-                        role="button"
-                        tabIndex={0}
-                        aria-expanded={isExpanded}
-                        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} details for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
-                        onClick={() => toggleEmployeeExpanded(employee.id)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            toggleEmployeeExpanded(employee.id);
-                          }
-                        }}
-                      >
+                {getSortedEmployees.map(employee => {
+              const isExpanded = expandedEmployees.has(employee.id);
+              return <React.Fragment key={employee.id}>
+                      <TableRow className={`group transition-colors cursor-pointer ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`} role="button" tabIndex={0} aria-expanded={isExpanded} aria-label={`${isExpanded ? 'Collapse' : 'Expand'} details for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`} onClick={() => toggleEmployeeExpanded(employee.id)} onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleEmployeeExpanded(employee.id);
+                  }
+                }}>
                         <TableCell className="py-3 font-medium">
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
-                              {isExpanded ? (
-                                <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                              ) : (
-                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                              )}
+                              {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                               <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
                             </div>
                           </div>
@@ -672,40 +575,25 @@ export const EmployeeManagement: React.FC<{
                         </TableCell>
                         <TableCell className="py-3 text-right pointer-events-none">
                           <div className="flex gap-2 justify-end pointer-events-auto">
-                             <Button
-                               variant="outline"
-                               size="sm"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleAssignVideos(employee);
-                               }}
-                               aria-label={`Assign videos to ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
-                             >
-                               Assign Videos
-                             </Button>
-                             <IconButtonWithTooltip
-                               icon={Trash2}
-                               tooltip={getTooltipText('delete-item', { name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown') })}
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 setDeleteConfirmEmployee(employee);
-                               }}
-                               variant="ghost"
-                               className="text-destructive hover:text-destructive"
-                             />
+                             <Button variant="outline" size="sm" onClick={e => {
+                        e.stopPropagation();
+                        handleAssignVideos(employee);
+                      }} aria-label={`Assign videos to ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}>Assign Trainings</Button>
+                             <IconButtonWithTooltip icon={Trash2} tooltip={getTooltipText('delete-item', {
+                        name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')
+                      })} onClick={e => {
+                        e.stopPropagation();
+                        setDeleteConfirmEmployee(employee);
+                      }} variant="ghost" className="text-destructive hover:text-destructive" />
                           </div>
                         </TableCell>
                       </TableRow>
                       
-                      {isExpanded && (
-                        <TableRow className="bg-muted/50">
+                      {isExpanded && <TableRow className="bg-muted/50">
                           <TableCell colSpan={4} className="py-4">
-                            {employeeVideos.get(employee.id)?.length === 0 ? (
-                              <p className="text-muted-foreground text-center py-4">
+                            {employeeVideos.get(employee.id)?.length === 0 ? <p className="text-muted-foreground text-center py-4">
                                 No video assignments found for this employee.
-                              </p>
-                            ) : (
-                              <div className="space-y-3 bg-muted/100 rounded-md p-4">
+                              </p> : <div className="space-y-3 bg-muted/100 rounded-md p-4">
                                  {/* Headers for video assignments */}
                                  <div className="grid grid-cols-4 gap-6 px-4 py-2 border-b">
                                    <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
@@ -716,44 +604,29 @@ export const EmployeeManagement: React.FC<{
                                 
                                 {/* Video assignments */}
                                 <div>
-                                   {employeeVideos.get(employee.id)?.sort((a, b) => (a.video_title || '').localeCompare(b.video_title || '')).map((assignment: any) => (
-                                     <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
+                                   {employeeVideos.get(employee.id)?.sort((a, b) => (a.video_title || '').localeCompare(b.video_title || '')).map((assignment: any) => <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
                                        <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
                                        <div>{getVideoStatus(assignment, employee.id)}</div>
                                         <div>{getCompletionDate(assignment, employee.id)}</div>
                                         <div>{getQuizResults(assignment, employee.id)}</div>
-                                     </div>
-                                   ))}
+                                     </div>)}
                                 </div>
-                              </div>
-                            )}
+                              </div>}
                           </TableCell>
-                        </TableRow>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
+                        </TableRow>}
+                    </React.Fragment>;
+            })}
               </TableBody>
             </Table>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
 
-      <AddEmployeeModal
-        open={showAddModal}
-        onOpenChange={setShowAddModal}
-        onEmployeeAdded={handleAddEmployee}
-      />
+      <AddEmployeeModal open={showAddModal} onOpenChange={setShowAddModal} onEmployeeAdded={handleAddEmployee} />
 
-      <AssignVideosModal
-        open={showAssignModal}
-        onOpenChange={setShowAssignModal}
-        employee={selectedEmployee}
-        onAssignmentComplete={() => {
-          setShowAssignModal(false);
-          loadEmployees();
-        }}
-      />
+      <AssignVideosModal open={showAssignModal} onOpenChange={setShowAssignModal} employee={selectedEmployee} onAssignmentComplete={() => {
+      setShowAssignModal(false);
+      loadEmployees();
+    }} />
 
       <AlertDialog open={!!deleteConfirmEmployee} onOpenChange={() => setDeleteConfirmEmployee(null)}>
         <AlertDialogContent>
@@ -772,6 +645,5 @@ export const EmployeeManagement: React.FC<{
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 };
