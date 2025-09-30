@@ -156,7 +156,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
 
         <DialogScrollArea className="space-y-4">
           <div>
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">Training Title</Label>
             <Input
               id="title"
               value={title}
