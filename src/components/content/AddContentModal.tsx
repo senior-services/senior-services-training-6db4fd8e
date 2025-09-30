@@ -232,52 +232,88 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
             </div>
 
             <div
-              className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
-                dragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
+              className={`border-2 border-dashed rounded-lg p-6 cursor-pointer transition-all duration-300 ${
+                dragActive ? 'border-primary bg-primary/10' : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50'
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
+              onClick={() => !selectedFile && document.getElementById('file-upload')?.click()}
+              onKeyDown={(e) => {
+                if ((e.key === 'Enter' || e.key === ' ') && !selectedFile) {
+                  e.preventDefault();
+                  document.getElementById('file-upload')?.click();
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Upload file area. Drag and drop a file or click to browse"
             >
               {selectedFile ? (
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center space-x-4">
                   {contentType === 'presentation' ? (
-                    <Presentation className="h-6 w-6 text-primary" />
+                    <Presentation className="h-8 w-8 text-primary flex-shrink-0" />
                   ) : (
-                    <FileVideo className="h-6 w-6 text-primary" />
+                    <FileVideo className="h-8 w-8 text-primary flex-shrink-0" />
                   )}
-                  <div>
-                    <p className="text-sm font-medium">{selectedFile.name}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{selectedFile.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {contentType === 'presentation' ? 'Presentation' : 'Video'} • {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
                     </p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedFile(null);
+                    }}
+                    className="flex-shrink-0"
+                    aria-label="Remove selected file"
+                  >
+                    Remove
+                  </Button>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
-                  <p className="text-sm">Drag and drop a file or click to select</p>
-                  <p className="text-xs text-muted-foreground">
-                    {getSupportedFormats()}
-                  </p>
+                <div className="flex items-center space-x-4">
+                  {contentType === 'presentation' ? (
+                    <Presentation className={`h-8 w-8 flex-shrink-0 transition-colors ${dragActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                  ) : (
+                    <FileVideo className={`h-8 w-8 flex-shrink-0 transition-colors ${dragActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                  )}
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {dragActive ? 'Drop file here' : 'Drag & drop file here'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      or click to browse files
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    className="hidden"
+                    id="file-upload"
+                    accept={[...CONTENT_CONFIG.VIDEO.MIME_TYPES, ...CONTENT_CONFIG.PRESENTATION.MIME_TYPES].join(',')}
+                    onChange={handleFileChange}
+                    aria-label="File upload input"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('file-upload')?.click();
+                    }}
+                    className="flex-shrink-0"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Browse Files
+                  </Button>
                 </div>
               )}
-              <input
-                type="file"
-                className="hidden"
-                id="file-upload"
-                accept={[...CONTENT_CONFIG.VIDEO.MIME_TYPES, ...CONTENT_CONFIG.PRESENTATION.MIME_TYPES].join(',')}
-                onChange={handleFileChange}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-2"
-                onClick={() => document.getElementById('file-upload')?.click()}
-              >
-                Choose File
-              </Button>
             </div>
           </div>
         </DialogScrollArea>
