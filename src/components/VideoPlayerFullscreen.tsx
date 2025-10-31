@@ -524,12 +524,11 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   <p>Please review all training content carefully. By acknowledging, you confirm you’ve read and understood the material — your confirmation will be recorded for compliance.</p>
                 </div>
 
-                {/* Timer indicator */}
-                {!checkboxEnabled && <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" aria-hidden="true" />
-                    <span>
-                      Please review the presentation for at least {minimumViewingSeconds} seconds before confirming 
-                      ({Math.max(0, minimumViewingSeconds - viewingSeconds)} seconds remaining)
+                {/* Visual Timer */}
+                {!checkboxEnabled && <div className="flex items-center gap-3 text-sm">
+                    <span className="text-muted-foreground font-medium">Time Left:</span>
+                    <span className="inline-flex items-center justify-center min-w-[3rem] px-3 py-1.5 rounded-md bg-primary/10 text-primary font-semibold text-base tabular-nums">
+                      {Math.max(0, minimumViewingSeconds - viewingSeconds)}
                     </span>
                   </div>}
 
@@ -554,10 +553,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   </label>
                 </div>
 
-                {/* Enabled indicator */}
-                {checkboxEnabled && !presentationAcknowledged && <p className="text-xs text-muted-foreground">
-                    ✓ Checkbox is now available. Please confirm to continue.
-                  </p>}
               </div>
             </div>}
 
