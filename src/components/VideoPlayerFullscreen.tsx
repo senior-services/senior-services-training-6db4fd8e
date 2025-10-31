@@ -107,15 +107,16 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     hasQuiz: quizLoading || !!quiz
   });
 
-  // Calculate minimum viewing time for presentations (after video is defined)
-  const minimumViewingSeconds = useMemo(() => {
+  // Calculate minimum viewing time for presentations (safely handles video being undefined)
+  const getMinimumViewingSeconds = useCallback(() => {
     if (!video || video.content_type !== 'presentation') return 0;
-    // If duration is known, require viewing 80% of it, otherwise 30 seconds minimum
     if (video.duration_seconds && video.duration_seconds > 0) {
       return Math.max(30, Math.floor(video.duration_seconds * 0.8));
     }
-    return 30; // Default 30 seconds
+    return 30;
   }, [video]);
+  
+  const minimumViewingSeconds = getMinimumViewingSeconds();
 
   // Effect to load video data and existing progress when modal opens
   useEffect(() => {
@@ -160,20 +161,22 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       return;
     }
 
+    const minSeconds = getMinimumViewingSeconds();
+    
     const timer = setInterval(() => {
       setViewingSeconds(prev => {
         const newSeconds = prev + 1;
         
         // Enable checkbox when minimum time reached
-        if (newSeconds >= minimumViewingSeconds && !checkboxEnabled) {
+        if (newSeconds >= minSeconds && !checkboxEnabled) {
           setCheckboxEnabled(true);
           setA11yAnnouncement(
-            `You may now acknowledge that you have reviewed this training material after viewing for ${minimumViewingSeconds} seconds.`
+            `You may now acknowledge that you have reviewed this training material after viewing for ${minSeconds} seconds.`
           );
           logger.info('Presentation acknowledgment unlocked', {
             videoId,
             viewingSeconds: newSeconds,
-            minimumRequired: minimumViewingSeconds
+            minimumRequired: minSeconds
           });
         }
         
@@ -182,7 +185,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [open, video, minimumViewingSeconds, checkboxEnabled, videoId]);
+  }, [open, video, checkboxEnabled, videoId, getMinimumViewingSeconds]);
 
   // Reset presentation states when dialog opens/closes
   useEffect(() => {
