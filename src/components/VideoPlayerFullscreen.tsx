@@ -518,19 +518,23 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               </div>
               
               <div className="space-y-3">
-                {/* Compliance disclaimer text */}
-                <div className="text-sm text-muted-foreground">
-                  <p className="font-medium mb-2">Training Acknowledgment</p>
-                  <p>Please review all training content carefully. By acknowledging, you confirm you’ve read and understood the material — your confirmation will be recorded for compliance.</p>
-                </div>
-
-                {/* Visual Timer */}
-                {!checkboxEnabled && <div className="flex items-center gap-3 text-sm">
+                {/* Header with Title and Timer */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <p className="font-medium mb-2 text-sm text-muted-foreground">Training Acknowledgment</p>
+                    <p className="text-sm text-muted-foreground">
+                      Please review all training content carefully. By acknowledging, you confirm you've read and understood the material — your confirmation will be recorded for compliance.
+                    </p>
+                  </div>
+                  
+                  {/* Visual Timer - Always visible */}
+                  <div className="flex items-center gap-2 text-sm shrink-0">
                     <span className="text-muted-foreground font-medium">Time Left:</span>
                     <span className="inline-flex items-center justify-center min-w-[3rem] px-3 py-1.5 rounded-md bg-primary/10 text-primary font-semibold text-base tabular-nums">
                       {Math.max(0, minimumViewingSeconds - viewingSeconds)}
                     </span>
-                  </div>}
+                  </div>
+                </div>
 
                 {/* Checkbox */}
                 <div className="flex items-start gap-3 pt-2">
