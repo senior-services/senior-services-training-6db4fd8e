@@ -521,10 +521,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 {/* Compliance disclaimer text */}
                 <div className="text-sm text-muted-foreground">
                   <p className="font-medium mb-2">Training Acknowledgment</p>
-                  <p>
-                    This presentation contains important training material. Please review all content carefully before proceeding. 
-                    Your acknowledgment confirms you have read and understood this training material, and this will be recorded for compliance purposes.
-                  </p>
+                  <p>Please review all training content carefully. By acknowledging, you confirm you’ve read and understood the material — your confirmation will be recorded for compliance.</p>
                 </div>
 
                 {/* Timer indicator */}
