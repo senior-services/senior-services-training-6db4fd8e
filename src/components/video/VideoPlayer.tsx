@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useCallback, useEffect } from 'react';
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveEmbedUrl } from "@/utils/videoUtils";
 import { logger } from "@/utils/logger";
+import { sanitizeVideoUrl } from "@/utils/security";
 import type { Video } from "@/types";
 
 interface VideoPlayerProps {
@@ -95,6 +96,7 @@ export function VideoPlayer({
             id={`yt-player-${id}`}
             src={`https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${window.location.origin}`}
             title={video.title}
+            aria-label={`YouTube video player for ${video.title}`}
             className="w-full h-full"
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -153,6 +155,7 @@ export function VideoPlayer({
           <iframe 
             src={embedUrl}
             title={video.title}
+            aria-label={`Google Drive video player for ${video.title}`}
             className="w-full h-full"
             allowFullScreen
             onLoad={() => {
@@ -208,9 +211,9 @@ export function VideoPlayer({
         className="w-full h-full object-fill"
         controls
         preload="metadata"
+        aria-label={`Video player for ${video.title}`}
         onTimeUpdate={handleVideoProgress}
         onEnded={handleVideoEnded}
-        tabIndex={-1}
       >
         {src && <source src={src} type="video/mp4" />}
         Your browser does not support the video tag.

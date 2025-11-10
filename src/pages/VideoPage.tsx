@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, Link, Navigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Play, Pause, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +13,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import type { Video } from "@/types";
 import { logger } from '@/utils/logger';
-import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveEmbedUrl } from '@/utils/videoUtils';
 import { quizOperations } from "@/services/quizService";
 import { QuizModal } from "@/components/quiz/QuizModal";
 import { QuizWithQuestions, QuizSubmissionData } from "@/types/quiz";
+import { VideoPlayer } from "@/components/video/VideoPlayer";
+import { sanitizeVideoUrl } from "@/utils/security";
 
 export const VideoPage = () => {
   const { videoId } = useParams<{ videoId: string }>();
@@ -103,32 +104,6 @@ export const VideoPage = () => {
     }
   };
 
-  const handleVideoProgress = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video = event.currentTarget;
-    if (!video.duration || video.currentTime < 0) return;
-
-    // Use Math.floor for more conservative progress tracking
-    const rawProgress = Math.min(100, Math.max(0, Math.floor((video.currentTime / video.duration) * 100)));
-    
-    // Cap progress at 99% if quiz exists and hasn't been completed
-    const cappedProgress = quiz && rawProgress >= 100 && !isCompleted ? 99 : rawProgress;
-    setProgress(cappedProgress);
-
-    // Check if video is completed and show quiz
-    if (rawProgress >= 99 && !isCompleted && quiz && !showQuiz) {
-      setShowQuiz(true);
-    }
-
-    // Debounce database updates with shorter interval for better accuracy
-    if (progressUpdateTimeoutRef.current) {
-      clearTimeout(progressUpdateTimeoutRef.current);
-    }
-
-    progressUpdateTimeoutRef.current = setTimeout(() => {
-      updateProgressToDatabase(cappedProgress);
-    }, 1000); // Reduced to 1 second for better responsiveness
-  };
-
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -137,19 +112,6 @@ export const VideoPage = () => {
       }
     };
   }, []);
-
-  // Add video play handler
-  const handleVideoPlay = () => setIsPlaying(true);
-
-  // Add progress saving on pause to prevent losing progress
-  const handleVideoPause = () => {
-    setIsPlaying(false);
-    if (progressUpdateTimeoutRef.current) {
-      clearTimeout(progressUpdateTimeoutRef.current);
-      // Immediately save progress when paused
-      updateProgressToDatabase(progress);
-    }
-  };
 
   const handleQuizSubmit = async (responses: QuizSubmissionData[]) => {
     if (!quiz || !user?.email) return;
@@ -180,74 +142,22 @@ export const VideoPage = () => {
     }
   };
 
-  const renderVideoPlayer = (video: Video) => {
-    const videoUrl = video.video_url;
-    const fileName = video.video_file_name;
-
-    if (!videoUrl && !fileName) {
-      return (
-        <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-          <p className="text-muted-foreground">Video not available</p>
-        </div>
-      );
-    }
-
-    // Handle YouTube URLs
-    if (videoUrl && isYouTubeUrl(videoUrl)) {
-      const videoId = getYouTubeVideoId(videoUrl);
-      if (videoId) {
-        return (
-          <div className="aspect-video">
-            <iframe
-              src={`https://www.youtube.com/embed/${videoId}`}
-              title={video.title}
-              className="w-full h-full rounded-lg"
-              allowFullScreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
-          </div>
-        );
+  // Validate video URL for security
+  const validatedVideo = useMemo(() => {
+    if (!video) return null;
+    
+    // Validate video URL if present
+    if (video.video_url) {
+      const sanitizedUrl = sanitizeVideoUrl(video.video_url);
+      if (!sanitizedUrl) {
+        logger.warn('Invalid video URL detected', { videoId: video.id });
+        return null;
       }
+      return { ...video, video_url: sanitizedUrl };
     }
-
-    // Handle Google Drive URLs
-    if (videoUrl && isGoogleDriveUrl(videoUrl)) {
-      const embedUrl = getGoogleDriveEmbedUrl(videoUrl);
-      if (embedUrl) {
-        return (
-          <div className="aspect-video">
-            <iframe
-              src={embedUrl}
-              title={video.title}
-              className="w-full h-full rounded-lg"
-              allowFullScreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
-          </div>
-        );
-      }
-    }
-
-    // Handle direct video files or other URLs
-    const videoSrc = videoUrl || fileName;
-    return (
-      <div className="aspect-video">
-        <video
-          ref={videoRef}
-          src={videoSrc}
-          title={video.title}
-          className="w-full h-full rounded-lg"
-          controls
-          preload="metadata"
-          onTimeUpdate={handleVideoProgress}
-          onPlay={handleVideoPlay}
-          onPause={handleVideoPause}
-        >
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    );
-  };
+    
+    return video;
+  }, [video]);
 
   // Redirect if not authenticated (but wait for auth loading to complete)
   if (!authLoading && !user) {
@@ -305,7 +215,49 @@ export const VideoPage = () => {
         {/* Video Player */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            {renderVideoPlayer(video)}
+            {!validatedVideo ? (
+              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                <p className="text-muted-foreground">Video URL validation failed</p>
+              </div>
+            ) : (
+              <div className="aspect-video">
+                <VideoPlayer
+                  video={validatedVideo}
+                  loading={false}
+                  progress={progress}
+                  onProgressUpdate={(newProgress) => {
+                    // Cap progress at 99% if quiz exists and hasn't been completed
+                    const cappedProgress = quiz && newProgress >= 100 && !isCompleted ? 99 : newProgress;
+                    setProgress(cappedProgress);
+                    
+                    // Show quiz when video completes
+                    if (newProgress >= 99 && !isCompleted && quiz && !showQuiz) {
+                      setShowQuiz(true);
+                    }
+                    
+                    // Debounce database updates
+                    if (progressUpdateTimeoutRef.current) {
+                      clearTimeout(progressUpdateTimeoutRef.current);
+                    }
+                    progressUpdateTimeoutRef.current = setTimeout(() => {
+                      updateProgressToDatabase(cappedProgress);
+                    }, 1000);
+                  }}
+                  onVideoEnded={() => {
+                    // Handle video completion
+                    if (!isCompleted && quiz && !showQuiz) {
+                      setShowQuiz(true);
+                    } else if (!quiz) {
+                      // No quiz, mark as complete immediately
+                      setProgress(100);
+                      setIsCompleted(true);
+                      updateProgressToDatabase(100, true);
+                    }
+                  }}
+                  updateProgressToDatabase={updateProgressToDatabase}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 
