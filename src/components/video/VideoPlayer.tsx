@@ -91,9 +91,10 @@ export function VideoPlayer({
       const id = getYouTubeVideoId(videoUrl);
       if (id) {
         return (
+          // Use youtube-nocookie.com for GDPR compliance - delays cookie setting until video plays
           <iframe 
             id={`yt-player-${id}`}
-            src={`https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${window.location.origin}&loop=0&rel=0`}
+            src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&origin=${window.location.origin}&loop=0&rel=0`}
             title={video.title}
             aria-label={`YouTube video player for ${video.title}`}
             className="w-full h-full"
