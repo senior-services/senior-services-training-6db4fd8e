@@ -141,7 +141,7 @@ export const EditVideoModal = ({
     return () => {
       abortController.abort();
     };
-  }, [video?.id, video?.updated_at]);
+  }, [video, loadUsageInfo]);
   const loadQuiz = useCallback(async (abortSignal?: AbortSignal) => {
     if (!video) return;
     setQuizLoading(true);
