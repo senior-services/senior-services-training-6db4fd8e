@@ -89,8 +89,6 @@ export const EditVideoModal = ({
   const [originalQuizDescription, setOriginalQuizDescription] = useState('');
   const [originalQuestions, setOriginalQuestions] = useState<EditableQuestionFormData[]>([]);
   const [unsavedChangesDialogOpen, setUnsavedChangesDialogOpen] = useState(false);
-  const [deleteQuizDialogOpen, setDeleteQuizDialogOpen] = useState(false);
-  const [isDeletingQuiz, setIsDeletingQuiz] = useState(false);
 
   // New state for usage checking
   const [videoUsage, setVideoUsage] = useState<{
@@ -471,40 +469,6 @@ export const EditVideoModal = ({
     } else {
       // No changes, just close
       onOpenChange(false);
-    }
-  };
-  const handleQuizDelete = async () => {
-    if (!quiz) return;
-    setIsDeletingQuiz(true);
-    try {
-      await quizOperations.delete(quiz.id);
-      toast({
-        title: 'Quiz Deleted Successfully',
-        description: 'The quiz has been removed from this video.'
-      });
-
-      // Reset quiz-related state to empty
-      setQuiz(null);
-      setQuizTitle('');
-      setQuizDescription('');
-      setQuestions([]);
-      setOriginalQuizTitle('');
-      setOriginalQuizDescription('');
-      setOriginalQuestions([]);
-      setQuestionValidationErrors({});
-      setShowQuizValidation(false);
-
-      // Notify parent component
-      onQuizSaved?.(video!.id);
-      setDeleteQuizDialogOpen(false);
-    } catch (error) {
-      toast({
-        title: 'Error Deleting Quiz',
-        description: error instanceof Error ? error.message : 'Failed to delete quiz',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsDeletingQuiz(false);
     }
   };
   const handleDiscardChanges = () => {
@@ -922,24 +886,6 @@ export const EditVideoModal = ({
                         <h3 className="text-lg font-semibold">
                           {quiz ? 'Edit Quiz' : 'Create Quiz'}
                         </h3>
-                        {quiz && <div className="flex items-center space-x-2">
-                            {quizUsage && !quizUsage.canDelete && <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                <span>Cannot delete: {quizUsage.attemptCount} completion(s)</span>
-                              </div>}
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="sm" className={cn("text-destructive hover:text-destructive hover:bg-destructive/10", quizUsage && !quizUsage.canDelete && "opacity-50 cursor-not-allowed")} onClick={() => quizUsage?.canDelete && setDeleteQuizDialogOpen(true)} disabled={!quizUsage?.canDelete || usageLoading} aria-label={quizUsage?.canDelete ? "Delete Quiz" : `Cannot delete quiz: ${quizUsage?.attemptCount || 0} completions`}>
-                                    <Trash2 className="w-4 h-4 mr-1" />
-                                    Delete Quiz
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {quizUsage?.canDelete ? "Delete Quiz" : `Cannot delete: Quiz has ${quizUsage?.attemptCount || 0} completion(s) by users`}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>}
                      </div>
                     
                     <div>
@@ -1152,20 +1098,18 @@ export const EditVideoModal = ({
 
           <DialogFooter className="!flex !flex-row !justify-between !items-center">
             <div className="flex items-center space-x-4">
-              {videoUsage && !videoUsage.canDelete && <div className="text-sm text-muted-foreground">
-                  Cannot delete: {videoUsage.assignedCount} assigned, {videoUsage.completedCount} completed
-                  {videoUsage.quizCompletedCount > 0 && `, ${videoUsage.quizCompletedCount} quiz completions`}
-                </div>}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="link" onClick={() => videoUsage?.canDelete && setDeleteDialogOpen(true)} className={cn("text-destructive hover:text-destructive p-0 h-auto font-normal", videoUsage && !videoUsage.canDelete && "opacity-50 cursor-not-allowed")} disabled={!videoUsage?.canDelete || usageLoading} aria-label={videoUsage?.canDelete ? "Delete Video" : "Cannot delete video: has user assignments or completions"}>
+                    <Button variant="link" onClick={() => videoUsage?.canDelete && setDeleteDialogOpen(true)} className={cn("text-destructive hover:text-destructive p-0 h-auto font-normal", videoUsage && !videoUsage.canDelete && "opacity-50 cursor-not-allowed")} disabled={!videoUsage?.canDelete || usageLoading} aria-label={videoUsage?.canDelete ? (quiz ? "Delete Video and Quiz" : "Delete Video") : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user(s). Use Hide on Trainings tab instead.`}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete Video
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {videoUsage?.canDelete ? "Delete Video" : "Cannot delete: Video has been assigned or completed by users. Hide video instead to remove from list."}
+                    {videoUsage?.canDelete 
+                      ? (quiz ? "Delete Video and Quiz" : "Delete Video")
+                      : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user${videoUsage?.assignedCount !== 1 ? 's' : ''}. Use Hide on Trainings tab instead.`}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -1189,7 +1133,9 @@ export const EditVideoModal = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Video</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{video?.title}"? This action cannot be undone.
+              Are you sure you want to delete "{video?.title}"?
+              {quiz && " This will also delete the associated quiz."}
+              {" "}This video has not been assigned to any users. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1201,23 +1147,6 @@ export const EditVideoModal = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete Quiz Confirmation Dialog */}
-      <AlertDialog open={deleteQuizDialogOpen} onOpenChange={setDeleteQuizDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the quiz "{quiz?.title}"? This action cannot be undone and all quiz attempts will be lost.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleQuizDelete} disabled={isDeletingQuiz} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {isDeletingQuiz ? 'Deleting...' : 'Delete Quiz'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Unsaved Changes Dialog */}
       <AlertDialog open={unsavedChangesDialogOpen} onOpenChange={setUnsavedChangesDialogOpen}>

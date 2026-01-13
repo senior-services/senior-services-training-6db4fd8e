@@ -277,7 +277,7 @@ export const videoOperations = {
       const assignedCount = assignedData.data?.length || 0;
       const completedCount = completedData.data?.length || 0;
       const quizCompletedCount = quizData.data?.length || 0;
-      const canDelete = assignedCount === 0 && completedCount === 0 && quizCompletedCount === 0;
+      const canDelete = assignedCount === 0;
 
       return { 
         data: { canDelete, assignedCount, completedCount, quizCompletedCount }, 
