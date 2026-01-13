@@ -18,7 +18,7 @@ import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { quizOperations } from '@/services/quizService';
 import { sanitizeText, createSafeDisplayName, validateUserRole } from '@/utils/security';
-import { createTableAriaProps } from '@/utils/accessibility';
+
 import * as XLSX from 'xlsx';
 export const EmployeeManagement: React.FC<{
   onCountChange?: (count: number) => void;
@@ -35,7 +35,7 @@ export const EmployeeManagement: React.FC<{
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState<Employee | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [sortColumn, setSortColumn] = useState<'name' | 'status' | null>(null);
+  const [sortColumn, setSortColumn] = useState<'name' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const {
     toast
@@ -230,61 +230,23 @@ export const EmployeeManagement: React.FC<{
       return newExpanded;
     });
   }, []);
-
-  // Status priority constants for sorting
-  const STATUS_PRIORITY = {
-    OVERDUE: 0,
-    INCOMPLETE: 1,
-    COMPLETE: 2,
-    NO_TRAINING: 3
-  } as const;
-  const getStatusPriority = useCallback((employeeId: string): number => {
-    const videos = employeeVideos.get(employeeId) || [];
-    const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
-    if (requiredVideos.length === 0) return STATUS_PRIORITY.NO_TRAINING;
-    const overdueRequired = requiredVideos.filter(assignment => {
-      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
-      if (!!quizAttempt) return false;
-      if (!assignment.due_date) return false;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const due = new Date(assignment.due_date);
-      due.setHours(0, 0, 0, 0);
-      const daysUntilDue = differenceInDays(due, today);
-      return isPast(due) && daysUntilDue < 0;
-    });
-    if (overdueRequired.length > 0) return STATUS_PRIORITY.OVERDUE;
-    const completedRequired = requiredVideos.filter(assignment => {
-      const quizAttempt = employeeQuizzes.get(employeeId)?.get(assignment.video_id);
-      return !!quizAttempt;
-    });
-    if (completedRequired.length === requiredVideos.length) return STATUS_PRIORITY.COMPLETE;
-    return STATUS_PRIORITY.INCOMPLETE;
-  }, [employeeVideos, employeeQuizzes]);
-  const handleSort = useCallback((column: 'name' | 'status') => {
-    if (sortColumn === column) {
+  const handleSort = useCallback(() => {
+    if (sortColumn === 'name') {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortColumn(column);
+      setSortColumn('name');
       setSortDirection('asc');
     }
   }, [sortColumn, sortDirection]);
   const getSortedEmployees = useMemo(() => {
     if (!sortColumn) return employees;
     return [...employees].sort((a, b) => {
-      let comparison = 0;
-      if (sortColumn === 'name') {
-        const aName = a.full_name || a.email?.split('@')[0] || '';
-        const bName = b.full_name || b.email?.split('@')[0] || '';
-        comparison = aName.localeCompare(bName);
-      } else if (sortColumn === 'status') {
-        const aPriority = getStatusPriority(a.id);
-        const bPriority = getStatusPriority(b.id);
-        comparison = aPriority - bPriority;
-      }
+      const aName = a.full_name || a.email?.split('@')[0] || '';
+      const bName = b.full_name || b.email?.split('@')[0] || '';
+      const comparison = aName.localeCompare(bName);
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [employees, sortColumn, sortDirection, getStatusPriority]);
+  }, [employees, sortColumn, sortDirection]);
   const getEmployeeStatus = (employeeId: string) => {
     const videos = employeeVideos.get(employeeId) || [];
     const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
@@ -533,19 +495,14 @@ export const EmployeeManagement: React.FC<{
             <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort('name')} className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group" aria-label={`Sort by name ${sortColumn === 'name' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`} {...createTableAriaProps(sortColumn === 'name' ? sortColumn : undefined, sortColumn === 'name' ? sortDirection : undefined)}>
+                  <TableHead aria-sort={sortColumn === 'name' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}>
+                    <Button variant="ghost" onClick={handleSort} className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group" aria-label={`Sort by name ${sortColumn === 'name' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}>
                       Name
                       {sortColumn === 'name' ? sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                     </Button>
                   </TableHead>
                   <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">EMAIL</TableHead>
-                  <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort('status')} className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group" aria-label={`Sort by status ${sortColumn === 'status' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`} {...createTableAriaProps(sortColumn === 'status' ? sortColumn : undefined, sortColumn === 'status' ? sortDirection : undefined)}>
-                      Status
-                      {sortColumn === 'status' ? sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
-                    </Button>
-                  </TableHead>
+                  <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
                   <TableHead className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
