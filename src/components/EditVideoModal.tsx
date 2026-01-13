@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
 import { Play, FileVideo, Trash2, Copy, ExternalLink, Plus, FileQuestion } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -1088,21 +1088,28 @@ export const EditVideoModal = ({
 
           <DialogFooter className="!flex !flex-row !justify-between !items-center">
             <div className="flex items-center space-x-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="link" onClick={() => videoUsage?.canDelete && setDeleteDialogOpen(true)} className={cn("text-destructive hover:text-destructive p-0 h-auto font-normal transition-none", videoUsage && !videoUsage.canDelete && "opacity-50 cursor-not-allowed")} disabled={!videoUsage?.canDelete || usageLoading} aria-label={videoUsage?.canDelete ? (quiz ? "Delete Video and Quiz" : "Delete Video") : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user(s). Use Hide on Trainings tab instead.`}>
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Video
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {videoUsage?.canDelete 
-                      ? (quiz ? "Delete Video and Quiz" : "Delete Video")
-                      : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user${videoUsage?.assignedCount !== 1 ? 's' : ''}. Use Hide on Trainings tab instead.`}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <ButtonWithTooltip
+                variant="link"
+                onClick={() => setDeleteDialogOpen(true)}
+                className="text-destructive hover:text-destructive p-0 h-auto font-normal transition-none"
+                disabled={!videoUsage?.canDelete || usageLoading}
+                tooltip={
+                  videoUsage?.canDelete === false
+                    ? `Cannot delete: Assigned to ${videoUsage.assignedCount} user${videoUsage.assignedCount !== 1 ? 's' : ''}. Use Hide on Trainings tab instead.`
+                    : quiz 
+                      ? "Delete Video and Quiz" 
+                      : "Delete Video"
+                }
+                tooltipPosition="top"
+                aria-label={
+                  videoUsage?.canDelete 
+                    ? (quiz ? "Delete Video and Quiz" : "Delete Video") 
+                    : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user(s)`
+                }
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Video
+              </ButtonWithTooltip>
             </div>
             
             <div className="flex space-x-2">
