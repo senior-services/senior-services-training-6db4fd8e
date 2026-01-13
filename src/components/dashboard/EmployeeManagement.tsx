@@ -18,7 +18,6 @@ import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { quizOperations } from '@/services/quizService';
 import { sanitizeText, createSafeDisplayName, validateUserRole } from '@/utils/security';
-
 import * as XLSX from 'xlsx';
 export const EmployeeManagement: React.FC<{
   onCountChange?: (count: number) => void;
@@ -495,8 +494,8 @@ export const EmployeeManagement: React.FC<{
             <Table className="table-fixed w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead aria-sort={sortColumn === 'name' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}>
-                    <Button variant="ghost" onClick={handleSort} className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group" aria-label={`Sort by name ${sortColumn === 'name' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}>
+                  <TableHead aria-sort={sortColumn === 'name' ? sortDirection === 'asc' ? 'ascending' : 'descending' : undefined}>
+                    <Button variant="ghost" onClick={handleSort} className="text-xs uppercase text-muted-foreground p-0 h-auto hover:bg-transparent hover:text-primary hover:shadow-none group" aria-label={`Sort by name ${sortColumn === 'name' ? sortDirection === 'asc' ? 'descending' : 'ascending' : 'ascending'}`}>
                       Name
                       {sortColumn === 'name' ? sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                     </Button>
@@ -555,7 +554,7 @@ export const EmployeeManagement: React.FC<{
                                  <div className="grid grid-cols-4 gap-6 px-4 py-2 border-b">
                                    <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
                                    <div className="text-xs font-medium uppercase text-muted-foreground">STATUS</div>
-                                    <div className="text-xs font-medium uppercase text-muted-foreground">DATE</div>
+                                    <div className="text-xs font-medium uppercase text-muted-foreground">DATE COMPLETED</div>
                                     <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
                                  </div>
                                 
