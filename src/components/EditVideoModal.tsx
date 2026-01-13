@@ -1101,7 +1101,7 @@ export const EditVideoModal = ({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="link" onClick={() => videoUsage?.canDelete && setDeleteDialogOpen(true)} className={cn("text-destructive hover:text-destructive p-0 h-auto font-normal", videoUsage && !videoUsage.canDelete && "opacity-50 cursor-not-allowed")} disabled={!videoUsage?.canDelete || usageLoading} aria-label={videoUsage?.canDelete ? (quiz ? "Delete Video and Quiz" : "Delete Video") : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user(s). Use Hide on Trainings tab instead.`}>
+                    <Button variant="link" onClick={() => videoUsage?.canDelete && setDeleteDialogOpen(true)} className={cn("text-destructive hover:text-destructive p-0 h-auto font-normal transition-none", videoUsage && !videoUsage.canDelete && "opacity-50 cursor-not-allowed")} disabled={!videoUsage?.canDelete || usageLoading} aria-label={videoUsage?.canDelete ? (quiz ? "Delete Video and Quiz" : "Delete Video") : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user(s). Use Hide on Trainings tab instead.`}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete Video
                     </Button>
