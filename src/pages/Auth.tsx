@@ -157,7 +157,7 @@ export const Auth = () => {
                   </Button>
                   <Button onClick={handleTestEmployee2Login} disabled={isLoading} variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50">
                     <User className="w-4 h-4 mr-1" />
-                    Employee 2
+                    Joe
                   </Button>
                   <Button onClick={handleTestAdminLogin} disabled={isLoading} variant="outline" size="sm" className="border-red-200 text-red-700 hover:bg-red-50">
                     <User className="w-4 h-4 mr-1" />
