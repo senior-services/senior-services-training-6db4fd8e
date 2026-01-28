@@ -500,7 +500,7 @@ export const EmployeeManagement: React.FC<{
                       {sortColumn === 'name' ? sortDirection === 'asc' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />}
                     </Button>
                   </TableHead>
-                  <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">EMAIL</TableHead>
+                  
                   <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
                   <TableHead className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
                 </TableRow>
@@ -519,12 +519,19 @@ export const EmployeeManagement: React.FC<{
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
                               {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                              <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
+                              <div className="flex flex-col">
+                                <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
+                                {employee.email && (
+                                  <span 
+                                    className="text-xs text-muted-foreground font-normal truncate max-w-[200px]" 
+                                    title={employee.email}
+                                  >
+                                    {sanitizeText(employee.email)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="py-3 truncate min-w-0">
-                          {sanitizeText(employee.email || '')}
                         </TableCell>
                         <TableCell className="py-3">
                           {getEmployeeStatus(employee.id)}
@@ -546,7 +553,7 @@ export const EmployeeManagement: React.FC<{
                       </TableRow>
                       
                       {isExpanded && <TableRow className="bg-muted/50">
-                          <TableCell colSpan={4} className="py-4">
+                          <TableCell colSpan={3} className="py-4">
                             {employeeVideos.get(employee.id)?.length === 0 ? <p className="text-muted-foreground text-center py-4">
                                 No video assignments found for this employee.
                               </p> : <div className="space-y-3 bg-muted/100 rounded-md p-4">
