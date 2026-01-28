@@ -541,7 +541,7 @@ export const EmployeeManagement: React.FC<{
                              <Button variant="outline" size="sm" onClick={e => {
                         e.stopPropagation();
                         handleAssignVideos(employee);
-                      }} aria-label={`Assign videos to ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}>Assign Trainings</Button>
+                      }} aria-label={`Edit assignments for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}>Edit Assignments</Button>
                              <IconButtonWithTooltip icon={Trash2} tooltip={getTooltipText('delete-item', {
                         name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')
                       })} onClick={e => {
