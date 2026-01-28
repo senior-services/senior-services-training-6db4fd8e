@@ -153,7 +153,7 @@ export const Auth = () => {
                 <div className="grid grid-cols-3 gap-2">
                   <Button onClick={handleTestEmployeeLogin} disabled={isLoading} variant="outline" size="sm" className="border-blue-200 text-blue-700 hover:bg-blue-50">
                     <User className="w-4 h-4 mr-1" />
-                    Employee 1
+                    Jane
                   </Button>
                   <Button onClick={handleTestEmployee2Login} disabled={isLoading} variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50">
                     <User className="w-4 h-4 mr-1" />
