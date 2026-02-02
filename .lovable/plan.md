@@ -1,9 +1,20 @@
 
 
-## Add Table View with Status Columns to Assign Videos Dialog
+## Checkbox Redesign for Assign Videos Dialog
 
 ### Overview
-Transform the current list-based video display into a structured table with three columns: **Course**, **Completion Status**, and **Due Date**. Uses soft badge variants for better visibility against table backgrounds.
+Redesign the checkbox behavior to use an **additive/subtractive workflow** where checkboxes start unchecked and enable context-aware Assign or Unassign buttons based on the type of videos selected.
+
+---
+
+### New Behavior
+
+| Filter View | Starting State | When Checked | Action Available |
+|-------------|----------------|--------------|------------------|
+| Unassigned | All unchecked | "Assign Videos" button appears | Creates new assignments |
+| Assigned (Pending/Overdue) | All unchecked | "Unassign" button appears | Shows confirmation, then removes assignments |
+| Completed | Visible, disabled | Cannot check | No action (read-only) |
+| All | Mixed per video type | Context-aware buttons | Based on selection type |
 
 ---
 
@@ -13,223 +24,271 @@ Transform the current list-based video display into a structured table with thre
 
 ---
 
-### Change 1: Add Table and Badge Imports
+### Change 1: Add Unassign Dialog State
 
-**Add to existing imports:**
+**Line 102** - Add new state variable after `showDiscardDialog`:
+
 ```tsx
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+const [showUnassignDialog, setShowUnassignDialog] = useState(false);
 ```
 
 ---
 
-### Change 2: Add Helper Functions (Before getFilteredVideos function)
+### Change 2: Initialize Checkboxes as Unchecked
+
+**Line 162** - Change from copying assigned IDs to empty set:
 
 ```tsx
-// Get completion status for a video
-const getCompletionStatus = (videoId: string): 'overdue' | 'pending' | 'completed' | 'unassigned' => {
-  if (completedVideoIds.has(videoId)) return 'completed';
-  if (!assignedVideoIds.has(videoId)) return 'unassigned';
-  
-  const deadline = videoDeadlines.get(videoId) || assignmentData.get(videoId)?.due_date;
-  if (deadline) {
-    const dueDate = typeof deadline === 'string' ? new Date(deadline) : deadline;
-    if (isPast(dueDate) && !completedVideoIds.has(videoId)) {
-      return 'overdue';
+// Before
+setSelectedVideoIds(new Set(currentlyAssigned));
+
+// After  
+setSelectedVideoIds(new Set());
+```
+
+---
+
+### Change 3: Add Selection Helper Functions
+
+**Before line 246 (before the old handleSubmit)** - Add these helper functions:
+
+```tsx
+// Get IDs of selected unassigned videos (for assigning)
+const getSelectedUnassignedIds = (): Set<string> => {
+  const result = new Set<string>();
+  for (const videoId of selectedVideoIds) {
+    if (!assignedVideoIds.has(videoId) && !completedVideoIds.has(videoId)) {
+      result.add(videoId);
     }
   }
-  return 'pending';
+  return result;
 };
 
-// Format due date for display
-const formatDueDate = (videoId: string): string => {
-  if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return '--';
-  
-  if (completedVideoIds.has(videoId)) {
-    const progressData = videoProgressData.get(videoId);
-    if (progressData?.completed_at) {
-      return format(new Date(progressData.completed_at), 'MMM dd, yyyy');
+// Get IDs of selected assigned videos that can be unassigned (pending/overdue, not completed)
+const getSelectedAssignedIds = (): Set<string> => {
+  const result = new Set<string>();
+  for (const videoId of selectedVideoIds) {
+    if (assignedVideoIds.has(videoId) && !completedVideoIds.has(videoId)) {
+      result.add(videoId);
     }
   }
-  
-  const deadline = videoDeadlines.get(videoId);
-  const existingDueDate = assignmentData.get(videoId)?.due_date;
-  
-  if (deadline) {
-    return format(deadline, 'MMM dd, yyyy');
-  } else if (existingDueDate) {
-    return format(new Date(existingDueDate), 'MMM dd, yyyy');
-  }
-  return 'N/A';
-};
-
-// Get badge variant for completion status (using soft variants for visibility)
-const getStatusBadgeVariant = (status: 'overdue' | 'pending' | 'completed' | 'unassigned') => {
-  switch (status) {
-    case 'completed': return 'soft-success';
-    case 'overdue': return 'soft-destructive';
-    case 'pending': return 'secondary';
-    case 'unassigned': return 'soft-tertiary';
-  }
+  return result;
 };
 ```
 
 ---
 
-### Change 3: Replace Video List with Table
+### Change 4: Replace handleSubmit with Separate Handlers
 
-**Replace the current video list section with:**
+**Lines 246-326** - Replace the entire `handleSubmit` function with two safe handlers:
 
 ```tsx
-<div className="overflow-x-auto">
-  <Table>
-    <TableHeader>
-      <TableRow>
-        <TableHead className="w-[40px]"></TableHead>
-        <TableHead>Course</TableHead>
-        <TableHead>Completion Status</TableHead>
-        <TableHead>Due Date</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {filteredVideos.map((video) => {
-        const isSelected = selectedVideoIds.has(video.id);
-        const isCompleted = completedVideoIds.has(video.id);
-        const status = getCompletionStatus(video.id);
-        
-        return (
-          <TableRow key={video.id}>
-            <TableCell className="w-[40px]">
-              <Checkbox
-                id={`video-${video.id}`}
-                checked={isSelected}
-                disabled={isCompleted}
-                onCheckedChange={(checked) => 
-                  handleVideoToggle(video.id, checked as boolean)
-                }
-              />
-            </TableCell>
-            
-            <TableCell>
-              <Label 
-                htmlFor={`video-${video.id}`}
-                className={cn(
-                  "flex items-center gap-2",
-                  !isCompleted && "cursor-pointer"
-                )}
-              >
-                <span className={cn(
-                  "font-medium text-sm",
-                  isCompleted && "text-muted-foreground"
-                )}>
-                  {video.title}
-                </span>
-                {hiddenVideoIds.has(video.id) && (
-                  <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
-                    <TooltipTrigger asChild>
-                      <span className="text-warning">
-                        <EyeOff className="h-4 w-4" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p>This video is hidden from view on videos tab</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-              </Label>
-            </TableCell>
-            
-            <TableCell>
-              <Badge variant={getStatusBadgeVariant(status)}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </Badge>
-            </TableCell>
-            
-            <TableCell>
-              {isSelected && !isCompleted ? (
-                <Popover 
-                  open={calendarOpen.get(video.id) || false}
-                  onOpenChange={(open) => {
-                    setCalendarOpen(prev => {
-                      const newOpen = new Map(prev);
-                      newOpen.set(video.id, open);
-                      return newOpen;
-                    });
-                  }}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={cn(
-                        "h-8 justify-start text-left font-normal px-2",
-                        !videoDeadlines.get(video.id) && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {formatDueDate(video.id)}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[9999]" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={videoDeadlines.get(video.id)}
-                      onSelect={(date) => handleDeadlineChange(video.id, date)}
-                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              ) : (
-                <span className="text-sm text-muted-foreground">
-                  {formatDueDate(video.id)}
-                </span>
-              )}
-            </TableCell>
-          </TableRow>
-        );
-      })}
-    </TableBody>
-  </Table>
-</div>
+// Handle assigning new videos (additive only - cannot delete existing)
+const handleAssign = async () => {
+  if (!employee) return;
+
+  const videosToAssign = getSelectedUnassignedIds();
+  if (videosToAssign.size === 0) return;
+
+  setIsSubmitting(true);
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const promises: Promise<any>[] = [];
+    for (const videoId of videosToAssign) {
+      const dueDate = videoDeadlines.get(videoId);
+      promises.push(assignmentOperations.create(videoId, employee.id, user.id, dueDate));
+    }
+
+    await Promise.all(promises);
+
+    toast({
+      title: "Success",
+      description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? 's' : ''} assigned to ${employee.full_name || employee.email}`,
+    });
+
+    onAssignmentComplete();
+    onOpenChange(false);
+  } catch (error) {
+    logger.error('Error assigning videos', error as Error);
+    toast({
+      title: "Error",
+      description: "Failed to assign trainings",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+// Handle unassigning videos (called after confirmation)
+const handleUnassign = async () => {
+  if (!employee) return;
+
+  const videosToUnassign = getSelectedAssignedIds();
+  if (videosToUnassign.size === 0) return;
+
+  setIsSubmitting(true);
+  try {
+    const promises: Promise<any>[] = [];
+    for (const videoId of videosToUnassign) {
+      const assignment = assignmentData.get(videoId);
+      if (assignment) {
+        promises.push(assignmentOperations.delete(assignment.id));
+      }
+    }
+
+    await Promise.all(promises);
+
+    toast({
+      title: "Success",
+      description: `${videosToUnassign.size} training${videosToUnassign.size !== 1 ? 's' : ''} unassigned from ${employee.full_name || employee.email}`,
+    });
+
+    onAssignmentComplete();
+    onOpenChange(false);
+  } catch (error) {
+    logger.error('Error unassigning videos', error as Error);
+    toast({
+      title: "Error",
+      description: "Failed to unassign trainings",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
+    setShowUnassignDialog(false);
+  }
+};
 ```
 
 ---
 
-### Badge Variant Mapping (Soft for Visibility)
+### Change 5: Simplify handleClose and closeModal
 
-| Status | Badge Variant | Visual |
-|--------|---------------|--------|
-| Completed | soft-success | Green with light background tint |
-| Overdue | soft-destructive | Red with light background tint |
-| Pending | secondary | Gray solid |
-| Unassigned | soft-tertiary | Neutral with light background |
+**Lines 328-347** - Update change detection and reset logic:
+
+```tsx
+const handleClose = () => {
+  // Only show discard dialog if user has made selections
+  if (selectedVideoIds.size > 0) {
+    setShowDiscardDialog(true);
+  } else {
+    closeModal();
+  }
+};
+
+const closeModal = () => {
+  setSelectedVideoIds(new Set());
+  setVideoDeadlines(new Map(initialVideoDeadlines));
+  setCalendarOpen(new Map());
+  setShowDiscardDialog(false);
+  setShowUnassignDialog(false);
+  setFilterMode('unassigned');
+  onOpenChange(false);
+};
+```
 
 ---
 
-### Status Logic Summary
+### Change 6: Update Derived State Variables
 
-| State | Completion Status | Due Date |
-|-------|------------------|----------|
-| Not assigned | Unassigned | -- |
-| Assigned, no due date | Pending | N/A |
-| Assigned, due date set | Pending | MMM dd, yyyy |
-| Assigned, past due date | Overdue | MMM dd, yyyy |
-| Completed | Completed | MMM dd, yyyy (completion date) |
+**Lines 425-432** - Replace old change detection with new selection counts:
+
+```tsx
+const selectedUnassignedCount = getSelectedUnassignedIds().size;
+const selectedAssignedCount = getSelectedAssignedIds().size;
+const canAssign = selectedUnassignedCount > 0;
+const canUnassign = selectedAssignedCount > 0;
+const filteredVideos = getFilteredVideos();
+const filteredVideosCount = filteredVideos.length;
+```
 
 ---
 
-### Key Details
+### Change 7: Replace Footer with Context-Aware Buttons
 
-- **Date format**: `MMM dd, yyyy` (e.g., "Feb 15, 2026") — matches app-wide format
-- **Soft badges**: Better visibility with subtle background tints vs ghost variants
-- **Mobile responsive**: Table wrapped in `overflow-x-auto` for horizontal scrolling
-- **Existing functionality preserved**: Checkbox, calendar picker, hidden video indicator
+**Lines 603-618** - Replace DialogFooter content:
+
+```tsx
+<DialogFooter>
+  <Button
+    type="button"
+    variant="outline"
+    onClick={handleClose}
+    disabled={isSubmitting}
+  >
+    Cancel
+  </Button>
+  
+  {canUnassign && (
+    <Button 
+      variant="destructive"
+      onClick={() => setShowUnassignDialog(true)}
+      disabled={isSubmitting}
+    >
+      Unassign ({selectedAssignedCount})
+    </Button>
+  )}
+  
+  {canAssign && (
+    <Button 
+      onClick={handleAssign} 
+      disabled={isSubmitting}
+    >
+      {isSubmitting ? 'Assigning...' : `Assign Videos (${selectedUnassignedCount})`}
+    </Button>
+  )}
+</DialogFooter>
+```
+
+---
+
+### Change 8: Add Unassign Confirmation Dialog
+
+**After line 634 (after the existing discard dialog)** - Add new confirmation dialog:
+
+```tsx
+<AlertDialog open={showUnassignDialog} onOpenChange={setShowUnassignDialog}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Unassign trainings?</AlertDialogTitle>
+      <AlertDialogDescription>
+        Are you sure you want to unassign {selectedAssignedCount} training{selectedAssignedCount !== 1 ? 's' : ''}? 
+        Any user progress will be lost and cannot be retrieved.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+      <AlertDialogAction 
+        onClick={handleUnassign}
+        disabled={isSubmitting}
+        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      >
+        {isSubmitting ? 'Unassigning...' : 'Unassign'}
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+```
+
+---
+
+### Button Visibility Logic
+
+| User Selection | Cancel | Unassign | Assign Videos |
+|----------------|--------|----------|---------------|
+| None | Shown | Hidden | Hidden |
+| Only unassigned videos | Shown | Hidden | Shown with count |
+| Only assigned videos | Shown | Shown with count | Hidden |
+| Both types | Shown | Shown with count | Shown with count |
+
+---
+
+### Safety Guarantees
+
+1. **No accidental deletions**: The `handleAssign` function only creates new assignments - it never touches existing ones
+2. **Explicit unassign flow**: Removing assignments requires explicit checkbox selection + confirmation dialog
+3. **Completed videos protected**: Checkbox is disabled for completed trainings
+4. **Clear user warning**: Unassign confirmation explicitly warns about progress loss
 
