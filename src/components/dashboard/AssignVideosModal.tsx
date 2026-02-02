@@ -582,11 +582,11 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                   variant="pill"
                   className="justify-start flex-wrap"
                 >
-                  <ToggleGroupItem value="unassigned" className="text-xs px-3 py-1" aria-label="Filter by unassigned videos">
-                    Unassigned
-                  </ToggleGroupItem>
                   <ToggleGroupItem value="assigned" className="text-xs px-3 py-1" aria-label="Filter by assigned videos">
                     Assigned
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="unassigned" className="text-xs px-3 py-1" aria-label="Filter by unassigned videos">
+                    Unassigned
                   </ToggleGroupItem>
                   <ToggleGroupItem value="completed" className="text-xs px-3 py-1" aria-label="Filter by completed videos">
                     Completed
