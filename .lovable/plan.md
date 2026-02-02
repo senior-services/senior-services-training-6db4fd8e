@@ -1,141 +1,91 @@
 
 
-## Implement FullscreenDialogContent Component
+## Implement Fullscreen Dialog for Edit Assignments Modal
 
 ### Overview
-Adding a new `FullscreenDialogContent` component to the dialog system and showcasing it in the Component Gallery. The base `DialogContent` remains unchanged.
+Converting the "Edit Assignments" dialog in Admin → Employees to use the new `FullscreenDialogContent` component. This provides more screen space for viewing and managing video assignments.
 
 ---
 
-### File Changes
+### File to Modify
 
-#### File 1: `src/components/ui/dialog.tsx`
+**`src/components/dashboard/AssignVideosModal.tsx`**
 
-**Add new component** after `DialogContent` (after line 52):
+---
 
+### Change 1: Update Import (Lines 2-9)
+
+**Current:**
 ```tsx
-const FullscreenDialogContent = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed inset-2 sm:inset-2.5 z-50 border bg-background shadow-lg rounded-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 flex flex-col [&>:not([data-dialog-header]):not([data-dialog-footer]):not([data-dialog-scroll-area])]:px-6 [&>:not([data-dialog-header]):not([data-dialog-footer]):not([data-dialog-scroll-area])]:py-6",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close className="absolute right-2 top-2 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
-FullscreenDialogContent.displayName = "FullscreenDialogContent"
-```
-
-**Update exports** (line 115-126) to include the new component:
-
-```tsx
-export {
+import {
   Dialog,
-  DialogPortal,
-  DialogOverlay,
-  DialogClose,
-  DialogTrigger,
   DialogContent,
-  FullscreenDialogContent,
   DialogHeader,
+  DialogTitle,
   DialogScrollArea,
   DialogFooter,
+} from '@/components/ui/dialog';
+```
+
+**New:**
+```tsx
+import {
+  Dialog,
+  FullscreenDialogContent,
+  DialogHeader,
   DialogTitle,
-}
+  DialogScrollArea,
+  DialogFooter,
+} from '@/components/ui/dialog';
 ```
 
 ---
 
-#### File 2: `src/pages/ComponentsGallery.tsx`
+### Change 2: Replace Opening Tag (Line 385)
 
-**Update import** (line 21) to include the new component:
-
+**Current:**
 ```tsx
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogScrollArea, DialogTitle, DialogTrigger, FullscreenDialogContent, DialogClose } from "@/components/ui/dialog";
+<DialogContent className="sm:max-w-2xl">
 ```
 
-**Add fullscreen dialog example** after the existing Dialog (after line 1451):
-
+**New:**
 ```tsx
-<Dialog>
-  <DialogTrigger asChild>
-    <Button variant="secondary" className="shadow-md hover:shadow-lg transition-shadow">Open Fullscreen Dialog</Button>
-  </DialogTrigger>
-  <FullscreenDialogContent>
-    <DialogHeader>
-      <DialogTitle>Fullscreen Dialog</DialogTitle>
-    </DialogHeader>
-    <DialogScrollArea>
-      <div className="space-y-4">
-        <p>This fullscreen dialog fills the entire viewport with 8px spacing on mobile and 10px on larger screens.</p>
-        <p>It's ideal for immersive content, detailed forms, media viewers, or any content that benefits from maximum screen space.</p>
-        <p>The transparent overlay remains visible behind the dialog, maintaining visual context of the underlying page.</p>
-      </div>
-    </DialogScrollArea>
-    <DialogFooter>
-      <DialogClose asChild>
-        <Button variant="outline" className="shadow-md hover:shadow-lg transition-shadow">Cancel</Button>
-      </DialogClose>
-      <Button className="shadow-md hover:shadow-lg transition-shadow">Save Changes</Button>
-    </DialogFooter>
-  </FullscreenDialogContent>
-</Dialog>
+<FullscreenDialogContent>
 ```
 
 ---
 
-### Key Implementation Details
+### Change 3: Replace Closing Tag (Line 590)
 
-| Feature | Implementation |
-|---------|----------------|
-| Layout | `flex flex-col` only (no grid conflict) |
-| Mobile spacing | `inset-2` (8px) for touch-friendly margins |
-| Desktop spacing | `sm:inset-2.5` (10px) for larger screens |
-| Close button | Offset to `right-2 top-2` for better accessibility |
-| Padding inheritance | Same `[&>:not(...)]` rules as base dialog |
-| Animations | Simple fade in/out (no sliding) |
-
----
-
-### Visual Comparison
-
-```text
-Standard Dialog:              Fullscreen Dialog:
-┌──────────────────────┐      ┌──────────────────────┐
-│                      │      │ ┌──────────────────┐ │
-│    ┌──────────┐      │      │ │                  │ │
-│    │  Content │      │      │ │  Content fills   │ │
-│    │ (512px)  │      │      │ │  entire screen   │ │
-│    └──────────┘      │      │ │                  │ │
-│                      │      │ └──────────────────┘ │
-└──────────────────────┘      └──────────────────────┘
-                                ↑ 8-10px spacing
-```
-
----
-
-### Usage After Implementation
-
+**Current:**
 ```tsx
-// Standard centered dialog (unchanged)
-<DialogContent>...</DialogContent>
-
-// New fullscreen dialog
-<FullscreenDialogContent>...</FullscreenDialogContent>
+</DialogContent>
 ```
 
-Both work seamlessly with `DialogHeader`, `DialogScrollArea`, `DialogFooter`, and `DialogTitle`.
+**New:**
+```tsx
+</FullscreenDialogContent>
+```
+
+---
+
+### What Changes for Users
+
+| Aspect | Before | After |
+|--------|--------|-------|
+| Dialog size | Fixed max-width of 672px | Fills screen with 8-10px margins |
+| Video list | Compact, may require scrolling | More room to see all assignments |
+| Date pickers | Can feel cramped | More breathing room |
+| Mobile experience | Standard centered modal | Near-fullscreen for easier touch |
+
+---
+
+### What Stays the Same
+
+- All video assignment functionality
+- Checkbox selection behavior
+- Date picker calendars
+- Filter toggles (Unassigned/Assigned)
+- "Discard changes?" confirmation dialog (remains standard AlertDialog)
+- Save and Cancel buttons
 
