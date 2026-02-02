@@ -426,7 +426,7 @@ export const EmployeeManagement: React.FC<{
               </TableHeader>
               <TableBody>
                 {getSortedEmployees.map(employee => (
-                  <TableRow key={employee.id} className="group transition-colors hover:bg-slate-100">
+                  <TableRow key={employee.id}>
                     <TableCell className="py-3 font-medium">
                       <div className="flex flex-col">
                         <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
