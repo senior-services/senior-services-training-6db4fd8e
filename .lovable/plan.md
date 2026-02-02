@@ -1,20 +1,12 @@
 
-
-## Checkbox Redesign for Assign Videos Dialog
+## Implement Simplified Due Date Dialog with All Fixes
 
 ### Overview
-Redesign the checkbox behavior to use an **additive/subtractive workflow** where checkboxes start unchecked and enable context-aware Assign or Unassign buttons based on the type of videos selected.
-
----
-
-### New Behavior
-
-| Filter View | Starting State | When Checked | Action Available |
-|-------------|----------------|--------------|------------------|
-| Unassigned | All unchecked | "Assign Videos" button appears | Creates new assignments |
-| Assigned (Pending/Overdue) | All unchecked | "Unassign" button appears | Shows confirmation, then removes assignments |
-| Completed | Visible, disabled | Cannot check | No action (read-only) |
-| All | Mixed per video type | Context-aware buttons | Based on selection type |
+Update the Assign Videos modal to:
+1. Move action buttons (Assign, Unassign) to the header next to filter toggles
+2. Remove the footer with action buttons
+3. Replace per-row date pickers with a centralized due date selection dialog
+4. Include all critical fixes identified in the review
 
 ---
 
@@ -24,71 +16,130 @@ Redesign the checkbox behavior to use an **additive/subtractive workflow** where
 
 ---
 
-### Change 1: Add Unassign Dialog State
+### Change 1: Update Imports (Line 8)
 
-**Line 102** - Add new state variable after `showDiscardDialog`:
+Remove unused `DialogFooter` import and add imports that may be needed:
 
+**Before:**
 ```tsx
-const [showUnassignDialog, setShowUnassignDialog] = useState(false);
+import {
+  Dialog,
+  FullscreenDialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogScrollArea,
+  DialogFooter,
+} from '@/components/ui/dialog';
+```
+
+**After:**
+```tsx
+import {
+  Dialog,
+  FullscreenDialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogScrollArea,
+} from '@/components/ui/dialog';
 ```
 
 ---
 
-### Change 2: Initialize Checkboxes as Unchecked
+### Change 2: Add New State Variables (After Line 106)
 
-**Line 162** - Change from copying assigned IDs to empty set:
+Add state for the due date selection dialog:
 
 ```tsx
-// Before
-setSelectedVideoIds(new Set(currentlyAssigned));
-
-// After  
-setSelectedVideoIds(new Set());
+const [showDueDateDialog, setShowDueDateDialog] = useState(false);
+const [dueDateOption, setDueDateOption] = useState<'1week' | '2weeks' | '1month' | null>('1week');
+const [noDueDateRequired, setNoDueDateRequired] = useState(false);
 ```
 
 ---
 
-### Change 3: Add Selection Helper Functions
+### Change 3: Remove Unused State (Line 99)
 
-**Before line 246 (before the old handleSubmit)** - Add these helper functions:
+Delete the `calendarOpen` state which is no longer needed:
 
 ```tsx
-// Get IDs of selected unassigned videos (for assigning)
-const getSelectedUnassignedIds = (): Set<string> => {
-  const result = new Set<string>();
-  for (const videoId of selectedVideoIds) {
-    if (!assignedVideoIds.has(videoId) && !completedVideoIds.has(videoId)) {
-      result.add(videoId);
+// DELETE THIS LINE:
+const [calendarOpen, setCalendarOpen] = useState<Map<string, boolean>>(new Map());
+```
+
+---
+
+### Change 4: Add Due Date Helper Functions (After Line 245)
+
+Add functions to calculate due dates and handle user interactions:
+
+```tsx
+// Calculate due date based on selected option
+const calculateDueDate = (): Date | undefined => {
+  if (noDueDateRequired) return undefined;
+  
+  const today = new Date();
+  switch (dueDateOption) {
+    case '1week': {
+      const date = new Date(today);
+      date.setDate(date.getDate() + 7);
+      return date;
     }
+    case '2weeks': {
+      const date = new Date(today);
+      date.setDate(date.getDate() + 14);
+      return date;
+    }
+    case '1month': {
+      const date = new Date(today);
+      date.setMonth(date.getMonth() + 1);
+      return date;
+    }
+    default:
+      return undefined;
   }
-  return result;
 };
 
-// Get IDs of selected assigned videos that can be unassigned (pending/overdue, not completed)
-const getSelectedAssignedIds = (): Set<string> => {
-  const result = new Set<string>();
-  for (const videoId of selectedVideoIds) {
-    if (assignedVideoIds.has(videoId) && !completedVideoIds.has(videoId)) {
-      result.add(videoId);
-    }
+// Handle toggle selection - uncheck "no due date" when selecting a preset
+const handleDueDateOptionChange = (value: string) => {
+  if (value) {
+    setDueDateOption(value as '1week' | '2weeks' | '1month');
+    setNoDueDateRequired(false);
   }
-  return result;
+};
+
+// Handle checkbox - deselect toggles when checking "no due date"
+const handleNoDueDateChange = (checked: boolean | 'indeterminate') => {
+  const isChecked = checked === true;
+  setNoDueDateRequired(isChecked);
+  if (isChecked) {
+    setDueDateOption(null);
+  } else {
+    setDueDateOption('1week');
+  }
+};
+
+// Reset dialog state when closing
+const resetDueDateDialog = () => {
+  setDueDateOption('1week');
+  setNoDueDateRequired(false);
+  setShowDueDateDialog(false);
 };
 ```
 
 ---
 
-### Change 4: Replace handleSubmit with Separate Handlers
+### Change 5: Update handleAssign Function (Lines 270-306)
 
-**Lines 246-326** - Replace the entire `handleSubmit` function with two safe handlers:
+Modify to use the centralized due date from the dialog:
 
 ```tsx
-// Handle assigning new videos (additive only - cannot delete existing)
 const handleAssign = async () => {
   if (!employee) return;
 
   const videosToAssign = getSelectedUnassignedIds();
   if (videosToAssign.size === 0) return;
+
+  const dueDate = calculateDueDate();
 
   setIsSubmitting(true);
   try {
@@ -97,7 +148,6 @@ const handleAssign = async () => {
 
     const promises: Promise<any>[] = [];
     for (const videoId of videosToAssign) {
-      const dueDate = videoDeadlines.get(videoId);
       promises.push(assignmentOperations.create(videoId, employee.id, user.id, dueDate));
     }
 
@@ -118,154 +168,188 @@ const handleAssign = async () => {
       variant: "destructive",
     });
   } finally {
-    setIsSubmitting(false);
-  }
-};
-
-// Handle unassigning videos (called after confirmation)
-const handleUnassign = async () => {
-  if (!employee) return;
-
-  const videosToUnassign = getSelectedAssignedIds();
-  if (videosToUnassign.size === 0) return;
-
-  setIsSubmitting(true);
-  try {
-    const promises: Promise<any>[] = [];
-    for (const videoId of videosToUnassign) {
-      const assignment = assignmentData.get(videoId);
-      if (assignment) {
-        promises.push(assignmentOperations.delete(assignment.id));
-      }
-    }
-
-    await Promise.all(promises);
-
-    toast({
-      title: "Success",
-      description: `${videosToUnassign.size} training${videosToUnassign.size !== 1 ? 's' : ''} unassigned from ${employee.full_name || employee.email}`,
-    });
-
-    onAssignmentComplete();
-    onOpenChange(false);
-  } catch (error) {
-    logger.error('Error unassigning videos', error as Error);
-    toast({
-      title: "Error",
-      description: "Failed to unassign trainings",
-      variant: "destructive",
-    });
-  } finally {
-    setIsSubmitting(false);
-    setShowUnassignDialog(false);
+    setIsSubmitting(false);  // CRITICAL FIX: was incorrectly set to true in original plan
+    resetDueDateDialog();
   }
 };
 ```
 
 ---
 
-### Change 5: Simplify handleClose and closeModal
+### Change 6: Update closeModal Function (Lines 356-364)
 
-**Lines 328-347** - Update change detection and reset logic:
+Remove the `calendarOpen` reset since we're removing that state:
 
 ```tsx
-const handleClose = () => {
-  // Only show discard dialog if user has made selections
-  if (selectedVideoIds.size > 0) {
-    setShowDiscardDialog(true);
-  } else {
-    closeModal();
-  }
-};
-
 const closeModal = () => {
   setSelectedVideoIds(new Set());
   setVideoDeadlines(new Map(initialVideoDeadlines));
-  setCalendarOpen(new Map());
   setShowDiscardDialog(false);
   setShowUnassignDialog(false);
   setFilterMode('unassigned');
+  resetDueDateDialog();
   onOpenChange(false);
 };
 ```
 
 ---
 
-### Change 6: Update Derived State Variables
+### Change 7: Move Action Buttons to Header (Lines 468-489)
 
-**Lines 425-432** - Replace old change detection with new selection counts:
-
-```tsx
-const selectedUnassignedCount = getSelectedUnassignedIds().size;
-const selectedAssignedCount = getSelectedAssignedIds().size;
-const canAssign = selectedUnassignedCount > 0;
-const canUnassign = selectedAssignedCount > 0;
-const filteredVideos = getFilteredVideos();
-const filteredVideosCount = filteredVideos.length;
-```
-
----
-
-### Change 7: Replace Footer with Context-Aware Buttons
-
-**Lines 603-618** - Replace DialogFooter content:
+Update the filter section to include action buttons on the right:
 
 ```tsx
-<DialogFooter>
-  <Button
-    type="button"
-    variant="outline"
-    onClick={handleClose}
-    disabled={isSubmitting}
+<div className="pb-3 border-b flex items-center justify-between gap-4 flex-wrap">
+  <ToggleGroup 
+    type="single" 
+    value={filterMode} 
+    onValueChange={(value) => setFilterMode(value as typeof filterMode || 'unassigned')}
+    variant="pill"
+    className="justify-start flex-wrap"
   >
-    Cancel
-  </Button>
-  
-  {canUnassign && (
-    <Button 
-      variant="destructive"
-      onClick={() => setShowUnassignDialog(true)}
-      disabled={isSubmitting}
-    >
-      Unassign ({selectedAssignedCount})
-    </Button>
-  )}
-  
-  {canAssign && (
-    <Button 
-      onClick={handleAssign} 
-      disabled={isSubmitting}
-    >
-      {isSubmitting ? 'Assigning...' : `Assign Videos (${selectedUnassignedCount})`}
-    </Button>
-  )}
-</DialogFooter>
+    <ToggleGroupItem value="unassigned" className="text-xs px-3 py-1" aria-label="Filter by unassigned videos">
+      Unassigned
+    </ToggleGroupItem>
+    <ToggleGroupItem value="assigned" className="text-xs px-3 py-1" aria-label="Filter by assigned videos">
+      Assigned
+    </ToggleGroupItem>
+    <ToggleGroupItem value="completed" className="text-xs px-3 py-1" aria-label="Filter by completed videos">
+      Completed
+    </ToggleGroupItem>
+    <ToggleGroupItem value="all" className="text-xs px-3 py-1" aria-label="Show all videos">
+      All
+    </ToggleGroupItem>
+  </ToggleGroup>
+
+  {/* Action buttons moved to header */}
+  <div className="flex items-center gap-2">
+    {canAssign && (
+      <Button 
+        onClick={() => setShowDueDateDialog(true)} 
+        disabled={isSubmitting}
+        size="sm"
+      >
+        Assign ({selectedUnassignedCount})
+      </Button>
+    )}
+    {canUnassign && (
+      <Button 
+        variant="outline"
+        onClick={() => setShowUnassignDialog(true)}
+        disabled={isSubmitting}
+        size="sm"
+      >
+        Unassign ({selectedAssignedCount})
+      </Button>
+    )}
+  </div>
+</div>
 ```
 
 ---
 
-### Change 8: Add Unassign Confirmation Dialog
+### Change 8: Simplify Due Date Column (Lines 566-606)
 
-**After line 634 (after the existing discard dialog)** - Add new confirmation dialog:
+Replace the per-row date picker popover with a simple read-only display:
 
 ```tsx
-<AlertDialog open={showUnassignDialog} onOpenChange={setShowUnassignDialog}>
-  <AlertDialogContent>
+<TableCell>
+  <span className="text-sm text-muted-foreground">
+    {formatDueDate(video.id)}
+  </span>
+</TableCell>
+```
+
+---
+
+### Change 9: Remove DialogFooter (Lines 618-646)
+
+Delete the entire DialogFooter section since buttons are now in the header.
+
+---
+
+### Change 10: Add Due Date Selection Dialog (After Line 684)
+
+Add the new simplified dialog before the closing `</Dialog>` tag:
+
+```tsx
+{/* Due Date Selection Dialog */}
+<AlertDialog open={showDueDateDialog} onOpenChange={(open) => !open && resetDueDateDialog()}>
+  <AlertDialogContent className="sm:max-w-md">
     <AlertDialogHeader>
-      <AlertDialogTitle>Unassign trainings?</AlertDialogTitle>
+      <AlertDialogTitle>Select due date to assign trainings</AlertDialogTitle>
       <AlertDialogDescription>
-        Are you sure you want to unassign {selectedAssignedCount} training{selectedAssignedCount !== 1 ? 's' : ''}? 
-        Any user progress will be lost and cannot be retrieved.
+        {selectedUnassignedCount} training{selectedUnassignedCount !== 1 ? 's' : ''} selected
       </AlertDialogDescription>
     </AlertDialogHeader>
+    
+    <div className={cn("space-y-6 py-4", isSubmitting && "opacity-50 pointer-events-none")}>
+      {/* Date preset toggles */}
+      <div className="flex items-center gap-4 flex-wrap">
+        <span className="text-sm font-medium text-foreground">Training due in</span>
+        <ToggleGroup 
+          type="single" 
+          value={noDueDateRequired ? '' : (dueDateOption || '')}
+          onValueChange={handleDueDateOptionChange}
+          disabled={isSubmitting}
+          className="gap-2"
+        >
+          <ToggleGroupItem 
+            value="1week" 
+            className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            aria-label="Due in 1 week"
+          >
+            1 week
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="2weeks" 
+            className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            aria-label="Due in 2 weeks"
+          >
+            2 weeks
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="1month" 
+            className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            aria-label="Due in 1 month"
+          >
+            1 month
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      
+      {/* No due date checkbox with enhanced accessibility */}
+      <div className="flex items-start space-x-2">
+        <Checkbox 
+          id="no-due-date" 
+          checked={noDueDateRequired}
+          onCheckedChange={handleNoDueDateChange}
+          disabled={isSubmitting}
+          aria-describedby="no-due-date-desc"
+        />
+        <div className="grid gap-1.5 leading-none">
+          <Label 
+            htmlFor="no-due-date" 
+            className="text-sm font-normal cursor-pointer"
+          >
+            No due date required
+          </Label>
+          <p id="no-due-date-desc" className="text-xs text-muted-foreground">
+            Training will be assigned without a deadline
+          </p>
+        </div>
+      </div>
+    </div>
+
     <AlertDialogFooter>
-      <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+      <AlertDialogCancel disabled={isSubmitting} onClick={resetDueDateDialog}>
+        Cancel
+      </AlertDialogCancel>
       <AlertDialogAction 
-        onClick={handleUnassign}
+        onClick={handleAssign}
         disabled={isSubmitting}
-        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
       >
-        {isSubmitting ? 'Unassigning...' : 'Unassign'}
+        {isSubmitting ? 'Assigning...' : 'Assign'}
       </AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>
@@ -274,21 +358,62 @@ const filteredVideosCount = filteredVideos.length;
 
 ---
 
-### Button Visibility Logic
+### Change 11: Clean Up Unused Imports (Lines 34-39)
 
-| User Selection | Cancel | Unassign | Assign Videos |
-|----------------|--------|----------|---------------|
-| None | Shown | Hidden | Hidden |
-| Only unassigned videos | Shown | Hidden | Shown with count |
-| Only assigned videos | Shown | Shown with count | Hidden |
-| Both types | Shown | Shown with count | Shown with count |
+Remove Calendar and Popover imports if no longer used elsewhere in the file:
+
+```tsx
+// DELETE IF NO LONGER USED:
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+```
+
+Also remove `CalendarIcon` from the lucide-react import (line 45) if no longer used.
 
 ---
 
-### Safety Guarantees
+### Summary of All Fixes Applied
 
-1. **No accidental deletions**: The `handleAssign` function only creates new assignments - it never touches existing ones
-2. **Explicit unassign flow**: Removing assignments requires explicit checkbox selection + confirmation dialog
-3. **Completed videos protected**: Checkbox is disabled for completed trainings
-4. **Clear user warning**: Unassign confirmation explicitly warns about progress loss
+| Fix | Location | Description |
+|-----|----------|-------------|
+| Critical typo | handleAssign finally block | Changed `setIsSubmitting(true)` to `setIsSubmitting(false)` |
+| Loading state | Due date dialog content | Added `opacity-50 pointer-events-none` class during submission |
+| Disabled controls | ToggleGroup & Checkbox | Added `disabled={isSubmitting}` props |
+| Accessibility | Checkbox | Added `aria-describedby` and helper text description |
+| State cleanup | closeModal function | Added `resetDueDateDialog()` call |
+| Unused code | calendarOpen state | Removed along with related handlers |
+| Unused imports | Calendar, Popover, CalendarIcon | Removed if no longer needed |
 
+---
+
+### Visual Result
+
+**Header with action buttons:**
+```
++------------------------------------------------------------------+
+| Assign Videos to John Doe                                        |
++------------------------------------------------------------------+
+| [Unassigned][Assigned][Completed][All]    [Assign(3)][Unassign] |
++------------------------------------------------------------------+
+| □ Course Name          | Status    | Due Date                    |
++------------------------------------------------------------------+
+```
+
+**Due date selection dialog:**
+```
++--------------------------------------------------+
+| Select due date to assign trainings              |
+| 3 trainings selected                             |
+|                                                  |
+| Training due in   [1 week] [2 weeks] [1 month]  |
+|                                                  |
+| ☐ No due date required                           |
+|   Training will be assigned without a deadline   |
+|                                                  |
+|                         [Cancel]  [Assign]       |
++--------------------------------------------------+
+```
