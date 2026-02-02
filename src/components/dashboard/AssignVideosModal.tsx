@@ -524,11 +524,11 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     const quizAttempt = employeeQuizResults.get(videoId);
     
     if (!hasQuiz) {
-      return <span className="text-muted-foreground" aria-label="No quiz available">--</span>;
+      return <span aria-label="No quiz available">--</span>;
     }
     
     if (!quizAttempt) {
-      return <span className="text-muted-foreground">Not Completed</span>;
+      return <span>Not Completed</span>;
     }
     
     const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
@@ -672,12 +672,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                    !isCompleted && "cursor-pointer"
                                  )}
                                >
-                                 <span className={cn(
-                                   "font-medium text-sm",
-                                   isCompleted && "text-muted-foreground"
-                                 )}>
-                                   {video.title}
-                                 </span>
+                                 <span className="font-medium text-sm">
+                                    {video.title}
+                                  </span>
                                  {hiddenVideoIds.has(video.id) && (
                                    <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
                                      <TooltipTrigger asChild>
@@ -699,14 +696,11 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                </Badge>
                              </TableCell>
                              
-                              <TableCell>
-                                <span className={cn(
-                                  "text-sm",
-                                  !videoDeadlines.get(video.id) && "text-muted-foreground"
-                                )}>
-                                  {formatDueDate(video.id)}
-                                </span>
-                              </TableCell>
+                               <TableCell>
+                                 <span className="text-sm">
+                                   {formatDueDate(video.id)}
+                                 </span>
+                               </TableCell>
                               <TableCell>
                                 <span className="text-sm">
                                   {getQuizResults(video.id)}
