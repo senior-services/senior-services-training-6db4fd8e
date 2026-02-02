@@ -25,10 +25,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ButtonWithTooltip } from '@/components/ui/button-with-tooltip';
+
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 import {
   Tooltip,
@@ -287,22 +289,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     }
   };
 
-  // Handle toggle selection - uncheck "no due date" when selecting a preset
-  const handleDueDateOptionChange = (value: string) => {
-    if (value) {
+  // Handle radio selection for due date
+  const handleDueDateSelection = (value: string) => {
+    if (value === 'none') {
+      setDueDateOption(null);
+      setNoDueDateRequired(true);
+    } else {
       setDueDateOption(value as '1week' | '2weeks' | '1month');
       setNoDueDateRequired(false);
-    }
-  };
-
-  // Handle checkbox - deselect toggles when checking "no due date"
-  const handleNoDueDateChange = (checked: boolean | 'indeterminate') => {
-    const isChecked = checked === true;
-    setNoDueDateRequired(isChecked);
-    if (isChecked) {
-      setDueDateOption(null);
-    } else {
-      setDueDateOption('1week');
     }
   };
 
@@ -713,62 +707,39 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          <div className={cn("space-y-6 py-4", isSubmitting && "opacity-50 pointer-events-none")}>
-            {/* Date preset toggles */}
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-sm font-medium text-foreground">Training due in</span>
-              <ToggleGroup 
-                type="single" 
-                value={noDueDateRequired ? '' : (dueDateOption || '')}
-                onValueChange={handleDueDateOptionChange}
-                disabled={isSubmitting}
-                className="gap-2"
-              >
-                <ToggleGroupItem 
-                  value="1week" 
-                  className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                  aria-label="Due in 1 week"
-                >
+          <div className={cn("space-y-4 py-4", isSubmitting && "opacity-50 pointer-events-none")}>
+            <Label className="text-sm font-medium">Select due date</Label>
+            <RadioGroup 
+              value={noDueDateRequired ? 'none' : (dueDateOption || '')}
+              onValueChange={handleDueDateSelection}
+              disabled={isSubmitting}
+              className="space-y-3"
+            >
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="1week" id="due-1week" />
+                <Label htmlFor="due-1week" className="text-base font-normal cursor-pointer">
                   1 week
-                </ToggleGroupItem>
-                <ToggleGroupItem 
-                  value="2weeks" 
-                  className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                  aria-label="Due in 2 weeks"
-                >
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="2weeks" id="due-2weeks" />
+                <Label htmlFor="due-2weeks" className="text-base font-normal cursor-pointer">
                   2 weeks
-                </ToggleGroupItem>
-                <ToggleGroupItem 
-                  value="1month" 
-                  className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                  aria-label="Due in 1 month"
-                >
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="1month" id="due-1month" />
+                <Label htmlFor="due-1month" className="text-base font-normal cursor-pointer">
                   1 month
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-            
-            {/* No due date checkbox with enhanced accessibility */}
-            <div className="flex items-start space-x-2">
-              <Checkbox 
-                id="no-due-date" 
-                checked={noDueDateRequired}
-                onCheckedChange={handleNoDueDateChange}
-                disabled={isSubmitting}
-                aria-describedby="no-due-date-desc"
-              />
-              <div className="grid gap-1.5 leading-none">
-                <Label 
-                  htmlFor="no-due-date" 
-                  className="text-sm font-normal cursor-pointer"
-                >
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="none" id="due-none" />
+                <Label htmlFor="due-none" className="text-base font-normal cursor-pointer">
                   No due date required
                 </Label>
-                <p id="no-due-date-desc" className="text-xs text-muted-foreground">
-                  Training will be assigned without a deadline
-                </p>
               </div>
-            </div>
+            </RadioGroup>
           </div>
 
           <AlertDialogFooter>
