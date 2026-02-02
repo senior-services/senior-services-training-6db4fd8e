@@ -150,23 +150,15 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         throw new Error(videosResult.error || 'Failed to load videos');
       }
 
-      // Process progress data to find completed videos and store progress info
+      // Process progress data and store progress info (completion determined after quiz data is loaded)
+      const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
       if (progressResult.success && progressResult.data) {
-        const completed = new Set<string>();
-        const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
-        
         progressResult.data.forEach(progress => {
           progressMap.set(progress.video_id, {
             progress_percent: progress.progress_percent,
             completed_at: progress.completed_at
           });
-          
-          if (progress.progress_percent === 100 || progress.completed_at) {
-            completed.add(progress.video_id);
-          }
         });
-        
-        setCompletedVideoIds(completed);
         setVideoProgressData(progressMap);
       }
 
@@ -196,6 +188,27 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         }
       }
       setEmployeeQuizResults(quizResultsMap);
+
+      // Determine completed videos with full context (video progress + quiz completion)
+      const quizVideoIds = new Set<string>(quizzesResult.data?.map(quiz => quiz.video_id) || []);
+      const completed = new Set<string>();
+
+      progressMap.forEach((progress, videoId) => {
+        const videoCompleted = progress.progress_percent === 100 || progress.completed_at;
+        
+        if (quizVideoIds.has(videoId)) {
+          // Video has quiz - require both video AND quiz completion
+          if (videoCompleted && quizResultsMap.has(videoId)) {
+            completed.add(videoId);
+          }
+        } else {
+          // No quiz - video completion is enough
+          if (videoCompleted) {
+            completed.add(videoId);
+          }
+        }
+      });
+      setCompletedVideoIds(completed);
 
       if (assignmentsResult.success && assignmentsResult.data) {
         const currentlyAssigned = new Set(assignmentsResult.data.map(a => a.video_id));
