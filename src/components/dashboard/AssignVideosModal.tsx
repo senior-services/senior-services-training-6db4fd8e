@@ -100,6 +100,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [showUnassignDialog, setShowUnassignDialog] = useState(false);
   const [hiddenVideoIds, setHiddenVideoIds] = useState<Set<string>>(new Set());
   const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('unassigned');
   const { toast } = useToast();
@@ -159,7 +160,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       if (assignmentsResult.success && assignmentsResult.data) {
         const currentlyAssigned = new Set(assignmentsResult.data.map(a => a.video_id));
         setAssignedVideoIds(currentlyAssigned);
-        setSelectedVideoIds(new Set(currentlyAssigned));
+        setSelectedVideoIds(new Set());
 
         // Store assignment data for tooltip information
         const assignments = new Map<string, VideoAssignment>();
@@ -243,81 +244,60 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     }
   };
 
-  const handleSubmit = async () => {
+  // Get IDs of selected unassigned videos (for assigning)
+  const getSelectedUnassignedIds = (): Set<string> => {
+    const result = new Set<string>();
+    for (const videoId of selectedVideoIds) {
+      if (!assignedVideoIds.has(videoId) && !completedVideoIds.has(videoId)) {
+        result.add(videoId);
+      }
+    }
+    return result;
+  };
+
+  // Get IDs of selected assigned videos that can be unassigned (pending/overdue, not completed)
+  const getSelectedAssignedIds = (): Set<string> => {
+    const result = new Set<string>();
+    for (const videoId of selectedVideoIds) {
+      if (assignedVideoIds.has(videoId) && !completedVideoIds.has(videoId)) {
+        result.add(videoId);
+      }
+    }
+    return result;
+  };
+
+  // Handle assigning new videos (additive only - cannot delete existing)
+  const handleAssign = async () => {
     if (!employee) return;
+
+    const videosToAssign = getSelectedUnassignedIds();
+    if (videosToAssign.size === 0) return;
 
     setIsSubmitting(true);
     try {
-      // Get current user to set as assigned_by
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('Not authenticated');
-      }
+      if (!user) throw new Error('Not authenticated');
 
-      // Create a map of existing assignments for quick lookup
-      const existingAssignmentsResult = await assignmentOperations.getByEmployee(employee.id);
-      const existingAssignments = new Map<string, VideoAssignment>();
-      
-      if (existingAssignmentsResult.success && existingAssignmentsResult.data) {
-        existingAssignmentsResult.data.forEach(assignment => {
-          existingAssignments.set(assignment.video_id, assignment);
-        });
-      }
-
-      // Process assignments: create new ones, update existing ones, delete unselected ones
       const promises: Promise<any>[] = [];
-
-      // Handle selected videos
-      for (const videoId of selectedVideoIds) {
-        const existingAssignment = existingAssignments.get(videoId);
+      for (const videoId of videosToAssign) {
         const dueDate = videoDeadlines.get(videoId);
-
-        if (existingAssignment) {
-          // Update existing assignment if due date changed
-          const existingDueDate = existingAssignment.due_date ? new Date(existingAssignment.due_date) : null;
-          const newDueDate = dueDate || null;
-          
-          // Compare dates by converting to ISO date strings (YYYY-MM-DD)
-          const existingDateStr = existingDueDate?.toISOString().split('T')[0] || null;
-          const newDateStr = newDueDate?.toISOString().split('T')[0] || null;
-          
-          if (existingDateStr !== newDateStr) {
-            promises.push(
-              assignmentOperations.update(existingAssignment.id, { due_date: dueDate })
-            );
-          }
-        } else {
-          // Create new assignment
-          promises.push(
-            assignmentOperations.create(videoId, employee.id, user.id, dueDate)
-          );
-        }
+        promises.push(assignmentOperations.create(videoId, employee.id, user.id, dueDate));
       }
 
-      // Delete assignments for unselected videos
-      for (const [videoId, assignment] of existingAssignments) {
-        if (!selectedVideoIds.has(videoId)) {
-          promises.push(
-            assignmentOperations.delete(assignment.id)
-          );
-        }
-      }
-
-      // Execute all operations
       await Promise.all(promises);
 
       toast({
         title: "Success",
-        description: `Video assignments updated for ${employee.full_name || employee.email}`,
+        description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? 's' : ''} assigned to ${employee.full_name || employee.email}`,
       });
 
       onAssignmentComplete();
       onOpenChange(false);
     } catch (error) {
-      logger.error('Error updating assignments', error as Error);
+      logger.error('Error assigning videos', error as Error);
       toast({
         title: "Error",
-        description: "Failed to update video assignments",
+        description: "Failed to assign trainings",
         variant: "destructive",
       });
     } finally {
@@ -325,12 +305,48 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     }
   };
 
+  // Handle unassigning videos (called after confirmation)
+  const handleUnassign = async () => {
+    if (!employee) return;
+
+    const videosToUnassign = getSelectedAssignedIds();
+    if (videosToUnassign.size === 0) return;
+
+    setIsSubmitting(true);
+    try {
+      const promises: Promise<any>[] = [];
+      for (const videoId of videosToUnassign) {
+        const assignment = assignmentData.get(videoId);
+        if (assignment) {
+          promises.push(assignmentOperations.delete(assignment.id));
+        }
+      }
+
+      await Promise.all(promises);
+
+      toast({
+        title: "Success",
+        description: `${videosToUnassign.size} training${videosToUnassign.size !== 1 ? 's' : ''} unassigned from ${employee.full_name || employee.email}`,
+      });
+
+      onAssignmentComplete();
+      onOpenChange(false);
+    } catch (error) {
+      logger.error('Error unassigning videos', error as Error);
+      toast({
+        title: "Error",
+        description: "Failed to unassign trainings",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+      setShowUnassignDialog(false);
+    }
+  };
+
   const handleClose = () => {
-    const hasSelectionChanges = !areSetEqual(selectedVideoIds, assignedVideoIds);
-    const hasDeadlineChanges = !areDeadlineMapsEqual(videoDeadlines, initialVideoDeadlines);
-    const hasChanges = hasSelectionChanges || hasDeadlineChanges;
-    
-    if (hasChanges) {
+    // Only show discard dialog if user has made selections
+    if (selectedVideoIds.size > 0) {
       setShowDiscardDialog(true);
     } else {
       closeModal();
@@ -338,10 +354,11 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   };
 
   const closeModal = () => {
-    setSelectedVideoIds(new Set(assignedVideoIds));
+    setSelectedVideoIds(new Set());
     setVideoDeadlines(new Map(initialVideoDeadlines));
     setCalendarOpen(new Map());
     setShowDiscardDialog(false);
+    setShowUnassignDialog(false);
     setFilterMode('unassigned');
     onOpenChange(false);
   };
@@ -422,14 +439,12 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
   if (!employee) return null;
 
-  const hasSelectionChanges = !areSetEqual(selectedVideoIds, assignedVideoIds);
-  const hasDeadlineChanges = !areDeadlineMapsEqual(videoDeadlines, initialVideoDeadlines);
-  const hasChanges = hasSelectionChanges || hasDeadlineChanges;
-  const selectedCount = selectedVideoIds.size;
+  const selectedUnassignedCount = getSelectedUnassignedIds().size;
+  const selectedAssignedCount = getSelectedAssignedIds().size;
+  const canAssign = selectedUnassignedCount > 0;
+  const canUnassign = selectedAssignedCount > 0;
   const filteredVideos = getFilteredVideos();
   const filteredVideosCount = filteredVideos.length;
-  const selectableVideosCount = filteredVideos.filter(v => !completedVideoIds.has(v.id)).length;
-  const selectedFilteredCount = filteredVideos.filter(v => selectedVideoIds.has(v.id) && !completedVideoIds.has(v.id)).length;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -609,12 +624,25 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
-            disabled={!hasChanges || isSubmitting}
-          >
-            {isSubmitting ? 'Assigning...' : 'Assign Videos'}
-          </Button>
+          
+          {canUnassign && (
+            <Button 
+              variant="destructive"
+              onClick={() => setShowUnassignDialog(true)}
+              disabled={isSubmitting}
+            >
+              Unassign ({selectedAssignedCount})
+            </Button>
+          )}
+          
+          {canAssign && (
+            <Button 
+              onClick={handleAssign} 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Assigning...' : `Assign Videos (${selectedUnassignedCount})`}
+            </Button>
+          )}
         </DialogFooter>
       </FullscreenDialogContent>
 
@@ -629,6 +657,28 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Keep editing</AlertDialogCancel>
             <AlertDialogAction onClick={closeModal}>Discard changes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showUnassignDialog} onOpenChange={setShowUnassignDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unassign trainings?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to unassign {selectedAssignedCount} training{selectedAssignedCount !== 1 ? 's' : ''}? 
+              Any user progress will be lost and cannot be retrieved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleUnassign}
+              disabled={isSubmitting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isSubmitting ? 'Unassigning...' : 'Unassign'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
