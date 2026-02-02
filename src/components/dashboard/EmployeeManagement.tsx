@@ -433,7 +433,7 @@ export const EmployeeManagement: React.FC<{
                         <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
                         {employee.email && (
                           <span 
-                            className="text-xs text-muted-foreground font-normal truncate max-w-[200px]" 
+                            className="text-xs text-muted-foreground font-normal truncate max-w-[400px]" 
                             title={employee.email}
                           >
                             {sanitizeText(employee.email)}
