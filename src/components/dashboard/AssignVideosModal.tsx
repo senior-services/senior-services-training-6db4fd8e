@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogScrollArea,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -31,18 +30,12 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Video, CalendarIcon, EyeOff } from 'lucide-react';
+import { Video, EyeOff } from 'lucide-react';
 import { format, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { videoOperations, assignmentOperations, progressOperations } from '@/services/api';
@@ -96,13 +89,18 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [videoDeadlines, setVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [initialVideoDeadlines, setInitialVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [assignmentData, setAssignmentData] = useState<Map<string, VideoAssignment>>(new Map());
-  const [calendarOpen, setCalendarOpen] = useState<Map<string, boolean>>(new Map());
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [showUnassignDialog, setShowUnassignDialog] = useState(false);
   const [hiddenVideoIds, setHiddenVideoIds] = useState<Set<string>>(new Set());
   const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('unassigned');
+  
+  // Due date dialog state
+  const [showDueDateDialog, setShowDueDateDialog] = useState(false);
+  const [dueDateOption, setDueDateOption] = useState<'1week' | '2weeks' | '1month' | null>('1week');
+  const [noDueDateRequired, setNoDueDateRequired] = useState(false);
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -233,15 +231,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       }
       return newDeadlines;
     });
-    
-    // Auto-close calendar after date selection
-    if (date) {
-      setCalendarOpen(prev => {
-        const newOpen = new Map(prev);
-        newOpen.set(videoId, false);
-        return newOpen;
-      });
-    }
   };
 
   // Get IDs of selected unassigned videos (for assigning)
@@ -266,12 +255,66 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     return result;
   };
 
+  // Calculate due date based on selected option
+  const calculateDueDate = (): Date | undefined => {
+    if (noDueDateRequired) return undefined;
+    
+    const today = new Date();
+    switch (dueDateOption) {
+      case '1week': {
+        const date = new Date(today);
+        date.setDate(date.getDate() + 7);
+        return date;
+      }
+      case '2weeks': {
+        const date = new Date(today);
+        date.setDate(date.getDate() + 14);
+        return date;
+      }
+      case '1month': {
+        const date = new Date(today);
+        date.setMonth(date.getMonth() + 1);
+        return date;
+      }
+      default:
+        return undefined;
+    }
+  };
+
+  // Handle toggle selection - uncheck "no due date" when selecting a preset
+  const handleDueDateOptionChange = (value: string) => {
+    if (value) {
+      setDueDateOption(value as '1week' | '2weeks' | '1month');
+      setNoDueDateRequired(false);
+    }
+  };
+
+  // Handle checkbox - deselect toggles when checking "no due date"
+  const handleNoDueDateChange = (checked: boolean | 'indeterminate') => {
+    const isChecked = checked === true;
+    setNoDueDateRequired(isChecked);
+    if (isChecked) {
+      setDueDateOption(null);
+    } else {
+      setDueDateOption('1week');
+    }
+  };
+
+  // Reset dialog state when closing
+  const resetDueDateDialog = () => {
+    setDueDateOption('1week');
+    setNoDueDateRequired(false);
+    setShowDueDateDialog(false);
+  };
+
   // Handle assigning new videos (additive only - cannot delete existing)
   const handleAssign = async () => {
     if (!employee) return;
 
     const videosToAssign = getSelectedUnassignedIds();
     if (videosToAssign.size === 0) return;
+
+    const dueDate = calculateDueDate();
 
     setIsSubmitting(true);
     try {
@@ -280,7 +323,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
       const promises: Promise<any>[] = [];
       for (const videoId of videosToAssign) {
-        const dueDate = videoDeadlines.get(videoId);
         promises.push(assignmentOperations.create(videoId, employee.id, user.id, dueDate));
       }
 
@@ -302,6 +344,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       });
     } finally {
       setIsSubmitting(false);
+      resetDueDateDialog();
     }
   };
 
@@ -356,10 +399,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const closeModal = () => {
     setSelectedVideoIds(new Set());
     setVideoDeadlines(new Map(initialVideoDeadlines));
-    setCalendarOpen(new Map());
     setShowDiscardDialog(false);
     setShowUnassignDialog(false);
     setFilterMode('unassigned');
+    resetDueDateDialog();
     onOpenChange(false);
   };
 
@@ -465,7 +508,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="pb-3 border-b">
+              <div className="pb-3 border-b flex items-center justify-between gap-4 flex-wrap">
                 <ToggleGroup 
                   type="single" 
                   value={filterMode} 
@@ -486,6 +529,29 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                     All
                   </ToggleGroupItem>
                 </ToggleGroup>
+
+                {/* Action buttons moved to header */}
+                <div className="flex items-center gap-2">
+                  {canAssign && (
+                    <Button 
+                      onClick={() => setShowDueDateDialog(true)} 
+                      disabled={isSubmitting}
+                      size="sm"
+                    >
+                      Assign ({selectedUnassignedCount})
+                    </Button>
+                  )}
+                  {canUnassign && (
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowUnassignDialog(true)}
+                      disabled={isSubmitting}
+                      size="sm"
+                    >
+                      Unassign ({selectedAssignedCount})
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {filteredVideosCount === 0 ? (
@@ -564,45 +630,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                              </TableCell>
                              
                              <TableCell>
-                               {isSelected && !isCompleted ? (
-                                 <Popover 
-                                   open={calendarOpen.get(video.id) || false}
-                                   onOpenChange={(open) => {
-                                     setCalendarOpen(prev => {
-                                       const newOpen = new Map(prev);
-                                       newOpen.set(video.id, open);
-                                       return newOpen;
-                                     });
-                                   }}
-                                 >
-                                   <PopoverTrigger asChild>
-                                     <Button
-                                       variant="ghost"
-                                       size="sm"
-                                       className={cn(
-                                         "h-8 justify-start text-left font-normal px-2",
-                                         !videoDeadlines.get(video.id) && "text-muted-foreground"
-                                       )}
-                                     >
-                                       <CalendarIcon className="mr-2 h-3 w-3" />
-                                       {formatDueDate(video.id)}
-                                     </Button>
-                                   </PopoverTrigger>
-                                   <PopoverContent className="w-auto p-0 z-[9999]" align="start">
-                                     <Calendar
-                                       mode="single"
-                                       selected={videoDeadlines.get(video.id)}
-                                       onSelect={(date) => handleDeadlineChange(video.id, date)}
-                                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                       initialFocus
-                                     />
-                                   </PopoverContent>
-                                 </Popover>
-                               ) : (
-                                 <span className="text-sm text-muted-foreground">
-                                   {formatDueDate(video.id)}
-                                 </span>
-                               )}
+                               <span className="text-sm text-muted-foreground">
+                                 {formatDueDate(video.id)}
+                               </span>
                              </TableCell>
                            </TableRow>
                          );
@@ -614,36 +644,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </>
           )}
         </DialogScrollArea>
-
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          
-          {canUnassign && (
-            <Button 
-              variant="destructive"
-              onClick={() => setShowUnassignDialog(true)}
-              disabled={isSubmitting}
-            >
-              Unassign ({selectedAssignedCount})
-            </Button>
-          )}
-          
-          {canAssign && (
-            <Button 
-              onClick={handleAssign} 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Assigning...' : `Assign Videos (${selectedUnassignedCount})`}
-            </Button>
-          )}
-        </DialogFooter>
       </FullscreenDialogContent>
 
       <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
@@ -678,6 +678,88 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isSubmitting ? 'Unassigning...' : 'Unassign'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Due Date Selection Dialog */}
+      <AlertDialog open={showDueDateDialog} onOpenChange={(open) => !open && resetDueDateDialog()}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Select due date to assign trainings</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedUnassignedCount} training{selectedUnassignedCount !== 1 ? 's' : ''} selected
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className={cn("space-y-6 py-4", isSubmitting && "opacity-50 pointer-events-none")}>
+            {/* Date preset toggles */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-sm font-medium text-foreground">Training due in</span>
+              <ToggleGroup 
+                type="single" 
+                value={noDueDateRequired ? '' : (dueDateOption || '')}
+                onValueChange={handleDueDateOptionChange}
+                disabled={isSubmitting}
+                className="gap-2"
+              >
+                <ToggleGroupItem 
+                  value="1week" 
+                  className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                  aria-label="Due in 1 week"
+                >
+                  1 week
+                </ToggleGroupItem>
+                <ToggleGroupItem 
+                  value="2weeks" 
+                  className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                  aria-label="Due in 2 weeks"
+                >
+                  2 weeks
+                </ToggleGroupItem>
+                <ToggleGroupItem 
+                  value="1month" 
+                  className="border rounded-md px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                  aria-label="Due in 1 month"
+                >
+                  1 month
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+            
+            {/* No due date checkbox with enhanced accessibility */}
+            <div className="flex items-start space-x-2">
+              <Checkbox 
+                id="no-due-date" 
+                checked={noDueDateRequired}
+                onCheckedChange={handleNoDueDateChange}
+                disabled={isSubmitting}
+                aria-describedby="no-due-date-desc"
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label 
+                  htmlFor="no-due-date" 
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  No due date required
+                </Label>
+                <p id="no-due-date-desc" className="text-xs text-muted-foreground">
+                  Training will be assigned without a deadline
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting} onClick={resetDueDateDialog}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleAssign}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Assigning...' : 'Assign'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
