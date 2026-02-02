@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import { ButtonWithTooltip } from '@/components/ui/button-with-tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -488,6 +488,8 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const canUnassign = selectedAssignedCount > 0;
   const filteredVideos = getFilteredVideos();
   const filteredVideosCount = filteredVideos.length;
+  const hasCompetingSelections = canAssign && canUnassign;
+  const competingTooltip = "Clear conflicting selections first";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -532,24 +534,27 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
                 {/* Action buttons moved to header */}
                 <div className="flex items-center gap-2">
-                  {canAssign && (
-                    <Button 
+                  {selectedUnassignedCount > 0 && (
+                    <ButtonWithTooltip
                       onClick={() => setShowDueDateDialog(true)} 
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || hasCompetingSelections}
                       size="sm"
+                      tooltip={hasCompetingSelections ? competingTooltip : `Assign ${selectedUnassignedCount} training${selectedUnassignedCount !== 1 ? 's' : ''}`}
                     >
                       Assign ({selectedUnassignedCount})
-                    </Button>
+                    </ButtonWithTooltip>
                   )}
-                  {canUnassign && (
-                    <Button 
+                  {selectedAssignedCount > 0 && (
+                    <ButtonWithTooltip
                       variant="outline"
                       onClick={() => setShowUnassignDialog(true)}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || hasCompetingSelections}
                       size="sm"
+                      tooltip={hasCompetingSelections ? competingTooltip : `Unassign ${selectedAssignedCount} training${selectedAssignedCount !== 1 ? 's' : ''}`}
+                      className="border-destructive text-destructive hover:bg-destructive/10"
                     >
                       Unassign ({selectedAssignedCount})
-                    </Button>
+                    </ButtonWithTooltip>
                   )}
                 </div>
               </div>
