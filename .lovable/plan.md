@@ -1,80 +1,111 @@
 
 
-## Fix Data Discrepancy Between Display and Download Export
+## Fix UI Completion Logic to Match Download Export
 
 ### Overview
-The exported Excel data shows different statuses than what's displayed on screen. This fix aligns both to use identical completion logic.
+The UI in AssignVideosModal incorrectly marks videos as "Completed" based only on video progress, ignoring quiz completion. The download export already has the correct logic. This fix aligns the UI with the business rule.
+
+---
+
+### Business Rule (Confirmed)
+- **With quiz**: Completed = video watched to 100% AND quiz finished
+- **Without quiz**: Completed = video watched to 100%
 
 ---
 
 ### What's Being Fixed
 
-When you click "Download Data", videos show as "Pending" even when the screen shows them as "Complete". This happens because the download feature only checked for quiz completion, ignoring whether the employee actually watched the video.
-
-**The fix ensures both the screen display and downloaded file use the same rules:**
-- Videos without quizzes: Complete when watched to 100%
-- Videos with quizzes: Complete when watched to 100% AND quiz is done
+The UI currently marks Jane Doe's "Time Management" video as "Completed" even though she hasn't finished the required quiz. The download correctly shows it as pending.
 
 ---
 
-### Technical Change
+### Technical Changes
 
-**File: `src/components/dashboard/EmployeeManagement.tsx`**  
-**Lines 305-326**
+**File: `src/components/dashboard/AssignVideosModal.tsx`**
 
-**Current (incorrect):**
+**Change 1: Remove premature completion determination (Lines 153-171)**
+
+Replace this code that sets completedVideoIds based only on video progress:
 ```tsx
-// Get status
-let status = 'Pending';
-if (quizAttempt) {
-  status = 'Completed';
-} else if (assignment.due_date) {
-  // ... due date logic
-} else {
-  status = 'No Deadline';
+// Process progress data to find completed videos and store progress info
+if (progressResult.success && progressResult.data) {
+  const completed = new Set<string>();
+  const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
+  
+  progressResult.data.forEach(progress => {
+    progressMap.set(progress.video_id, {
+      progress_percent: progress.progress_percent,
+      completed_at: progress.completed_at
+    });
+    
+    if (progress.progress_percent === 100 || progress.completed_at) {
+      completed.add(progress.video_id);
+    }
+  });
+  
+  setCompletedVideoIds(completed);
+  setVideoProgressData(progressMap);
 }
 ```
 
-**Updated (aligned with display logic):**
+With code that only stores progress data (completion determined later):
 ```tsx
-// Get status - using same logic as getEmployeeStatus for consistency
-let status = 'Pending';
-const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
-
-// Check completion using same logic as display
-let isCompleted = false;
-if (assignment.hasQuiz) {
-  // For videos with quiz: require both video and quiz completion
-  isCompleted = videoCompleted && !!quizAttempt;
-} else {
-  // For videos without quiz: only require video completion
-  isCompleted = videoCompleted;
+// Process progress data and store progress info (completion determined after quiz data is loaded)
+const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
+if (progressResult.success && progressResult.data) {
+  progressResult.data.forEach(progress => {
+    progressMap.set(progress.video_id, {
+      progress_percent: progress.progress_percent,
+      completed_at: progress.completed_at
+    });
+  });
+  setVideoProgressData(progressMap);
 }
+```
 
-if (isCompleted) {
-  status = 'Completed';
-} else if (assignment.due_date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const due = new Date(assignment.due_date);
-  due.setHours(0, 0, 0, 0);
-  const daysUntilDue = differenceInDays(due, today);
-  if (isPast(due) && daysUntilDue < 0) {
-    status = 'Overdue';
-  } else if (daysUntilDue === 0) {
-    status = 'Due Today';
-  } else if (daysUntilDue <= 7) {
-    status = 'Due';
+**Change 2: Add completion determination after quiz data is loaded (After line 198)**
+
+After `setEmployeeQuizResults(quizResultsMap);`, add logic to determine completed videos using both progress and quiz data:
+```tsx
+// Determine completed videos with full context (video progress + quiz completion)
+const quizVideoIds = new Set<string>(quizzesResult.data?.map(quiz => quiz.video_id) || []);
+const completed = new Set<string>();
+
+progressMap.forEach((progress, videoId) => {
+  const videoCompleted = progress.progress_percent === 100 || progress.completed_at;
+  
+  if (quizVideoIds.has(videoId)) {
+    // Video has quiz - require both video AND quiz completion
+    if (videoCompleted && quizResultsMap.has(videoId)) {
+      completed.add(videoId);
+    }
   } else {
-    status = 'Due';
+    // No quiz - video completion is enough
+    if (videoCompleted) {
+      completed.add(videoId);
+    }
   }
-} else {
-  status = 'No Deadline';
-}
+});
+setCompletedVideoIds(completed);
 ```
 
 ---
 
-### Result
-The downloaded Excel file will now show the same status as what appears on screen for each employee's training assignments.
+### Result After Fix
+
+| Jane Doe's "Time Management" Video | Before | After |
+|-----------------------------------|--------|-------|
+| **Screen display** | Completed | Pending |
+| **Download file** | Pending | Pending |
+
+Both will now correctly show she hasn't completed the training because the quiz isn't done.
+
+---
+
+### Why This Works
+
+1. **Uses existing data** - Quiz data (`quizResultsMap`) is already loaded, just not used for completion
+2. **Matches download logic** - Same rules as `EmployeeManagement.tsx` export function
+3. **Minimal change** - Only moves where completion is calculated, doesn't add new queries
+4. **Business rule enforced** - Employees must complete both video AND quiz (when applicable)
 
