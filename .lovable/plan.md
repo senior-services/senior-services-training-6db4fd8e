@@ -1,29 +1,80 @@
 
 
-## Change Default Filter to "Assigned" in Assign Videos Dialog
+## Fix Data Discrepancy Between Display and Download Export
 
 ### Overview
-Update the default filter mode in the Assign Videos dialog from "unassigned" to "assigned" so when the dialog opens, it shows assigned videos by default.
+The exported Excel data shows different statuses than what's displayed on screen. This fix aligns both to use identical completion logic.
 
 ---
 
-### Change Required
+### What's Being Fixed
 
-**File: `src/components/dashboard/AssignVideosModal.tsx`**  
-**Line 101**
+When you click "Download Data", videos show as "Pending" even when the screen shows them as "Complete". This happens because the download feature only checked for quiz completion, ignoring whether the employee actually watched the video.
 
-**Current:**
+**The fix ensures both the screen display and downloaded file use the same rules:**
+- Videos without quizzes: Complete when watched to 100%
+- Videos with quizzes: Complete when watched to 100% AND quiz is done
+
+---
+
+### Technical Change
+
+**File: `src/components/dashboard/EmployeeManagement.tsx`**  
+**Lines 305-326**
+
+**Current (incorrect):**
 ```tsx
-const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('unassigned');
+// Get status
+let status = 'Pending';
+if (quizAttempt) {
+  status = 'Completed';
+} else if (assignment.due_date) {
+  // ... due date logic
+} else {
+  status = 'No Deadline';
+}
 ```
 
-**Updated:**
+**Updated (aligned with display logic):**
 ```tsx
-const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('assigned');
+// Get status - using same logic as getEmployeeStatus for consistency
+let status = 'Pending';
+const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
+
+// Check completion using same logic as display
+let isCompleted = false;
+if (assignment.hasQuiz) {
+  // For videos with quiz: require both video and quiz completion
+  isCompleted = videoCompleted && !!quizAttempt;
+} else {
+  // For videos without quiz: only require video completion
+  isCompleted = videoCompleted;
+}
+
+if (isCompleted) {
+  status = 'Completed';
+} else if (assignment.due_date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(assignment.due_date);
+  due.setHours(0, 0, 0, 0);
+  const daysUntilDue = differenceInDays(due, today);
+  if (isPast(due) && daysUntilDue < 0) {
+    status = 'Overdue';
+  } else if (daysUntilDue === 0) {
+    status = 'Due Today';
+  } else if (daysUntilDue <= 7) {
+    status = 'Due';
+  } else {
+    status = 'Due';
+  }
+} else {
+  status = 'No Deadline';
+}
 ```
 
 ---
 
 ### Result
-When the Assign Videos dialog opens, the "Assigned" toggle will be selected by default, showing the list of videos already assigned to the employee.
+The downloaded Excel file will now show the same status as what appears on screen for each employee's training assignments.
 
