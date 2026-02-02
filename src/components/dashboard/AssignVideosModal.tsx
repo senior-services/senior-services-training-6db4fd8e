@@ -700,7 +700,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                              </TableCell>
                              
                               <TableCell>
-                                <span className="text-sm text-muted-foreground">
+                                <span className={cn(
+                                  "text-sm",
+                                  !videoDeadlines.get(video.id) && "text-muted-foreground"
+                                )}>
                                   {formatDueDate(video.id)}
                                 </span>
                               </TableCell>
