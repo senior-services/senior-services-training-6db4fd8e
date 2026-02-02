@@ -98,7 +98,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [showUnassignDialog, setShowUnassignDialog] = useState(false);
   const [hiddenVideoIds, setHiddenVideoIds] = useState<Set<string>>(new Set());
-  const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('unassigned');
+  const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('assigned');
   const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Set<string>>(new Set());
   const [employeeQuizResults, setEmployeeQuizResults] = useState<Map<string, { score: number; total_questions: number; completed_at: string }>>(new Map());
   
