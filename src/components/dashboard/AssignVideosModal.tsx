@@ -653,16 +653,17 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                          
                          return (
                            <TableRow key={video.id}>
-                             <TableCell className="w-[40px]">
-                               <Checkbox
-                                 id={`video-${video.id}`}
-                                 checked={isSelected}
-                                 disabled={isCompleted}
-                                 onCheckedChange={(checked) => 
-                                   handleVideoToggle(video.id, checked as boolean)
-                                 }
-                               />
-                             </TableCell>
+                              <TableCell className="w-[40px]">
+                                {!isCompleted && (
+                                  <Checkbox
+                                    id={`video-${video.id}`}
+                                    checked={isSelected}
+                                    onCheckedChange={(checked) => 
+                                      handleVideoToggle(video.id, checked as boolean)
+                                    }
+                                  />
+                                )}
+                              </TableCell>
                              
                              <TableCell>
                                <Label 
