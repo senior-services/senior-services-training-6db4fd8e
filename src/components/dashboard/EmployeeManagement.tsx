@@ -362,14 +362,14 @@ export const EmployeeManagement: React.FC<{
             // Show due date for non-completed items
             completionDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
           }
-          exportData.push({
-            Name: employeeName,
-            Email: employeeEmail,
-            'Video Title': assignment.video_title || '',
-            Status: status,
-            'Date': completionDate,
-            'Quiz Results': quizResults
-          });
+        exportData.push({
+          Name: employeeName,
+          Email: employeeEmail,
+          'Training': assignment.video_title || '',
+          'Completion Status': status,
+          'Due Date': completionDate,
+          'Quiz Results': quizResults
+        });
         });
       }
     });
