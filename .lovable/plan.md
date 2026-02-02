@@ -1,96 +1,165 @@
 
 
-## Fix: X Button Not Closing Confirmation Dialogs
+## Implement Dialog Persistence Fix
 
-### The Problem
-After performing an assign or unassign action, clicking the "X" button in the top-right corner of the confirmation dialog doesn't close it.
-
-### Root Cause
-The Due Date dialog's close handling has a conflict:
-
-1. The X button (built into `AlertDialogContent`) triggers the `onOpenChange` callback
-2. For the Due Date dialog, `onOpenChange` only calls `resetDueDateDialog()` when closing
-3. But `resetDueDateDialog()` is already being called in the `finally` block of `handleAssign`
-4. The X button works, but after the action completes, the dialog is closed by the code anyway
-
-The actual issue is that the **X button in the Alert Dialog content doesn't respect the `isSubmitting` state**, so users can click it during submission, which causes unexpected behavior.
-
-Additionally, looking at the Unassign dialog on lines 669-689, there's no explicit handling to prevent X button clicks during submission.
+### Overview
+This fix prevents the dialog content from flickering/disappearing when refreshing data after assign/unassign actions. Instead of replacing all content with skeleton loaders, we'll show a subtle overlay with a spinner while keeping the existing content visible.
 
 ---
 
-### Files to Modify
+### File to Modify
 
-**`src/components/ui/alert-dialog.tsx`**
+**`src/components/dashboard/AssignVideosModal.tsx`**
 
 ---
 
-### Solution: Pass disabled state to X button
+### Change 1: Update Import (Line 46)
 
-The AlertDialogContent component has a hardcoded X button (lines 46-49) that doesn't receive any `disabled` prop. We need to modify it to accept an optional `disabled` prop that gets passed to the X button.
-
-**Change AlertDialogContent to accept disabled prop (Lines 31-52):**
+Add `LoadingSpinner` to the existing import:
 
 ```tsx
-const AlertDialogContent = React.forwardRef<
-  React.ElementRef<typeof AlertDialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content> & {
-    disableClose?: boolean;
+// Before
+import { LoadingSkeleton } from '@/components/ui/loading-spinner';
+
+// After
+import { LoadingSkeleton, LoadingSpinner } from '@/components/ui/loading-spinner';
+```
+
+---
+
+### Change 2: Add isRefreshing State (Line 92-93)
+
+Add a new state variable between `loading` and `isSubmitting`:
+
+```tsx
+// Before
+const [loading, setLoading] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
+
+// After
+const [loading, setLoading] = useState(false);
+const [isRefreshing, setIsRefreshing] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
+```
+
+---
+
+### Change 3: Update loadVideosAndAssignments Function Signature (Lines 112-115)
+
+Accept an optional `isRefresh` parameter and use different loading states:
+
+```tsx
+// Before
+const loadVideosAndAssignments = async () => {
+  if (!employee) return;
+
+  setLoading(true);
+
+// After
+const loadVideosAndAssignments = async (isRefresh = false) => {
+  if (!employee) return;
+
+  if (isRefresh) {
+    setIsRefreshing(true);
+  } else {
+    setLoading(true);
   }
->(({ className, children, disableClose, ...props }, ref) => (
-  <AlertDialogPortal>
-    <AlertDialogOverlay />
-    <AlertDialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] border bg-background px-6 py-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
-        className
-      )}
-      {...props}
+```
+
+---
+
+### Change 4: Update Finally Block (Lines 191-194)
+
+Reset both loading states:
+
+```tsx
+// Before
+} finally {
+  setLoading(false);
+}
+
+// After
+} finally {
+  setLoading(false);
+  setIsRefreshing(false);
+}
+```
+
+---
+
+### Change 5: Pass isRefresh=true After Actions (Lines 337 and 376)
+
+Update the refresh calls after successful assign/unassign:
+
+```tsx
+// Line 337 - in handleAssign
+// Before
+await loadVideosAndAssignments();
+
+// After
+await loadVideosAndAssignments(true);
+
+// Line 376 - in handleUnassign
+// Before
+await loadVideosAndAssignments();
+
+// After
+await loadVideosAndAssignments(true);
+```
+
+---
+
+### Change 6: Add Refresh Overlay to DialogScrollArea (Line 504)
+
+Add `className="relative"` to DialogScrollArea and add the overlay inside:
+
+```tsx
+// Before
+<DialogScrollArea>
+  {loading ? (
+    ...
+  ) : (
+    <>
+      ...
+
+// After
+<DialogScrollArea className="relative">
+  {isRefreshing && (
+    <div 
+      className="absolute inset-0 bg-background/50 flex items-center justify-center z-10"
+      role="status"
+      aria-live="polite"
     >
-      {children}
-      <AlertDialogPrimitive.Cancel 
-        disabled={disableClose}
-        className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10"
-      >
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </AlertDialogPrimitive.Cancel>
-    </AlertDialogPrimitive.Content>
-  </AlertDialogPortal>
-))
+      <LoadingSpinner size="lg" label="Updating assignments" />
+    </div>
+  )}
+  {loading ? (
+    ...
+  ) : (
+    <>
+      ...
 ```
 
 ---
 
-### Then update AssignVideosModal to use the new prop
+### Summary of Changes
 
-**Unassign Dialog (Line 670):**
-```tsx
-<AlertDialogContent disableClose={isSubmitting}>
-```
-
-**Due Date Dialog (Line 693):**
-```tsx
-<AlertDialogContent className="sm:max-w-md" disableClose={isSubmitting}>
-```
-
----
-
-### Expected Result
-
-| State | X Button Behavior |
-|-------|-------------------|
-| Before submitting | X closes dialog normally |
-| During submission | X is visually disabled and unclickable |
-| After submission | Dialog closes automatically via code |
+| Line(s) | What Changes |
+|---------|--------------|
+| 46 | Add `LoadingSpinner` to import |
+| 92-93 | Add `isRefreshing` state |
+| 112-115 | Add `isRefresh` parameter, conditional loading state |
+| 191-194 | Reset both `loading` and `isRefreshing` in finally block |
+| 337 | Pass `true` to `loadVideosAndAssignments` in handleAssign |
+| 376 | Pass `true` to `loadVideosAndAssignments` in handleUnassign |
+| 504 | Add `className="relative"` and refresh overlay with ARIA attributes |
 
 ---
 
-### Why This Works
+### User Experience After Implementation
 
-- The `disableClose` prop prevents users from clicking X while an action is in progress
-- This matches the behavior of the Cancel and Action buttons in the footer
-- The visual feedback (opacity change) tells users the button is temporarily disabled
-- No functional changes to the dialog workflow - just prevents premature closing
+1. **Initial open** → Shows skeleton loaders (unchanged behavior)
+2. **After assign/unassign** → Content stays visible with semi-transparent overlay and spinner
+3. **Refresh complete** → Overlay disappears, data updates in place
+4. **Accessibility** → Screen readers announce "Updating assignments" during refresh
 
