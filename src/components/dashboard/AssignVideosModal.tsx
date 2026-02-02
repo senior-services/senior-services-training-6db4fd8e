@@ -713,7 +713,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
               value={noDueDateRequired ? 'none' : (dueDateOption || '')}
               onValueChange={handleDueDateSelection}
               disabled={isSubmitting}
-              className="space-y-3"
             >
               <div className="flex items-center space-x-3">
                 <RadioGroupItem value="1week" id="due-1week" />
