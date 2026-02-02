@@ -450,7 +450,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="space-y-3 pb-3 border-b">
+              <div className="pb-3 border-b">
                 <ToggleGroup 
                   type="single" 
                   value={filterMode} 
@@ -471,31 +471,6 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                     All
                   </ToggleGroupItem>
                 </ToggleGroup>
-
-                <div className="flex items-center gap-3">
-                   <Checkbox
-                     id="select-all"
-                     checked={selectedFilteredCount === filteredVideos.filter(v => !completedVideoIds.has(v.id)).length && filteredVideos.filter(v => !completedVideoIds.has(v.id)).length > 0}
-                     onCheckedChange={(checked) => {
-                       const selectableVideos = filteredVideos.filter(v => !completedVideoIds.has(v.id));
-                       if (checked) {
-                         setSelectedVideoIds(new Set([
-                           ...Array.from(selectedVideoIds).filter(id => completedVideoIds.has(id) || !selectableVideos.some(v => v.id === id)),
-                           ...selectableVideos.map(v => v.id)
-                         ]));
-                       } else {
-                         setSelectedVideoIds(new Set(Array.from(selectedVideoIds).filter(id => 
-                           completedVideoIds.has(id) || !selectableVideos.some(v => v.id === id)
-                         )));
-                       }
-                     }}
-                     disabled={filteredVideos.filter(v => !completedVideoIds.has(v.id)).length === 0}
-                   />
-                   <div className="w-px h-4 bg-border"></div>
-                   <Label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-                     {selectedFilteredCount} of {selectableVideosCount} video{selectableVideosCount !== 1 ? 's' : ''} selected
-                   </Label>
-                </div>
               </div>
 
               {filteredVideosCount === 0 ? (
