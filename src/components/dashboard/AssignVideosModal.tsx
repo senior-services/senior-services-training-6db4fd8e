@@ -449,7 +449,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     setVideoDeadlines(new Map(initialVideoDeadlines));
     setShowDiscardDialog(false);
     setShowUnassignDialog(false);
-    setFilterMode('unassigned');
+    setFilterMode('assigned');
     resetDueDateDialog();
     // Reset quiz state
     setVideoIdsWithQuizzes(new Set());
