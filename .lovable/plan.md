@@ -1,47 +1,63 @@
 
 
-## Fix: Dialog Should Open with "Assigned" View (Not "Unassigned")
+## Fix: Update Data Download Column Headers for Consistency
 
-### What's Happening
+### What's Being Fixed
 
-When you close the "Edit Assignments" dialog and reopen it, it shows the "Unassigned" view instead of the expected "Assigned" view.
+The download file column headers don't match the terminology used in the UI. This causes confusion when comparing the downloaded data with what's shown on screen.
 
-### Why This Happens
+---
 
-There's a mismatch in the code:
-- When the dialog first loads, it correctly starts with the "Assigned" view
-- But when you close the dialog, the reset code accidentally switches it to "Unassigned"
-- The next time you open it, you see "Unassigned" instead of "Assigned"
+### Changes
 
-Think of it like a door that's supposed to reset to "locked" when closed, but it's accidentally resetting to "unlocked" instead.
+**File: `src/components/dashboard/EmployeeManagement.tsx`**  
+**Lines 365-372**
+
+| Current Header | New Header |
+|---------------|------------|
+| Video Title | Training |
+| Status | Completion Status |
+| Date | Due Date |
 
 ---
 
 ### The Fix
 
-**File: `src/components/dashboard/AssignVideosModal.tsx`**  
-**Line 452**
-
-Change this line in the `closeModal` function:
+Change this code block:
 ```tsx
-setFilterMode('unassigned');
+exportData.push({
+  Name: employeeName,
+  Email: employeeEmail,
+  'Video Title': assignment.video_title || '',
+  Status: status,
+  'Date': completionDate,
+  'Quiz Results': quizResults
+});
 ```
 
 To:
 ```tsx
-setFilterMode('assigned');
+exportData.push({
+  Name: employeeName,
+  Email: employeeEmail,
+  'Training': assignment.video_title || '',
+  'Completion Status': status,
+  'Due Date': completionDate,
+  'Quiz Results': quizResults
+});
 ```
-
-This ensures the filter resets to "Assigned" (the correct default) every time the dialog closes.
 
 ---
 
 ### Result
 
-| Scenario | Before Fix | After Fix |
-|----------|------------|-----------|
-| Open dialog for first time | Assigned ✓ | Assigned ✓ |
-| Close and reopen dialog | Unassigned ✗ | Assigned ✓ |
+The downloaded Excel file will now have clearer, more descriptive column headers that match the language used throughout the application:
 
-The dialog will now consistently open with the "Assigned" view, showing employees their current training assignments first.
+| Before | After |
+|--------|-------|
+| Video Title | Training |
+| Status | Completion Status |
+| Date | Due Date |
+
+This is a straightforward text-only change with no impact on the data or logic.
 
