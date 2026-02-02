@@ -302,9 +302,21 @@ export const EmployeeManagement: React.FC<{
           const employeeQuizData = employeeQuizzes.get(employee.id);
           const quizAttempt = employeeQuizData?.get(assignment.video_id);
 
-          // Get status
+          // Get status - using same logic as getEmployeeStatus for consistency
           let status = 'Pending';
-          if (quizAttempt) {
+          const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
+
+          // Check completion using same logic as display
+          let isCompleted = false;
+          if (assignment.hasQuiz) {
+            // For videos with quiz: require both video and quiz completion
+            isCompleted = videoCompleted && !!quizAttempt;
+          } else {
+            // For videos without quiz: only require video completion
+            isCompleted = videoCompleted;
+          }
+
+          if (isCompleted) {
             status = 'Completed';
           } else if (assignment.due_date) {
             const today = new Date();
@@ -338,8 +350,8 @@ export const EmployeeManagement: React.FC<{
 
           // Get completion date - show due date for non-completed, completion date for completed
           let completionDate = '--';
-          const isCompleted = assignment.completed_at || quizAttempt && quizAttempt.completed_at;
-          if (isCompleted) {
+          const hasCompletionDate = assignment.completed_at || quizAttempt && quizAttempt.completed_at;
+          if (hasCompletionDate) {
             // Show completion date for completed items
             if (quizAttempt && quizAttempt.completed_at) {
               completionDate = format(new Date(quizAttempt.completed_at), 'MMM dd, yyyy');
