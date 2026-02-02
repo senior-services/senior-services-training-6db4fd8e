@@ -43,7 +43,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Employee, VideoAssignment } from '@/types/employee';
 import type { Video as VideoType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { LoadingSkeleton } from '@/components/ui/loading-spinner';
+import { LoadingSkeleton, LoadingSpinner } from '@/components/ui/loading-spinner';
 import { TOOLTIP_CONFIG } from '@/constants/tooltip-config';
 import { logger } from '@/utils/logger';
 
@@ -90,6 +90,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [initialVideoDeadlines, setInitialVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [assignmentData, setAssignmentData] = useState<Map<string, VideoAssignment>>(new Map());
   const [loading, setLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [showUnassignDialog, setShowUnassignDialog] = useState(false);
@@ -109,10 +110,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     }
   }, [open, employee]);
 
-  const loadVideosAndAssignments = async () => {
+  const loadVideosAndAssignments = async (isRefresh = false) => {
     if (!employee) return;
 
-    setLoading(true);
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     try {
       // Load videos, assignments, and progress data in parallel
       const [videosResult, assignmentsResult, progressResult] = await Promise.all([
@@ -190,6 +195,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       });
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -334,7 +340,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       });
 
       onAssignmentComplete();
-      await loadVideosAndAssignments();
+      await loadVideosAndAssignments(true);
     } catch (error) {
       logger.error('Error assigning videos', error as Error);
       toast({
@@ -373,7 +379,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       });
 
       onAssignmentComplete();
-      await loadVideosAndAssignments();
+      await loadVideosAndAssignments(true);
     } catch (error) {
       logger.error('Error unassigning videos', error as Error);
       toast({
@@ -501,7 +507,16 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <DialogScrollArea>
+        <DialogScrollArea className="relative">
+          {isRefreshing && (
+            <div 
+              className="absolute inset-0 bg-background/50 flex items-center justify-center z-10"
+              role="status"
+              aria-live="polite"
+            >
+              <LoadingSpinner size="lg" label="Updating assignments" />
+            </div>
+          )}
           {loading ? (
             <div className="space-y-4 py-4">
               <LoadingSkeleton lines={1} className="h-16" />
