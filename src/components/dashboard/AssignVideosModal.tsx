@@ -667,7 +667,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       </AlertDialog>
 
       <AlertDialog open={showUnassignDialog} onOpenChange={setShowUnassignDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent disableClose={isSubmitting}>
           <AlertDialogHeader>
             <AlertDialogTitle>Unassign trainings?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -690,7 +690,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
       {/* Due Date Selection Dialog */}
       <AlertDialog open={showDueDateDialog} onOpenChange={(open) => !open && resetDueDateDialog()}>
-        <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogContent className="sm:max-w-md" disableClose={isSubmitting}>
           <AlertDialogHeader>
             <AlertDialogTitle>Select due date to assign trainings</AlertDialogTitle>
             <AlertDialogDescription>
