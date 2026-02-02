@@ -277,7 +277,8 @@ export const EmployeeManagement: React.FC<{
     if (completedRequired.length === requiredVideos.length) {
       return <Badge variant="success">All Training Complete</Badge>;
     }
-    return <Badge variant="secondary">{completedRequired.length}/{requiredVideos.length} Complete</Badge>;
+    const pendingCount = requiredVideos.length - completedRequired.length;
+    return <Badge variant="secondary">{pendingCount} Pending</Badge>;
   };
   const exportToExcel = useCallback(() => {
     const exportData: any[] = [];
