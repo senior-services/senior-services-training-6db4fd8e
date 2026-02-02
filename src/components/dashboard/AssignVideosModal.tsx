@@ -17,6 +17,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -34,8 +42,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Video, Play, X, CalendarIcon, EyeOff } from 'lucide-react';
-import { format, differenceInDays, isPast } from 'date-fns';
+import { Video, CalendarIcon, EyeOff } from 'lucide-react';
+import { format, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { videoOperations, assignmentOperations, progressOperations } from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
@@ -338,18 +346,52 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     onOpenChange(false);
   };
 
-  // Helper function to get completion badge (similar to EmployeeManagement)
-  const getCompletionBadge = (progressData: { progress_percent: number; completed_at: string | null }) => {
-    const completionText = progressData.completed_at 
-      ? `Completed (${format(new Date(progressData.completed_at), 'MMM dd, yyyy')})`
-      : "Completed";
-    return {
-      variant: "ghost-success" as const,
-      showIcon: true,
-      text: completionText
-    };
+  // Get completion status for a video
+  const getCompletionStatus = (videoId: string): 'overdue' | 'pending' | 'completed' | 'unassigned' => {
+    if (completedVideoIds.has(videoId)) return 'completed';
+    if (!assignedVideoIds.has(videoId)) return 'unassigned';
+    
+    const deadline = videoDeadlines.get(videoId) || assignmentData.get(videoId)?.due_date;
+    if (deadline) {
+      const dueDate = typeof deadline === 'string' ? new Date(deadline) : deadline;
+      if (isPast(dueDate) && !completedVideoIds.has(videoId)) {
+        return 'overdue';
+      }
+    }
+    return 'pending';
   };
 
+  // Format due date for display
+  const formatDueDate = (videoId: string): string => {
+    if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return '--';
+    
+    if (completedVideoIds.has(videoId)) {
+      const progressData = videoProgressData.get(videoId);
+      if (progressData?.completed_at) {
+        return format(new Date(progressData.completed_at), 'MMM dd, yyyy');
+      }
+    }
+    
+    const deadline = videoDeadlines.get(videoId);
+    const existingDueDate = assignmentData.get(videoId)?.due_date;
+    
+    if (deadline) {
+      return format(deadline, 'MMM dd, yyyy');
+    } else if (existingDueDate) {
+      return format(new Date(existingDueDate), 'MMM dd, yyyy');
+    }
+    return 'N/A';
+  };
+
+  // Get badge variant for completion status (using soft variants for visibility)
+  const getStatusBadgeVariant = (status: 'overdue' | 'pending' | 'completed' | 'unassigned') => {
+    switch (status) {
+      case 'completed': return 'soft-success';
+      case 'overdue': return 'soft-destructive';
+      case 'pending': return 'secondary';
+      case 'unassigned': return 'soft-tertiary';
+    }
+  };
 
   // Filter videos based on current filter mode
   const getFilteredVideos = () => {    
@@ -467,122 +509,117 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                     </p>
                  </div>
               ) : (
-                 <div className="space-y-0">
-                   {filteredVideos
-                     .map((video, index) => {
-                    const isSelected = selectedVideoIds.has(video.id);
-                    const wasOriginallyAssigned = assignedVideoIds.has(video.id);
-                    const isCompleted = completedVideoIds.has(video.id);
-                    const progressData = videoProgressData.get(video.id);
-                    
-                    return (
-                       <div
-                         key={video.id}
-                         className="flex items-center justify-between py-2 border-b last:border-b-0 border-border-primary/50 transition-colors"
-                       >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <Checkbox
-                            id={`video-${video.id}`}
-                            checked={isSelected}
-                            disabled={isCompleted}
-                            onCheckedChange={(checked) => 
-                              handleVideoToggle(video.id, checked as boolean)
-                            }
-                          />
-                          
-                          <Label 
-                            htmlFor={`video-${video.id}`}
-                            className={cn(
-                              "flex-1 min-w-0",
-                              !isCompleted && "cursor-pointer"
-                            )}
-                          >
-                            <div className={cn(
-                              "font-medium text-sm line-clamp-2 flex items-center gap-2",
-                              isCompleted && "text-muted-foreground"
-                            )}>
-                              {video.title}
-                              {hiddenVideoIds.has(video.id) && (
-                                <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
-                                  <TooltipTrigger asChild>
-                                    <span 
-                                      className="text-warning cursor-default inline-flex items-center justify-center p-1"
-                                      role="img"
-                                      aria-label="This video is hidden from view on videos tab"
-                                      tabIndex={0}
-                                    >
-                                      <EyeOff className="h-4 w-4" />
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top">
-                                    <p>This video is hidden from view on videos tab</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              )}
-                            </div>
-                          </Label>
-                        </div>
-
-                         <div className="flex items-center gap-4">
-                           {isCompleted && progressData ? (
-                             <Badge variant="ghost-success" showIcon>
-                               {getCompletionBadge(progressData).text}
-                             </Badge>
-                           ) : isSelected && (
-                             <Popover 
-                               open={calendarOpen.get(video.id) || false}
-                               onOpenChange={(open) => {
-                                 setCalendarOpen(prev => {
-                                   const newOpen = new Map(prev);
-                                   newOpen.set(video.id, open);
-                                   return newOpen;
-                                 });
-                               }}
-                             >
-                               <PopoverTrigger asChild>
-                                 <Button
-                                   variant="outline"
-                                   size="sm"
-                                   className={cn(
-                                     "w-[160px] justify-start text-left font-normal",
-                                     !videoDeadlines.get(video.id) && "text-muted-foreground"
-                                   )}
-                                 >
-                                   <CalendarIcon className="mr-2 h-3 w-3" />
-                                   {videoDeadlines.get(video.id) ? (
-                                     format(videoDeadlines.get(video.id)!, "MMM dd, yyyy")
-                                   ) : (
-                                     <span className="text-xs">Pick due date</span>
-                                   )}
-                                 </Button>
-                               </PopoverTrigger>
-                               <PopoverContent 
-                                 className="w-auto p-0 z-[9999]" 
-                                 align="end"
-                                 side="bottom"
-                                 sideOffset={5}
-                                 avoidCollisions={true}
-                                 collisionPadding={20}
+                 <div className="overflow-x-auto">
+                   <Table>
+                     <TableHeader>
+                       <TableRow>
+                         <TableHead className="w-[40px]"></TableHead>
+                         <TableHead>Course</TableHead>
+                         <TableHead>Completion Status</TableHead>
+                         <TableHead>Due Date</TableHead>
+                       </TableRow>
+                     </TableHeader>
+                     <TableBody>
+                       {filteredVideos.map((video) => {
+                         const isSelected = selectedVideoIds.has(video.id);
+                         const isCompleted = completedVideoIds.has(video.id);
+                         const status = getCompletionStatus(video.id);
+                         
+                         return (
+                           <TableRow key={video.id}>
+                             <TableCell className="w-[40px]">
+                               <Checkbox
+                                 id={`video-${video.id}`}
+                                 checked={isSelected}
+                                 disabled={isCompleted}
+                                 onCheckedChange={(checked) => 
+                                   handleVideoToggle(video.id, checked as boolean)
+                                 }
+                               />
+                             </TableCell>
+                             
+                             <TableCell>
+                               <Label 
+                                 htmlFor={`video-${video.id}`}
+                                 className={cn(
+                                   "flex items-center gap-2",
+                                   !isCompleted && "cursor-pointer"
+                                 )}
                                >
-                                 <Calendar
-                                   mode="single"
-                                   selected={videoDeadlines.get(video.id)}
-                                   onSelect={(date) => handleDeadlineChange(video.id, date)}
-                                   disabled={(date) =>
-                                     date < new Date(new Date().setHours(0, 0, 0, 0))
-                                   }
-                                   initialFocus
-                                   className="p-3 pointer-events-auto"
-                                 />
-                               </PopoverContent>
-                             </Popover>
-                           )}
-                           
-                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                                 <span className={cn(
+                                   "font-medium text-sm",
+                                   isCompleted && "text-muted-foreground"
+                                 )}>
+                                   {video.title}
+                                 </span>
+                                 {hiddenVideoIds.has(video.id) && (
+                                   <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
+                                     <TooltipTrigger asChild>
+                                       <span className="text-warning">
+                                         <EyeOff className="h-4 w-4" />
+                                       </span>
+                                     </TooltipTrigger>
+                                     <TooltipContent side="top">
+                                       <p>This video is hidden from view on videos tab</p>
+                                     </TooltipContent>
+                                   </Tooltip>
+                                 )}
+                               </Label>
+                             </TableCell>
+                             
+                             <TableCell>
+                               <Badge variant={getStatusBadgeVariant(status)}>
+                                 {status.charAt(0).toUpperCase() + status.slice(1)}
+                               </Badge>
+                             </TableCell>
+                             
+                             <TableCell>
+                               {isSelected && !isCompleted ? (
+                                 <Popover 
+                                   open={calendarOpen.get(video.id) || false}
+                                   onOpenChange={(open) => {
+                                     setCalendarOpen(prev => {
+                                       const newOpen = new Map(prev);
+                                       newOpen.set(video.id, open);
+                                       return newOpen;
+                                     });
+                                   }}
+                                 >
+                                   <PopoverTrigger asChild>
+                                     <Button
+                                       variant="ghost"
+                                       size="sm"
+                                       className={cn(
+                                         "h-8 justify-start text-left font-normal px-2",
+                                         !videoDeadlines.get(video.id) && "text-muted-foreground"
+                                       )}
+                                     >
+                                       <CalendarIcon className="mr-2 h-3 w-3" />
+                                       {formatDueDate(video.id)}
+                                     </Button>
+                                   </PopoverTrigger>
+                                   <PopoverContent className="w-auto p-0 z-[9999]" align="start">
+                                     <Calendar
+                                       mode="single"
+                                       selected={videoDeadlines.get(video.id)}
+                                       onSelect={(date) => handleDeadlineChange(video.id, date)}
+                                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                       initialFocus
+                                     />
+                                   </PopoverContent>
+                                 </Popover>
+                               ) : (
+                                 <span className="text-sm text-muted-foreground">
+                                   {formatDueDate(video.id)}
+                                 </span>
+                               )}
+                             </TableCell>
+                           </TableRow>
+                         );
+                       })}
+                     </TableBody>
+                   </Table>
+                 </div>
               )}
             </>
           )}
