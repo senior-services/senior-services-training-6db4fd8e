@@ -81,7 +81,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left bg-gradient-card px-6 py-4 border-b border-border-secondary flex-shrink-0 sm:rounded-t-lg",
+      "flex flex-col space-y-1.5 text-center sm:text-left bg-background px-6 py-4 border-b border-border-secondary flex-shrink-0 sm:rounded-t-lg",
       className
     )}
     data-dialog-header
@@ -111,7 +111,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-gradient-card px-6 py-4 border-t border-border-secondary flex-shrink-0 sm:rounded-b-lg",
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-background px-6 py-4 border-t border-border-secondary flex-shrink-0 sm:rounded-b-lg",
       className
     )}
     data-dialog-footer

@@ -18,7 +18,7 @@ export const Header = ({
 }: HeaderProps) => {
   const subtitle = userRole === 'admin' ? 'Administrator Dashboard' : 'Employee Portal';
   return (
-    <header className="bg-gradient-card border-b border-border-primary shadow-card">
+    <header className="bg-background border-b border-border-primary shadow-card">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
