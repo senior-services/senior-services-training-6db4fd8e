@@ -51,7 +51,7 @@ interface AssignVideosModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   employee: Employee | null;
-  onAssignmentComplete: () => void;
+  onAssignmentComplete: (silentRefresh?: boolean) => void;
 }
 
 // Utility function to compare sets
@@ -339,7 +339,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? 's' : ''} assigned to ${employee.full_name || employee.email}`,
       });
 
-      onAssignmentComplete();
+      onAssignmentComplete(true);
       await loadVideosAndAssignments(true);
     } catch (error) {
       logger.error('Error assigning videos', error as Error);
@@ -378,7 +378,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         description: `${videosToUnassign.size} training${videosToUnassign.size !== 1 ? 's' : ''} unassigned from ${employee.full_name || employee.email}`,
       });
 
-      onAssignmentComplete();
+      onAssignmentComplete(true);
       await loadVideosAndAssignments(true);
     } catch (error) {
       logger.error('Error unassigning videos', error as Error);

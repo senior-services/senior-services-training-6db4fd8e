@@ -87,9 +87,11 @@ export const EmployeeManagement: React.FC<{
       }
     };
   }, []);
-  const loadEmployees = useCallback(async () => {
+  const loadEmployees = useCallback(async (silentRefresh = false) => {
     try {
-      setLoading(true);
+      if (!silentRefresh) {
+        setLoading(true);
+      }
       const data = await employeeOperations.getAll();
       if (data.success && data.data) {
         // Transform API data to match local types with sanitization
@@ -161,7 +163,9 @@ export const EmployeeManagement: React.FC<{
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      if (!silentRefresh) {
+        setLoading(false);
+      }
     }
   }, [onCountChange, toast]);
   const handleAddEmployee = useCallback((employee: Employee) => {
