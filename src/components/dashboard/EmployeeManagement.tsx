@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, ChevronDown, ChevronUp, Trash2, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { UserPlus, Trash2, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { employeeOperations } from '@/services/api';
 import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
 import { getTooltipText } from '@/utils/tooltipText';
@@ -27,7 +27,7 @@ export const EmployeeManagement: React.FC<{
   const [employees, setEmployees] = useState<EmployeeWithAssignments[]>([]);
   const [employeeVideos, setEmployeeVideos] = useState<Map<string, any[]>>(new Map());
   const [employeeQuizzes, setEmployeeQuizzes] = useState<Map<string, Map<string, any>>>(new Map());
-  const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set());
+  
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -222,17 +222,6 @@ export const EmployeeManagement: React.FC<{
       setIsDeleting(false);
     }
   };
-  const toggleEmployeeExpanded = useCallback((employeeId: string) => {
-    setExpandedEmployees(prev => {
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(employeeId)) {
-        newExpanded.delete(employeeId);
-      } else {
-        newExpanded.add(employeeId);
-      }
-      return newExpanded;
-    });
-  }, []);
   const handleSort = useCallback(() => {
     if (sortColumn === 'name') {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -289,80 +278,6 @@ export const EmployeeManagement: React.FC<{
       return <Badge variant="success">All Training Complete</Badge>;
     }
     return <Badge variant="secondary">{completedRequired.length}/{requiredVideos.length} Complete</Badge>;
-  };
-  const getVideoStatus = (assignment: any, employeeId: string) => {
-    const employeeQuizData = employeeQuizzes.get(employeeId);
-    const quizAttempt = employeeQuizData?.get(assignment.video_id);
-
-    // Check if video is completed (progress 100% or has completed_at timestamp)
-    const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
-
-    // Determine completion based on whether video has a quiz
-    if (assignment.hasQuiz) {
-      // For videos with quiz: require both video and quiz completion
-      if (videoCompleted && quizAttempt) {
-        return <Badge variant="soft-success">Completed</Badge>;
-      }
-    } else {
-      // For videos without quiz: only require video completion
-      if (videoCompleted) {
-        return <Badge variant="soft-success">Completed</Badge>;
-      }
-    }
-    if (!assignment.due_date) {
-      return <Badge variant="soft-tertiary">No Deadline</Badge>;
-    }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const due = new Date(assignment.due_date);
-    due.setHours(0, 0, 0, 0);
-    const daysUntilDue = differenceInDays(due, today);
-    if (isPast(due) && daysUntilDue < 0) {
-      return <Badge variant="soft-destructive">Overdue</Badge>;
-    }
-    if (daysUntilDue === 0) {
-      return <Badge variant="soft-warning">Due Today</Badge>;
-    }
-    if (daysUntilDue <= 7) {
-      return <Badge variant="soft-warning">Due</Badge>;
-    }
-    return <Badge variant="soft-tertiary">Due</Badge>;
-  };
-  const getQuizResults = (assignment: any, employeeId: string) => {
-    const employeeQuizData = employeeQuizzes.get(employeeId);
-    const quizAttempt = employeeQuizData?.get(assignment.video_id);
-    if (!assignment.hasQuiz) {
-      return <span className="text-muted-foreground">--</span>;
-    }
-    if (!quizAttempt) {
-      return <span className="text-muted-foreground">Not Completed</span>;
-    }
-    const percentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
-    return <span>{percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)</span>;
-  };
-  const getCompletionDate = (assignment: any, employeeId: string) => {
-    const employeeQuizData = employeeQuizzes.get(employeeId);
-    const quizAttempt = employeeQuizData?.get(assignment.video_id);
-
-    // Check if assignment is completed
-    const isCompleted = assignment.completed_at || quizAttempt && quizAttempt.completed_at;
-    if (isCompleted) {
-      // Show completion date for completed items
-      if (quizAttempt && quizAttempt.completed_at) {
-        const completedDate = new Date(quizAttempt.completed_at);
-        return <span>{format(completedDate, 'MMM dd, yyyy')}</span>;
-      } else if (assignment.completed_at) {
-        const completedDate = new Date(assignment.completed_at);
-        return <span>{format(completedDate, 'MMM dd, yyyy')}</span>;
-      }
-    } else if (assignment.due_date) {
-      // Show due date for non-completed items
-      const dueDate = new Date(assignment.due_date);
-      return <span>{format(dueDate, 'MMM dd, yyyy')}</span>;
-    }
-
-    // No relevant date available
-    return <span className="text-muted-foreground">--</span>;
   };
   const exportToExcel = useCallback(() => {
     const exportData: any[] = [];
@@ -510,79 +425,47 @@ export const EmployeeManagement: React.FC<{
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getSortedEmployees.map(employee => {
-              const isExpanded = expandedEmployees.has(employee.id);
-              return <React.Fragment key={employee.id}>
-                      <TableRow className={`group transition-colors cursor-pointer ${isExpanded ? 'border-b-0 bg-muted/50' : 'hover:bg-slate-100'}`} role="button" tabIndex={0} aria-expanded={isExpanded} aria-label={`${isExpanded ? 'Collapse' : 'Expand'} details for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`} onClick={() => toggleEmployeeExpanded(employee.id)} onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleEmployeeExpanded(employee.id);
-                  }
-                }}>
-                        <TableCell className="py-3 font-medium">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                              {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                              <div className="flex flex-col">
-                                <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
-                                {employee.email && (
-                                  <span 
-                                    className="text-xs text-muted-foreground font-normal truncate max-w-[200px]" 
-                                    title={employee.email}
-                                  >
-                                    {sanitizeText(employee.email)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3">
-                          {getEmployeeStatus(employee.id)}
-                        </TableCell>
-                        <TableCell className="py-3 text-right pointer-events-none">
-                          <div className="flex gap-2 justify-end pointer-events-auto">
-                             <Button variant="outline" size="sm" onClick={e => {
-                        e.stopPropagation();
-                        handleAssignVideos(employee);
-                      }} aria-label={`Edit assignments for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}>Edit Assignments</Button>
-                             <IconButtonWithTooltip icon={Trash2} tooltip={getTooltipText('delete-item', {
-                        name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')
-                      })} onClick={e => {
-                        e.stopPropagation();
-                        setDeleteConfirmEmployee(employee);
-                      }} variant="ghost" className="text-destructive hover:text-destructive" />
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                      
-                      {isExpanded && <TableRow className="bg-muted/50">
-                          <TableCell colSpan={3} className="py-4">
-                            {employeeVideos.get(employee.id)?.length === 0 ? <p className="text-muted-foreground text-center py-4">
-                                No video assignments found for this employee.
-                              </p> : <div className="space-y-3 bg-muted/100 rounded-md p-4">
-                                 {/* Headers for video assignments */}
-                                 <div className="grid grid-cols-4 gap-6 px-4 py-2 border-b">
-                                   <div className="text-xs font-medium uppercase text-muted-foreground">VIDEO TITLE</div>
-                                   <div className="text-xs font-medium uppercase text-muted-foreground">STATUS</div>
-                                    <div className="text-xs font-medium uppercase text-muted-foreground">DATE COMPLETED</div>
-                                    <div className="text-xs font-medium uppercase text-muted-foreground">QUIZ RESULTS</div>
-                                 </div>
-                                
-                                {/* Video assignments */}
-                                <div>
-                                   {employeeVideos.get(employee.id)?.sort((a, b) => (a.video_title || '').localeCompare(b.video_title || '')).map((assignment: any) => <div key={assignment.video_id} className="grid grid-cols-4 gap-6 px-4 py-2 border-b border-border/50 last:border-b-0">
-                                       <div className="font-medium">{sanitizeText(assignment.video_title || '')}</div>
-                                       <div>{getVideoStatus(assignment, employee.id)}</div>
-                                        <div>{getCompletionDate(assignment, employee.id)}</div>
-                                        <div>{getQuizResults(assignment, employee.id)}</div>
-                                     </div>)}
-                                </div>
-                              </div>}
-                          </TableCell>
-                        </TableRow>}
-                    </React.Fragment>;
-            })}
+                {getSortedEmployees.map(employee => (
+                  <TableRow key={employee.id} className="group transition-colors hover:bg-slate-100">
+                    <TableCell className="py-3 font-medium">
+                      <div className="flex flex-col">
+                        <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
+                        {employee.email && (
+                          <span 
+                            className="text-xs text-muted-foreground font-normal truncate max-w-[200px]" 
+                            title={employee.email}
+                          >
+                            {sanitizeText(employee.email)}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {getEmployeeStatus(employee.id)}
+                    </TableCell>
+                    <TableCell className="py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleAssignVideos(employee)} 
+                          aria-label={`Edit assignments for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
+                        >
+                          Edit Assignments
+                        </Button>
+                        <IconButtonWithTooltip 
+                          icon={Trash2} 
+                          tooltip={getTooltipText('delete-item', {
+                            name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')
+                          })} 
+                          onClick={() => setDeleteConfirmEmployee(employee)} 
+                          variant="ghost" 
+                          className="text-destructive hover:text-destructive" 
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>
