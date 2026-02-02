@@ -1,51 +1,29 @@
 
 
-## Reorder Toggle Filters in Assign Videos Dialog
+## Change Default Filter to "Assigned" in Assign Videos Dialog
 
 ### Overview
-Change the order of the filter toggles in the Assign Videos dialog from "Unassigned, Assigned, Completed, All" to "Assigned, Unassigned, Completed, All".
+Update the default filter mode in the Assign Videos dialog from "unassigned" to "assigned" so when the dialog opens, it shows assigned videos by default.
 
 ---
 
 ### Change Required
 
 **File: `src/components/dashboard/AssignVideosModal.tsx`**  
-**Lines 585-596**
+**Line 101**
 
-**Current order:**
+**Current:**
 ```tsx
-<ToggleGroupItem value="unassigned" className="text-xs px-3 py-1" aria-label="Filter by unassigned videos">
-  Unassigned
-</ToggleGroupItem>
-<ToggleGroupItem value="assigned" className="text-xs px-3 py-1" aria-label="Filter by assigned videos">
-  Assigned
-</ToggleGroupItem>
-<ToggleGroupItem value="completed" className="text-xs px-3 py-1" aria-label="Filter by completed videos">
-  Completed
-</ToggleGroupItem>
-<ToggleGroupItem value="all" className="text-xs px-3 py-1" aria-label="Show all videos">
-  All
-</ToggleGroupItem>
+const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('unassigned');
 ```
 
-**Updated order:**
+**Updated:**
 ```tsx
-<ToggleGroupItem value="assigned" className="text-xs px-3 py-1" aria-label="Filter by assigned videos">
-  Assigned
-</ToggleGroupItem>
-<ToggleGroupItem value="unassigned" className="text-xs px-3 py-1" aria-label="Filter by unassigned videos">
-  Unassigned
-</ToggleGroupItem>
-<ToggleGroupItem value="completed" className="text-xs px-3 py-1" aria-label="Filter by completed videos">
-  Completed
-</ToggleGroupItem>
-<ToggleGroupItem value="all" className="text-xs px-3 py-1" aria-label="Show all videos">
-  All
-</ToggleGroupItem>
+const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('assigned');
 ```
 
 ---
 
 ### Result
-The filter toggles will display in the order: **Assigned, Unassigned, Completed, All**
+When the Assign Videos dialog opens, the "Assigned" toggle will be selected by default, showing the list of videos already assigned to the employee.
 
