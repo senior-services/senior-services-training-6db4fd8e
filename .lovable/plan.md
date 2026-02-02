@@ -1,33 +1,35 @@
 
 
-## Change Status Badge from "Completed/Total Complete" to "Pending" Count
+## Change Email Max Width in Employees Tab
 
 ### Overview
-Update the partial completion status badge in the Employees tab to show the number of pending (incomplete) required training items instead of showing completed/total.
+Update the max width of the email text in the Name column from 200px to 400px.
 
 ---
 
 ### Change Required
 
 **File: `src/components/dashboard/EmployeeManagement.tsx`**  
-**Line 280**
+**Line 436**
 
 **Current:**
 ```tsx
-return <Badge variant="secondary">{completedRequired.length}/{requiredVideos.length} Complete</Badge>;
+<span 
+  className="text-xs text-muted-foreground font-normal truncate max-w-[200px]" 
+  title={employee.email}
+>
 ```
 
 **Updated:**
 ```tsx
-const pendingCount = requiredVideos.length - completedRequired.length;
-return <Badge variant="secondary">{pendingCount} Pending</Badge>;
+<span 
+  className="text-xs text-muted-foreground font-normal truncate max-w-[400px]" 
+  title={employee.email}
+>
 ```
 
 ---
 
 ### Result
-- Before: "2/5 Complete"
-- After: "3 Pending"
-
-The badge will now show how many required training items are still pending instead of showing progress as a fraction.
+The email address will now display up to 400px wide before truncating with an ellipsis, allowing more of the email to be visible.
 
