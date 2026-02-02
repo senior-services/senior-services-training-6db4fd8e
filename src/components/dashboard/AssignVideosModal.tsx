@@ -41,6 +41,7 @@ import { Video, EyeOff } from 'lucide-react';
 import { format, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { videoOperations, assignmentOperations, progressOperations } from '@/services/api';
+import { quizOperations } from '@/services/quizService';
 import { supabase } from '@/integrations/supabase/client';
 import type { Employee, VideoAssignment } from '@/types/employee';
 import type { Video as VideoType } from '@/types';
@@ -98,6 +99,8 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [showUnassignDialog, setShowUnassignDialog] = useState(false);
   const [hiddenVideoIds, setHiddenVideoIds] = useState<Set<string>>(new Set());
   const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('unassigned');
+  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Set<string>>(new Set());
+  const [employeeQuizResults, setEmployeeQuizResults] = useState<Map<string, { score: number; total_questions: number; completed_at: string }>>(new Map());
   
   // Due date dialog state
   const [showDueDateDialog, setShowDueDateDialog] = useState(false);
@@ -121,11 +124,16 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       setLoading(true);
     }
     try {
-      // Load videos, assignments, and progress data in parallel
-      const [videosResult, assignmentsResult, progressResult] = await Promise.all([
+      // Load videos, assignments, progress data, and quiz data in parallel
+      const [videosResult, assignmentsResult, progressResult, quizzesResult, userAttemptsResult] = await Promise.all([
         videoOperations.getAll(true), // Include hidden videos
         employee ? assignmentOperations.getByEmployee(employee.id) : Promise.resolve({ success: true, data: [] as VideoAssignment[], error: null }),
-        employee ? progressOperations.getByEmployee(employee.id) : Promise.resolve({ success: true, data: [], error: null })
+        employee ? progressOperations.getByEmployee(employee.id) : Promise.resolve({ success: true, data: [], error: null }),
+        supabase.from('quizzes').select('video_id'),
+        employee?.email ? quizOperations.getUserAttempts(employee.email).catch(err => {
+          logger.warn('Failed to load quiz attempts:', err);
+          return [];
+        }) : Promise.resolve([])
       ]);
 
       if (videosResult.success && videosResult.data) {
@@ -161,6 +169,33 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         setCompletedVideoIds(completed);
         setVideoProgressData(progressMap);
       }
+
+      // Process quiz data to find which videos have quizzes
+      if (quizzesResult.data) {
+        const quizVideoIds = new Set<string>(quizzesResult.data.map(quiz => quiz.video_id));
+        setVideoIdsWithQuizzes(quizVideoIds);
+      } else {
+        setVideoIdsWithQuizzes(new Set());
+      }
+
+      // Process employee quiz attempts - keep most recent per video
+      const quizResultsMap = new Map<string, { score: number; total_questions: number; completed_at: string }>();
+      if (userAttemptsResult && Array.isArray(userAttemptsResult)) {
+        for (const attempt of userAttemptsResult) {
+          if (attempt.quiz?.video_id) {
+            const existingAttempt = quizResultsMap.get(attempt.quiz.video_id);
+            const currentAttemptDate = new Date(attempt.completed_at);
+            if (!existingAttempt || new Date(existingAttempt.completed_at) < currentAttemptDate) {
+              quizResultsMap.set(attempt.quiz.video_id, {
+                score: attempt.score,
+                total_questions: attempt.total_questions,
+                completed_at: attempt.completed_at
+              });
+            }
+          }
+        }
+      }
+      setEmployeeQuizResults(quizResultsMap);
 
       if (assignmentsResult.success && assignmentsResult.data) {
         const currentlyAssigned = new Set(assignmentsResult.data.map(a => a.video_id));
@@ -403,6 +438,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     setShowUnassignDialog(false);
     setFilterMode('unassigned');
     resetDueDateDialog();
+    // Reset quiz state
+    setVideoIdsWithQuizzes(new Set());
+    setEmployeeQuizResults(new Map());
     onOpenChange(false);
   };
 
@@ -478,6 +516,23 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       default:
         return videos;
     }
+  };
+
+  // Get quiz results display for a video
+  const getQuizResults = (videoId: string): React.ReactNode => {
+    const hasQuiz = videoIdsWithQuizzes.has(videoId);
+    const quizAttempt = employeeQuizResults.get(videoId);
+    
+    if (!hasQuiz) {
+      return <span className="text-muted-foreground" aria-label="No quiz available">--</span>;
+    }
+    
+    if (!quizAttempt) {
+      return <span className="text-muted-foreground">Not Completed</span>;
+    }
+    
+    const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
+    return <span>{percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)</span>;
   };
 
   if (!employee) return null;
@@ -585,9 +640,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                        <TableRow>
                          <TableHead className="w-[40px]"></TableHead>
                          <TableHead>Course</TableHead>
-                         <TableHead>Completion Status</TableHead>
-                         <TableHead>Due Date</TableHead>
-                       </TableRow>
+                          <TableHead>Completion Status</TableHead>
+                          <TableHead>Due Date</TableHead>
+                          <TableHead>Quiz Results</TableHead>
+                        </TableRow>
                      </TableHeader>
                      <TableBody>
                        {filteredVideos.map((video) => {
@@ -643,12 +699,17 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                </Badge>
                              </TableCell>
                              
-                             <TableCell>
-                               <span className="text-sm text-muted-foreground">
-                                 {formatDueDate(video.id)}
-                               </span>
-                             </TableCell>
-                           </TableRow>
+                              <TableCell>
+                                <span className="text-sm text-muted-foreground">
+                                  {formatDueDate(video.id)}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <span className="text-sm">
+                                  {getQuizResults(video.id)}
+                                </span>
+                              </TableCell>
+                            </TableRow>
                          );
                        })}
                      </TableBody>
