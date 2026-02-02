@@ -1,104 +1,52 @@
 
 
-## Fix Text Color Consistency in AssignVideosModal Table
+## Remove Checkbox from Completed Course Rows
 
-### Problem
-Looking at the screenshot, text colors are inconsistent across the table:
-- Some course titles appear dimmed (completed ones)
-- "N/A", "--", and "Not Completed" values appear in muted gray
-- Actual values like dates and quiz scores appear in normal body color
-
-The user wants **all body text** to use consistent foreground color - whether it's an actual value or a placeholder.
+### Overview
+Currently, the checkbox for completed courses is disabled but still visible. The user wants to completely hide/remove the checkbox from rows where the course is already completed.
 
 ---
 
-### Changes Required
+### Change Required
 
 **File: `src/components/dashboard/AssignVideosModal.tsx`**
 
----
-
-### 1. Course Title - Remove Muted Color for Completed
-
-**Lines 675-678** - Remove the conditional muted styling:
+**Lines 656-665** - Conditionally render the checkbox only for non-completed courses:
 
 **Current:**
 ```tsx
-<span className={cn(
-  "font-medium text-sm",
-  isCompleted && "text-muted-foreground"
-)}>
-  {video.title}
-</span>
+<TableCell className="w-[40px]">
+  <Checkbox
+    id={`video-${video.id}`}
+    checked={isSelected}
+    disabled={isCompleted}
+    onCheckedChange={(checked) => 
+      handleVideoToggle(video.id, checked as boolean)
+    }
+  />
+</TableCell>
 ```
 
 **Updated:**
 ```tsx
-<span className="font-medium text-sm">
-  {video.title}
-</span>
+<TableCell className="w-[40px]">
+  {!isCompleted && (
+    <Checkbox
+      id={`video-${video.id}`}
+      checked={isSelected}
+      onCheckedChange={(checked) => 
+        handleVideoToggle(video.id, checked as boolean)
+      }
+    />
+  )}
+</TableCell>
 ```
 
 ---
 
-### 2. Due Date - Always Use Body Color
-
-**Lines 702-708** - Remove conditional muted styling:
-
-**Current:**
-```tsx
-<span className={cn(
-  "text-sm",
-  !videoDeadlines.get(video.id) && "text-muted-foreground"
-)}>
-  {formatDueDate(video.id)}
-</span>
-```
-
-**Updated:**
-```tsx
-<span className="text-sm">
-  {formatDueDate(video.id)}
-</span>
-```
-
----
-
-### 3. Quiz Results - Remove Muted Color from Helper Function
-
-**Lines 526-531** - Update the `getQuizResults` helper:
-
-**Current:**
-```tsx
-if (!hasQuiz) {
-  return <span className="text-muted-foreground" aria-label="No quiz available">--</span>;
-}
-
-if (!quizAttempt) {
-  return <span className="text-muted-foreground">Not Completed</span>;
-}
-```
-
-**Updated:**
-```tsx
-if (!hasQuiz) {
-  return <span aria-label="No quiz available">--</span>;
-}
-
-if (!quizAttempt) {
-  return <span>Not Completed</span>;
-}
-```
-
----
-
-### Summary
-
-| Location | Change |
-|----------|--------|
-| Lines 675-678 | Remove `isCompleted && "text-muted-foreground"` from course title |
-| Lines 702-708 | Simplify to `className="text-sm"` for due date |
-| Lines 527, 531 | Remove `className="text-muted-foreground"` from quiz results placeholders |
-
-**Result:** All body text in the table will display in consistent foreground color, regardless of whether it's an actual value or placeholder.
+### Technical Details
+- Wraps the `<Checkbox>` in a conditional render `{!isCompleted && (...)}`
+- Removes the `disabled={isCompleted}` prop since it's no longer needed
+- The `<TableCell>` remains to maintain table structure and consistent column widths
+- Completed rows will show an empty cell where the checkbox would be
 
