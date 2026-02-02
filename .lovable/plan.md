@@ -1,111 +1,47 @@
 
 
-## Fix UI Completion Logic to Match Download Export
+## Fix: Dialog Should Open with "Assigned" View (Not "Unassigned")
 
-### Overview
-The UI in AssignVideosModal incorrectly marks videos as "Completed" based only on video progress, ignoring quiz completion. The download export already has the correct logic. This fix aligns the UI with the business rule.
+### What's Happening
 
----
+When you close the "Edit Assignments" dialog and reopen it, it shows the "Unassigned" view instead of the expected "Assigned" view.
 
-### Business Rule (Confirmed)
-- **With quiz**: Completed = video watched to 100% AND quiz finished
-- **Without quiz**: Completed = video watched to 100%
+### Why This Happens
 
----
+There's a mismatch in the code:
+- When the dialog first loads, it correctly starts with the "Assigned" view
+- But when you close the dialog, the reset code accidentally switches it to "Unassigned"
+- The next time you open it, you see "Unassigned" instead of "Assigned"
 
-### What's Being Fixed
-
-The UI currently marks Jane Doe's "Time Management" video as "Completed" even though she hasn't finished the required quiz. The download correctly shows it as pending.
+Think of it like a door that's supposed to reset to "locked" when closed, but it's accidentally resetting to "unlocked" instead.
 
 ---
 
-### Technical Changes
+### The Fix
 
-**File: `src/components/dashboard/AssignVideosModal.tsx`**
+**File: `src/components/dashboard/AssignVideosModal.tsx`**  
+**Line 452**
 
-**Change 1: Remove premature completion determination (Lines 153-171)**
-
-Replace this code that sets completedVideoIds based only on video progress:
+Change this line in the `closeModal` function:
 ```tsx
-// Process progress data to find completed videos and store progress info
-if (progressResult.success && progressResult.data) {
-  const completed = new Set<string>();
-  const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
-  
-  progressResult.data.forEach(progress => {
-    progressMap.set(progress.video_id, {
-      progress_percent: progress.progress_percent,
-      completed_at: progress.completed_at
-    });
-    
-    if (progress.progress_percent === 100 || progress.completed_at) {
-      completed.add(progress.video_id);
-    }
-  });
-  
-  setCompletedVideoIds(completed);
-  setVideoProgressData(progressMap);
-}
+setFilterMode('unassigned');
 ```
 
-With code that only stores progress data (completion determined later):
+To:
 ```tsx
-// Process progress data and store progress info (completion determined after quiz data is loaded)
-const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
-if (progressResult.success && progressResult.data) {
-  progressResult.data.forEach(progress => {
-    progressMap.set(progress.video_id, {
-      progress_percent: progress.progress_percent,
-      completed_at: progress.completed_at
-    });
-  });
-  setVideoProgressData(progressMap);
-}
+setFilterMode('assigned');
 ```
 
-**Change 2: Add completion determination after quiz data is loaded (After line 198)**
-
-After `setEmployeeQuizResults(quizResultsMap);`, add logic to determine completed videos using both progress and quiz data:
-```tsx
-// Determine completed videos with full context (video progress + quiz completion)
-const quizVideoIds = new Set<string>(quizzesResult.data?.map(quiz => quiz.video_id) || []);
-const completed = new Set<string>();
-
-progressMap.forEach((progress, videoId) => {
-  const videoCompleted = progress.progress_percent === 100 || progress.completed_at;
-  
-  if (quizVideoIds.has(videoId)) {
-    // Video has quiz - require both video AND quiz completion
-    if (videoCompleted && quizResultsMap.has(videoId)) {
-      completed.add(videoId);
-    }
-  } else {
-    // No quiz - video completion is enough
-    if (videoCompleted) {
-      completed.add(videoId);
-    }
-  }
-});
-setCompletedVideoIds(completed);
-```
+This ensures the filter resets to "Assigned" (the correct default) every time the dialog closes.
 
 ---
 
-### Result After Fix
+### Result
 
-| Jane Doe's "Time Management" Video | Before | After |
-|-----------------------------------|--------|-------|
-| **Screen display** | Completed | Pending |
-| **Download file** | Pending | Pending |
+| Scenario | Before Fix | After Fix |
+|----------|------------|-----------|
+| Open dialog for first time | Assigned ✓ | Assigned ✓ |
+| Close and reopen dialog | Unassigned ✗ | Assigned ✓ |
 
-Both will now correctly show she hasn't completed the training because the quiz isn't done.
-
----
-
-### Why This Works
-
-1. **Uses existing data** - Quiz data (`quizResultsMap`) is already loaded, just not used for completion
-2. **Matches download logic** - Same rules as `EmployeeManagement.tsx` export function
-3. **Minimal change** - Only moves where completion is calculated, doesn't add new queries
-4. **Business rule enforced** - Employees must complete both video AND quiz (when applicable)
+The dialog will now consistently open with the "Assigned" view, showing employees their current training assignments first.
 
