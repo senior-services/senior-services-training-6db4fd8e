@@ -1,35 +1,29 @@
 
 
-## Change Email Max Width in Employees Tab
+## Add Muted Background at 50% Opacity to Main Container
 
 ### Overview
-Update the max width of the email text in the Name column from 200px to 400px.
+Add a semi-transparent muted background color to the `<main>` container in the AdminDashboard, excluding the header.
 
 ---
 
 ### Change Required
 
-**File: `src/components/dashboard/EmployeeManagement.tsx`**  
-**Line 436**
+**File: `src/pages/AdminDashboard.tsx`**  
+**Line 41**
 
 **Current:**
 ```tsx
-<span 
-  className="text-xs text-muted-foreground font-normal truncate max-w-[200px]" 
-  title={employee.email}
->
+<main className="container mx-auto px-4 pb-8">
 ```
 
 **Updated:**
 ```tsx
-<span 
-  className="text-xs text-muted-foreground font-normal truncate max-w-[400px]" 
-  title={employee.email}
->
+<main className="container mx-auto px-4 pb-8 bg-muted/50">
 ```
 
 ---
 
 ### Result
-The email address will now display up to 400px wide before truncating with an ellipsis, allowing more of the email to be visible.
+The main content area (below the header) will have a muted background color at 50% opacity, creating a subtle visual distinction from the header and page background.
 
