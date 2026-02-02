@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Banner } from "@/components/ui/banner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogScrollArea, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogScrollArea, DialogTitle, DialogTrigger, FullscreenDialogContent, DialogClose } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -1448,6 +1448,30 @@ export const ComponentsGallery = ({
                       <Button className="shadow-md hover:shadow-lg transition-shadow">Confirm</Button>
                     </DialogFooter>
                   </DialogContent>
+                </Dialog>
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary" className="shadow-md hover:shadow-lg transition-shadow">Open Fullscreen Dialog</Button>
+                  </DialogTrigger>
+                  <FullscreenDialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Fullscreen Dialog</DialogTitle>
+                    </DialogHeader>
+                    <DialogScrollArea>
+                      <div className="space-y-4">
+                        <p>This fullscreen dialog fills the entire viewport with 8px spacing on mobile and 10px on larger screens.</p>
+                        <p>It's ideal for immersive content, detailed forms, media viewers, or any content that benefits from maximum screen space.</p>
+                        <p>The transparent overlay remains visible behind the dialog, maintaining visual context of the underlying page.</p>
+                      </div>
+                    </DialogScrollArea>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline" className="shadow-md hover:shadow-lg transition-shadow">Cancel</Button>
+                      </DialogClose>
+                      <Button className="shadow-md hover:shadow-lg transition-shadow">Save Changes</Button>
+                    </DialogFooter>
+                  </FullscreenDialogContent>
                 </Dialog>
                 
                 <AlertDialog>
