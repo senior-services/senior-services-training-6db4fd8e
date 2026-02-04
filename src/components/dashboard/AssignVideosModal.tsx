@@ -472,11 +472,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
     const deadline = videoDeadlines.get(videoId);
     const existingDueDate = assignmentData.get(videoId)?.due_date;
+    const status = getCompletionStatus(videoId);
 
     if (deadline) {
-      return format(deadline, "MMM dd, yyyy");
+      const formattedDate = format(deadline, "MMM dd, yyyy");
+      return status === "pending" || status === "overdue" ? `Due ${formattedDate}` : formattedDate;
     } else if (existingDueDate) {
-      return format(new Date(existingDueDate), "MMM dd, yyyy");
+      const formattedDate = format(new Date(existingDueDate), "MMM dd, yyyy");
+      return status === "pending" || status === "overdue" ? `Due ${formattedDate}` : formattedDate;
     }
     return "N/A";
   };
