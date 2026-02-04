@@ -126,15 +126,21 @@ export const ComponentsGallery = ({
     if (sortColumn === "department") {
       const aNum = parseInt(aValue);
       const bNum = parseInt(bValue);
-      return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+      let comparison = aNum - bNum;
+      // Secondary sort: alphabetical by name when department is the same
+      if (comparison === 0) {
+        comparison = a.name.localeCompare(b.name);
+      }
+      return sortDirection === "asc" ? comparison : -comparison;
     }
 
     // String sorting for other columns
-    if (sortDirection === "asc") {
-      return aValue.localeCompare(bValue);
-    } else {
-      return bValue.localeCompare(aValue);
+    let comparison = aValue.localeCompare(bValue);
+    // Secondary sort: alphabetical by name when primary column values are the same
+    if (comparison === 0 && sortColumn !== "name") {
+      comparison = a.name.localeCompare(b.name);
     }
+    return sortDirection === "asc" ? comparison : -comparison;
   });
   const {
     toast
