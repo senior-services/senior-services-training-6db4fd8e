@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogScrollArea } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { SortableTableHead, type SortDirection } from "@/components/ui/sortable-table-head";
 import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -88,6 +89,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [employeeQuizResults, setEmployeeQuizResults] = useState<
     Map<string, { score: number; total_questions: number; completed_at: string }>
   >(new Map());
+  
+  // Sorting state
+  const [sortColumn, setSortColumn] = useState<'course' | 'status' | null>('course');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   // Due date dialog state
   const [showDueDateDialog, setShowDueDateDialog] = useState(false);
@@ -498,28 +503,69 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     }
   };
 
+  // Sort handler for table columns
+  const handleSort = useCallback((column: 'course' | 'status') => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  }, [sortColumn, sortDirection]);
+
+  // Get status priority for sorting (lower = more urgent)
+  const getStatusPriority = (videoId: string): number => {
+    const status = getCompletionStatus(videoId);
+    switch (status) {
+      case "overdue": return 0;
+      case "pending": return 1;
+      case "unassigned": return 2;
+      case "completed": return 3;
+      default: return 4;
+    }
+  };
+
+  // Sort videos based on current sort column and direction
+  const sortVideos = (videosToSort: VideoType[]): VideoType[] => {
+    return [...videosToSort].sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortColumn === 'course') {
+        comparison = a.title.localeCompare(b.title);
+      } else if (sortColumn === 'status') {
+        comparison = getStatusPriority(a.id) - getStatusPriority(b.id);
+      }
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
+
   // Filter videos based on current filter mode
   const getFilteredVideos = () => {
+    let filtered: VideoType[];
+    
     switch (filterMode) {
       case "unassigned":
         // Show videos that are not assigned and not completed
-        return videos
-          .filter((v) => !assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id))
-          .sort((a, b) => a.title.localeCompare(b.title));
+        filtered = videos.filter((v) => !assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id));
+        break;
       case "assigned":
         // Show videos currently assigned to employee (excluding completed)
-        return videos
-          .filter((v) => assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id))
-          .sort((a, b) => a.title.localeCompare(b.title));
+        filtered = videos.filter((v) => assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id));
+        break;
       case "completed":
         // Show only completed videos
-        return videos.filter((v) => completedVideoIds.has(v.id)).sort((a, b) => a.title.localeCompare(b.title));
+        filtered = videos.filter((v) => completedVideoIds.has(v.id));
+        break;
       case "all":
         // Show all videos
-        return videos.sort((a, b) => a.title.localeCompare(b.title));
+        filtered = videos;
+        break;
       default:
-        return videos;
+        filtered = videos;
     }
+    
+    return sortVideos(filtered);
   };
 
   // Get quiz results display for a video
@@ -676,10 +722,24 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[40px]"></TableHead>
-                        <TableHead>Course</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Quiz Results</TableHead>
+                        <SortableTableHead
+                          column="course"
+                          sortColumn={sortColumn}
+                          sortDirection={sortDirection}
+                          onSort={handleSort}
+                        >
+                          Course
+                        </SortableTableHead>
+                        <SortableTableHead
+                          column="status"
+                          sortColumn={sortColumn}
+                          sortDirection={sortDirection}
+                          onSort={handleSort}
+                        >
+                          Status
+                        </SortableTableHead>
+                        <TableHead className="whitespace-nowrap">Date</TableHead>
+                        <TableHead className="whitespace-nowrap">Quiz Results</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
