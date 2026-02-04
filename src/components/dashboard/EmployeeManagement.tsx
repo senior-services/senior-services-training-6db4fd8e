@@ -244,7 +244,7 @@ export const EmployeeManagement: React.FC<{
     const videos = employeeVideos.get(employeeId) || [];
     const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
     if (requiredVideos.length === 0) {
-      return <Badge variant="soft-secondary">No Required Training</Badge>;
+      return <span className="text-muted-foreground">No Required Training</span>;
     }
 
     // Helper function to check if assignment is completed (same logic as getVideoStatus)
@@ -272,14 +272,23 @@ export const EmployeeManagement: React.FC<{
       const daysUntilDue = differenceInDays(due, today);
       return isPast(due) && daysUntilDue < 0;
     });
-    if (overdueRequired.length > 0) {
-      return <Badge variant="soft-destructive">{overdueRequired.length} Overdue</Badge>;
-    }
-    if (completedRequired.length === requiredVideos.length) {
-      return <Badge variant="soft-success">All Training Complete</Badge>;
-    }
+
     const pendingCount = requiredVideos.length - completedRequired.length;
-    return <Badge variant="soft-secondary">{pendingCount} {STATUS_LABELS.pending}</Badge>;
+
+    if (completedRequired.length === requiredVideos.length) {
+      return <span className="text-muted-foreground">All Training Complete</span>;
+    }
+
+    if (overdueRequired.length > 0) {
+      return (
+        <div className="flex items-center gap-2">
+          <span>{pendingCount} {STATUS_LABELS.pending}</span>
+          <Badge variant="soft-destructive">{overdueRequired.length} Overdue</Badge>
+        </div>
+      );
+    }
+
+    return <span>{pendingCount} {STATUS_LABELS.pending}</span>;
   };
   const exportToExcel = useCallback(() => {
     const exportData: any[] = [];
