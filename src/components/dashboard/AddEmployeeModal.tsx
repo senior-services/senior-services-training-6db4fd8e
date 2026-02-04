@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Mail, User } from 'lucide-react';
+import { UserPlus, Mail } from 'lucide-react';
 import { employeeOperations } from '@/services/api';
 import type { Employee } from '@/types/employee';
 import { useToast } from '@/hooks/use-toast';
@@ -28,7 +28,6 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
   onEmployeeAdded,
 }) => {
   const [email, setEmail] = useState('');
-  const [fullName, setFullName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
@@ -61,7 +60,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const result = await employeeOperations.add(email.trim().toLowerCase(), fullName.trim() || undefined);
+      const result = await employeeOperations.add(email.trim().toLowerCase());
       if (result.success && result.data) {
         // Transform API response to match expected Employee type
         const employee = {
@@ -104,7 +103,6 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
   const handleClose = () => {
     setEmail('');
-    setFullName('');
     setIsSubmitting(false);
     setHasChanges(false);
     onOpenChange(false);
@@ -142,25 +140,6 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="fullName">
-                Full Name (Optional)
-              </Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                  setHasChanges(true);
-                }}
-                disabled={isSubmitting}
-              />
-              <p className="text-xs text-muted-foreground">
-                This will be updated automatically from their Google account when they log in.
-              </p>
-            </div>
           </form>
         </DialogScrollArea>
 
