@@ -1,26 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogScrollArea } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ButtonWithTooltip } from '@/components/ui/button-with-tooltip';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Video, EyeOff } from 'lucide-react';
-import { format, isPast } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { videoOperations, assignmentOperations, progressOperations } from '@/services/api';
-import { quizOperations } from '@/services/quizService';
-import { supabase } from '@/integrations/supabase/client';
-import type { Employee, VideoAssignment } from '@/types/employee';
-import type { Video as VideoType } from '@/types';
-import { useToast } from '@/hooks/use-toast';
-import { LoadingSkeleton, LoadingSpinner } from '@/components/ui/loading-spinner';
-import { TOOLTIP_CONFIG } from '@/constants/tooltip-config';
-import { logger } from '@/utils/logger';
+import React, { useState, useEffect } from "react";
+import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogScrollArea } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
+
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Video, EyeOff } from "lucide-react";
+import { format, isPast } from "date-fns";
+import { cn } from "@/lib/utils";
+import { videoOperations, assignmentOperations, progressOperations } from "@/services/api";
+import { quizOperations } from "@/services/quizService";
+import { supabase } from "@/integrations/supabase/client";
+import type { Employee, VideoAssignment } from "@/types/employee";
+import type { Video as VideoType } from "@/types";
+import { useToast } from "@/hooks/use-toast";
+import { LoadingSkeleton, LoadingSpinner } from "@/components/ui/loading-spinner";
+import { TOOLTIP_CONFIG } from "@/constants/tooltip-config";
+import { logger } from "@/utils/logger";
+
 interface AssignVideosModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -48,20 +60,20 @@ function areDeadlineMapsEqual(a: Map<string, Date>, b: Map<string, Date>): boole
   }
   return true;
 }
+
 export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   open,
   onOpenChange,
   employee,
-  onAssignmentComplete
+  onAssignmentComplete,
 }) => {
   const [videos, setVideos] = useState<VideoType[]>([]);
   const [assignedVideoIds, setAssignedVideoIds] = useState<Set<string>>(new Set());
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(new Set());
   const [completedVideoIds, setCompletedVideoIds] = useState<Set<string>>(new Set());
-  const [videoProgressData, setVideoProgressData] = useState<Map<string, {
-    progress_percent: number;
-    completed_at: string | null;
-  }>>(new Map());
+  const [videoProgressData, setVideoProgressData] = useState<
+    Map<string, { progress_percent: number; completed_at: string | null }>
+  >(new Map());
   const [videoDeadlines, setVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [initialVideoDeadlines, setInitialVideoDeadlines] = useState<Map<string, Date>>(new Map());
   const [assignmentData, setAssignmentData] = useState<Map<string, VideoAssignment>>(new Map());
@@ -71,28 +83,28 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [showUnassignDialog, setShowUnassignDialog] = useState(false);
   const [hiddenVideoIds, setHiddenVideoIds] = useState<Set<string>>(new Set());
-  const [filterMode, setFilterMode] = useState<'unassigned' | 'assigned' | 'completed' | 'all'>('assigned');
+  const [filterMode, setFilterMode] = useState<"unassigned" | "assigned" | "completed" | "all">("assigned");
   const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Set<string>>(new Set());
-  const [employeeQuizResults, setEmployeeQuizResults] = useState<Map<string, {
-    score: number;
-    total_questions: number;
-    completed_at: string;
-  }>>(new Map());
+  const [employeeQuizResults, setEmployeeQuizResults] = useState<
+    Map<string, { score: number; total_questions: number; completed_at: string }>
+  >(new Map());
 
   // Due date dialog state
   const [showDueDateDialog, setShowDueDateDialog] = useState(false);
-  const [dueDateOption, setDueDateOption] = useState<'1week' | '2weeks' | '1month' | null>('1week');
+  const [dueDateOption, setDueDateOption] = useState<"1week" | "2weeks" | "1month" | null>("1week");
   const [noDueDateRequired, setNoDueDateRequired] = useState(false);
-  const {
-    toast
-  } = useToast();
+
+  const { toast } = useToast();
+
   useEffect(() => {
     if (open && employee) {
       loadVideosAndAssignments();
     }
   }, [open, employee]);
+
   const loadVideosAndAssignments = async (isRefresh = false) => {
     if (!employee) return;
+
     if (isRefresh) {
       setIsRefreshing(true);
     } else {
@@ -100,40 +112,40 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     }
     try {
       // Load videos, assignments, progress data, and quiz data in parallel
-      const [videosResult, assignmentsResult, progressResult, quizzesResult, userAttemptsResult] = await Promise.all([videoOperations.getAll(true),
-      // Include hidden videos
-      employee ? assignmentOperations.getByEmployee(employee.id) : Promise.resolve({
-        success: true,
-        data: [] as VideoAssignment[],
-        error: null
-      }), employee ? progressOperations.getByEmployee(employee.id) : Promise.resolve({
-        success: true,
-        data: [],
-        error: null
-      }), supabase.from('quizzes').select('video_id'), employee?.email ? quizOperations.getUserAttempts(employee.email).catch(err => {
-        logger.warn('Failed to load quiz attempts:', err);
-        return [];
-      }) : Promise.resolve([])]);
+      const [videosResult, assignmentsResult, progressResult, quizzesResult, userAttemptsResult] = await Promise.all([
+        videoOperations.getAll(true), // Include hidden videos
+        employee
+          ? assignmentOperations.getByEmployee(employee.id)
+          : Promise.resolve({ success: true, data: [] as VideoAssignment[], error: null }),
+        employee
+          ? progressOperations.getByEmployee(employee.id)
+          : Promise.resolve({ success: true, data: [], error: null }),
+        supabase.from("quizzes").select("video_id"),
+        employee?.email
+          ? quizOperations.getUserAttempts(employee.email).catch((err) => {
+              logger.warn("Failed to load quiz attempts:", err);
+              return [];
+            })
+          : Promise.resolve([]),
+      ]);
+
       if (videosResult.success && videosResult.data) {
         setVideos(videosResult.data);
 
         // Track hidden videos (videos with archived_at)
-        const hidden = new Set<string>(videosResult.data.filter(video => video.archived_at).map(video => video.id));
+        const hidden = new Set<string>(videosResult.data.filter((video) => video.archived_at).map((video) => video.id));
         setHiddenVideoIds(hidden);
       } else {
-        throw new Error(videosResult.error || 'Failed to load videos');
+        throw new Error(videosResult.error || "Failed to load videos");
       }
 
       // Process progress data and store progress info (completion determined after quiz data is loaded)
-      const progressMap = new Map<string, {
-        progress_percent: number;
-        completed_at: string | null;
-      }>();
+      const progressMap = new Map<string, { progress_percent: number; completed_at: string | null }>();
       if (progressResult.success && progressResult.data) {
-        progressResult.data.forEach(progress => {
+        progressResult.data.forEach((progress) => {
           progressMap.set(progress.video_id, {
             progress_percent: progress.progress_percent,
-            completed_at: progress.completed_at
+            completed_at: progress.completed_at,
           });
         });
         setVideoProgressData(progressMap);
@@ -141,18 +153,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
       // Process quiz data to find which videos have quizzes
       if (quizzesResult.data) {
-        const quizVideoIds = new Set<string>(quizzesResult.data.map(quiz => quiz.video_id));
+        const quizVideoIds = new Set<string>(quizzesResult.data.map((quiz) => quiz.video_id));
         setVideoIdsWithQuizzes(quizVideoIds);
       } else {
         setVideoIdsWithQuizzes(new Set());
       }
 
       // Process employee quiz attempts - keep most recent per video
-      const quizResultsMap = new Map<string, {
-        score: number;
-        total_questions: number;
-        completed_at: string;
-      }>();
+      const quizResultsMap = new Map<string, { score: number; total_questions: number; completed_at: string }>();
       if (userAttemptsResult && Array.isArray(userAttemptsResult)) {
         for (const attempt of userAttemptsResult) {
           if (attempt.quiz?.video_id) {
@@ -162,7 +170,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
               quizResultsMap.set(attempt.quiz.video_id, {
                 score: attempt.score,
                 total_questions: attempt.total_questions,
-                completed_at: attempt.completed_at
+                completed_at: attempt.completed_at,
               });
             }
           }
@@ -171,10 +179,12 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       setEmployeeQuizResults(quizResultsMap);
 
       // Determine completed videos with full context (video progress + quiz completion)
-      const quizVideoIds = new Set<string>(quizzesResult.data?.map(quiz => quiz.video_id) || []);
+      const quizVideoIds = new Set<string>(quizzesResult.data?.map((quiz) => quiz.video_id) || []);
       const completed = new Set<string>();
+
       progressMap.forEach((progress, videoId) => {
         const videoCompleted = progress.progress_percent === 100 || progress.completed_at;
+
         if (quizVideoIds.has(videoId)) {
           // Video has quiz - require both video AND quiz completion
           if (videoCompleted && quizResultsMap.has(videoId)) {
@@ -188,21 +198,22 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         }
       });
       setCompletedVideoIds(completed);
+
       if (assignmentsResult.success && assignmentsResult.data) {
-        const currentlyAssigned = new Set(assignmentsResult.data.map(a => a.video_id));
+        const currentlyAssigned = new Set(assignmentsResult.data.map((a) => a.video_id));
         setAssignedVideoIds(currentlyAssigned);
         setSelectedVideoIds(new Set());
 
         // Store assignment data for tooltip information
         const assignments = new Map<string, VideoAssignment>();
-        assignmentsResult.data.forEach(a => {
+        assignmentsResult.data.forEach((a) => {
           assignments.set(a.video_id, a);
         });
         setAssignmentData(assignments);
 
         // Load existing deadlines for assigned videos
         const deadlines = new Map<string, Date>();
-        assignmentsResult.data.forEach(a => {
+        assignmentsResult.data.forEach((a) => {
           if (a.due_date) {
             try {
               deadlines.set(a.video_id, new Date(a.due_date));
@@ -212,52 +223,47 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         setInitialVideoDeadlines(deadlines);
         setVideoDeadlines(new Map(deadlines));
       } else if (assignmentsResult.error) {
-        logger.warn('Failed to load assignments', {
-          error: assignmentsResult.error
-        });
+        logger.warn("Failed to load assignments", { error: assignmentsResult.error });
       }
     } catch (error) {
-      logger.error('Error loading videos and assignments', error as Error);
+      logger.error("Error loading videos and assignments", error as Error);
       toast({
         title: "Error",
         description: "Failed to load video assignments",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
       setIsRefreshing(false);
     }
   };
+
   const handleVideoToggle = (videoId: string, checked: boolean) => {
     // Prevent toggling completed videos
     if (completedVideoIds.has(videoId)) return;
-    setSelectedVideoIds(prev => {
+
+    setSelectedVideoIds((prev) => {
       const newSet = new Set(prev);
       if (checked) {
         newSet.add(videoId);
         // When a video is selected for assignment, automatically mark it as Required
-        setVideos(prevVideos => prevVideos.map(v => v.id === videoId ? {
-          ...v,
-          type: 'Required'
-        } : v));
+        setVideos((prevVideos) => prevVideos.map((v) => (v.id === videoId ? { ...v, type: "Required" } : v)));
       } else {
         newSet.delete(videoId);
         // Remove deadline when video is unselected and mark as Optional
-        setVideoDeadlines(prev => {
+        setVideoDeadlines((prev) => {
           const newDeadlines = new Map(prev);
           newDeadlines.delete(videoId);
           return newDeadlines;
         });
-        setVideos(prevVideos => prevVideos.map(v => v.id === videoId ? {
-          ...v,
-          type: 'Optional'
-        } : v));
+        setVideos((prevVideos) => prevVideos.map((v) => (v.id === videoId ? { ...v, type: "Optional" } : v)));
       }
       return newSet;
     });
   };
+
   const handleDeadlineChange = (videoId: string, date: Date | undefined) => {
-    setVideoDeadlines(prev => {
+    setVideoDeadlines((prev) => {
       const newDeadlines = new Map(prev);
       if (date) {
         newDeadlines.set(videoId, date);
@@ -293,26 +299,24 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   // Calculate due date based on selected option
   const calculateDueDate = (): Date | undefined => {
     if (noDueDateRequired) return undefined;
+
     const today = new Date();
     switch (dueDateOption) {
-      case '1week':
-        {
-          const date = new Date(today);
-          date.setDate(date.getDate() + 7);
-          return date;
-        }
-      case '2weeks':
-        {
-          const date = new Date(today);
-          date.setDate(date.getDate() + 14);
-          return date;
-        }
-      case '1month':
-        {
-          const date = new Date(today);
-          date.setMonth(date.getMonth() + 1);
-          return date;
-        }
+      case "1week": {
+        const date = new Date(today);
+        date.setDate(date.getDate() + 7);
+        return date;
+      }
+      case "2weeks": {
+        const date = new Date(today);
+        date.setDate(date.getDate() + 14);
+        return date;
+      }
+      case "1month": {
+        const date = new Date(today);
+        date.setMonth(date.getMonth() + 1);
+        return date;
+      }
       default:
         return undefined;
     }
@@ -320,18 +324,18 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
   // Handle radio selection for due date
   const handleDueDateSelection = (value: string) => {
-    if (value === 'none') {
+    if (value === "none") {
       setDueDateOption(null);
       setNoDueDateRequired(true);
     } else {
-      setDueDateOption(value as '1week' | '2weeks' | '1month');
+      setDueDateOption(value as "1week" | "2weeks" | "1month");
       setNoDueDateRequired(false);
     }
   };
 
   // Reset dialog state when closing
   const resetDueDateDialog = () => {
-    setDueDateOption('1week');
+    setDueDateOption("1week");
     setNoDueDateRequired(false);
     setShowDueDateDialog(false);
   };
@@ -339,34 +343,39 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   // Handle assigning new videos (additive only - cannot delete existing)
   const handleAssign = async () => {
     if (!employee) return;
+
     const videosToAssign = getSelectedUnassignedIds();
     if (videosToAssign.size === 0) return;
+
     const dueDate = calculateDueDate();
+
     setIsSubmitting(true);
     try {
       const {
-        data: {
-          user
-        }
+        data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error("Not authenticated");
+
       const promises: Promise<any>[] = [];
       for (const videoId of videosToAssign) {
         promises.push(assignmentOperations.create(videoId, employee.id, user.id, dueDate));
       }
+
       await Promise.all(promises);
+
       toast({
         title: "Success",
-        description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? 's' : ''} assigned to ${employee.full_name || employee.email}`
+        description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? "s" : ""} assigned to ${employee.full_name || employee.email}`,
       });
+
       onAssignmentComplete(true);
       await loadVideosAndAssignments(true);
     } catch (error) {
-      logger.error('Error assigning videos', error as Error);
+      logger.error("Error assigning videos", error as Error);
       toast({
         title: "Error",
         description: "Failed to assign trainings",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -377,8 +386,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   // Handle unassigning videos (called after confirmation)
   const handleUnassign = async () => {
     if (!employee) return;
+
     const videosToUnassign = getSelectedAssignedIds();
     if (videosToUnassign.size === 0) return;
+
     setIsSubmitting(true);
     try {
       const promises: Promise<any>[] = [];
@@ -388,25 +399,29 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
           promises.push(assignmentOperations.delete(assignment.id));
         }
       }
+
       await Promise.all(promises);
+
       toast({
         title: "Success",
-        description: `${videosToUnassign.size} training${videosToUnassign.size !== 1 ? 's' : ''} unassigned from ${employee.full_name || employee.email}`
+        description: `${videosToUnassign.size} training${videosToUnassign.size !== 1 ? "s" : ""} unassigned from ${employee.full_name || employee.email}`,
       });
+
       onAssignmentComplete(true);
       await loadVideosAndAssignments(true);
     } catch (error) {
-      logger.error('Error unassigning videos', error as Error);
+      logger.error("Error unassigning videos", error as Error);
       toast({
         title: "Error",
         description: "Failed to unassign trainings",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
       setShowUnassignDialog(false);
     }
   };
+
   const handleClose = () => {
     // Only show discard dialog if user has made selections
     if (selectedVideoIds.size > 0) {
@@ -415,12 +430,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       closeModal();
     }
   };
+
   const closeModal = () => {
     setSelectedVideoIds(new Set());
     setVideoDeadlines(new Map(initialVideoDeadlines));
     setShowDiscardDialog(false);
     setShowUnassignDialog(false);
-    setFilterMode('assigned');
+    setFilterMode("assigned");
     resetDueDateDialog();
     // Reset quiz state
     setVideoIdsWithQuizzes(new Set());
@@ -429,65 +445,73 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   };
 
   // Get completion status for a video
-  const getCompletionStatus = (videoId: string): 'overdue' | 'pending' | 'completed' | 'unassigned' => {
-    if (completedVideoIds.has(videoId)) return 'completed';
-    if (!assignedVideoIds.has(videoId)) return 'unassigned';
+  const getCompletionStatus = (videoId: string): "overdue" | "pending" | "completed" | "unassigned" => {
+    if (completedVideoIds.has(videoId)) return "completed";
+    if (!assignedVideoIds.has(videoId)) return "unassigned";
+
     const deadline = videoDeadlines.get(videoId) || assignmentData.get(videoId)?.due_date;
     if (deadline) {
-      const dueDate = typeof deadline === 'string' ? new Date(deadline) : deadline;
+      const dueDate = typeof deadline === "string" ? new Date(deadline) : deadline;
       if (isPast(dueDate) && !completedVideoIds.has(videoId)) {
-        return 'overdue';
+        return "overdue";
       }
     }
-    return 'pending';
+    return "pending";
   };
 
   // Format due date for display
   const formatDueDate = (videoId: string): string => {
-    if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return '--';
+    if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return "--";
+
     if (completedVideoIds.has(videoId)) {
       const progressData = videoProgressData.get(videoId);
       if (progressData?.completed_at) {
-        return format(new Date(progressData.completed_at), 'MMM dd, yyyy');
+        return format(new Date(progressData.completed_at), "MMM dd, yyyy");
       }
     }
+
     const deadline = videoDeadlines.get(videoId);
     const existingDueDate = assignmentData.get(videoId)?.due_date;
+
     if (deadline) {
-      return format(deadline, 'MMM dd, yyyy');
+      return format(deadline, "MMM dd, yyyy");
     } else if (existingDueDate) {
-      return format(new Date(existingDueDate), 'MMM dd, yyyy');
+      return format(new Date(existingDueDate), "MMM dd, yyyy");
     }
-    return 'N/A';
+    return "N/A";
   };
 
   // Get badge variant for completion status (using soft variants for visibility)
-  const getStatusBadgeVariant = (status: 'overdue' | 'pending' | 'completed' | 'unassigned') => {
+  const getStatusBadgeVariant = (status: "overdue" | "pending" | "completed" | "unassigned") => {
     switch (status) {
-      case 'completed':
-        return 'soft-success';
-      case 'overdue':
-        return 'soft-destructive';
-      case 'pending':
-        return 'secondary';
-      case 'unassigned':
-        return 'soft-tertiary';
+      case "completed":
+        return "soft-success";
+      case "overdue":
+        return "soft-destructive";
+      case "pending":
+        return "secondary";
+      case "unassigned":
+        return "soft-tertiary";
     }
   };
 
   // Filter videos based on current filter mode
   const getFilteredVideos = () => {
     switch (filterMode) {
-      case 'unassigned':
+      case "unassigned":
         // Show videos that are not assigned and not completed
-        return videos.filter(v => !assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id)).sort((a, b) => a.title.localeCompare(b.title));
-      case 'assigned':
+        return videos
+          .filter((v) => !assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id))
+          .sort((a, b) => a.title.localeCompare(b.title));
+      case "assigned":
         // Show videos currently assigned to employee (excluding completed)
-        return videos.filter(v => assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id)).sort((a, b) => a.title.localeCompare(b.title));
-      case 'completed':
+        return videos
+          .filter((v) => assignedVideoIds.has(v.id) && !completedVideoIds.has(v.id))
+          .sort((a, b) => a.title.localeCompare(b.title));
+      case "completed":
         // Show only completed videos
-        return videos.filter(v => completedVideoIds.has(v.id)).sort((a, b) => a.title.localeCompare(b.title));
-      case 'all':
+        return videos.filter((v) => completedVideoIds.has(v.id)).sort((a, b) => a.title.localeCompare(b.title));
+      case "all":
         // Show all videos
         return videos.sort((a, b) => a.title.localeCompare(b.title));
       default:
@@ -499,16 +523,25 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const getQuizResults = (videoId: string): React.ReactNode => {
     const hasQuiz = videoIdsWithQuizzes.has(videoId);
     const quizAttempt = employeeQuizResults.get(videoId);
+
     if (!hasQuiz) {
       return <span aria-label="No quiz available">--</span>;
     }
+
     if (!quizAttempt) {
       return <span>Not Completed</span>;
     }
-    const percentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
-    return <span>{percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)</span>;
+
+    const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
+    return (
+      <span>
+        {percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)
+      </span>
+    );
   };
+
   if (!employee) return null;
+
   const selectedUnassignedCount = getSelectedUnassignedIds().size;
   const selectedAssignedCount = getSelectedAssignedIds().size;
   const canAssign = selectedUnassignedCount > 0;
@@ -517,7 +550,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const filteredVideosCount = filteredVideos.length;
   const hasCompetingSelections = canAssign && canUnassign;
   const competingTooltip = "Clear conflicting selections first";
-  return <Dialog open={open} onOpenChange={handleClose}>
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
       <FullscreenDialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -527,23 +562,50 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         </DialogHeader>
 
         <DialogScrollArea className="relative">
-          {isRefreshing && <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10" role="status" aria-live="polite">
+          {isRefreshing && (
+            <div
+              className="absolute inset-0 bg-background/50 flex items-center justify-center z-10"
+              role="status"
+              aria-live="polite"
+            >
               <LoadingSpinner size="lg" label="Updating assignments" />
-            </div>}
-          {loading ? <div className="space-y-4 py-4">
+            </div>
+          )}
+          {loading ? (
+            <div className="space-y-4 py-4">
               <LoadingSkeleton lines={1} className="h-16" />
               <LoadingSkeleton lines={1} className="h-16" />
               <LoadingSkeleton lines={1} className="h-16" />
-            </div> : <>
+            </div>
+          ) : (
+            <>
               <div className="pb-3 border-b flex items-center justify-between gap-4 flex-wrap">
-                <ToggleGroup type="single" value={filterMode} onValueChange={value => setFilterMode(value as typeof filterMode || 'unassigned')} variant="pill" className="justify-start flex-wrap">
-                  <ToggleGroupItem value="assigned" className="text-xs px-3 py-1" aria-label="Filter by assigned videos">
+                <ToggleGroup
+                  type="single"
+                  value={filterMode}
+                  onValueChange={(value) => setFilterMode((value as typeof filterMode) || "unassigned")}
+                  variant="pill"
+                  className="justify-start flex-wrap"
+                >
+                  <ToggleGroupItem
+                    value="assigned"
+                    className="text-xs px-3 py-1"
+                    aria-label="Filter by assigned videos"
+                  >
                     Assigned
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="unassigned" className="text-xs px-3 py-1" aria-label="Filter by unassigned videos">
+                  <ToggleGroupItem
+                    value="unassigned"
+                    className="text-xs px-3 py-1"
+                    aria-label="Filter by unassigned videos"
+                  >
                     Unassigned
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="completed" className="text-xs px-3 py-1" aria-label="Filter by completed videos">
+                  <ToggleGroupItem
+                    value="completed"
+                    className="text-xs px-3 py-1"
+                    aria-label="Filter by completed videos"
+                  >
                     Completed
                   </ToggleGroupItem>
                   <ToggleGroupItem value="all" className="text-xs px-3 py-1" aria-label="Show all videos">
@@ -553,84 +615,121 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
                 {/* Action buttons moved to header */}
                 <div className="flex items-center gap-2">
-                  {selectedUnassignedCount > 0 && <ButtonWithTooltip onClick={() => setShowDueDateDialog(true)} disabled={isSubmitting || hasCompetingSelections} size="sm" tooltip={hasCompetingSelections ? competingTooltip : `Assign ${selectedUnassignedCount} training${selectedUnassignedCount !== 1 ? 's' : ''}`}>
+                  {selectedUnassignedCount > 0 && (
+                    <ButtonWithTooltip
+                      onClick={() => setShowDueDateDialog(true)}
+                      disabled={isSubmitting || hasCompetingSelections}
+                      size="sm"
+                      tooltip={
+                        hasCompetingSelections
+                          ? competingTooltip
+                          : `Assign ${selectedUnassignedCount} training${selectedUnassignedCount !== 1 ? "s" : ""}`
+                      }
+                    >
                       Assign ({selectedUnassignedCount})
-                    </ButtonWithTooltip>}
-                  {selectedAssignedCount > 0 && <ButtonWithTooltip variant="outline" onClick={() => setShowUnassignDialog(true)} disabled={isSubmitting || hasCompetingSelections} size="sm" tooltip={hasCompetingSelections ? competingTooltip : `Unassign ${selectedAssignedCount} training${selectedAssignedCount !== 1 ? 's' : ''}`} className="border-destructive text-destructive hover:bg-destructive/10">
+                    </ButtonWithTooltip>
+                  )}
+                  {selectedAssignedCount > 0 && (
+                    <ButtonWithTooltip
+                      variant="outline"
+                      onClick={() => setShowUnassignDialog(true)}
+                      disabled={isSubmitting || hasCompetingSelections}
+                      size="sm"
+                      tooltip={
+                        hasCompetingSelections
+                          ? competingTooltip
+                          : `Unassign ${selectedAssignedCount} training${selectedAssignedCount !== 1 ? "s" : ""}`
+                      }
+                      className="border-destructive text-destructive hover:bg-destructive/10"
+                    >
                       Unassign ({selectedAssignedCount})
-                    </ButtonWithTooltip>}
+                    </ButtonWithTooltip>
+                  )}
                 </div>
               </div>
 
-              {filteredVideosCount === 0 ? <div className="text-center py-8 text-muted-foreground">
-                   <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>
-                      {filterMode === 'unassigned' && 'No unassigned videos available'}
-                      {filterMode === 'assigned' && 'No assigned videos found'}
-                      {filterMode === 'completed' && 'No completed videos found'}
-                      {filterMode === 'all' && 'No videos available'}
-                    </p>
-                 </div> : <div className="overflow-x-auto">
-                   <Table>
-                     <TableHeader>
-                       <TableRow>
-                         <TableHead className="w-[40px]"></TableHead>
-                         <TableHead>Course</TableHead>
-                          <TableHead>STATUS</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Quiz Results</TableHead>
-                        </TableRow>
-                     </TableHeader>
-                     <TableBody>
-                       {filteredVideos.map(video => {
-                  const isSelected = selectedVideoIds.has(video.id);
-                  const isCompleted = completedVideoIds.has(video.id);
-                  const status = getCompletionStatus(video.id);
-                  return <TableRow key={video.id}>
-                              <TableCell className="w-[40px]">
-                                {!isCompleted && <Checkbox id={`video-${video.id}`} checked={isSelected} onCheckedChange={checked => handleVideoToggle(video.id, checked as boolean)} />}
-                              </TableCell>
-                             
-                             <TableCell>
-                               <Label htmlFor={`video-${video.id}`} className={cn("flex items-center gap-2", !isCompleted && "cursor-pointer")}>
-                                 <span className="font-medium text-sm">
-                                    {video.title}
-                                  </span>
-                                 {hiddenVideoIds.has(video.id) && <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
-                                     <TooltipTrigger asChild>
-                                       <span className="text-warning">
-                                         <EyeOff className="h-4 w-4" />
-                                       </span>
-                                     </TooltipTrigger>
-                                     <TooltipContent side="top">
-                                       <p>This video is hidden from view on videos tab</p>
-                                     </TooltipContent>
-                                   </Tooltip>}
-                               </Label>
-                             </TableCell>
-                             
-                             <TableCell>
-                               <Badge variant={getStatusBadgeVariant(status)}>
-                                 {status.charAt(0).toUpperCase() + status.slice(1)}
-                               </Badge>
-                             </TableCell>
-                             
-                               <TableCell>
-                                 <span className="text-sm">
-                                   {formatDueDate(video.id)}
-                                 </span>
-                               </TableCell>
-                              <TableCell>
-                                <span className="text-sm">
-                                  {getQuizResults(video.id)}
-                                </span>
-                              </TableCell>
-                            </TableRow>;
-                })}
-                     </TableBody>
-                   </Table>
-                 </div>}
-            </>}
+              {filteredVideosCount === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>
+                    {filterMode === "unassigned" && "No unassigned videos available"}
+                    {filterMode === "assigned" && "No assigned videos found"}
+                    {filterMode === "completed" && "No completed videos found"}
+                    {filterMode === "all" && "No videos available"}
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[40px]"></TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Quiz Results</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredVideos.map((video) => {
+                        const isSelected = selectedVideoIds.has(video.id);
+                        const isCompleted = completedVideoIds.has(video.id);
+                        const status = getCompletionStatus(video.id);
+
+                        return (
+                          <TableRow key={video.id}>
+                            <TableCell className="w-[40px]">
+                              {!isCompleted && (
+                                <Checkbox
+                                  id={`video-${video.id}`}
+                                  checked={isSelected}
+                                  onCheckedChange={(checked) => handleVideoToggle(video.id, checked as boolean)}
+                                />
+                              )}
+                            </TableCell>
+
+                            <TableCell>
+                              <Label
+                                htmlFor={`video-${video.id}`}
+                                className={cn("flex items-center gap-2", !isCompleted && "cursor-pointer")}
+                              >
+                                <span className="font-medium text-sm">{video.title}</span>
+                                {hiddenVideoIds.has(video.id) && (
+                                  <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
+                                    <TooltipTrigger asChild>
+                                      <span className="text-warning">
+                                        <EyeOff className="h-4 w-4" />
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">
+                                      <p>This video is hidden from view on videos tab</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </Label>
+                            </TableCell>
+
+                            <TableCell>
+                              <Badge variant={getStatusBadgeVariant(status)}>
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                              </Badge>
+                            </TableCell>
+
+                            <TableCell>
+                              <span className="text-sm">{formatDueDate(video.id)}</span>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-sm">{getQuizResults(video.id)}</span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </>
+          )}
         </DialogScrollArea>
       </FullscreenDialogContent>
 
@@ -654,32 +753,40 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Unassign trainings?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to unassign {selectedAssignedCount} training{selectedAssignedCount !== 1 ? 's' : ''}? 
-              Any user progress will be lost and cannot be retrieved.
+              Are you sure you want to unassign {selectedAssignedCount} training{selectedAssignedCount !== 1 ? "s" : ""}
+              ? Any user progress will be lost and cannot be retrieved.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUnassign} disabled={isSubmitting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {isSubmitting ? 'Unassigning...' : 'Unassign'}
+            <AlertDialogAction
+              onClick={handleUnassign}
+              disabled={isSubmitting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isSubmitting ? "Unassigning..." : "Unassign"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       {/* Due Date Selection Dialog */}
-      <AlertDialog open={showDueDateDialog} onOpenChange={open => !open && resetDueDateDialog()}>
+      <AlertDialog open={showDueDateDialog} onOpenChange={(open) => !open && resetDueDateDialog()}>
         <AlertDialogContent className="sm:max-w-md" disableClose={isSubmitting}>
           <AlertDialogHeader>
             <AlertDialogTitle>Select due date to assign trainings</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedUnassignedCount} training{selectedUnassignedCount !== 1 ? 's' : ''} selected
+              {selectedUnassignedCount} training{selectedUnassignedCount !== 1 ? "s" : ""} selected
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
+
           <div className={cn("space-y-4 py-4", isSubmitting && "opacity-50 pointer-events-none")}>
             <Label className="text-sm font-medium">Select due date</Label>
-            <RadioGroup value={noDueDateRequired ? 'none' : dueDateOption || ''} onValueChange={handleDueDateSelection} disabled={isSubmitting}>
+            <RadioGroup
+              value={noDueDateRequired ? "none" : dueDateOption || ""}
+              onValueChange={handleDueDateSelection}
+              disabled={isSubmitting}
+            >
               <div className="flex items-center space-x-3">
                 <RadioGroupItem value="1week" id="due-1week" />
                 <Label htmlFor="due-1week" className="text-base font-normal cursor-pointer">
@@ -712,10 +819,11 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleAssign} disabled={isSubmitting}>
-              {isSubmitting ? 'Assigning...' : 'Assign'}
+              {isSubmitting ? "Assigning..." : "Assign"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Dialog>;
+    </Dialog>
+  );
 };
