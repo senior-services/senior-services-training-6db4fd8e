@@ -1,46 +1,50 @@
 
 
-## Revert Badge Font Size to 14px (text-xs)
+## Change Unassign Button to Solid Destructive Style
 
-### Issue
+### Current State
 
-The Badge component was recently changed from `text-xs` (14px) to `text-sm` (15px), but this doesn't align with the Component Gallery typography guidelines which specify:
+The "Unassign" button in the Assign Videos dialog currently uses an outline style with destructive colors:
+- Uses `variant="outline"` 
+- Custom classes: `border-destructive text-destructive hover:bg-destructive/10`
 
-| Font Size Class | Pixel Size | Purpose |
-|-----------------|------------|---------|
-| `text-xs` | 14px | **Captions and labels** |
-| `text-sm` | 15px | Secondary information |
-| `text-base` | 16px | Body text |
-
-Badges are labels/tags, so they should use `text-xs` (14px) per the design system.
-
----
+This gives it a red border and red text, but not a solid red background.
 
 ### Change
 
-**File: `src/components/ui/badge.tsx`**
+**File: `src/components/dashboard/AssignVideosModal.tsx`**
 
-**Line 8** - Change `text-sm` back to `text-xs`:
+**Lines 646-656** - Change from outline to destructive variant and remove custom className:
 
 ```tsx
 // Current:
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap",
-  // ...
-);
+<ButtonWithTooltip
+  variant="outline"
+  onClick={() => setShowUnassignDialog(true)}
+  disabled={isSubmitting || hasCompetingSelections}
+  size="sm"
+  tooltip={...}
+  className="border-destructive text-destructive hover:bg-destructive/10"
+>
 
 // Updated:
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap",
-  // ...
-);
+<ButtonWithTooltip
+  variant="destructive"
+  onClick={() => setShowUnassignDialog(true)}
+  disabled={isSubmitting || hasCompetingSelections}
+  size="sm"
+  tooltip={...}
+>
 ```
-
----
 
 ### Result
 
-| Component | Font Size | Pixel Size | Matches Typography Guidelines |
-|-----------|-----------|------------|------------------------------|
-| Badge | `text-xs` | 14px | Yes - "Captions and labels" |
+| Property | Before | After |
+|----------|--------|-------|
+| Background | Transparent | Solid red (`bg-destructive`) |
+| Text | Red (`text-destructive`) | White (`text-destructive-foreground`) |
+| Border | Red (`border-destructive`) | None |
+| Hover | Light red tint | Slightly darker red |
+
+The button will now have a solid red background with white text, making it more visually distinct as a destructive action.
 
