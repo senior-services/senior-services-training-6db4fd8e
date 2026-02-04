@@ -1,63 +1,35 @@
 
 
-## Fix: Update Data Download Column Headers for Consistency
+## Fix: Change "Pending" Badge to Soft Variant
 
 ### What's Being Fixed
 
-The download file column headers don't match the terminology used in the UI. This causes confusion when comparing the downloaded data with what's shown on screen.
-
----
-
-### Changes
-
-**File: `src/components/dashboard/EmployeeManagement.tsx`**  
-**Lines 365-372**
-
-| Current Header | New Header |
-|---------------|------------|
-| Video Title | Training |
-| Status | Completion Status |
-| Date | Due Date |
+In the Edit Assignments dialog, the "Pending" status badge uses a solid secondary style while all other status badges use soft variants. This creates visual inconsistency.
 
 ---
 
 ### The Fix
 
-Change this code block:
-```tsx
-exportData.push({
-  Name: employeeName,
-  Email: employeeEmail,
-  'Video Title': assignment.video_title || '',
-  Status: status,
-  'Date': completionDate,
-  'Quiz Results': quizResults
-});
-```
+**File: `src/components/dashboard/AssignVideosModal.tsx`**  
+**Line 492**
 
-To:
+Change the pending case from solid to soft variant:
+
 ```tsx
-exportData.push({
-  Name: employeeName,
-  Email: employeeEmail,
-  'Training': assignment.video_title || '',
-  'Completion Status': status,
-  'Due Date': completionDate,
-  'Quiz Results': quizResults
-});
+case "pending":
+  return "soft-secondary";  // Was: "secondary"
 ```
 
 ---
 
-### Result
+### Current vs. After Fix
 
-The downloaded Excel file will now have clearer, more descriptive column headers that match the language used throughout the application:
+| Status | Current Variant | After Fix |
+|--------|----------------|-----------|
+| Completed | soft-success ✓ | soft-success |
+| Overdue | soft-destructive ✓ | soft-destructive |
+| **Pending** | **secondary** (solid) | **soft-secondary** |
+| Unassigned | soft-tertiary ✓ | soft-tertiary |
 
-| Before | After |
-|--------|-------|
-| Video Title | Training |
-| Status | Completion Status |
-| Date | Due Date |
-
-This is a straightforward text-only change with no impact on the data or logic.
+All status badges will now consistently use soft variants for a unified look.
 
