@@ -527,9 +527,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     const hasQuiz = videoIdsWithQuizzes.has(videoId);
     const quizAttempt = employeeQuizResults.get(videoId);
     const isAssigned = assignedVideoIds.has(videoId);
+    const isCompleted = completedVideoIds.has(videoId);
 
     if (!hasQuiz) {
-      return <span aria-label="No quiz available">--</span>;
+      // Show "N/A" for completed courses without quiz, "--" otherwise
+      return isCompleted 
+        ? <span aria-label="No quiz for this course">N/A</span>
+        : <span aria-label="No quiz available">--</span>;
     }
 
     // Unassigned videos show "--" instead of "Not Completed"
