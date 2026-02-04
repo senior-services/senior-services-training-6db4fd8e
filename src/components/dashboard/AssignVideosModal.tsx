@@ -446,6 +446,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     // Reset quiz state
     setVideoIdsWithQuizzes(new Set());
     setEmployeeQuizResults(new Map());
+    // Reset sort state to default
+    setSortColumn('course');
+    setSortDirection('asc');
     onOpenChange(false);
   };
 
@@ -534,6 +537,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         comparison = a.title.localeCompare(b.title);
       } else if (sortColumn === 'status') {
         comparison = getStatusPriority(a.id) - getStatusPriority(b.id);
+        // Secondary sort: alphabetical by title when status is the same
+        if (comparison === 0) {
+          comparison = a.title.localeCompare(b.title);
+        }
       }
       
       return sortDirection === 'asc' ? comparison : -comparison;
