@@ -27,7 +27,6 @@ export const EmployeeManagement: React.FC<{
   const [employees, setEmployees] = useState<EmployeeWithAssignments[]>([]);
   const [employeeVideos, setEmployeeVideos] = useState<Map<string, any[]>>(new Map());
   const [employeeQuizzes, setEmployeeQuizzes] = useState<Map<string, Map<string, any>>>(new Map());
-  
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -316,7 +315,6 @@ export const EmployeeManagement: React.FC<{
             // For videos without quiz: only require video completion
             isCompleted = videoCompleted;
           }
-
           if (isCompleted) {
             status = 'Completed';
           } else if (assignment.due_date) {
@@ -360,7 +358,6 @@ export const EmployeeManagement: React.FC<{
               completionDate = format(new Date(assignment.completed_at), 'MMM dd, yyyy');
             }
           }
-
           exportData.push({
             Name: employeeName,
             Email: employeeEmail,
@@ -398,7 +395,7 @@ export const EmployeeManagement: React.FC<{
   return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-semibold">Employee Management</h3>
+          <h3 className="text-xl font-semibold">Employee Assignments</h3>
           <p className="text-muted-foreground">Manage employees and track their training progress</p>
         </div>
         <div className="flex gap-2">
@@ -438,19 +435,13 @@ export const EmployeeManagement: React.FC<{
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getSortedEmployees.map(employee => (
-                  <TableRow key={employee.id}>
+                {getSortedEmployees.map(employee => <TableRow key={employee.id}>
                     <TableCell className="py-3 font-medium">
                       <div className="flex flex-col">
                         <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
-                        {employee.email && (
-                          <span 
-                            className="text-xs text-muted-foreground font-normal truncate max-w-[400px]" 
-                            title={employee.email}
-                          >
+                        {employee.email && <span className="text-xs text-muted-foreground font-normal truncate max-w-[400px]" title={employee.email}>
                             {sanitizeText(employee.email)}
-                          </span>
-                        )}
+                          </span>}
                       </div>
                     </TableCell>
                     <TableCell className="py-3">
@@ -458,27 +449,15 @@ export const EmployeeManagement: React.FC<{
                     </TableCell>
                     <TableCell className="py-3 text-right">
                       <div className="flex gap-2 justify-end">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleAssignVideos(employee)} 
-                          aria-label={`Edit assignments for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => handleAssignVideos(employee)} aria-label={`Edit assignments for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}>
                           Edit Assignments
                         </Button>
-                        <IconButtonWithTooltip 
-                          icon={Trash2} 
-                          tooltip={getTooltipText('delete-item', {
-                            name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')
-                          })} 
-                          onClick={() => setDeleteConfirmEmployee(employee)} 
-                          variant="ghost" 
-                          className="text-destructive hover:text-destructive" 
-                        />
+                        <IconButtonWithTooltip icon={Trash2} tooltip={getTooltipText('delete-item', {
+                    name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')
+                  })} onClick={() => setDeleteConfirmEmployee(employee)} variant="ghost" className="text-destructive hover:text-destructive" />
                       </div>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
             </Table>
           </CardContent>
