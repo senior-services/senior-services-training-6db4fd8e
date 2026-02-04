@@ -1,44 +1,94 @@
 
 
-## Remove Full Name Field from Add Employee Dialog
+## Standardize Form Field Labels - Revised Plan
 
 ### Summary
 
-Remove the optional "Full Name" field from the Add New Employee dialog since it's automatically populated from the employee's Google account upon their first login.
+Standardize all form field labels across training, employee, and admin dialogs:
+- **Required fields**: Plain label text (no asterisk)
+- **Optional fields**: Label with `(optional)` in italics to the right
 
 ---
 
-### Why Remove It
+### 5 Fixes to Implement
 
-- The field is already marked as optional
-- The help text states: "This will be updated automatically from their Google account when they log in"
-- Simplifies the form to just one required field (email)
-- Reduces unnecessary data entry for admins
-
----
-
-### Changes
-
-**File:** `src/components/dashboard/AddEmployeeModal.tsx`
-
-| Change | Details |
-|--------|---------|
-| Remove state | Delete `fullName` state variable (line 31) |
-| Remove reset | Delete `setFullName('')` from `handleClose` (line 107) |
-| Update API call | Remove `fullName.trim() || undefined` from `employeeOperations.add()` call (line 64) |
-| Remove unused import | Remove `User` from lucide-react imports (line 13) |
-| Remove form section | Delete lines 145-163 (the Full Name input section) |
+| # | Fix | File | Details |
+|---|-----|------|---------|
+| 1 | Remove asterisk from Email Address | `AddEmployeeModal.tsx` | Line 124: Change `Email Address *` → `Email Address` |
+| 2 | Add styled optional indicator to Description | `AddContentModal.tsx` | Line 213: Add italic `(optional)` span |
+| 3 | Add styled optional indicator to Description | `EditVideoModal.tsx` | Line 864: Add italic `(optional)` span |
+| 4 | Restyle existing optional indicator | `EditVideoModal.tsx` | Line 883: Convert `Description (Optional)` to styled span format |
+| 5 | Restyle existing optional indicator | `CreateQuizModal.tsx` | Line 230: Convert `Description (Optional)` to styled span format |
 
 ---
 
-### Before/After
+### Consistent Styling Pattern
 
-**Before:**
-- Email Address field (required)
-- Full Name field (optional)
+All optional field labels will use this format:
 
-**After:**
-- Email Address field (required)
+```tsx
+<Label htmlFor="field-id">
+  Field Name <span className="font-normal italic text-muted-foreground">(optional)</span>
+</Label>
+```
+
+**Why these styles:**
+- `font-normal` — prevents optional text from inheriting bold weight from label
+- `italic` — makes it visually distinct as secondary information
+- `text-muted-foreground` — lighter color to de-emphasize
+
+---
+
+### Detailed Changes
+
+**1. AddEmployeeModal.tsx (Line 123-125)**
+```tsx
+// Before
+<Label htmlFor="email">
+  Email Address *
+</Label>
+
+// After
+<Label htmlFor="email">
+  Email Address
+</Label>
+```
+
+**2. AddContentModal.tsx (Line 213)**
+```tsx
+// Before
+<Label htmlFor="description">Description</Label>
+
+// After
+<Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
+```
+
+**3. EditVideoModal.tsx - Details Tab (Line 864)**
+```tsx
+// Before
+<Label htmlFor="edit-description">Description</Label>
+
+// After
+<Label htmlFor="edit-description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
+```
+
+**4. EditVideoModal.tsx - Quiz Tab (Line 883)**
+```tsx
+// Before
+<Label htmlFor="quiz-description">Description (Optional)</Label>
+
+// After
+<Label htmlFor="quiz-description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
+```
+
+**5. CreateQuizModal.tsx (Line 230)**
+```tsx
+// Before
+<Label htmlFor="description">Description (Optional)</Label>
+
+// After
+<Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
+```
 
 ---
 
@@ -46,5 +96,15 @@ Remove the optional "Full Name" field from the Add New Employee dialog since it'
 
 | File | Changes |
 |------|---------|
-| `src/components/dashboard/AddEmployeeModal.tsx` | Remove fullName state, input section, and related logic |
+| `src/components/dashboard/AddEmployeeModal.tsx` | Remove `*` from Email Address label |
+| `src/components/content/AddContentModal.tsx` | Add styled `(optional)` to Description |
+| `src/components/EditVideoModal.tsx` | Update 2 Description labels with styled `(optional)` |
+| `src/components/quiz/CreateQuizModal.tsx` | Update Description label with styled `(optional)` |
+
+---
+
+### Verification Confirmed
+
+- AdminManagement.tsx: Email Address label already has no asterisk (correct)
+- All dialogs checked for Label patterns - no other changes needed
 
