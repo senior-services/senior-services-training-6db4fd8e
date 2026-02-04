@@ -121,7 +121,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
           <form id="add-employee-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">
-                Email Address *
+                Email Address
               </Label>
               <Input
                 id="email"

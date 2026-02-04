@@ -227,7 +227,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
             </div>
             
             <div>
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
               <Textarea
                 id="description"
                 value={formData.description}
