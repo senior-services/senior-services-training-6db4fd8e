@@ -1,77 +1,129 @@
 
-## Update Date Column to Show "Due" Prefix for Pending/Overdue Videos
+
+## Update Download Data Excel Export Format
 
 ### What's Being Changed
 
-In the Edit Assignments dialog, the "Date" column currently shows just the date (e.g., "Jan 15, 2026"). For videos with "Pending" or "Overdue" status, it should display "Due Jan 15, 2026" to make it clearer that this is a deadline.
+The Excel export in the "Download Data" feature needs to be updated to:
+1. Rename "Training" column header to "Course"
+2. Add a new "Completion Date" column after "Due Date" (only show date if completed)
+3. Rename "Completion Status" to "Status"
+4. Align status values with AssignVideosModal: `Pending`, `Overdue`, `Unassigned`, `Completed`
 
 ---
 
 ### Changes
 
-**File: `src/components/dashboard/AssignVideosModal.tsx`**
+**File: `src/components/dashboard/EmployeeManagement.tsx`**
 
-**Lines 462-482** - Update `formatDueDate` to include "Due" prefix for pending/overdue statuses:
+**Lines 291-298** - Update columns for employees with no assignments:
 
 ```tsx
-// Current logic:
-const formatDueDate = (videoId: string): string => {
-  if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return "--";
+// Current:
+exportData.push({
+  Name: employeeName,
+  Email: employeeEmail,
+  'Video Title': 'No assignments',
+  Status: 'No Required Training',
+  'Date': '--',
+  'Quiz Results': '--'
+});
 
-  if (completedVideoIds.has(videoId)) {
-    const progressData = videoProgressData.get(videoId);
-    if (progressData?.completed_at) {
-      return format(new Date(progressData.completed_at), "MMM dd, yyyy");
-    }
-  }
-
-  const deadline = videoDeadlines.get(videoId);
-  const existingDueDate = assignmentData.get(videoId)?.due_date;
-
-  if (deadline) {
-    return format(deadline, "MMM dd, yyyy");
-  } else if (existingDueDate) {
-    return format(new Date(existingDueDate), "MMM dd, yyyy");
-  }
-  return "N/A";
-};
+// Updated:
+exportData.push({
+  Name: employeeName,
+  Email: employeeEmail,
+  'Course': 'No assignments',
+  'Status': 'Unassigned',
+  'Due Date': '--',
+  'Completion Date': '--',
+  'Quiz Results': '--'
+});
 ```
 
-**Updated logic:**
+**Lines 305-338** - Simplify status logic to match AssignVideosModal:
 
 ```tsx
-const formatDueDate = (videoId: string): string => {
-  if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return "--";
+// Current logic has many statuses: 'Pending', 'Completed', 'Overdue', 'Due Today', 'Due', 'No Deadline'
 
-  if (completedVideoIds.has(videoId)) {
-    const progressData = videoProgressData.get(videoId);
-    if (progressData?.completed_at) {
-      return format(new Date(progressData.completed_at), "MMM dd, yyyy");
-    }
+// Updated logic (4 statuses only):
+let status = 'Pending';
+const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
+
+let isCompleted = false;
+if (assignment.hasQuiz) {
+  isCompleted = videoCompleted && !!quizAttempt;
+} else {
+  isCompleted = videoCompleted;
+}
+
+if (isCompleted) {
+  status = 'Completed';
+} else if (assignment.due_date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(assignment.due_date);
+  due.setHours(0, 0, 0, 0);
+  if (isPast(due)) {
+    status = 'Overdue';
+  } else {
+    status = 'Pending';
   }
+} else {
+  status = 'Pending';  // No due date = still pending
+}
+```
 
-  const deadline = videoDeadlines.get(videoId);
-  const existingDueDate = assignmentData.get(videoId)?.due_date;
-  const status = getCompletionStatus(videoId);
+**Lines 351-372** - Separate Due Date and Completion Date columns:
 
-  if (deadline) {
-    const formattedDate = format(deadline, "MMM dd, yyyy");
-    return status === "pending" || status === "overdue" ? `Due ${formattedDate}` : formattedDate;
-  } else if (existingDueDate) {
-    const formattedDate = format(new Date(existingDueDate), "MMM dd, yyyy");
-    return status === "pending" || status === "overdue" ? `Due ${formattedDate}` : formattedDate;
+```tsx
+// Current: Single 'Date' column that shows due date OR completion date
+
+// Updated: Two separate columns
+let dueDate = '--';
+let completionDate = '--';
+
+// Due Date - always show the original due date if it exists
+if (assignment.due_date) {
+  dueDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
+}
+
+// Completion Date - only show if completed
+if (isCompleted) {
+  if (quizAttempt && quizAttempt.completed_at) {
+    completionDate = format(new Date(quizAttempt.completed_at), 'MMM dd, yyyy');
+  } else if (assignment.completed_at) {
+    completionDate = format(new Date(assignment.completed_at), 'MMM dd, yyyy');
   }
-  return "N/A";
-};
+}
+
+exportData.push({
+  Name: employeeName,
+  Email: employeeEmail,
+  'Course': assignment.video_title || '',
+  'Status': status,
+  'Due Date': dueDate,
+  'Completion Date': completionDate,
+  'Quiz Results': quizResults
+});
 ```
 
 ---
 
 ### Result
 
-| Status | Date Column Display |
-|--------|---------------------|
-| Unassigned | "--" |
-| Pending | "Due Jan 15, 2026" ✓ |
-| Overdue | "Due Jan 10, 2026" ✓ |
-| Completed | "Jan 12, 2026" (completion date, no prefix) |
+| Column Change | Before | After |
+|--------------|--------|-------|
+| Header | "Training" | "Course" |
+| Header | "Completion Status" | "Status" |
+| New Column | N/A | "Completion Date" (after Due Date) |
+| Status Values | Pending, Completed, Overdue, Due Today, Due, No Deadline | Pending, Completed, Overdue, Unassigned |
+
+**Example Excel Output:**
+
+| Name | Email | Course | Status | Due Date | Completion Date | Quiz Results |
+|------|-------|--------|--------|----------|-----------------|--------------|
+| John Smith | john@example.com | Safety Training | Completed | Jan 15, 2026 | Jan 12, 2026 | 85% (17/20 Correct) |
+| John Smith | john@example.com | Customer Service | Overdue | Jan 10, 2026 | -- | Not Completed |
+| Jane Doe | jane@example.com | No assignments | Unassigned | -- | -- | -- |
+
