@@ -1,84 +1,44 @@
 
 
-## Update Employee Status Column Display
+## Remove Full Name Field from Add Employee Dialog
 
 ### Summary
 
-Change the Status column in the Employee Management table to show To-do count as plain text and only use a badge for Overdue items.
+Remove the optional "Full Name" field from the Add New Employee dialog since it's automatically populated from the employee's Google account upon their first login.
 
 ---
 
-### Current Behavior
+### Why Remove It
 
-The status column currently shows one of these badges:
-- `soft-secondary` badge: "# To-do" 
-- `soft-destructive` badge: "# Overdue"
-- `soft-success` badge: "All Training Complete"
-- `soft-secondary` badge: "No Required Training"
-
----
-
-### New Behavior
-
-| Scenario | Display |
-|----------|---------|
-| All complete | "All Training Complete" as plain text |
-| Some to-do, none overdue | "3 To-do" as plain text |
-| Some to-do + some overdue | "3 To-do" as plain text + `soft-destructive` badge "2 Overdue" |
-| No required training | "No Required Training" as plain text |
+- The field is already marked as optional
+- The help text states: "This will be updated automatically from their Google account when they log in"
+- Simplifies the form to just one required field (email)
+- Reduces unnecessary data entry for admins
 
 ---
 
 ### Changes
 
-**File:** `src/components/dashboard/EmployeeManagement.tsx`
+**File:** `src/components/dashboard/AddEmployeeModal.tsx`
 
-**Location:** `getEmployeeStatus` function (lines 243-283)
+| Change | Details |
+|--------|---------|
+| Remove state | Delete `fullName` state variable (line 31) |
+| Remove reset | Delete `setFullName('')` from `handleClose` (line 107) |
+| Update API call | Remove `fullName.trim() || undefined` from `employeeOperations.add()` call (line 64) |
+| Remove unused import | Remove `User` from lucide-react imports (line 13) |
+| Remove form section | Delete lines 145-163 (the Full Name input section) |
 
-Update the return statements to:
+---
 
-1. **No Required Training**: Return plain text `<span>` instead of badge
+### Before/After
 
-2. **All Complete**: Return plain text `<span>` instead of badge
+**Before:**
+- Email Address field (required)
+- Full Name field (optional)
 
-3. **Has Overdue**: Return a `<div>` with:
-   - Plain text showing "# To-do"
-   - Space separator
-   - Destructive badge showing "# Overdue"
-
-4. **Only To-do (no overdue)**: Return plain text `<span>` instead of badge
-
-**Updated function logic:**
-
-```tsx
-const getEmployeeStatus = (employeeId: string) => {
-  const videos = employeeVideos.get(employeeId) || [];
-  const requiredVideos = videos.filter(assignment => assignment.video_type === 'Required');
-  
-  if (requiredVideos.length === 0) {
-    return <span className="text-muted-foreground">No Required Training</span>;
-  }
-
-  // ... existing helper function and filtering logic stays the same ...
-
-  const pendingCount = requiredVideos.length - completedRequired.length;
-
-  if (completedRequired.length === requiredVideos.length) {
-    return <span className="text-muted-foreground">All Training Complete</span>;
-  }
-
-  if (overdueRequired.length > 0) {
-    return (
-      <div className="flex items-center gap-2">
-        <span>{pendingCount} {STATUS_LABELS.pending}</span>
-        <Badge variant="soft-destructive">{overdueRequired.length} Overdue</Badge>
-      </div>
-    );
-  }
-
-  return <span>{pendingCount} {STATUS_LABELS.pending}</span>;
-};
-```
+**After:**
+- Email Address field (required)
 
 ---
 
@@ -86,5 +46,5 @@ const getEmployeeStatus = (employeeId: string) => {
 
 | File | Changes |
 |------|---------|
-| `src/components/dashboard/EmployeeManagement.tsx` | Update 4 return statements in `getEmployeeStatus` function |
+| `src/components/dashboard/AddEmployeeModal.tsx` | Remove fullName state, input section, and related logic |
 
