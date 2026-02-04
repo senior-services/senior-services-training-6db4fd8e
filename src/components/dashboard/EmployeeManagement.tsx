@@ -345,7 +345,7 @@ export const EmployeeManagement: React.FC<{
           }
 
           // Due Date - always show the original due date if exists
-          let dueDate = '--';
+          let dueDate = 'N/A';
           if (assignment.due_date) {
             dueDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
           }
