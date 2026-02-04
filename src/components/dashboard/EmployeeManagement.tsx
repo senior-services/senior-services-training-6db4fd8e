@@ -20,6 +20,7 @@ import { format, differenceInDays, isPast } from 'date-fns';
 import { quizOperations } from '@/services/quizService';
 import { sanitizeText, createSafeDisplayName, validateUserRole } from '@/utils/security';
 import * as XLSX from 'xlsx';
+import { STATUS_LABELS } from '@/constants';
 export const EmployeeManagement: React.FC<{
   onCountChange?: (count: number) => void;
 }> = ({
@@ -278,7 +279,7 @@ export const EmployeeManagement: React.FC<{
       return <Badge variant="soft-success">All Training Complete</Badge>;
     }
     const pendingCount = requiredVideos.length - completedRequired.length;
-    return <Badge variant="soft-secondary">{pendingCount} To-do</Badge>;
+    return <Badge variant="soft-secondary">{pendingCount} {STATUS_LABELS.pending}</Badge>;
   };
   const exportToExcel = useCallback(() => {
     const exportData: any[] = [];
@@ -292,7 +293,7 @@ export const EmployeeManagement: React.FC<{
           Name: employeeName,
           Email: employeeEmail,
           'Course': 'No assignments',
-          'Status': 'Unassigned',
+          'Status': STATUS_LABELS.unassigned,
           'Due Date': '--',
           'Completion Date': '--',
           'Quiz Results': '--'
@@ -304,7 +305,7 @@ export const EmployeeManagement: React.FC<{
           const quizAttempt = employeeQuizData?.get(assignment.video_id);
 
           // Get status - using same logic as getEmployeeStatus for consistency
-          let status = 'To-do';
+          let status: string = STATUS_LABELS.pending;
           const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
 
           // Check completion using same logic as display
@@ -317,19 +318,19 @@ export const EmployeeManagement: React.FC<{
             isCompleted = videoCompleted;
           }
           if (isCompleted) {
-            status = 'Completed';
+            status = STATUS_LABELS.completed;
           } else if (assignment.due_date) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const due = new Date(assignment.due_date);
             due.setHours(0, 0, 0, 0);
             if (isPast(due)) {
-              status = 'Overdue';
+              status = STATUS_LABELS.overdue;
             } else {
-                    status = 'To-do';
+              status = STATUS_LABELS.pending;
             }
           } else {
-            status = 'To-do';
+            status = STATUS_LABELS.pending;
           }
 
           // Get quiz results

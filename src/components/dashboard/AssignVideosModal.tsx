@@ -29,6 +29,7 @@ import { quizOperations } from "@/services/quizService";
 import { supabase } from "@/integrations/supabase/client";
 import type { Employee, VideoAssignment } from "@/types/employee";
 import type { Video as VideoType } from "@/types";
+import { STATUS_LABELS } from "@/constants";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingSkeleton, LoadingSpinner } from "@/components/ui/loading-spinner";
 import { TOOLTIP_CONFIG } from "@/constants/tooltip-config";
@@ -790,7 +791,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
                             <TableCell>
                               <Badge variant={getStatusBadgeVariant(status)}>
-                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                                {STATUS_LABELS[status]}
                               </Badge>
                             </TableCell>
 

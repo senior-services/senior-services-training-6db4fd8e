@@ -17,6 +17,14 @@ export const USER_ROLES = {
   EMPLOYEE: 'employee',
 } as const;
 
+// Assignment status display labels
+export const STATUS_LABELS = {
+  pending: 'To-do',
+  overdue: 'Overdue',
+  completed: 'Completed',
+  unassigned: 'Unassigned',
+} as const;
+
 export const PERMISSIONS = {
   VIDEO_CREATE: 'video:create',
   VIDEO_READ: 'video:read',
