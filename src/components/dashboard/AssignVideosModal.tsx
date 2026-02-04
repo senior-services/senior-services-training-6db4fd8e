@@ -716,10 +716,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             </TableCell>
 
                             <TableCell>
-                              <span className="text-sm">{formatDueDate(video.id)}</span>
+                              <span className="text-sm whitespace-nowrap">{formatDueDate(video.id)}</span>
                             </TableCell>
                             <TableCell>
-                              <span className="text-sm">{getQuizResults(video.id)}</span>
+                              <span className="text-sm whitespace-nowrap">{getQuizResults(video.id)}</span>
                             </TableCell>
                           </TableRow>
                         );
