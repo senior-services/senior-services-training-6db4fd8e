@@ -210,7 +210,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
             <Textarea
               id="description"
               value={description}

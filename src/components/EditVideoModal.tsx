@@ -861,7 +861,7 @@ export const EditVideoModal = ({
 
                 {/* Description Section */}
                 <div className="space-y-2">
-                  <Label htmlFor="edit-description">Description</Label>
+                  <Label htmlFor="edit-description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
                   <Textarea id="edit-description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Enter video description..." rows={4} />
                 </div>
 
@@ -880,7 +880,7 @@ export const EditVideoModal = ({
                     </div>
                     
                     <div>
-                      <Label htmlFor="quiz-description">Description (Optional)</Label>
+                      <Label htmlFor="quiz-description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
                       <Textarea id="quiz-description" value={quizDescription} onChange={e => setQuizDescription(e.target.value)} placeholder="Enter quiz description" />
                     </div>
                   </div>
