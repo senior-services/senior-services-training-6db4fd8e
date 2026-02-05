@@ -21,12 +21,10 @@ import { logger, performanceTracker } from '@/utils/logger';
 import { sanitizeText } from '@/utils/security';
 import { detectContentTypeFromUrl } from '@/utils/videoUtils';
 import type { Video } from '@/types';
-
 interface VideoManagementProps {
   userEmail: string;
   onVideoCountChange?: (count: number) => void;
 }
-
 export const VideoManagement: React.FC<VideoManagementProps> = ({
   userEmail,
   onVideoCountChange
@@ -52,37 +50,37 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
    */
   const loadVideos = async () => {
     setLoading(true);
-    
     try {
       // Check authentication status first
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
         toast.error('Please log in to view videos');
         setLoading(false);
         return;
       }
-      
       const result = await videoOperations.getAll(false); // Only get non-archived videos
-      
+
       if (result.success && result.data) {
         setVideos(result.data);
         onVideoCountChange?.(result.data.length);
-        logger.info('Videos loaded successfully', { 
+        logger.info('Videos loaded successfully', {
           count: result.data.length,
-          adminUser: userEmail 
+          adminUser: userEmail
         });
       } else {
-        logger.error('Failed to load videos', undefined, { 
+        logger.error('Failed to load videos', undefined, {
           error: result.error,
-          adminUser: userEmail 
+          adminUser: userEmail
         });
         toast.error(result.error || 'Failed to load videos');
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An unexpected error occurred while loading videos');
     }
-    
     setLoading(false);
   };
 
@@ -92,13 +90,12 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   const loadHiddenVideos = async () => {
     try {
       const result = await videoOperations.getHidden();
-      
       if (result.success && result.data) {
         setHiddenVideos(result.data);
       } else {
-        logger.error('Failed to load hidden videos', undefined, { 
+        logger.error('Failed to load hidden videos', undefined, {
           error: result.error,
-          adminUser: userEmail 
+          adminUser: userEmail
         });
       }
     } catch (error) {
@@ -122,9 +119,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       type: 'Required' as const,
       content_type: contentData.content_type
     };
-
     const result = await videoOperations.create(sanitizedData);
-    
     if (result.success) {
       toast.success(`"${sanitizedData.title}" has been added to the training library.`);
       await loadVideos();
@@ -132,7 +127,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
     } else {
       toast.error(result.error || 'Failed to add video');
     }
-
     performanceTracker.end(operation);
   };
 
@@ -144,7 +138,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       title: video.title,
       adminUser: userEmail
     });
-    
     setEditingVideo(video);
     setIsEditVideoModalOpen(true);
   };
@@ -152,27 +145,24 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   /**
    * Handles updating video details
    */
-  const handleUpdateVideo = async (
-    videoId: string,
-    updates: { title: string; description: string }
-  ) => {
+  const handleUpdateVideo = async (videoId: string, updates: {
+    title: string;
+    description: string;
+  }) => {
     const operation = 'updateVideo';
     performanceTracker.start(operation);
 
     // Find the video to get its URL
     const video = videos.find(v => v.id === videoId) || hiddenVideos.find(v => v.id === videoId);
-    
     const sanitizedUpdates = {
       title: sanitizeText(updates.title),
       description: updates.description ? sanitizeText(updates.description) : null,
       // Auto-detect content type from URL when available
-      ...(video?.video_url && { 
+      ...(video?.video_url && {
         content_type: detectContentTypeFromUrl(video.video_url) || video.content_type || 'video'
       })
     };
-
     const result = await videoOperations.update(videoId, sanitizedUpdates);
-    
     if (result.success) {
       toast.success('Video details have been updated.');
       await loadVideos();
@@ -181,7 +171,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
     } else {
       toast.error(result.error || 'Failed to update video');
     }
-
     performanceTracker.end(operation);
   };
 
@@ -190,7 +179,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
    */
   const handleDeleteVideo = async (videoId: string) => {
     const result = await videoOperations.delete(videoId);
-    
     if (result.success) {
       toast.success('Video has been removed from the library.');
       await loadVideos();
@@ -216,7 +204,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       title: video.title,
       adminUser: userEmail
     });
-    
     setSelectedVideo(video);
     setIsVideoPlayerOpen(true);
   };
@@ -226,7 +213,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
    */
   const handleHideVideo = async (video: Video) => {
     const result = await videoOperations.hide(video.id);
-    
     if (result.success) {
       toast.success(`"${video.title}" has been hidden from the video list`);
       await loadVideos();
@@ -241,7 +227,6 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
    */
   const handleShowVideo = async (video: Video) => {
     const result = await videoOperations.show(video.id);
-    
     if (result.success) {
       toast.success(`"${video.title}" is now visible in the video list`);
       await loadVideos();
@@ -255,37 +240,22 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
    * Generates thumbnail color for video placeholders
    */
   const generateThumbnailColor = (title: string): string => {
-    const colors = [
-      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500',
-      'bg-indigo-500', 'bg-teal-500', 'bg-orange-500', 'bg-red-500'
-    ];
+    const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-orange-500', 'bg-red-500'];
     const index = title.charCodeAt(0) % colors.length;
     return colors[index];
   };
-
-  return (
-    <div className="space-y-6">
-      <VideoTable
-        videos={videos}
-        loading={loading}
-        onEdit={handleEditVideo}
-        onPlay={handlePlayVideo}
-        onAddVideo={() => setIsAddVideoModalOpen(true)}
-        onHide={handleHideVideo}
-      />
+  return <div className="space-y-6">
+      <VideoTable videos={videos} loading={loading} onEdit={handleEditVideo} onPlay={handlePlayVideo} onAddVideo={() => setIsAddVideoModalOpen(true)} onHide={handleHideVideo} />
 
       {/* Hidden Videos Section */}
-      {hiddenVideos.length > 0 && (
-        <Accordion type="single" collapsible className="w-full">
+      {hiddenVideos.length > 0 && <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="hidden" className="border-0">
             <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/30 [&>svg]:hidden group">
               <div className="flex items-center gap-3 w-full">
-                <ChevronDown 
-                  className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" 
-                  aria-hidden="true"
-                />
+                <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
                 <EyeOff className="w-5 h-5 text-muted-foreground" />
-                <span className="text-lg font-semibold">Hidden Videos</span>
+                <span className="text-lg font-semibold">Hidden Trainings
+            </span>
                 <Badge variant="soft-destructive" className="ml-2">
                   {hiddenVideos.length}
                 </Badge>
@@ -308,33 +278,21 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                          </TableRow>
                        </TableHeader>
                       <TableBody>
-                        {hiddenVideos.map((video) => (
-                           <TableRow key={video.id}>
+                        {hiddenVideos.map(video => <TableRow key={video.id}>
                              <TableCell>
                               <div>
                                 <div className="font-medium text-sm">{video.title}</div>
-                                {video.description && (
-                                  <div className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                {video.description && <div className="text-xs text-muted-foreground line-clamp-2 mt-1">
                                     {video.description}
-                                  </div>
-                                )}
+                                  </div>}
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex justify-center">
-                                <IconButtonWithTooltip
-                                  icon={Eye}
-                                  tooltip="Show video in main list"
-                                  onClick={() => handleShowVideo(video)}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-muted-foreground hover:text-foreground"
-                                  ariaLabel={`Show ${video.title} in video list`}
-                                />
+                                <IconButtonWithTooltip icon={Eye} tooltip="Show video in main list" onClick={() => handleShowVideo(video)} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" ariaLabel={`Show ${video.title} in video list`} />
                               </div>
                             </TableCell>
-                          </TableRow>
-                        ))}
+                          </TableRow>)}
                       </TableBody>
                     </Table>
                   </div>
@@ -342,32 +300,15 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
               </Card>
             </AccordionContent>
           </AccordionItem>
-        </Accordion>
-      )}
+        </Accordion>}
 
       {/* Add Content Modal */}
-      <AddContentModal
-        open={isAddVideoModalOpen}
-        onOpenChange={setIsAddVideoModalOpen}
-        onSave={handleAddVideo}
-      />
+      <AddContentModal open={isAddVideoModalOpen} onOpenChange={setIsAddVideoModalOpen} onSave={handleAddVideo} />
 
       {/* Edit Video Modal */}
-      <EditVideoModal
-        open={isEditVideoModalOpen}
-        onOpenChange={setIsEditVideoModalOpen}
-        video={editingVideo}
-        onSave={handleUpdateVideo}
-        onDelete={handleDeleteVideo}
-        onQuizSaved={handleQuizSaved}
-      />
+      <EditVideoModal open={isEditVideoModalOpen} onOpenChange={setIsEditVideoModalOpen} video={editingVideo} onSave={handleUpdateVideo} onDelete={handleDeleteVideo} onQuizSaved={handleQuizSaved} />
 
       {/* Video Player Modal */}
-      <VideoPlayerModal
-        open={isVideoPlayerOpen}
-        onOpenChange={setIsVideoPlayerOpen}
-        video={selectedVideo}
-      />
-    </div>
-  );
+      <VideoPlayerModal open={isVideoPlayerOpen} onOpenChange={setIsVideoPlayerOpen} video={selectedVideo} />
+    </div>;
 };
