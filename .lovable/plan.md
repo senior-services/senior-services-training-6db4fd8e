@@ -1,10 +1,10 @@
 
 
-## Implement Flush Prop for Table Component
+## Change Table Header Background to 50% Opacity
 
 ### Summary
 
-Add a `flush` prop to the Table component that removes border-radius, then apply it to the AssignVideosModal table for edge-to-edge layout in fullscreen dialogs.
+Update the table header background color from full muted (`bg-muted`) to 50% opacity (`bg-muted/50`) for a subtler, less visually heavy appearance.
 
 ---
 
@@ -12,87 +12,31 @@ Add a `flush` prop to the Table component that removes border-radius, then apply
 
 #### 1. Update Table Component
 
-**File:** `src/components/ui/table.tsx` (lines 1-17)
-
-**Before:**
-```tsx
-import * as React from "react"
-
-import { cn } from "@/lib/utils"
-
-const Table = React.forwardRef<
-  HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-hidden rounded-lg">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
-))
-Table.displayName = "Table"
-```
-
-**After:**
-```tsx
-import * as React from "react"
-
-import { cn } from "@/lib/utils"
-
-interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
-  /** When true, removes border-radius for edge-to-edge layouts in dialogs */
-  flush?: boolean;
-}
-
-const Table = React.forwardRef<HTMLTableElement, TableProps>(
-  ({ className, flush = false, ...props }, ref) => (
-    <div className={cn(
-      "relative w-full overflow-hidden",
-      !flush && "rounded-lg"
-    )}>
-      <table
-        ref={ref}
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
-    </div>
-  )
-)
-Table.displayName = "Table"
-```
-
----
-
-#### 2. Apply Flush Prop in AssignVideosModal
-
-**File:** `src/components/dashboard/AssignVideosModal.tsx` (line 729)
+**File:** `src/components/ui/table.tsx` (line 30)
 
 | Before | After |
 |--------|-------|
-| `<Table>` | `<Table flush>` |
+| `bg-muted` | `bg-muted/50` |
+
+This is the `TableHeader` component that sets the background for all table headers.
 
 ---
 
-### What This Does
+### Component Gallery
 
-- **Table component**: Gains a new optional `flush` prop (defaults to `false`)
-- **When `flush={true}`**: Table wrapper has no border-radius (square corners)
-- **When `flush={false}` or omitted**: Table keeps existing `rounded-lg` styling
-- **AssignVideosModal**: Uses `flush` to make table extend edge-to-edge in fullscreen dialog
+No additional changes needed in `src/pages/ComponentsGallery.tsx`. The gallery imports and uses the `Table` components directly, so it will automatically reflect the updated styling from the base component.
 
 ---
 
-### Reusability
+### Visual Change
 
-Any future fullscreen dialog with a table can simply add `flush` to get the same edge-to-edge appearance:
+**Before:** Table headers have a solid muted gray background
 
-```tsx
-<FullscreenDialogContent>
-  <Table flush>
-    ...
-  </Table>
-</FullscreenDialogContent>
-```
+**After:** Table headers have a softer, 50% transparent muted background
+
+---
+
+### Consistency Note
+
+This aligns the `TableHeader` styling with `TableFooter`, which already uses `bg-muted/50` (line 53 in table.tsx).
 
