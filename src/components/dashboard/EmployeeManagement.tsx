@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AddEmployeeModal } from './AddEmployeeModal';
 import { AssignVideosModal } from './AssignVideosModal';
+import { DownloadDataModal } from './DownloadDataModal';
 import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { quizOperations } from '@/services/quizService';
@@ -33,6 +34,8 @@ export const EmployeeManagement: React.FC<{
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [sortColumn, setSortColumn] = useState<'name' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -327,14 +330,70 @@ export const EmployeeManagement: React.FC<{
 
     return <span>{pendingCount} {STATUS_LABELS.pending}</span>;
   };
-  const exportToExcel = useCallback(() => {
+  const loadHiddenEmployeeQuizData = useCallback(async (): Promise<{
+    videos: Map<string, any[]>;
+    quizzes: Map<string, Map<string, any>>;
+  }> => {
+    const { data: quizzesData } = await supabase.from('quizzes').select('video_id');
+    const videoIdsWithQuizzes = new Set(quizzesData?.map(quiz => quiz.video_id) || []);
+
+    const videoMap = new Map<string, any[]>();
+    const quizMap = new Map<string, Map<string, any>>();
+
+    for (const employee of hiddenEmployees) {
+      if (employee.assignments && Array.isArray(employee.assignments)) {
+        const assignmentsWithQuizInfo = employee.assignments.map(assignment => ({
+          ...assignment,
+          hasQuiz: videoIdsWithQuizzes.has(assignment.video_id)
+        }));
+        videoMap.set(employee.id, assignmentsWithQuizInfo);
+      } else {
+        videoMap.set(employee.id, []);
+      }
+
+      if (employee.email) {
+        try {
+          const quizAttempts = await quizOperations.getUserAttempts(employee.email);
+          const videoQuizMap = new Map();
+          for (const attempt of quizAttempts) {
+            if (attempt.quiz?.video_id) {
+              const existingAttempt = videoQuizMap.get(attempt.quiz.video_id);
+              const currentAttemptDate = new Date(attempt.completed_at);
+              if (!existingAttempt || new Date(existingAttempt.completed_at) < currentAttemptDate) {
+                videoQuizMap.set(attempt.quiz.video_id, {
+                  score: attempt.score,
+                  total_questions: attempt.total_questions,
+                  completed_at: attempt.completed_at
+                });
+              }
+            }
+          }
+          quizMap.set(employee.id, videoQuizMap);
+        } catch (error) {
+          logger.error(`Error loading quiz attempts for hidden employee ${employee.email}:`, error);
+          quizMap.set(employee.id, new Map());
+        }
+      } else {
+        quizMap.set(employee.id, new Map());
+      }
+    }
+
+    return { videos: videoMap, quizzes: quizMap };
+  }, [hiddenEmployees]);
+
+  const processEmployeesForExport = useCallback((
+    employeesToExport: EmployeeWithAssignments[],
+    videosMap: Map<string, any[]>,
+    quizzesMap: Map<string, Map<string, any>>
+  ): any[] => {
     const exportData: any[] = [];
-    employees.forEach(employee => {
-      const videos = employeeVideos.get(employee.id) || [];
+
+    employeesToExport.forEach(employee => {
+      const videos = videosMap.get(employee.id) || [];
       const employeeName = employee.full_name || employee.email?.split('@')[0] || 'Unknown';
       const employeeEmail = employee.email || '';
+
       if (videos.length === 0) {
-        // Employee with no assignments
         exportData.push({
           Name: employeeName,
           Email: employeeEmail,
@@ -345,24 +404,20 @@ export const EmployeeManagement: React.FC<{
           'Quiz Results': '--'
         });
       } else {
-        // Employee with video assignments
         videos.forEach(assignment => {
-          const employeeQuizData = employeeQuizzes.get(employee.id);
+          const employeeQuizData = quizzesMap.get(employee.id);
           const quizAttempt = employeeQuizData?.get(assignment.video_id);
 
-          // Get status - using same logic as getEmployeeStatus for consistency
           let status: string = STATUS_LABELS.pending;
           const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
 
-          // Check completion using same logic as display
           let isCompleted = false;
           if (assignment.hasQuiz) {
-            // For videos with quiz: require both video and quiz completion
             isCompleted = videoCompleted && !!quizAttempt;
           } else {
-            // For videos without quiz: only require video completion
             isCompleted = videoCompleted;
           }
+
           if (isCompleted) {
             status = STATUS_LABELS.completed;
           } else if (assignment.due_date) {
@@ -379,10 +434,8 @@ export const EmployeeManagement: React.FC<{
             status = STATUS_LABELS.pending;
           }
 
-          // Get quiz results
           let quizResults = '--';
           if (!assignment.hasQuiz) {
-            // All exported items are assigned, so show "N/A" when no quiz
             quizResults = 'N/A';
           } else if (!quizAttempt) {
             quizResults = 'Not Completed';
@@ -391,13 +444,11 @@ export const EmployeeManagement: React.FC<{
             quizResults = `${percentage}% (${quizAttempt.score}/${quizAttempt.total_questions} Correct)`;
           }
 
-          // Due Date - always show the original due date if exists
           let dueDate = 'N/A';
           if (assignment.due_date) {
             dueDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
           }
 
-          // Completion Date - only show if completed
           let completionDate = '--';
           if (isCompleted) {
             if (quizAttempt && quizAttempt.completed_at) {
@@ -406,6 +457,7 @@ export const EmployeeManagement: React.FC<{
               completionDate = format(new Date(assignment.completed_at), 'MMM dd, yyyy');
             }
           }
+
           exportData.push({
             Name: employeeName,
             Email: employeeEmail,
@@ -419,24 +471,63 @@ export const EmployeeManagement: React.FC<{
       }
     });
 
-    // Create workbook and worksheet
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    return exportData;
+  }, []);
 
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Training Data');
+  const exportToExcel = useCallback(async (includeHidden: boolean = false) => {
+    setIsExporting(true);
+    try {
+      let allEmployees = [...employees];
+      let allVideos = new Map(employeeVideos);
+      let allQuizzes = new Map(employeeQuizzes);
 
-    // Generate filename with current date
-    const now = new Date();
-    const filename = `employee_training_data_${format(now, 'yyyy-MM-dd')}.xlsx`;
+      if (includeHidden && hiddenEmployees.length > 0) {
+        const hiddenData = await loadHiddenEmployeeQuizData();
+        
+        // Merge hidden employees (deduplicate by ID)
+        const existingIds = new Set(employees.map(e => e.id));
+        const uniqueHidden = hiddenEmployees.filter(e => !existingIds.has(e.id));
+        allEmployees = [...employees, ...uniqueHidden];
+        
+        // Merge video and quiz maps
+        hiddenData.videos.forEach((value, key) => allVideos.set(key, value));
+        hiddenData.quizzes.forEach((value, key) => allQuizzes.set(key, value));
+      }
 
-    // Save the file
-    XLSX.writeFile(workbook, filename);
-    toast({
-      title: "Success",
-      description: "Employee training data exported successfully"
-    });
-  }, [employees, employeeVideos, employeeQuizzes, toast]);
+      const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes);
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Training Data');
+
+      const now = new Date();
+      const filename = `employee_training_data_${format(now, 'yyyy-MM-dd')}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+
+      toast({
+        title: "Success",
+        description: "Employee training data exported successfully"
+      });
+      setShowDownloadModal(false);
+    } catch (error) {
+      logger.error('Error exporting to Excel', error as Error);
+      toast({
+        title: "Error",
+        description: "Failed to export employee data",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [employees, hiddenEmployees, employeeVideos, employeeQuizzes, loadHiddenEmployeeQuizData, processEmployeesForExport, toast]);
+
+  const handleDownloadClick = useCallback(() => {
+    if (hiddenEmployees.length === 0) {
+      exportToExcel(false);
+    } else {
+      setShowDownloadModal(true);
+    }
+  }, [hiddenEmployees.length, exportToExcel]);
   if (loading) {
     return <LoadingSkeleton />;
   }
@@ -447,7 +538,7 @@ export const EmployeeManagement: React.FC<{
           <p className="text-muted-foreground">Manage employees and track their training progress</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={exportToExcel}>
+          <Button variant="outline" onClick={handleDownloadClick}>
             <Download className="h-4 w-4 mr-2" />
             Download Data
           </Button>
@@ -591,5 +682,13 @@ export const EmployeeManagement: React.FC<{
       <AddEmployeeModal open={showAddModal} onOpenChange={setShowAddModal} onEmployeeAdded={handleAddEmployee} />
 
       <AssignVideosModal open={showAssignModal} onOpenChange={setShowAssignModal} employee={selectedEmployee} onAssignmentComplete={loadEmployees} />
+
+      <DownloadDataModal
+        open={showDownloadModal}
+        onOpenChange={setShowDownloadModal}
+        onConfirm={exportToExcel}
+        hiddenCount={hiddenEmployees.length}
+        isLoading={isExporting}
+      />
     </div>;
 };
