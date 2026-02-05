@@ -50,7 +50,11 @@ export default {
 				'border-secondary': 'hsl(var(--border-secondary))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
+				background: 'hsl(var(--background-main))',
+				'background-main': 'hsl(var(--background-main))',
+				'background-header': 'hsl(var(--background-header))',
+				'background-primary': 'hsl(var(--background-primary))',
+				'background-muted': 'hsl(var(--background-muted))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
