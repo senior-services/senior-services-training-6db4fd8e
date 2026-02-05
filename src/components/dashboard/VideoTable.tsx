@@ -151,7 +151,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                     onSort={handleSort}
                     className="whitespace-nowrap"
                   >
-                    Training Title and Description
+                    Course
                   </SortableTableHead>
                   <TableHead className="text-center text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
                   <SortableTableHead
