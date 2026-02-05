@@ -18,7 +18,7 @@ export const Header = ({
 }: HeaderProps) => {
   const subtitle = userRole === 'admin' ? 'Administrator Dashboard' : 'Employee Portal';
   return (
-    <header className="bg-background border-b border-border-primary shadow-card">
+    <header className="bg-background-header border-b border-border-primary shadow-card">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
@@ -28,11 +28,11 @@ export const Header = ({
               objectPosition: 'left center'
             }} />
               <div>
-                <h1 className="text-xl font-bold text-primary">Learning Hub</h1>
+                <h1 className="text-xl font-bold text-primary-foreground">Learning Hub</h1>
                 <p className={`text-sm hidden sm:block ${
                   userRole === 'admin' 
                     ? 'font-bold text-[hsl(var(--admin-highlight))]' 
-                    : 'text-muted-foreground'
+                    : 'text-primary-foreground/70'
                 }`}>
                   {userRole === 'admin' ? 'Admin Dashboard' : 'Employee Dashboard'}
                 </p>
@@ -43,17 +43,17 @@ export const Header = ({
           {/* Right Side - User Info and Menu */}
           <div className="flex items-center space-x-2">
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-foreground">{userName}</p>
+              <p className="text-sm font-medium text-primary-foreground">{userName}</p>
               
             </div>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center space-x-1 hover:shadow-md transition-shadow">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary-foreground" />
+                  <div className="w-8 h-8 rounded-full bg-primary-foreground flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
                   </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-primary-foreground/70" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
