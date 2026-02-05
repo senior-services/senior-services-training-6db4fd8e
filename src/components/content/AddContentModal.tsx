@@ -315,25 +315,19 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
           </div>
 
           {/* Assign to all employees section */}
-          <div className="space-y-3 pt-2 border-t">
-            <div className="flex items-start space-x-3">
+          <div className="space-y-3 pt-4 border-t">
+            <div className="flex items-center space-x-3">
               <Checkbox
                 id="assign-to-all"
                 checked={assignToAll}
                 onCheckedChange={handleAssignToAllChange}
-                aria-describedby="assign-to-all-description"
               />
-              <div className="space-y-1">
-                <Label 
-                  htmlFor="assign-to-all" 
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Assign to all employees
-                </Label>
-                <p id="assign-to-all-description" className="text-xs text-muted-foreground">
-                  Automatically assign this course to all active employees
-                </p>
-              </div>
+              <Label 
+                htmlFor="assign-to-all" 
+                className="text-sm font-medium cursor-pointer"
+              >
+                Assign this course to all active employees
+              </Label>
             </div>
 
             {/* Progressive disclosure: show due date picker when checkbox is checked */}
