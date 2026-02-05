@@ -1,54 +1,99 @@
 
 
-## Fix Date Column Showing "N/A" When Selecting Checkbox
+## Add Download Data Dialog with Hidden Employees Option
 
 ### Summary
 
-Update the date display logic so that newly selected (but not yet assigned) videos show "--" instead of "N/A" when their checkbox is checked.
+Update the "Download Data" button to open a dialog that lets users choose whether to include hidden employees in the Excel export. When including hidden employees, their quiz and video progress data will be loaded on-demand before generating the export.
 
 ---
 
-### The Issue
+### What You'll See
 
-Currently when you check a course checkbox:
-- The date column changes from "--" to "N/A"
-- This is confusing because the video isn't actually assigned yet
+When you click "Download Data":
+1. **If no hidden employees exist**: Export downloads immediately (no dialog needed)
+2. **If hidden employees exist**: A dialog opens with:
+   - Title: "Download Employee Data"
+   - A toggle: "Include hidden employees" (off by default)  
+   - A note showing how many hidden employees would be included
+   - "Cancel" and "Download" buttons
 
-### The Fix
+---
 
-**File:** `src/components/dashboard/AssignVideosModal.tsx` (lines 471-494)
+### Changes Required
 
-Add a specific check for videos that are selected but not yet assigned:
+#### 1. Create New Component
 
-```tsx
-// Format due date for display
-const formatDueDate = (videoId: string): string => {
-  // Not selected and not assigned - show "--"
-  if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return "--";
+**New File:** `src/components/dashboard/DownloadDataModal.tsx`
 
-  // Newly selected but not yet assigned - show "--" until actually assigned
-  if (selectedVideoIds.has(videoId) && !assignedVideoIds.has(videoId)) {
-    const deadline = videoDeadlines.get(videoId);
-    // Only show date if user has set a pending deadline for this selection
-    if (deadline) {
-      return `Due ${format(deadline, "MMM dd, yyyy")}`;
-    }
-    return "--";
-  }
+A dialog component following the existing `AddEmployeeModal` pattern with:
+- A Switch toggle for "Include hidden employees"
+- Count of hidden employees displayed
+- Loading state during data export
+- Proper accessibility (DialogTitle, description, labeled switch)
 
-  // ... rest of existing logic for assigned videos
-};
+#### 2. Update EmployeeManagement Component
+
+**File:** `src/components/dashboard/EmployeeManagement.tsx`
+
+Changes:
+- Add state for `showDownloadModal`
+- Update "Download Data" button:
+  - If no hidden employees → call `exportToExcel` directly (skip dialog)
+  - If hidden employees exist → open the modal
+- Modify `exportToExcel` to accept `includeHidden: boolean` parameter
+- When `includeHidden` is true:
+  1. Load quiz data for hidden employees on-demand (same logic as `loadEmployees` uses for visible employees)
+  2. Merge visible + hidden employee data
+  3. Deduplicate by employee ID (safety check)
+  4. Process combined list for export
+- Add loading indicator during hidden employee data fetch
+
+---
+
+### Technical Details
+
+**Export Logic Flow:**
+
+```text
+User clicks "Download Data"
+    ↓
+Hidden employees exist?
+    → No: Export immediately with visible employees only
+    → Yes: Show dialog
+              ↓
+        User chooses toggle + clicks "Download"
+              ↓
+        Include hidden = true?
+            → Load hidden employees' quiz/video data
+            → Merge with visible employees
+            → Deduplicate by ID
+              ↓
+        Generate and download Excel file
 ```
 
+**Data Loading for Hidden Employees:**
+
+The current `loadEmployees` function loads quiz data for visible employees. For hidden employees, we'll use the same pattern:
+1. Fetch quizzes with video associations
+2. For each hidden employee with email, call `quizOperations.getUserAttempts()`
+3. Build the `employeeQuizzes` map entries for hidden employees
+
 ---
 
-### Behavior After Fix
+### Safety Measures
 
-| Scenario | Display |
-|----------|---------|
-| Video not selected, not assigned | "--" |
-| Video selected (checkbox checked), no deadline set | "--" |
-| Video selected, deadline set via date picker | "Due [date]" |
-| Video assigned, has due date | "Due [date]" or date |
-| Video assigned, no due date | "N/A" |
+1. **Deduplication**: Merge by employee ID to prevent duplicates
+2. **Loading State**: Show "Downloading..." text while processing
+3. **Error Handling**: Toast message if hidden data fails to load
+4. **Skip Dialog**: When no hidden employees exist, export immediately
+
+---
+
+### Accessibility
+
+- Dialog has proper `DialogTitle`
+- Switch has associated label via `htmlFor`
+- Description text explains the toggle's purpose
+- Focus trapped in dialog while open
 
