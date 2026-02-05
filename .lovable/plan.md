@@ -1,57 +1,67 @@
 
 
-## Add --muted Back and Update Admin Dashboard Background
+## Fix Table Header Background Extending Beyond Border Radius
 
-### Summary
+### Problem
 
-1. Add the `--muted` color swatch back to the UI Colors section in Components Gallery
-2. Change the AdminDashboard page background from `bg-muted/50` to `bg-background` (consistent with the DashboardLayout pattern)
+The `bg-muted` background on `TableHeader` extends beyond the rounded corners of the parent Card because there's no clipping applied to the table container.
+
+### Root Cause
+
+The structure flows like this:
+
+```text
+Card (rounded-lg border)
+  └── CardContent (p-0)
+        └── Table wrapper div (overflow-auto ← problem here)
+              └── table
+                    └── TableHeader (bg-muted ← extends to square corners)
+```
+
+The Table component's wrapper div has `overflow-auto` but lacks:
+1. `overflow-hidden` to clip content to boundaries
+2. Matching `rounded-lg` to inherit the corner rounding
+
+### Solution
+
+Update the Table component wrapper to include `overflow-hidden` and `rounded-lg` so the TableHeader background is properly clipped to the rounded corners.
 
 ---
 
 ### Changes Required
 
-#### 1. Add --muted Back to UI Colors
-
-**File:** `src/pages/ComponentsGallery.tsx` - After line 385 (after the Card entry)
-
-Add the `--muted` swatch:
-
-```jsx
-<div className="flex items-center gap-3">
-  <div className="w-12 h-12 rounded-lg bg-muted border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
-  <div>
-    <div className="text-sm font-medium">Muted</div>
-    <div className="text-xs text-muted-foreground">--muted</div>
-  </div>
-</div>
-```
-
----
-
-#### 2. Remove --muted from Admin Dashboard Background
-
-**File:** `src/pages/AdminDashboard.tsx` - Line 38
+**File:** `src/components/ui/table.tsx` - Line 9
 
 | Before | After |
 |--------|-------|
-| `min-h-screen bg-muted/50` | `min-h-screen bg-background` |
+| `relative w-full overflow-auto` | `relative w-full overflow-hidden rounded-lg` |
 
-This aligns with the `DashboardLayout` component pattern which uses `bg-background`.
+**Note:** Using `overflow-hidden` instead of `overflow-auto` will clip content properly. For tables that need horizontal scrolling, the parent container (like CardContent) can handle that with its own overflow settings.
 
 ---
 
-### Files Modified
+### Updated Code
 
-| File | Change |
-|------|--------|
-| `src/pages/ComponentsGallery.tsx` | Add `--muted` swatch back to UI Colors section |
-| `src/pages/AdminDashboard.tsx` | Change background from `bg-muted/50` to `bg-background` |
+```tsx
+const Table = React.forwardRef<
+  HTMLTableElement,
+  React.HTMLAttributes<HTMLTableElement>
+>(({ className, ...props }, ref) => (
+  <div className="relative w-full overflow-hidden rounded-lg">
+    <table
+      ref={ref}
+      className={cn("w-full caption-bottom text-sm", className)}
+      {...props}
+    />
+  </div>
+))
+```
 
 ---
 
 ### Visual Result
 
-- **UI Colors Section**: Will show 6 background-related swatches including `--muted`
-- **Admin Dashboard**: Will use the main background color instead of the muted tint, matching the DashboardLayout standard
+- Table headers will respect the Card's rounded corners
+- The `bg-muted` background will be clipped at the corners
+- Consistent visual appearance across all tables in the application
 
