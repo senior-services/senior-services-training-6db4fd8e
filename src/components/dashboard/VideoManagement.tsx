@@ -273,7 +273,8 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                     <Table>
                        <TableHeader>
                          <TableRow>
-                           <TableHead>Title & Description</TableHead>
+                           <TableHead>COURSE
+                      </TableHead>
                            <TableHead className="w-32 text-center">Actions</TableHead>
                          </TableRow>
                        </TableHeader>
