@@ -41,7 +41,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --destructive-foreground: 0 0% 100%;
 
     /* UI Elements - Stronger Borders and Inputs */
-    --border-primary: 210 20% 65%; /* Much darker primary border for visibility */
+    --border-primary: 210 20% 77%; /* Unified with input for consistency */
     --border-secondary: 210 20% 77%; /* Medium border - between primary and input */
     --input: 210 20% 77%; /* Match border-secondary for consistency */
     --accent: 210 20% 90%;
@@ -117,7 +117,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --destructive: 0 72% 65%; /* #DC2626 - Brighter red for dark mode */
     --destructive-foreground: 219 79% 6%;
 
-    --border-primary: 219 79% 35%; /* More visible primary borders in dark mode */
+    --border-primary: 219 79% 25%; /* Unified with input for consistency */
     --border-secondary: 219 79% 25%; /* Medium border - between primary and input */
     --input: 219 79% 25%; /* Match border-secondary for consistency */
     --accent: 219 79% 15%;
