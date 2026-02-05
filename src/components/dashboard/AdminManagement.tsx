@@ -262,7 +262,7 @@ export const AdminManagement: React.FC = () => {
                     <TableCell className="text-foreground">
                       {admin.email}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-foreground">
                       {admin.isPending ? 'Pending' : format(new Date(admin.created_at), 'MMM d, yyyy')}
                     </TableCell>
                     <TableCell className="text-right">

@@ -260,7 +260,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
 
                       {/* Date Added */}
                       <TableCell className="text-left py-2">
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-foreground">
                           {format(new Date(video.created_at), 'MMM dd, yyyy')}
                         </span>
                       </TableCell>
