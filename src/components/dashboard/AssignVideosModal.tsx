@@ -470,8 +470,19 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
   // Format due date for display
   const formatDueDate = (videoId: string): string => {
+    // Not selected and not assigned - show "--"
     if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return "--";
 
+    // Newly selected but not yet assigned - show "--" unless user set a pending deadline
+    if (selectedVideoIds.has(videoId) && !assignedVideoIds.has(videoId)) {
+      const deadline = videoDeadlines.get(videoId);
+      if (deadline) {
+        return `Due ${format(deadline, "MMM dd, yyyy")}`;
+      }
+      return "--";
+    }
+
+    // For assigned videos, show completion date if completed
     if (completedVideoIds.has(videoId)) {
       const progressData = videoProgressData.get(videoId);
       if (progressData?.completed_at) {
@@ -479,6 +490,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       }
     }
 
+    // For assigned videos, show due date or "N/A" if none set
     const deadline = videoDeadlines.get(videoId);
     const existingDueDate = assignmentData.get(videoId)?.due_date;
     const status = getCompletionStatus(videoId);
