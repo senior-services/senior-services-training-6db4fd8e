@@ -565,7 +565,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             )}
           </section>
 
-          {/* Completed Training Accordion Section */}
+          {/* Completed Courses Accordion Section */}
           {trainingData.completed.length > 0 && (
             <section className="mb-12" aria-labelledby="completed-training-heading" role="region">
               <Accordion type="single" collapsible className="w-full">
@@ -578,7 +578,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                       <ChevronDown className="w-8 h-8 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
                       <h2 className="text-xl sm:text-2xl font-semibold text-foreground flex items-center">
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
-                        Completed Training
+                        Completed Courses
                       </h2>
                       <Badge variant="success">{trainingData.completed.length} Completed</Badge>
                     </div>
