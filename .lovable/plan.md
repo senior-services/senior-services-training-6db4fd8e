@@ -1,85 +1,71 @@
 
 
-## Add Background Color Tokens and Rename Background
+## Add New Background Tokens to Components Gallery
 
 ### Summary
 
-Add three new background color tokens (`--background-header`, `--background-primary`, `--background-muted`) and rename `--background` to `--background-main` for better semantic clarity.
-
----
-
-### Color Conversions (RGB to HSL)
-
-| Token | RGB Value | HSL Value |
-|-------|-----------|-----------|
-| --background-header | rgb(29, 69, 100) | `207 55% 25%` |
-| --background-primary | rgb(23, 101, 161) | `206 75% 36%` |
-| --background-muted | rgb(218, 233, 245) | `207 52% 91%` |
+Update the Color Palette section in the Components Gallery to display the newly added background tokens and reflect the rename from `--background` to `--background-main`.
 
 ---
 
 ### Changes Required
 
-#### 1. Update `src/index.css`
+**File:** `src/pages/ComponentsGallery.tsx`
 
-**Light Mode (:root)** - Lines 12-13:
-```css
-/* Before */
---background: 0 0% 100%;
+#### Update UI Colors Section (Lines 347-373)
 
-/* After */
---background-main: 0 0% 100%;
---background-header: 207 55% 25%;
---background-primary: 206 75% 36%;
---background-muted: 207 52% 91%;
-```
+Replace the current "Background" entry and add the new tokens:
 
-**Dark Mode (.dark)** - Lines 93-94:
-```css
-/* Before */
---background: 219 79% 6%;
-
-/* After */
---background-main: 219 79% 6%;
---background-header: 207 55% 18%;
---background-primary: 206 75% 28%;
---background-muted: 207 52% 15%;
-```
-
-**Body selector** - Line 161:
-```css
-/* Before */
-@apply bg-background text-foreground ...
-
-/* After */
-@apply bg-background-main text-foreground ...
-```
-
-#### 2. Update `tailwind.config.ts`
-
-**Colors section** - Line 53:
-```typescript
-/* Before */
-background: 'hsl(var(--background))',
-
-/* After */
-background: 'hsl(var(--background-main))',
-'background-main': 'hsl(var(--background-main))',
-'background-header': 'hsl(var(--background-header))',
-'background-primary': 'hsl(var(--background-primary))',
-'background-muted': 'hsl(var(--background-muted))',
-```
+| Token | Class | Description |
+|-------|-------|-------------|
+| --background-main | `bg-background-main` | Main page background (renamed from --background) |
+| --background-header | `bg-background-header` | Deep navy for headers |
+| --background-primary | `bg-background-primary` | Deep blue (matches primary) |
+| --background-muted | `bg-background-muted` | Light blue tint |
+| --card | `bg-card` | Card background (existing) |
+| --muted | `bg-muted` | Muted background (existing) |
 
 ---
 
-### Important Note
+### Updated UI Colors Section
 
-The `bg-background` class will continue to work because Tailwind's `background` color key maps to `--background-main`. All 196 existing usages of `bg-background` across 29 files will work without modification.
-
-The new tokens will be available as:
-- `bg-background-header` - Dark navy for headers
-- `bg-background-primary` - Deep blue (matches primary)
-- `bg-background-muted` - Light blue tint
+```jsx
+{/* UI Colors */}
+<div className="space-y-3">
+  <h4 className="text-sm font-bold uppercase text-secondary">UI Colors</h4>
+  <div className="space-y-2">
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 rounded-lg bg-background-main border border-border-primary shadow-md"></div>
+      <div>
+        <div className="text-sm font-medium">Background Main</div>
+        <div className="text-xs text-muted-foreground">--background-main</div>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 rounded-lg bg-background-header border border-border-primary shadow-md"></div>
+      <div>
+        <div className="text-sm font-medium">Background Header</div>
+        <div className="text-xs text-muted-foreground">--background-header</div>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 rounded-lg bg-background-primary border border-border-primary shadow-md"></div>
+      <div>
+        <div className="text-sm font-medium">Background Primary</div>
+        <div className="text-xs text-muted-foreground">--background-primary</div>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 rounded-lg bg-background-muted border border-border-primary shadow-md"></div>
+      <div>
+        <div className="text-sm font-medium">Background Muted</div>
+        <div className="text-xs text-muted-foreground">--background-muted</div>
+      </div>
+    </div>
+    {/* Existing Card and Muted entries remain */}
+  </div>
+</div>
+```
 
 ---
 
@@ -87,6 +73,17 @@ The new tokens will be available as:
 
 | File | Change |
 |------|--------|
-| `src/index.css` | Rename `--background` to `--background-main`, add 3 new tokens in both light and dark modes |
-| `tailwind.config.ts` | Update background mapping and add new color utilities |
+| `src/pages/ComponentsGallery.tsx` | Update UI Colors section to include all 4 new background tokens |
+
+---
+
+### Visual Result
+
+The UI Colors section will display 6 background-related swatches:
+1. **Background Main** - White (light) / Dark navy (dark)
+2. **Background Header** - Deep navy rgb(29, 69, 100)
+3. **Background Primary** - Deep blue rgb(23, 101, 161)
+4. **Background Muted** - Light blue tint rgb(218, 233, 245)
+5. **Card** - Card surface color
+6. **Muted** - Muted surface color
 
