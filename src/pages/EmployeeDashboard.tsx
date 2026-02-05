@@ -494,7 +494,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
                         Completed Training
                       </h2>
-                      <Badge className="bg-success/10 text-success border-success/20">
+                      <Badge variant="soft-success">
                         {trainingData.completed.length} completed
                       </Badge>
                     </div>
