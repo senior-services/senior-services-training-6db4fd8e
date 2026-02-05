@@ -503,7 +503,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       case "pending":
         return "soft-primary";
       case "unassigned":
-        return "soft-tertiary";
+        return "ghost-tertiary";
     }
   };
 
