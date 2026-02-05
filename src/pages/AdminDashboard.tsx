@@ -35,7 +35,7 @@ export const AdminDashboard = ({
       adminUser: userEmail
     });
   }, [userEmail]);
-  return <div className="min-h-screen bg-muted/50">
+  return <div className="min-h-screen bg-background">
       <Header userName={userName} userEmail={userEmail} userRole="admin" onLogout={onLogout} />
       
       <main className="container mx-auto px-4 pb-8">

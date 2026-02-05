@@ -383,6 +383,13 @@ export const ComponentsGallery = ({
                         <div className="text-xs text-muted-foreground">--card</div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-muted border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
+                      <div>
+                        <div className="text-sm font-medium">Muted</div>
+                        <div className="text-xs text-muted-foreground">--muted</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
