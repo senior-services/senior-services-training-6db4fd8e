@@ -12,10 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { detectContentTypeFromUrl } from "@/utils/videoUtils";
 import { validateUrl, validateAndSanitize } from "@/utils/validation";
 import { ContentType } from "@/types";
+import { DueDateSelector, calculateDueDate, type DueDateOption } from "@/components/shared/DueDateSelector";
+import { cn } from "@/lib/utils";
 
 interface AddContentModalProps {
   open: boolean;
@@ -28,6 +31,8 @@ export interface ContentFormData {
   description: string;
   content_type: ContentType;
   url: string;
+  assignToAll?: boolean;
+  dueDate?: Date;
 }
 
 export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenChange, onSave }) => {
@@ -39,6 +44,11 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string>("");
   const [titleError, setTitleError] = useState<string>("");
+
+  // Assign to all employees state
+  const [assignToAll, setAssignToAll] = useState(false);
+  const [dueDateOption, setDueDateOption] = useState<DueDateOption>("1week");
+  const [noDueDateRequired, setNoDueDateRequired] = useState(false);
 
   const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value.trim();
@@ -113,6 +123,20 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     setDescription(newDescription);
   };
 
+  const handleAssignToAllChange = (checked: boolean) => {
+    setAssignToAll(checked);
+    if (!checked) {
+      // Reset due date options when unchecked
+      setDueDateOption("1week");
+      setNoDueDateRequired(false);
+    }
+  };
+
+  const handleDueDateChange = (option: DueDateOption, noDueDate: boolean) => {
+    setDueDateOption(option);
+    setNoDueDateRequired(noDueDate);
+  };
+
   const handleSave = () => {
     // Final validation before save
     const titleValidation = validateAndSanitize(title, {
@@ -144,6 +168,8 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
       description: descValidation.sanitized,
       content_type: contentType,
       url: url.trim(),
+      assignToAll,
+      dueDate: assignToAll ? calculateDueDate(dueDateOption, noDueDateRequired) : undefined,
     };
 
     onSave(formData);
@@ -159,6 +185,9 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     setIsValidatingUrl(false);
     setUrlError("");
     setTitleError("");
+    setAssignToAll(false);
+    setDueDateOption("1week");
+    setNoDueDateRequired(false);
     onOpenChange(false);
   };
 
@@ -283,6 +312,47 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 </RadioGroup>
               </div>
             )}
+          </div>
+
+          {/* Assign to all employees section */}
+          <div className="space-y-3 pt-2 border-t">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="assign-to-all"
+                checked={assignToAll}
+                onCheckedChange={handleAssignToAllChange}
+                aria-describedby="assign-to-all-description"
+              />
+              <div className="space-y-1">
+                <Label 
+                  htmlFor="assign-to-all" 
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Assign to all employees
+                </Label>
+                <p id="assign-to-all-description" className="text-xs text-muted-foreground">
+                  Automatically assign this course to all active employees
+                </p>
+              </div>
+            </div>
+
+            {/* Progressive disclosure: show due date picker when checkbox is checked */}
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-200 ease-in-out",
+                assignToAll ? "max-h-48 opacity-100 mt-3" : "max-h-0 opacity-0"
+              )}
+              aria-live="polite"
+            >
+              <div className="pl-7 border-l-2 border-muted ml-1.5">
+                <DueDateSelector
+                  dueDateOption={dueDateOption}
+                  noDueDateRequired={noDueDateRequired}
+                  onSelectionChange={handleDueDateChange}
+                  showLabel={true}
+                />
+              </div>
+            </div>
           </div>
         </DialogScrollArea>
 

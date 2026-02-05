@@ -15,16 +15,35 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { videoOperations } from '@/services/api';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
+import { videoOperations, employeeOperations, assignmentOperations } from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
 import { logger, performanceTracker } from '@/utils/logger';
 import { sanitizeText } from '@/utils/security';
 import { detectContentTypeFromUrl } from '@/utils/videoUtils';
+import { format } from 'date-fns';
 import type { Video } from '@/types';
+
 interface VideoManagementProps {
   userEmail: string;
   onVideoCountChange?: (count: number) => void;
 }
+
+// Pending assignment data for confirmation dialog
+interface PendingAssignment {
+  contentData: ContentFormData;
+  employeeCount: number;
+}
+
 export const VideoManagement: React.FC<VideoManagementProps> = ({
   userEmail,
   onVideoCountChange
@@ -38,6 +57,11 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
+
+  // Confirmation dialog state
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingAssignment, setPendingAssignment] = useState<PendingAssignment | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load videos on mount
   useEffect(() => {
@@ -104,9 +128,40 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   /**
-   * Handles adding a new video
+   * Handles adding a new video - may trigger confirmation if assigning to all
    */
   const handleAddVideo = async (contentData: ContentFormData) => {
+    // If assigning to all employees, fetch count and show confirmation
+    if (contentData.assignToAll) {
+      const employeesResult = await employeeOperations.getAll();
+      
+      if (employeesResult.success && employeesResult.data) {
+        const activeEmployees = employeesResult.data.filter(emp => emp.email); // Filter valid employees
+        
+        if (activeEmployees.length === 0) {
+          // No employees - just create the video
+          await createVideoOnly(contentData);
+        } else {
+          // Show confirmation dialog
+          setPendingAssignment({
+            contentData,
+            employeeCount: activeEmployees.length,
+          });
+          setShowConfirmDialog(true);
+        }
+      } else {
+        toast.error('Failed to fetch employees. Please try again.');
+      }
+    } else {
+      // No assignment - just create the video
+      await createVideoOnly(contentData);
+    }
+  };
+
+  /**
+   * Creates video without any assignments
+   */
+  const createVideoOnly = async (contentData: ContentFormData) => {
     const operation = 'addVideo';
     performanceTracker.start(operation);
 
@@ -119,6 +174,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       type: 'Required' as const,
       content_type: contentData.content_type
     };
+    
     const result = await videoOperations.create(sanitizedData);
     if (result.success) {
       toast.success(`"${sanitizedData.title}" has been added to the training library.`);
@@ -128,6 +184,106 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       toast.error(result.error || 'Failed to add video');
     }
     performanceTracker.end(operation);
+    
+    return result;
+  };
+
+  /**
+   * Handles confirmed assignment to all employees
+   */
+  const handleConfirmAssignment = async () => {
+    if (!pendingAssignment) return;
+
+    setIsSubmitting(true);
+    const operation = 'addVideoWithAssignment';
+    performanceTracker.start(operation);
+
+    try {
+      const { contentData } = pendingAssignment;
+      
+      // Sanitize input data
+      const sanitizedData = {
+        title: sanitizeText(contentData.title || 'Untitled Content'),
+        description: contentData.description ? sanitizeText(contentData.description) : null,
+        video_url: contentData.url?.trim() || null,
+        video_file_name: null,
+        type: 'Required' as const,
+        content_type: contentData.content_type
+      };
+
+      // Create the video first
+      const videoResult = await videoOperations.create(sanitizedData);
+      
+      if (!videoResult.success || !videoResult.data) {
+        toast.error(videoResult.error || 'Failed to add video');
+        return;
+      }
+
+      const newVideo = videoResult.data;
+
+      // Get current user for assigned_by
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Authentication error. Please log in again.');
+        return;
+      }
+
+      // Fetch all active employees
+      const employeesResult = await employeeOperations.getAll();
+      
+      if (employeesResult.success && employeesResult.data) {
+        const activeEmployees = employeesResult.data.filter(emp => emp.email);
+        
+        if (activeEmployees.length > 0) {
+          // Prepare batch assignment data
+          const assignments = activeEmployees.map(emp => ({
+            video_id: newVideo.id,
+            employee_id: emp.id,
+            assigned_by: user.id,
+            due_date: contentData.dueDate,
+          }));
+
+          // Use batch insert for efficiency
+          const assignResult = await assignmentOperations.createBatch(assignments);
+
+          if (assignResult.success) {
+            toast.success(
+              `"${sanitizedData.title}" added and assigned to ${activeEmployees.length} employee${activeEmployees.length !== 1 ? 's' : ''}`
+            );
+          } else {
+            // Video created but assignment failed
+            toast.error(`Video added but failed to assign: ${assignResult.error}`);
+            logger.error('Batch assignment failed', undefined, { 
+              videoId: newVideo.id, 
+              error: assignResult.error 
+            });
+          }
+        } else {
+          toast.success(`"${sanitizedData.title}" has been added to the training library.`);
+        }
+      } else {
+        toast.success(`"${sanitizedData.title}" has been added (could not fetch employees for assignment).`);
+      }
+
+      await loadVideos();
+      setIsAddVideoModalOpen(false);
+    } catch (error) {
+      logger.error('Error adding video with assignments', error as Error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+      setShowConfirmDialog(false);
+      setPendingAssignment(null);
+      performanceTracker.end(operation);
+    }
+  };
+
+  /**
+   * Cancels the pending assignment and just creates the video
+   */
+  const handleCancelConfirmation = () => {
+    setShowConfirmDialog(false);
+    setPendingAssignment(null);
   };
 
   /**
@@ -244,6 +400,15 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
     const index = title.charCodeAt(0) % colors.length;
     return colors[index];
   };
+
+  // Format due date for confirmation dialog
+  const formatConfirmationDueDate = (): string => {
+    if (!pendingAssignment?.contentData.dueDate) {
+      return 'No due date';
+    }
+    return format(pendingAssignment.contentData.dueDate, 'MMMM d, yyyy');
+  };
+
   return <div className="space-y-6">
       <VideoTable videos={videos} loading={loading} onEdit={handleEditVideo} onPlay={handlePlayVideo} onAddVideo={() => setIsAddVideoModalOpen(true)} onHide={handleHideVideo} />
 
@@ -311,5 +476,30 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
 
       {/* Video Player Modal */}
       <VideoPlayerModal open={isVideoPlayerOpen} onOpenChange={setIsVideoPlayerOpen} video={selectedVideo} />
+
+      {/* Confirmation Dialog for Assign to All */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={(open) => !open && handleCancelConfirmation()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Assign to {pendingAssignment?.employeeCount} employees?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">
+                This will create "{pendingAssignment?.contentData.title}" and assign it to all active employees.
+              </span>
+              <span className="block text-sm">
+                <strong>Due date:</strong> {formatConfirmationDueDate()}
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmitting} onClick={handleCancelConfirmation}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmAssignment} disabled={isSubmitting}>
+              {isSubmitting ? "Adding & Assigning..." : "Add & Assign"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 };

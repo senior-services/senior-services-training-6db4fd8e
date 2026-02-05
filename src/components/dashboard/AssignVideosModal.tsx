@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DueDateSelector, calculateDueDate, type DueDateOption } from "@/components/shared/DueDateSelector";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Video, EyeOff } from "lucide-react";
@@ -97,7 +97,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
   // Due date dialog state
   const [showDueDateDialog, setShowDueDateDialog] = useState(false);
-  const [dueDateOption, setDueDateOption] = useState<"1week" | "2weeks" | "1month" | null>("1week");
+  const [dueDateOption, setDueDateOption] = useState<DueDateOption>("1week");
   const [noDueDateRequired, setNoDueDateRequired] = useState(false);
 
   const { toast } = useToast();
@@ -302,41 +302,15 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     return result;
   };
 
-  // Calculate due date based on selected option
-  const calculateDueDate = (): Date | undefined => {
-    if (noDueDateRequired) return undefined;
-
-    const today = new Date();
-    switch (dueDateOption) {
-      case "1week": {
-        const date = new Date(today);
-        date.setDate(date.getDate() + 7);
-        return date;
-      }
-      case "2weeks": {
-        const date = new Date(today);
-        date.setDate(date.getDate() + 14);
-        return date;
-      }
-      case "1month": {
-        const date = new Date(today);
-        date.setMonth(date.getMonth() + 1);
-        return date;
-      }
-      default:
-        return undefined;
-    }
+  // Calculate due date based on selected option - use shared helper
+  const getDueDate = (): Date | undefined => {
+    return calculateDueDate(dueDateOption, noDueDateRequired);
   };
 
-  // Handle radio selection for due date
-  const handleDueDateSelection = (value: string) => {
-    if (value === "none") {
-      setDueDateOption(null);
-      setNoDueDateRequired(true);
-    } else {
-      setDueDateOption(value as "1week" | "2weeks" | "1month");
-      setNoDueDateRequired(false);
-    }
+  // Handle due date selection change
+  const handleDueDateSelectionChange = (option: DueDateOption, noDueDate: boolean) => {
+    setDueDateOption(option);
+    setNoDueDateRequired(noDueDate);
   };
 
   // Reset dialog state when closing
@@ -346,6 +320,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     setShowDueDateDialog(false);
   };
 
+
   // Handle assigning new videos (additive only - cannot delete existing)
   const handleAssign = async () => {
     if (!employee) return;
@@ -353,7 +328,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     const videosToAssign = getSelectedUnassignedIds();
     if (videosToAssign.size === 0) return;
 
-    const dueDate = calculateDueDate();
+    const dueDate = getDueDate();
 
     setIsSubmitting(true);
     try {
@@ -872,38 +847,14 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <div className={cn("space-y-4 py-4", isSubmitting && "opacity-50 pointer-events-none")}>
-            <Label className="text-sm font-medium">Select due date</Label>
-            <RadioGroup
-              value={noDueDateRequired ? "none" : dueDateOption || ""}
-              onValueChange={handleDueDateSelection}
+          <div className={cn("py-4", isSubmitting && "opacity-50 pointer-events-none")}>
+            <DueDateSelector
+              dueDateOption={dueDateOption}
+              noDueDateRequired={noDueDateRequired}
+              onSelectionChange={handleDueDateSelectionChange}
               disabled={isSubmitting}
-            >
-              <div className="flex items-center space-x-3">
-                <RadioGroupItem value="1week" id="due-1week" />
-                <Label htmlFor="due-1week" className="text-base font-normal cursor-pointer">
-                  1 week
-                </Label>
-              </div>
-              <div className="flex items-center space-x-3">
-                <RadioGroupItem value="2weeks" id="due-2weeks" />
-                <Label htmlFor="due-2weeks" className="text-base font-normal cursor-pointer">
-                  2 weeks
-                </Label>
-              </div>
-              <div className="flex items-center space-x-3">
-                <RadioGroupItem value="1month" id="due-1month" />
-                <Label htmlFor="due-1month" className="text-base font-normal cursor-pointer">
-                  1 month
-                </Label>
-              </div>
-              <div className="flex items-center space-x-3">
-                <RadioGroupItem value="none" id="due-none" />
-                <Label htmlFor="due-none" className="text-base font-normal cursor-pointer">
-                  No due date required
-                </Label>
-              </div>
-            </RadioGroup>
+              showLabel={true}
+            />
           </div>
 
           <AlertDialogFooter>
