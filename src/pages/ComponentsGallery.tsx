@@ -349,10 +349,31 @@ export const ComponentsGallery = ({
                   <h4 className="text-sm font-bold uppercase text-secondary">UI Colors</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-background border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
+                      <div className="w-12 h-12 rounded-lg bg-background-main border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Background</div>
-                        <div className="text-xs text-muted-foreground">--background</div>
+                        <div className="text-sm font-medium">Background Main</div>
+                        <div className="text-xs text-muted-foreground">--background-main</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background-header border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
+                      <div>
+                        <div className="text-sm font-medium">Background Header</div>
+                        <div className="text-xs text-muted-foreground">--background-header</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background-primary border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
+                      <div>
+                        <div className="text-sm font-medium">Background Primary</div>
+                        <div className="text-xs text-muted-foreground">--background-primary</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background-muted border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
+                      <div>
+                        <div className="text-sm font-medium">Background Muted</div>
+                        <div className="text-xs text-muted-foreground">--background-muted</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
