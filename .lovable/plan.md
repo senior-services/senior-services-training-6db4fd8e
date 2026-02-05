@@ -1,178 +1,60 @@
 
-# Plan: Add "Assign to All Employees" Feature
 
-## What We're Building
+# Plan: Fix "Assign to All Employees" UI Styling
 
-When admins add a new course, they'll have an optional checkbox to automatically assign it to all active employees at once. When checked, a due date picker will appear so they can set when the training is due. Before the assignment happens, a confirmation step will show exactly how many employees will receive the assignment.
+## Overview
 
----
-
-## User Experience Flow
-
-1. Admin opens "Add New Course" dialog
-2. Fills in course title, description, and video URL (existing flow)
-3. Sees new checkbox: "Assign to all employees"
-4. When checked, due date options slide into view:
-   - 1 week (default)
-   - 2 weeks
-   - 1 month
-   - No due date required
-5. Clicks "Add Course"
-6. **Confirmation dialog appears**: "Assign to 47 employees?"
-   - Shows employee count and selected due date
-   - "Cancel" or "Add & Assign" buttons
-7. Course is created and assigned in one action
-8. Success message: "Course Title" added and assigned to 47 employees
+This plan addresses four styling issues in the "Add New Course" dialog's "Assign to all employees" section to match the component gallery guidelines and improve visual consistency.
 
 ---
 
-## Key Improvements from Review
+## Changes Summary
 
-| Concern | Solution |
-|---------|----------|
-| Performance with many employees | Use single batch database insert instead of individual calls |
-| Accidental bulk assignments | Add confirmation dialog showing employee count |
-| Code duplication | Create shared DueDateSelector component used by both dialogs |
-| Consistency | Both "Add Course" and "Edit Assignments" use same due date options |
+### Issue 1: Vertical Alignment
+**Problem**: The checkbox and label are misaligned because the container uses `items-start` instead of `items-center`.
+
+**Fix**: Change the flex container from `items-start` to `items-center` so the checkbox aligns properly with the label text.
 
 ---
 
-## Files to Create
+### Issue 2: Label Text Update
+**Problem**: The label currently says "Assign to all employees" but should be more descriptive.
 
-### 1. Shared Due Date Selector Component
+**Fix**: Update the label to "Assign this course to all active employees". Since this now includes the full description, the helper text below can be removed to avoid redundancy.
 
-**New file: `src/components/shared/DueDateSelector.tsx`**
+---
 
-A reusable component that displays the due date radio options. Used by both the Add Course dialog and the Edit Assignments dialog to ensure consistency.
+### Issue 3: Spacing Between Divider and Checkbox
+**Problem**: Only 8px (`pt-2`) of spacing exists between the horizontal rule and the checkbox section.
 
-Options provided:
-- 1 week from today
-- 2 weeks from today  
-- 1 month from today
-- No due date required
+**Fix**: Increase to 16px (`pt-4`) for better visual separation between form sections.
 
-Includes the `calculateDueDate()` helper function to compute actual dates.
+---
+
+### Issue 4: Radio Button Label Font Size
+**Problem**: The due date radio button labels use `text-base` (16px), which is larger than the project's typography standards for form controls.
+
+**Fix**: Update the `DueDateSelector` component to use `text-sm` (15px) for radio button labels, matching the component gallery guidelines and the project's accessibility-focused typography standards.
 
 ---
 
 ## Files to Modify
 
-### 2. Add Content Modal Updates
-
-**File: `src/components/content/AddContentModal.tsx`**
-
-Changes:
-- Add "Assign to all employees" checkbox with proper accessibility labels
-- Show/hide due date picker based on checkbox state (progressive disclosure)
-- Update form data interface to include assignment options
-- Pass assignment data to parent on save
-
-New state variables:
-- `assignToAll` (boolean) - tracks checkbox
-- `dueDateOption` and `noDueDateRequired` - tracks due date selection
-
-### 3. Video Management Handler Updates
-
-**File: `src/components/dashboard/VideoManagement.tsx`**
-
-Changes:
-- Show confirmation dialog when "assign to all" is selected
-- Display employee count and due date in confirmation
-- After course creation, perform batch assignment using single database insert
-- Show appropriate success message with count
-
-New flow:
-1. If `assignToAll` is true, fetch active employee count first
-2. Show confirmation dialog with count
-3. On confirm: create course, then batch-insert all assignments
-4. Show combined success toast
-
-### 4. API Service Enhancement
-
-**File: `src/services/api.ts`**
-
-Add new batch assignment method to `assignmentOperations`:
-
-```text
-createBatch(assignments: {
-  video_id: string;
-  employee_id: string;
-  assigned_by: string;
-  due_date?: string;
-}[]): Promise<ApiResult<VideoAssignment[]>>
-```
-
-This uses a single `supabase.from('video_assignments').insert(assignments)` call instead of multiple individual inserts - much faster and avoids partial failures.
-
-### 5. Edit Assignments Modal Refactor
-
-**File: `src/components/dashboard/AssignVideosModal.tsx`**
-
-Changes:
-- Replace inline RadioGroup (lines 875-906) with the new shared `DueDateSelector` component
-- Extract `calculateDueDate` helper to shared component
-- Ensures both dialogs stay in sync if options change
+| File | Changes |
+|------|---------|
+| `src/components/content/AddContentModal.tsx` | Fix alignment, update label, increase spacing |
+| `src/components/shared/DueDateSelector.tsx` | Change radio label font size from `text-base` to `text-sm` |
 
 ---
 
-## Technical Details
+## Before & After
 
-### Updated Form Data Interface
+**Checkbox Section (AddContentModal.tsx)**
+- `items-start` → `items-center` 
+- `pt-2` → `pt-4`
+- Label text updated to include "this course" and "active"
+- Remove redundant helper text
 
-```text
-ContentFormData {
-  title: string
-  description: string
-  content_type: 'video' | 'presentation'
-  url: string
-  assignToAll?: boolean      // NEW
-  dueDate?: Date             // NEW (calculated from selection)
-}
-```
+**Due Date Labels (DueDateSelector.tsx)**
+- `text-base` → `text-sm` on all four radio button labels
 
-### Batch Insert Approach
-
-Instead of:
-```text
-for each employee:
-  await assignmentOperations.create(...)  // 47 API calls = slow
-```
-
-We use:
-```text
-const assignments = employees.map(emp => ({...}))
-await supabase.from('video_assignments').insert(assignments)  // 1 API call = fast
-```
-
-### Accessibility Considerations
-
-- Checkbox has proper `id` and `aria-describedby` linking to helper text
-- Due date section uses `aria-live="polite"` for screen reader announcements
-- Confirmation dialog is properly labeled with `AlertDialog` component
-- Focus management when revealing due date picker
-
----
-
-## Edge Cases Handled
-
-| Scenario | Behavior |
-|----------|----------|
-| No active employees | Skip assignment step, show "Course added" only |
-| Assignment partial failure | Log error, still report course created successfully |
-| User unchecks after selecting date | Reset due date selection, hide picker |
-| Dialog closed before saving | Reset all assignment-related state |
-| Very large employee count | Batch insert handles efficiently; confirmation prevents accidents |
-
----
-
-## Summary of Changes
-
-| File | Change Type | Purpose |
-|------|-------------|---------|
-| `src/components/shared/DueDateSelector.tsx` | Create | Shared due date picker component |
-| `src/components/content/AddContentModal.tsx` | Modify | Add checkbox and progressive disclosure |
-| `src/components/dashboard/VideoManagement.tsx` | Modify | Add confirmation dialog and batch assignment logic |
-| `src/services/api.ts` | Modify | Add `createBatch` method for efficient bulk inserts |
-| `src/components/dashboard/AssignVideosModal.tsx` | Modify | Use shared DueDateSelector component |
-
-**No database changes required** - existing `video_assignments` table supports this feature.
