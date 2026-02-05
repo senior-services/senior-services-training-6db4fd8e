@@ -192,7 +192,21 @@ export const TrainingCard = memo<TrainingCardProps>(({
         priority: 'low' as const
       };
     }
-    return null;
+    
+    // Show formatted date for due dates beyond 30 days
+    const currentYear = new Date().getFullYear();
+    const dueYear = due.getFullYear();
+    const showYear = dueYear !== currentYear;
+    
+    return {
+      variant: 'secondary' as const,
+      className: '',
+      text: showYear ? `Due ${format(due, 'MMM d, yyyy')}` : `Due ${format(due, 'MMM d')}`,
+      ariaLabel: showYear 
+        ? `Training is due on ${format(due, 'MMMM d, yyyy')}` 
+        : `Training is due on ${format(due, 'MMMM d')}`,
+      priority: 'low' as const
+    };
   }, [sanitizedVideo.dueDate, trainingStatus.isCompleted]);
 
   // Generate comprehensive ARIA labels
