@@ -245,11 +245,11 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                
                                  if (isSubmitted) {
                                    if (isSelected && isSelectedCorrect) {
-                                     optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                     optionClassName += ' text-success bg-success/10 border-success/20 rounded-md p-3 border';
                                    } else if (isSelected && !isSelectedCorrect) {
-                                     optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                     optionClassName += ' text-destructive bg-destructive/10 border-destructive/20 rounded-md p-3 border';
                                    } else if (!isSelected && isCorrect && (shouldShowAlsoCorrect || shouldShowSingleCorrect)) {
-                                     optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                     optionClassName += ' text-success bg-success/10 border-success/20 rounded-md p-3 border';
                                    }
                                  }
                               
@@ -280,7 +280,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                        <Badge variant="default" className="bg-success/20 text-success text-xs">
                                           Correct
                                         </Badge>
                                       )}
@@ -290,24 +290,24 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                       {isSubmitted && !isSelected && isCorrect && shouldShowAlsoCorrect && (
-                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                        <Badge variant="default" className="bg-success/20 text-success text-xs">
                                           Also Correct
                                         </Badge>
                                       )}
                                       {isSubmitted && !isSelected && isCorrect && shouldShowSingleCorrect && (
-                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                        <Badge variant="default" className="bg-success/20 text-success text-xs">
                                           Correct
                                         </Badge>
                                       )}
                                       {isSubmitted && isSelected && (
                                         isSelectedCorrect ? (
-                                          <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                          <CheckCircle className="w-5 h-5 text-success" />
                                         ) : (
-                                          <XCircle className="w-5 h-5 text-red-600" />
+                                          <XCircle className="w-5 h-5 text-destructive" />
                                         )
                                       )}
                                       {isSubmitted && !isSelected && isCorrect && (shouldShowAlsoCorrect || shouldShowSingleCorrect) && (
-                                       <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                       <CheckCircle className="w-5 h-5 text-success" />
                                      )}
                                     </div>
                                   </Label>
@@ -352,11 +352,11 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                
                                 if (isSubmitted) {
                                   if (isSelected && isSelectedCorrect) {
-                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                    optionClassName += ' text-success bg-success/10 border-success/20 rounded-md p-3 border';
                                   } else if (isSelected && !isSelectedCorrect) {
-                                    optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                    optionClassName += ' text-destructive bg-destructive/10 border-destructive/20 rounded-md p-3 border';
                                   } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
-                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                    optionClassName += ' text-success bg-success/10 border-success/20 rounded-md p-3 border';
                                   }
                                 }
                               
@@ -366,15 +366,15 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                   <Label htmlFor={option.id} className={optionClassName} mutedOnDisabled={false}>
                                     <span className="flex items-center">
                                       {option.option_text === 'True' ? (
-                                        <CheckCircle className="inline w-4 h-4 mr-2 text-green-600" />
+                                        <CheckCircle className="inline w-4 h-4 mr-2 text-success" />
                                       ) : (
-                                        <XCircle className="inline w-4 h-4 mr-2 text-red-600" />
+                                        <XCircle className="inline w-4 h-4 mr-2 text-destructive" />
                                       )}
                                       {option.option_text}
                                     </span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                        <Badge variant="default" className="bg-success/20 text-success text-xs">
                                           Correct
                                         </Badge>
                                       )}
@@ -384,19 +384,19 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                         <Badge variant="default" className="bg-success/20 text-success text-xs">
                                            Correct
                                          </Badge>
                                        )}
                                        {isSubmitted && isSelected && (
                                          isSelectedCorrect ? (
-                                           <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                           <CheckCircle className="w-5 h-5 text-success" />
                                          ) : (
-                                           <XCircle className="w-5 h-5 text-red-600" />
+                                           <XCircle className="w-5 h-5 text-destructive" />
                                          )
                                        )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                         <CheckCircle className="w-5 h-5 text-success" />
                                        )}
                                     </div>
                                   </Label>
@@ -441,11 +441,11 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                
                                if (isSubmitted) {
                                  if (isSelected && isSelectedCorrect) {
-                                   optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                   optionClassName += ' text-success bg-success/10 border-success/20 rounded-md p-3 border';
                                  } else if (isSelected && !isSelectedCorrect) {
-                                   optionClassName += ' text-red-700 bg-red-50 border-red-200 rounded-md p-3 border';
+                                   optionClassName += ' text-destructive bg-destructive/10 border-destructive/20 rounded-md p-3 border';
                                   } else if (!isSelected && isCorrect && userAnsweredIncorrectly) {
-                                    optionClassName += ' text-emerald-700 bg-emerald-50 border-emerald-200 rounded-md p-3 border';
+                                    optionClassName += ' text-success bg-success/10 border-success/20 rounded-md p-3 border';
                                   }
                                }
                               
@@ -456,7 +456,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                        <Badge variant="default" className="bg-success/20 text-success text-xs">
                                           Correct
                                         </Badge>
                                       )}
@@ -466,19 +466,19 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                         </Badge>
                                       )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <Badge variant="default" className="bg-emerald-100 text-emerald-800 text-xs">
+                                         <Badge variant="default" className="bg-success/20 text-success text-xs">
                                            Correct
                                          </Badge>
                                        )}
                                        {isSubmitted && isSelected && (
                                          isSelectedCorrect ? (
-                                           <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                           <CheckCircle className="w-5 h-5 text-success" />
                                          ) : (
-                                           <XCircle className="w-5 h-5 text-red-600" />
+                                           <XCircle className="w-5 h-5 text-destructive" />
                                          )
                                        )}
                                        {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                         <CheckCircle className="w-5 h-5 text-emerald-600" />
+                                         <CheckCircle className="w-5 h-5 text-success" />
                                        )}
                                     </div>
                                   </Label>

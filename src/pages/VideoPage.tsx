@@ -255,7 +255,7 @@ export const VideoPage = () => {
               <div className="flex items-center gap-3">
                 <CardTitle className="text-2xl">{video.title || 'Untitled Video'}</CardTitle>
                 {isCompleted && (
-                  <Badge className="bg-green-600 hover:bg-green-700">
+                  <Badge className="bg-success hover:bg-success/90">
                     <CheckCircle className="w-4 h-4 mr-1" />
                     Completed
                   </Badge>
@@ -277,7 +277,7 @@ export const VideoPage = () => {
                         A 15.9155 15.9155 0 0 1 18 2.0845"
                     />
                     <path
-                      className={`transition-all duration-300 ${isCompleted ? 'text-green-500' : 'text-primary'}`}
+                      className={`transition-all duration-300 ${isCompleted ? 'text-success' : 'text-primary'}`}
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeDasharray={`${progress}, 100`}
@@ -289,7 +289,7 @@ export const VideoPage = () => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className={`text-sm font-medium ${isCompleted ? 'text-green-500' : 'text-primary'}`}>
+                    <span className={`text-sm font-medium ${isCompleted ? 'text-success' : 'text-primary'}`}>
                       {progress}%
                     </span>
                   </div>
@@ -304,9 +304,9 @@ export const VideoPage = () => {
                 <span>Video Progress</span>
                 <span>{progress}% Complete</span>
               </div>
-              <Progress value={progress} className={`h-2 ${isCompleted ? 'bg-green-100' : ''}`} />
+              <Progress value={progress} className={`h-2 ${isCompleted ? 'bg-success/10' : ''}`} />
               {isCompleted && (
-                <div className="flex items-center gap-2 mt-2 text-green-600">
+                <div className="flex items-center gap-2 mt-2 text-success">
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm font-medium">Training completed successfully!</span>
                 </div>

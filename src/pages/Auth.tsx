@@ -144,34 +144,34 @@ export const Auth = () => {
               {emailError && `Email validation error: ${emailError}`}
             </div>
             {/* Development Testing Section */}
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="mb-6 p-4 bg-attention/10 border border-attention/20 rounded-lg">
               <div className="text-center mb-3">
-                <h3 className="font-semibold text-yellow-800 text-sm">Development Testing</h3>
-                <p className="text-xs text-yellow-700">Quick login for testing (@southsoundseniors.org only)</p>
+                <h3 className="font-semibold text-attention text-sm">Development Testing</h3>
+                <p className="text-xs text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
               </div>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2">
-                  <Button onClick={handleTestEmployeeLogin} disabled={isLoading} variant="outline" size="sm" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+                  <Button onClick={handleTestEmployeeLogin} disabled={isLoading} variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10">
                     <User className="w-4 h-4 mr-1" />
                     Jane
                   </Button>
-                  <Button onClick={handleTestEmployee2Login} disabled={isLoading} variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50">
+                  <Button onClick={handleTestEmployee2Login} disabled={isLoading} variant="outline" size="sm" className="border-success/30 text-success hover:bg-success/10">
                     <User className="w-4 h-4 mr-1" />
                     John
                   </Button>
-                  <Button onClick={handleTestAdminLogin} disabled={isLoading} variant="outline" size="sm" className="border-red-200 text-red-700 hover:bg-red-50">
+                  <Button onClick={handleTestAdminLogin} disabled={isLoading} variant="outline" size="sm" className="border-destructive/30 text-destructive hover:bg-destructive/10">
                     <User className="w-4 h-4 mr-1" />
                     Test Admin
                   </Button>
                 </div>
               </div>
-              <div className="mt-2 text-xs text-yellow-600 text-center">
+              <div className="mt-2 text-xs text-attention/80 text-center">
                 Employee 1: jane.doe | Employee 2: john.doe | Admin: admin@southsoundseniors.org
               </div>
             </div>
 
             <div className="flex justify-center mb-4">
-              <Button onClick={handleGoogleSignIn} disabled={isLoading} size="lg" className="w-full bg-white text-gray-700 border border-gray-300 hover:bg-gray-50">
+              <Button onClick={handleGoogleSignIn} disabled={isLoading} size="lg" className="w-full bg-card text-foreground border border-border hover:bg-muted">
                 <LogIn className="w-5 h-5 mr-3" />
                 Sign in with Google
               </Button>

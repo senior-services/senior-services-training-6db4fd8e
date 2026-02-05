@@ -13,9 +13,9 @@ export function QuizScoreSummary({ quizResults, totalQuestions }: QuizScoreSumma
   const percentage = Math.round((correctAnswers / totalQuestions) * 100);
   
   const getScoreColor = (percent: number) => {
-    if (percent >= 90) return "text-emerald-600 bg-emerald-50 border-emerald-200";
-    if (percent >= 70) return "text-yellow-600 bg-yellow-50 border-yellow-200";
-    return "text-red-600 bg-red-50 border-red-200";
+    if (percent >= 90) return "text-success bg-success/10 border-success/20";
+    if (percent >= 70) return "text-attention bg-attention/10 border-attention/20";
+    return "text-destructive bg-destructive/10 border-destructive/20";
   };
 
   const getScoreIcon = (percent: number) => {

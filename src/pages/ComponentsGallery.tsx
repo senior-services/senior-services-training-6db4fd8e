@@ -851,6 +851,9 @@ export const ComponentsGallery = ({
 
                 {/* Error Banner */}
                 <Banner variant="error" title="Error" description="Error banner for system issues or failures." />
+
+                {/* Attention Banner */}
+                <Banner variant="attention" title="Attention" description="Attention banner for items requiring user action." />
               </div>
             </CardContent>
           </Card>
