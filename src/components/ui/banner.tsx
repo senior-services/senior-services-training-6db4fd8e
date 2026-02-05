@@ -6,17 +6,18 @@ import { cn } from "@/lib/utils"
 import { Button } from "./button"
 
 const bannerVariants = cva(
-  "relative w-full rounded-lg border p-4 shadow-card hover:shadow-lg transition-shadow duration-300 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  "relative w-full rounded-lg border p-4 shadow-card hover:shadow-lg transition-shadow duration-300 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-current",
   {
     variants: {
       variant: {
         default: "bg-background text-foreground",
-        info: "bg-blue-50 text-blue-900 border-blue-200 dark:bg-blue-950/20 dark:text-blue-100 dark:border-blue-900/50",
-        information: "bg-blue-50 text-blue-900 border-blue-200 dark:bg-blue-950/20 dark:text-blue-100 dark:border-blue-900/50", // Alias for info
-        success: "bg-green-50 text-green-900 border-green-200 dark:bg-green-950/20 dark:text-green-100 dark:border-green-900/50",
-        warning: "bg-yellow-50 text-yellow-900 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-100 dark:border-yellow-900/50",
-        error: "bg-red-50 text-red-900 border-red-200 dark:bg-red-950/20 dark:text-red-100 dark:border-red-900/50",
-        destructive: "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive", // Alias for error
+        info: "bg-primary/10 text-primary border-primary/20",
+        information: "bg-primary/10 text-primary border-primary/20",
+        success: "bg-success/10 text-success border-success/20",
+        warning: "bg-warning/10 text-warning border-warning/20",
+        error: "bg-destructive/10 text-destructive border-destructive/20",
+        destructive: "bg-destructive/10 text-destructive border-destructive/20",
+        attention: "bg-attention/10 text-attention border-attention/20",
       },
     },
     defaultVariants: {
@@ -27,11 +28,12 @@ const bannerVariants = cva(
 
 const iconMap = {
   info: Info,
-  information: Info, // Alias for info
+  information: Info,
   success: CheckCircle,
   warning: AlertTriangle,
   error: XCircle,
-  destructive: XCircle, // Alias for error
+  destructive: XCircle,
+  attention: AlertTriangle,
   default: Info,
 }
 
