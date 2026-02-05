@@ -113,7 +113,7 @@ export const videoOperations = {
   },
 
   async getArchived(): Promise<ApiResult<Video[]>> {
-    const operation = 'video.getArchived';
+    const operation = 'video.getHidden';
     performanceTracker.start(operation);
     
     try {
@@ -124,15 +124,15 @@ export const videoOperations = {
         .order('archived_at', { ascending: false });
 
       if (error) {
-        logger.error('Failed to fetch archived videos', undefined, { supabaseError: error.message });
+        logger.error('Failed to fetch hidden videos', undefined, { supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
-      logger.info('Archived videos fetched successfully', { count: videos?.length || 0 });
+      logger.info('Hidden videos fetched successfully', { count: videos?.length || 0 });
       return { data: (videos || []) as Video[], error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error fetching archived videos', error as Error);
-      return { data: null, error: 'Failed to fetch archived videos', success: false };
+      logger.error('Unexpected error fetching hidden videos', error as Error);
+      return { data: null, error: 'Failed to fetch hidden videos', success: false };
     } finally {
       performanceTracker.end(operation);
     }
@@ -326,7 +326,7 @@ export const videoOperations = {
   },
 
   async archive(id: string): Promise<ApiResult<boolean>> {
-    const operation = 'video.archive';
+    const operation = 'video.hide';
     performanceTracker.start(operation);
     
     try {
@@ -336,22 +336,22 @@ export const videoOperations = {
         .eq('id', id);
 
       if (error) {
-        logger.error('Failed to archive video', undefined, { videoId: id, supabaseError: error.message });
+        logger.error('Failed to hide video', undefined, { videoId: id, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
-      logger.info('Video archived successfully', { videoId: id });
+      logger.info('Video hidden successfully', { videoId: id });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error archiving video', error as Error, { videoId: id });
-      return { data: null, error: 'Failed to archive video', success: false };
+      logger.error('Unexpected error hiding video', error as Error, { videoId: id });
+      return { data: null, error: 'Failed to hide video', success: false };
     } finally {
       performanceTracker.end(operation);
     }
   },
 
   async unarchive(id: string): Promise<ApiResult<boolean>> {
-    const operation = 'video.unarchive';
+    const operation = 'video.show';
     performanceTracker.start(operation);
     
     try {
@@ -361,39 +361,39 @@ export const videoOperations = {
         .eq('id', id);
 
       if (error) {
-        logger.error('Failed to unarchive video', undefined, { videoId: id, supabaseError: error.message });
+        logger.error('Failed to show video', undefined, { videoId: id, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
-      logger.info('Video unarchived successfully', { videoId: id });
+      logger.info('Video shown successfully', { videoId: id });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error unarchiving video', error as Error, { videoId: id });
-      return { data: null, error: 'Failed to unarchive video', success: false };
+      logger.error('Unexpected error showing video', error as Error, { videoId: id });
+      return { data: null, error: 'Failed to show video', success: false };
     } finally {
       performanceTracker.end(operation);
     }
   },
 
   // ============ SEMANTIC WRAPPER METHODS FOR HIDE/SHOW ============
-  // These methods provide user-friendly terminology while maintaining database compatibility
+  // These methods use archived_at column for visibility control
   
   /**
-   * Hides a video from the main list (semantic wrapper for archive)
+   * Hides a video from the main list (uses archived_at column)
    */
   async hide(id: string): Promise<ApiResult<boolean>> {
     return this.archive(id);
   },
 
   /**
-   * Shows a hidden video in the main list (semantic wrapper for unarchive)
+   * Shows a hidden video in the main list (clears archived_at column)
    */
   async show(id: string): Promise<ApiResult<boolean>> {
     return this.unarchive(id);
   },
 
   /**
-   * Gets all hidden videos (semantic wrapper for getArchived)
+   * Gets all hidden videos (queries videos with archived_at set)
    */
   async getHidden(): Promise<ApiResult<Video[]>> {
     return this.getArchived();
@@ -567,7 +567,7 @@ export const employeeOperations = {
   },
 
   async archive(employeeId: string): Promise<ApiResult<boolean>> {
-    const operation = 'employee.archive';
+    const operation = 'employee.hide';
     performanceTracker.start(operation);
     
     try {
@@ -577,22 +577,22 @@ export const employeeOperations = {
         .eq('id', employeeId);
 
       if (error) {
-        logger.error('Failed to archive employee', undefined, { employeeId, supabaseError: error.message });
+        logger.error('Failed to hide employee', undefined, { employeeId, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
-      logger.info('Employee archived successfully', { employeeId });
+      logger.info('Employee hidden successfully', { employeeId });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error archiving employee', error as Error, { employeeId });
-      return { data: null, error: 'Failed to archive employee', success: false };
+      logger.error('Unexpected error hiding employee', error as Error, { employeeId });
+      return { data: null, error: 'Failed to hide employee', success: false };
     } finally {
       performanceTracker.end(operation);
     }
   },
 
   async unarchive(employeeId: string): Promise<ApiResult<boolean>> {
-    const operation = 'employee.unarchive';
+    const operation = 'employee.show';
     performanceTracker.start(operation);
     
     try {
@@ -602,15 +602,15 @@ export const employeeOperations = {
         .eq('id', employeeId);
 
       if (error) {
-        logger.error('Failed to unarchive employee', undefined, { employeeId, supabaseError: error.message });
+        logger.error('Failed to show employee', undefined, { employeeId, supabaseError: error.message });
         return { data: null, error: error.message, success: false };
       }
 
-      logger.info('Employee unarchived successfully', { employeeId });
+      logger.info('Employee shown successfully', { employeeId });
       return { data: true, error: null, success: true };
     } catch (error) {
-      logger.error('Unexpected error unarchiving employee', error as Error, { employeeId });
-      return { data: null, error: 'Failed to unarchive employee', success: false };
+      logger.error('Unexpected error showing employee', error as Error, { employeeId });
+      return { data: null, error: 'Failed to show employee', success: false };
     } finally {
       performanceTracker.end(operation);
     }
@@ -619,14 +619,14 @@ export const employeeOperations = {
   // ============ SEMANTIC WRAPPER METHODS FOR HIDE/SHOW ============
   
   /**
-   * Hides an employee from the main list (semantic wrapper for archive)
+   * Hides an employee from the main list (uses archived_at column)
    */
   async hide(employeeId: string): Promise<ApiResult<boolean>> {
     return this.archive(employeeId);
   },
 
   /**
-   * Shows a hidden employee in the main list (semantic wrapper for unarchive)
+   * Shows a hidden employee in the main list (clears archived_at column)
    */
   async show(employeeId: string): Promise<ApiResult<boolean>> {
     return this.unarchive(employeeId);

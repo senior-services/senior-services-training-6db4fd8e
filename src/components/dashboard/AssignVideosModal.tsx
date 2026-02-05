@@ -138,7 +138,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       if (videosResult.success && videosResult.data) {
         setVideos(videosResult.data);
 
-        // Track hidden videos (videos with archived_at)
+        // Track hidden videos (stored via archived_at column)
         const hidden = new Set<string>(videosResult.data.filter((video) => video.archived_at).map((video) => video.id));
         setHiddenVideoIds(hidden);
       } else {

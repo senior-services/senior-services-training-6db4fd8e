@@ -86,7 +86,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
         setLoading(false);
         return;
       }
-      const result = await videoOperations.getAll(false); // Only get non-archived videos
+      const result = await videoOperations.getAll(false); // Only get visible (non-hidden) videos
 
       if (result.success && result.data) {
         setVideos(result.data);
@@ -365,7 +365,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   /**
-   * Handles hiding a video (semantic wrapper for archive)
+   * Handles hiding a video (stored via archived_at column)
    */
   const handleHideVideo = async (video: Video) => {
     const result = await videoOperations.hide(video.id);
@@ -379,7 +379,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   /**
-   * Handles showing a hidden video (semantic wrapper for unarchive)
+   * Handles showing a hidden video (clears archived_at column)
    */
   const handleShowVideo = async (video: Video) => {
     const result = await videoOperations.show(video.id);
