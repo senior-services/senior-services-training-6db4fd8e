@@ -371,21 +371,27 @@ export const AdminManagement: React.FC = () => {
               {deleteConfirmAdmin?.isPending ? 'Cancel Admin Invitation' : 'Remove Administrator'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to {deleteConfirmAdmin?.isPending ? 'cancel the invitation for' : 'remove admin privileges from'} "{deleteConfirmAdmin?.email}"?
-              <br />
-              <br />
-              This will:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                {deleteConfirmAdmin?.isPending ? <li>Cancel their pending admin invitation</li> : <>
+              {deleteConfirmAdmin?.isPending ? (
+                <>
+                  Are you sure you want to cancel the invitation for <strong>{deleteConfirmAdmin?.email}</strong>? The invitation will be permanently cancelled.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to remove admin privileges from "{deleteConfirmAdmin?.email}"?
+                  <br />
+                  <br />
+                  This will:
+                  <ul className="list-disc list-inside mt-2 space-y-1">
                     <li>Remove their admin access to the system</li>
                     <li>Restrict them to employee-level permissions</li>
                     <li>Prevent them from managing other users</li>
-                  </>}
-              </ul>
-              <br />
-              <strong>
-                {deleteConfirmAdmin?.isPending ? 'The invitation will be permanently cancelled.' : 'This action can be reversed by adding them as an admin again.'}
-              </strong>
+                  </ul>
+                  <br />
+                  <strong>
+                    This action can be reversed by adding them as an admin again.
+                  </strong>
+                </>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
