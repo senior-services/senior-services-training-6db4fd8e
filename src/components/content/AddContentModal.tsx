@@ -1,14 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogScrollArea, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
-import { detectContentTypeFromUrl } from '@/utils/videoUtils';
-import { validateUrl, validateAndSanitize } from '@/utils/validation';
-import { ContentType } from '@/types';
+import React, { useState, useCallback } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogScrollArea,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { detectContentTypeFromUrl } from "@/utils/videoUtils";
+import { validateUrl, validateAndSanitize } from "@/utils/validation";
+import { ContentType } from "@/types";
 
 interface AddContentModalProps {
   open: boolean;
@@ -23,25 +30,21 @@ export interface ContentFormData {
   url: string;
 }
 
-export const AddContentModal: React.FC<AddContentModalProps> = ({
-  open,
-  onOpenChange,
-  onSave,
-}) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [url, setUrl] = useState('');
-  const [contentType, setContentType] = useState<ContentType>('video');
+export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenChange, onSave }) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [url, setUrl] = useState("");
+  const [contentType, setContentType] = useState<ContentType>("video");
   const [showManualSelector, setShowManualSelector] = useState(false);
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
-  const [urlError, setUrlError] = useState<string>('');
-  const [titleError, setTitleError] = useState<string>('');
+  const [urlError, setUrlError] = useState<string>("");
+  const [titleError, setTitleError] = useState<string>("");
 
   const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value.trim();
     setUrl(newUrl);
-    setUrlError('');
-    
+    setUrlError("");
+
     if (!newUrl) {
       setShowManualSelector(false);
       return;
@@ -52,7 +55,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
     // Validate URL format and security
     const validation = validateUrl(newUrl);
     if (!validation.isValid) {
-      setUrlError(validation.errors[0] || 'Invalid URL format');
+      setUrlError(validation.errors[0] || "Invalid URL format");
       setShowManualSelector(false);
       setIsValidatingUrl(false);
       return;
@@ -61,14 +64,14 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
     // Additional HTTPS check
     try {
       const urlObj = new URL(newUrl);
-      if (urlObj.protocol !== 'https:') {
-        setUrlError('Only HTTPS URLs are allowed for security');
+      if (urlObj.protocol !== "https:") {
+        setUrlError("Only HTTPS URLs are allowed for security");
         setShowManualSelector(false);
         setIsValidatingUrl(false);
         return;
       }
     } catch {
-      setUrlError('Invalid URL format');
+      setUrlError("Invalid URL format");
       setShowManualSelector(false);
       setIsValidatingUrl(false);
       return;
@@ -83,24 +86,24 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
       // Ambiguous URL - show manual selector
       setShowManualSelector(true);
     }
-    
+
     setIsValidatingUrl(false);
   }, []);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    setTitleError('');
+    setTitleError("");
 
     // Real-time validation
     if (newTitle.trim()) {
       const validation = validateAndSanitize(newTitle, {
         required: true,
         maxLength: 200,
-        allowHtml: false
+        allowHtml: false,
       });
       if (!validation.isValid) {
-        setTitleError(validation.errors[0] || 'Invalid title');
+        setTitleError(validation.errors[0] || "Invalid title");
       }
     }
   };
@@ -115,7 +118,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
     const titleValidation = validateAndSanitize(title, {
       required: true,
       maxLength: 200,
-      allowHtml: false
+      allowHtml: false,
     });
 
     const urlValidation = validateUrl(url);
@@ -123,16 +126,16 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
     const descValidation = validateAndSanitize(description, {
       required: false,
       maxLength: 1000,
-      allowHtml: false
+      allowHtml: false,
     });
 
     if (!titleValidation.isValid) {
-      setTitleError(titleValidation.errors[0] || 'Invalid title');
+      setTitleError(titleValidation.errors[0] || "Invalid title");
       return;
     }
 
     if (!urlValidation.isValid) {
-      setUrlError(urlValidation.errors[0] || 'Invalid URL');
+      setUrlError(urlValidation.errors[0] || "Invalid URL");
       return;
     }
 
@@ -148,23 +151,18 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
   };
 
   const handleClose = () => {
-    setTitle('');
-    setDescription('');
-    setUrl('');
-    setContentType('video');
+    setTitle("");
+    setDescription("");
+    setUrl("");
+    setContentType("video");
     setShowManualSelector(false);
     setIsValidatingUrl(false);
-    setUrlError('');
-    setTitleError('');
+    setUrlError("");
+    setTitleError("");
     onOpenChange(false);
   };
 
-  const isValid = 
-    title.trim() && 
-    url.trim() && 
-    !urlError && 
-    !titleError && 
-    !isValidatingUrl;
+  const isValid = title.trim() && url.trim() && !urlError && !titleError && !isValidatingUrl;
 
   const getUrlStatusIcon = () => {
     if (isValidatingUrl) {
@@ -188,29 +186,26 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
 
         <DialogScrollArea className="space-y-4">
           <div>
-            <Label htmlFor="title">Training Title</Label>
+            <Label htmlFor="title">Course</Label>
             <Input
               id="title"
               value={title}
               onChange={handleTitleChange}
               placeholder="Enter content title"
               aria-invalid={!!titleError}
-              aria-describedby={titleError ? 'title-error' : undefined}
+              aria-describedby={titleError ? "title-error" : undefined}
             />
             {titleError && (
-              <p 
-                id="title-error" 
-                className="text-sm text-destructive mt-1"
-                role="alert"
-                aria-live="polite"
-              >
+              <p id="title-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
                 {titleError}
               </p>
             )}
           </div>
 
           <div>
-            <Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
+            <Label htmlFor="description">
+              Description <span className="font-normal italic text-muted-foreground">(optional)</span>
+            </Label>
             <Textarea
               id="description"
               value={description}
@@ -219,9 +214,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
               rows={3}
               maxLength={1000}
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              {description.length}/1000 characters
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">{description.length}/1000 characters</p>
           </div>
 
           <div className="space-y-4">
@@ -234,18 +227,16 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
                   onChange={handleUrlChange}
                   placeholder="Enter YouTube, Google Drive, or Google Slides URL"
                   aria-invalid={!!urlError}
-                  aria-describedby={urlError ? 'url-error' : url && !showManualSelector ? 'url-success' : undefined}
-                  className={urlError ? 'pr-10 border-destructive' : url ? 'pr-10' : ''}
+                  aria-describedby={urlError ? "url-error" : url && !showManualSelector ? "url-success" : undefined}
+                  className={urlError ? "pr-10 border-destructive" : url ? "pr-10" : ""}
                 />
                 {getUrlStatusIcon() && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    {getUrlStatusIcon()}
-                  </div>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">{getUrlStatusIcon()}</div>
                 )}
               </div>
               {urlError && (
-                <p 
-                  id="url-error" 
+                <p
+                  id="url-error"
                   className="text-sm text-destructive mt-1 flex items-start gap-1"
                   role="alert"
                   aria-live="polite"
@@ -255,18 +246,12 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({
                 </p>
               )}
               {url && !urlError && !showManualSelector && !isValidatingUrl && (
-                <p 
-                  id="url-success"
-                  className="text-sm text-green-600 mt-1 flex items-center gap-1"
-                  aria-live="polite"
-                >
+                <p id="url-success" className="text-sm text-green-600 mt-1 flex items-center gap-1" aria-live="polite">
                   <CheckCircle2 className="h-4 w-4" />
-                  Auto-detected: {contentType === 'presentation' ? 'Presentation' : 'Video'}
+                  Auto-detected: {contentType === "presentation" ? "Presentation" : "Video"}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground mt-1">
-                Only HTTPS URLs are supported for security
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Only HTTPS URLs are supported for security</p>
             </div>
 
             {showManualSelector && !urlError && (
