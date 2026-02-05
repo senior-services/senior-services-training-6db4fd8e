@@ -149,7 +149,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap w-full"
                   >
                     Course
                   </SortableTableHead>
@@ -195,7 +195,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                     </TableCell>
                   </TableRow> : sortedVideos.map((video, index) => <TableRow key={video.id} className="group">
                        {/* Video title and preview */}
-                      <TableCell className="py-2 w-auto max-w-0">
+                      <TableCell className="py-2 w-full">
                         <div className="flex items-center gap-3">
                           {/* Video preview */}
                           <div className="relative w-20 h-12 rounded-md overflow-hidden bg-muted shrink-0">
