@@ -1,40 +1,98 @@
 
 
-## Change Unassigned Badge to Ghost-Tertiary Variant
+## Implement Flush Prop for Table Component
 
 ### Summary
 
-Update the "Unassigned" status badge in the Edit Assignments modal to use the `ghost-tertiary` variant instead of `soft-tertiary` for a more subtle appearance.
+Add a `flush` prop to the Table component that removes border-radius, then apply it to the AssignVideosModal table for edge-to-edge layout in fullscreen dialogs.
 
 ---
 
-### Change Required
+### Changes Required
 
-**File:** `src/components/dashboard/AssignVideosModal.tsx`
+#### 1. Update Table Component
 
-Update line 505:
+**File:** `src/components/ui/table.tsx` (lines 1-17)
+
+**Before:**
+```tsx
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+const Table = React.forwardRef<
+  HTMLTableElement,
+  React.HTMLAttributes<HTMLTableElement>
+>(({ className, ...props }, ref) => (
+  <div className="relative w-full overflow-hidden rounded-lg">
+    <table
+      ref={ref}
+      className={cn("w-full caption-bottom text-sm", className)}
+      {...props}
+    />
+  </div>
+))
+Table.displayName = "Table"
+```
+
+**After:**
+```tsx
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  /** When true, removes border-radius for edge-to-edge layouts in dialogs */
+  flush?: boolean;
+}
+
+const Table = React.forwardRef<HTMLTableElement, TableProps>(
+  ({ className, flush = false, ...props }, ref) => (
+    <div className={cn(
+      "relative w-full overflow-hidden",
+      !flush && "rounded-lg"
+    )}>
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+      />
+    </div>
+  )
+)
+Table.displayName = "Table"
+```
+
+---
+
+#### 2. Apply Flush Prop in AssignVideosModal
+
+**File:** `src/components/dashboard/AssignVideosModal.tsx` (line 729)
 
 | Before | After |
 |--------|-------|
-| `return "soft-tertiary";` | `return "ghost-tertiary";` |
+| `<Table>` | `<Table flush>` |
 
 ---
 
-### Visual Change
+### What This Does
 
-**Before:** Unassigned badge has a muted gray background (soft style)
-
-**After:** Unassigned badge has no background, just gray text (ghost style)
+- **Table component**: Gains a new optional `flush` prop (defaults to `false`)
+- **When `flush={true}`**: Table wrapper has no border-radius (square corners)
+- **When `flush={false}` or omitted**: Table keeps existing `rounded-lg` styling
+- **AssignVideosModal**: Uses `flush` to make table extend edge-to-edge in fullscreen dialog
 
 ---
 
-### Context
+### Reusability
 
-The `getStatusBadgeVariant` function now maps statuses to:
-- Completed → `soft-success` (green with background)
-- Overdue → `soft-destructive` (red with background)
-- Pending (To-do) → `soft-primary` (blue with background)
-- **Unassigned** → `soft-tertiary` → **`ghost-tertiary`** (gray text, no background)
+Any future fullscreen dialog with a table can simply add `flush` to get the same edge-to-edge appearance:
 
-This makes "Unassigned" items appear more subtle/de-emphasized compared to actionable statuses.
+```tsx
+<FullscreenDialogContent>
+  <Table flush>
+    ...
+  </Table>
+</FullscreenDialogContent>
+```
 
