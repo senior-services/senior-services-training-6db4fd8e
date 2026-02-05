@@ -801,6 +801,58 @@ export const assignmentOperations = {
     } finally {
       performanceTracker.end(operation);
     }
+  },
+
+  /**
+   * Batch create assignments for multiple employees (efficient single insert)
+   * Used by "Assign to all employees" feature
+   */
+  async createBatch(
+    assignments: Array<{
+      video_id: string;
+      employee_id: string;
+      assigned_by: string;
+      due_date?: Date;
+    }>
+  ): Promise<ApiResult<VideoAssignment[]>> {
+    const operation = 'assignment.createBatch';
+    performanceTracker.start(operation);
+    
+    try {
+      if (assignments.length === 0) {
+        return { data: [], error: null, success: true };
+      }
+
+      const insertData = assignments.map(a => ({
+        video_id: a.video_id,
+        employee_id: a.employee_id,
+        assigned_by: a.assigned_by,
+        due_date: a.due_date ? a.due_date.toISOString().split('T')[0] : null,
+      }));
+
+      const { data, error } = await supabase
+        .from('video_assignments')
+        .insert(insertData)
+        .select();
+
+      if (error) {
+        logger.error('Failed to batch create assignments', undefined, { 
+          count: assignments.length, 
+          supabaseError: error.message 
+        });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Batch assignments created successfully', { count: data?.length || 0 });
+      return { data: data as VideoAssignment[], error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error batch creating assignments', error as Error, { 
+        count: assignments.length 
+      });
+      return { data: null, error: 'Failed to create assignments', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
   }
 };
 
