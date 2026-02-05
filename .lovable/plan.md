@@ -1,60 +1,53 @@
 
 
-# Plan: Fix "Assign to All Employees" UI Styling
+# Plan: Keep Add Course Dialog Open When Confirmation is Cancelled
 
-## Overview
+## The Problem
 
-This plan addresses four styling issues in the "Add New Course" dialog's "Assign to all employees" section to match the component gallery guidelines and improve visual consistency.
+When you fill out the "Add Course" form, check "Assign to all employees", and click "Add Course", the form dialog immediately closes and clears all your data. If you then cancel the confirmation dialog, you've lost everything you typed and have to start over.
 
----
+## The Solution
 
-## Changes Summary
-
-### Issue 1: Vertical Alignment
-**Problem**: The checkbox and label are misaligned because the container uses `items-start` instead of `items-center`.
-
-**Fix**: Change the flex container from `items-start` to `items-center` so the checkbox aligns properly with the label text.
+Remove the automatic close behavior from the Add Course dialog's save action. Instead, let the parent component decide when to close based on whether the user confirms or cancels.
 
 ---
 
-### Issue 2: Label Text Update
-**Problem**: The label currently says "Assign to all employees" but should be more descriptive.
+## What Changes
 
-**Fix**: Update the label to "Assign this course to all active employees". Since this now includes the full description, the helper text below can be removed to avoid redundancy.
+**File: `src/components/content/AddContentModal.tsx`**
 
----
+Remove line 176 (`handleClose();`) from the `handleSave` function. This one-line change keeps the dialog open and preserves form data until the parent explicitly closes it.
 
-### Issue 3: Spacing Between Divider and Checkbox
-**Problem**: Only 8px (`pt-2`) of spacing exists between the horizontal rule and the checkbox section.
+**Before:**
+```
+onSave(formData);
+handleClose();  ← Remove this line
+```
 
-**Fix**: Increase to 16px (`pt-4`) for better visual separation between form sections.
-
----
-
-### Issue 4: Radio Button Label Font Size
-**Problem**: The due date radio button labels use `text-base` (16px), which is larger than the project's typography standards for form controls.
-
-**Fix**: Update the `DueDateSelector` component to use `text-sm` (15px) for radio button labels, matching the component gallery guidelines and the project's accessibility-focused typography standards.
-
----
-
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/content/AddContentModal.tsx` | Fix alignment, update label, increase spacing |
-| `src/components/shared/DueDateSelector.tsx` | Change radio label font size from `text-base` to `text-sm` |
+**After:**
+```
+onSave(formData);
+// Parent controls when to close the modal
+```
 
 ---
 
-## Before & After
+## How It Works After the Fix
 
-**Checkbox Section (AddContentModal.tsx)**
-- `items-start` → `items-center` 
-- `pt-2` → `pt-4`
-- Label text updated to include "this course" and "active"
-- Remove redundant helper text
+| Action | Result |
+|--------|--------|
+| Fill form, check "Assign to all", click Add | Confirmation dialog appears, form stays behind it |
+| Cancel confirmation | Back to form with all data intact |
+| Confirm assignment | Course created, both dialogs close |
+| Add course without assignment | Course created, dialog closes |
 
-**Due Date Labels (DueDateSelector.tsx)**
-- `text-base` → `text-sm` on all four radio button labels
+---
+
+## Files Modified
+
+| File | Change |
+|------|--------|
+| `src/components/content/AddContentModal.tsx` | Remove `handleClose()` call after `onSave()` (1 line) |
+
+No changes needed to `VideoManagement.tsx` - it already handles closing correctly on success.
 
