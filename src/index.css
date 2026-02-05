@@ -31,13 +31,13 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --muted-foreground: 215 25% 45%; /* Slightly lighter while maintaining AA accessibility */
 
     /* Success Green & Warning Colors */
-    --success: 142 76% 30%; /* Darker for better contrast */
+    --success: 161 93% 30%; /* #059669 - Deep emerald green */
     --success-foreground: 0 0% 100%;
-    --warning: 25 95% 50%; /* Orange color for AA accessibility - 4.5:1 contrast with white */
+    --warning: 21 90% 48%; /* #EA580C - Orange */
     --warning-foreground: 0 0% 100%;
-    --attention: 174 72% 40%; /* Teal/cyan - rgb(28, 175, 165) */
+    --attention: 32 94% 44%; /* #D97706 - Amber/gold */
     --attention-foreground: 0 0% 100%;
-    --destructive: 0 70% 61%; /* rgb(225, 85, 84) */
+    --destructive: 0 72% 51%; /* #DC2626 - Red */
     --destructive-foreground: 0 0% 100%;
 
     /* UI Elements - Stronger Borders and Inputs */
@@ -108,13 +108,13 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     --muted: 219 79% 12%; /* Darker muted background */
     --muted-foreground: 215 16% 80%; /* Slightly brighter muted text */
 
-    --success: 142 76% 55%; /* Brighter for dark mode visibility */
+    --success: 161 93% 45%; /* #059669 - Brighter emerald for dark mode */
     --success-foreground: 219 79% 6%;
-    --warning: 25 95% 65%; /* Brighter orange for dark mode */
+    --warning: 21 90% 62%; /* #EA580C - Brighter orange for dark mode */
     --warning-foreground: 219 79% 6%;
-    --attention: 174 72% 60%; /* Teal/cyan - brighter for dark mode */
+    --attention: 32 94% 58%; /* #D97706 - Brighter amber for dark mode */
     --attention-foreground: 219 79% 6%;
-    --destructive: 0 70% 75%; /* Brighter destructive */
+    --destructive: 0 72% 65%; /* #DC2626 - Brighter red for dark mode */
     --destructive-foreground: 219 79% 6%;
 
     --border-primary: 219 79% 35%; /* More visible primary borders in dark mode */
