@@ -1,110 +1,78 @@
 
 
-## Standardize Form Field Labels - Revised Plan
+## Update Banner Component to Use Design System Color Tokens (with Fixes)
 
 ### Summary
 
-Standardize all form field labels across training, employee, and admin dialogs:
-- **Required fields**: Plain label text (no asterisk)
-- **Optional fields**: Label with `(optional)` in italics to the right
+Update the `Banner` component to use design system color tokens instead of hardcoded Tailwind colors, incorporating the reviewed fixes for better accessibility and consistency.
 
 ---
 
-### 5 Fixes to Implement
+### Changes to Make
 
-| # | Fix | File | Details |
-|---|-----|------|---------|
-| 1 | Remove asterisk from Email Address | `AddEmployeeModal.tsx` | Line 124: Change `Email Address *` → `Email Address` |
-| 2 | Add styled optional indicator to Description | `AddContentModal.tsx` | Line 213: Add italic `(optional)` span |
-| 3 | Add styled optional indicator to Description | `EditVideoModal.tsx` | Line 864: Add italic `(optional)` span |
-| 4 | Restyle existing optional indicator | `EditVideoModal.tsx` | Line 883: Convert `Description (Optional)` to styled span format |
-| 5 | Restyle existing optional indicator | `CreateQuizModal.tsx` | Line 230: Convert `Description (Optional)` to styled span format |
+**File:** `src/components/ui/banner.tsx`
+
+#### 1. Update Base Styles (Line 10)
+
+Change icon color inheritance from `text-foreground` to `text-current`:
+
+```tsx
+// Before
+"[&>svg]:text-foreground"
+
+// After  
+"[&>svg]:text-current"
+```
+
+This ensures icons automatically match the text color of each variant.
 
 ---
 
-### Consistent Styling Pattern
+#### 2. Update All Variant Colors (Lines 12-20)
 
-All optional field labels will use this format:
-
-```tsx
-<Label htmlFor="field-id">
-  Field Name <span className="font-normal italic text-muted-foreground">(optional)</span>
-</Label>
-```
-
-**Why these styles:**
-- `font-normal` — prevents optional text from inheriting bold weight from label
-- `italic` — makes it visually distinct as secondary information
-- `text-muted-foreground` — lighter color to de-emphasize
+| Variant | Before (Hardcoded) | After (Design Tokens) |
+|---------|--------------------|-----------------------|
+| info | `bg-blue-50 text-blue-900 border-blue-200 dark:...` | `bg-primary/10 text-primary border-primary/20` |
+| information | (same as info) | `bg-primary/10 text-primary border-primary/20` |
+| success | `bg-green-50 text-green-900 border-green-200 dark:...` | `bg-success/10 text-success border-success/20` |
+| warning | `bg-yellow-50 text-yellow-900 border-yellow-200 dark:...` | `bg-warning/10 text-warning border-warning/20` |
+| error | `bg-red-50 text-red-900 border-red-200 dark:...` | `bg-destructive/10 text-destructive border-destructive/20` |
+| destructive | `border-destructive/50 text-destructive dark:...` | `bg-destructive/10 text-destructive border-destructive/20` |
+| **attention** | (new) | `bg-attention/10 text-attention border-attention/20` |
 
 ---
 
-### Detailed Changes
+#### 3. Add Attention to Icon Map (Line 35)
 
-**1. AddEmployeeModal.tsx (Line 123-125)**
 ```tsx
-// Before
-<Label htmlFor="email">
-  Email Address *
-</Label>
-
-// After
-<Label htmlFor="email">
-  Email Address
-</Label>
+const iconMap = {
+  info: Info,
+  information: Info,
+  success: CheckCircle,
+  warning: AlertTriangle,
+  error: XCircle,
+  destructive: XCircle,
+  attention: AlertTriangle,  // New entry
+  default: Info,
+}
 ```
 
-**2. AddContentModal.tsx (Line 213)**
-```tsx
-// Before
-<Label htmlFor="description">Description</Label>
+---
 
-// After
-<Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
-```
+### Why These Fixes Matter
 
-**3. EditVideoModal.tsx - Details Tab (Line 864)**
-```tsx
-// Before
-<Label htmlFor="edit-description">Description</Label>
-
-// After
-<Label htmlFor="edit-description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
-```
-
-**4. EditVideoModal.tsx - Quiz Tab (Line 883)**
-```tsx
-// Before
-<Label htmlFor="quiz-description">Description (Optional)</Label>
-
-// After
-<Label htmlFor="quiz-description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
-```
-
-**5. CreateQuizModal.tsx (Line 230)**
-```tsx
-// Before
-<Label htmlFor="description">Description (Optional)</Label>
-
-// After
-<Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
-```
+| Fix | Benefit |
+|-----|---------|
+| Use `--primary` for info | Better color contrast for readability, especially for seniors |
+| Use `text-current` for icons | Icons automatically match their banner's color |
+| Add attention variant | Full parity with Badge component |
+| Remove dark mode overrides | Simpler code — design tokens handle dark mode automatically |
 
 ---
 
 ### Files Modified
 
-| File | Changes |
-|------|---------|
-| `src/components/dashboard/AddEmployeeModal.tsx` | Remove `*` from Email Address label |
-| `src/components/content/AddContentModal.tsx` | Add styled `(optional)` to Description |
-| `src/components/EditVideoModal.tsx` | Update 2 Description labels with styled `(optional)` |
-| `src/components/quiz/CreateQuizModal.tsx` | Update Description label with styled `(optional)` |
-
----
-
-### Verification Confirmed
-
-- AdminManagement.tsx: Email Address label already has no asterisk (correct)
-- All dialogs checked for Label patterns - no other changes needed
+| File | Change |
+|------|--------|
+| `src/components/ui/banner.tsx` | Update base styles, all variant colors, and add attention variant |
 
