@@ -385,7 +385,8 @@ export const EmployeeManagement: React.FC<{
     employeesToExport: EmployeeWithAssignments[],
     videosMap: Map<string, any[]>,
     quizzesMap: Map<string, Map<string, any>>,
-    hiddenEmployeeIds: Set<string>
+    hiddenEmployeeIds: Set<string>,
+    includeVisibility: boolean
   ): any[] => {
     const exportData: any[] = [];
 
@@ -403,7 +404,7 @@ export const EmployeeManagement: React.FC<{
           'Due Date': '--',
           'Completion Date': '--',
           'Quiz Results': '--',
-          'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active'
+          ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
         });
       } else {
         videos.forEach(assignment => {
@@ -468,7 +469,7 @@ export const EmployeeManagement: React.FC<{
             'Due Date': dueDate,
             'Completion Date': completionDate,
             'Quiz Results': quizResults,
-            'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active'
+            ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
           });
         });
       }
@@ -498,7 +499,7 @@ export const EmployeeManagement: React.FC<{
       }
 
       const hiddenEmployeeIds = new Set(hiddenEmployees.map(e => e.id));
-      const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds);
+      const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds, includeHidden);
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(exportData);
