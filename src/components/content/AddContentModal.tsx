@@ -181,7 +181,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Training Content</DialogTitle>
+          <DialogTitle>Add New Course</DialogTitle>
         </DialogHeader>
 
         <DialogScrollArea className="space-y-4">
