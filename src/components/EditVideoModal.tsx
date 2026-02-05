@@ -855,7 +855,7 @@ export const EditVideoModal = ({
 
                 {/* Title Section */}
                 <div className="space-y-2">
-                  <Label htmlFor="edit-title">Training Title</Label>
+                  <Label htmlFor="edit-title">Course Title</Label>
                   <Input id="edit-title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter video title..." />
                 </div>
 
