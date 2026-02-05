@@ -17,7 +17,7 @@ export const Header = ({
   onLogout
 }: HeaderProps) => {
   const subtitle = userRole === 'admin' ? 'Administrator Dashboard' : 'Employee Portal';
-  return <header className="bg-background-header border-b border-border-primary shadow-card">
+  return <header className={`${userRole === 'admin' ? 'bg-destructive' : 'bg-background-header'} border-b border-border-primary shadow-card`}>
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
@@ -27,7 +27,7 @@ export const Header = ({
               objectPosition: 'left center'
             }} />
               <div>
-                <h1 className="text-xl text-primary-foreground"><span className="font-bold">Learning Hub</span> <span className="font-normal">/ Admin Dashboard</span></h1>
+                <h1 className="text-xl text-primary-foreground"><span className="font-bold">Learning Hub</span> <span className="font-normal">/ {userRole === 'admin' ? 'Admin' : 'Employee'} Dashboard</span></h1>
                 
               </div>
             </Link>
