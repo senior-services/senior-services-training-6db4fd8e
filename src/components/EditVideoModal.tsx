@@ -820,7 +820,7 @@ export const EditVideoModal = ({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle>Edit Training</DialogTitle>
+            <DialogTitle>Edit Course</DialogTitle>
           </DialogHeader>
 
           <DialogScrollArea>
