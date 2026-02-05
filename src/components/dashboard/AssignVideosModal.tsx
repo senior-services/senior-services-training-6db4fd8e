@@ -501,7 +501,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       case "overdue":
         return "soft-destructive";
       case "pending":
-        return "soft-secondary";
+        return "soft-primary";
       case "unassigned":
         return "soft-tertiary";
     }
