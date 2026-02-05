@@ -291,7 +291,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={!isValid}>
-            Add Content
+            Add Course
           </Button>
         </DialogFooter>
       </DialogContent>
