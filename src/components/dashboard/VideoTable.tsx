@@ -131,9 +131,9 @@ export const VideoTable: React.FC<VideoTableProps> = ({
           </p>
         </div>
         
-        <Button onClick={onAddVideo} {...createButtonAriaProps('Add new training')}>
+        <Button onClick={onAddVideo} {...createButtonAriaProps('Add new course')}>
           <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
-          Add Training
+          Add Course
         </Button>
       </div>
 
