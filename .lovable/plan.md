@@ -1,33 +1,30 @@
 
 
-## Header Style Adjustments
+## Replace Header Logo with Cropped Version
 
 ### Summary
 
-1. Change "/ Admin Dashboard" portion to normal font weight (currently the entire title is `font-bold`)
-2. Reduce vertical padding from `py-4` to `py-2` to achieve ~60px header height
+Replace the current header logo with the newly uploaded cropped version of the Senior Services reversed logo.
 
 ---
 
 ### Changes Required
 
-**File:** `src/components/Header.tsx`
+#### 1. Copy Uploaded Image to Public Folder
 
-#### 1. Update Title Font Weight (Line 30)
+Copy the uploaded cropped logo to the public folder:
 
-Split the title text so "Learning Hub" remains bold but "/ Admin Dashboard" has normal weight:
+```
+user-uploads://SS_logo_reversed_cropped.png → public/lovable-uploads/SS_logo_reversed_cropped.png
+```
+
+#### 2. Update Header Component
+
+**File:** `src/components/Header.tsx` - Line 25
 
 | Before | After |
 |--------|-------|
-| `<h1 className="text-xl font-bold text-primary-foreground">Learning Hub / Admin Dashboard</h1>` | `<h1 className="text-xl text-primary-foreground"><span className="font-bold">Learning Hub</span> <span className="font-normal">/ Admin Dashboard</span></h1>` |
-
-#### 2. Reduce Vertical Padding (Line 21)
-
-| Before | After |
-|--------|-------|
-| `py-4` | `py-2` |
-
-This changes vertical padding from 16px (top + bottom = 32px) to 8px (top + bottom = 16px), resulting in approximately 60px total height with the logo (h-12 = 48px) plus padding.
+| `/lovable-uploads/SS_logo_reversed.png` | `/lovable-uploads/SS_logo_reversed_cropped.png` |
 
 ---
 
@@ -35,12 +32,12 @@ This changes vertical padding from 16px (top + bottom = 32px) to 8px (top + bott
 
 | File | Change |
 |------|--------|
-| `src/components/Header.tsx` | Reduce padding to `py-2`, split title into bold/normal weight spans |
+| `public/lovable-uploads/SS_logo_reversed_cropped.png` | New file (copied from upload) |
+| `src/components/Header.tsx` | Update logo image source path |
 
 ---
 
 ### Visual Result
 
-- **Title**: "Learning Hub" will be bold, "/ Admin Dashboard" will be normal weight
-- **Height**: Header will be approximately 60px tall (48px logo + 8px top + 8px bottom padding)
+The header will display the new cropped Senior Services reversed logo, which appears to have tighter cropping for a cleaner appearance.
 
