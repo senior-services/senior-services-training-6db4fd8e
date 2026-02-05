@@ -457,8 +457,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                 <Clock className="w-6 h-6 text-primary mr-3" aria-hidden="true" />
                 Required Training
               </h2>
-              {trainingData.required.length > 0 && <Badge variant="hollow-primary">
-                  {trainingData.required.length} pending
+              {trainingData.required.length > 0 && <Badge variant="default">
+                  {trainingData.required.length} To-do
                 </Badge>}
             </div>
             {loading ? <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" aria-label="Loading training assignments">
@@ -494,8 +494,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
                         Completed Training
                       </h2>
-                      <Badge variant="soft-success">
-                        {trainingData.completed.length} completed
+                      <Badge variant="success">
+                        {trainingData.completed.length} Completed
                       </Badge>
                     </div>
                   </AccordionTrigger>
