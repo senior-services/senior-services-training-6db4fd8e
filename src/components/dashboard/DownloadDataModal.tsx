@@ -56,12 +56,9 @@ export const DownloadDataModal: React.FC<DownloadDataModalProps> = ({
             onCheckedChange={setIncludeHidden}
             disabled={isLoading}
           />
-          <Label htmlFor={switchId} className="text-base cursor-pointer flex-1">
-            Include hidden employees
+          <Label htmlFor={switchId} className="text-base cursor-pointer">
+            Include hidden employees ({hiddenCount})
           </Label>
-          <span className="text-sm text-muted-foreground">
-            &lt;{hiddenCount}&gt;
-          </span>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
