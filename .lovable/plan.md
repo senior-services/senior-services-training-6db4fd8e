@@ -1,10 +1,10 @@
 
 
-## Add Visibility Column to Employee Export
+## Conditionally Include Visibility Column in Export
 
 ### Summary
 
-Add a new "Visibility" column on the far right of the Excel export that shows "Active" for regular employees and "Hidden" for hidden employees.
+When the user does not select "Include hidden employees", omit the Visibility column entirely from the Excel export since all employees would be "Active" anyway. Only show the Visibility column when hidden employees are included.
 
 ---
 
@@ -12,49 +12,47 @@ Add a new "Visibility" column on the far right of the Excel export that shows "A
 
 **File:** `src/components/dashboard/EmployeeManagement.tsx`
 
-1. **Update `processEmployeesForExport` function signature** (line 384-388)
-   - Add a fourth parameter: `hiddenEmployeeIds: Set<string>`
-   - This set will contain the IDs of all hidden employees
+1. **Update `processEmployeesForExport` function signature** (line 388)
+   - Change `hiddenEmployeeIds: Set<string>` to `includeVisibility: boolean` and `hiddenEmployeeIds: Set<string>`
+   - Or simpler: pass `includeHidden: boolean` to determine if Visibility column is needed
 
-2. **Add Visibility column to export data** (lines 397-405 and 461-469)
-   - For employees with no assignments: add `'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active'`
-   - For employees with assignments: add the same Visibility column to each row
+2. **Conditionally add Visibility column** (lines 398-407 and 463-472)
+   - Only add the `'Visibility'` property when `includeHidden` is true
+   - Use spread operator to conditionally include the field
 
-3. **Update the function call in `exportToExcel`** (line 497)
-   - Create a Set of hidden employee IDs
-   - Pass it as the fourth argument to `processEmployeesForExport`
+3. **Update the function call in `exportToExcel`** (line 501)
+   - Pass `includeHidden` boolean to the function
 
 ---
 
 ### Code Changes
 
-**Update function signature (lines 384-388):**
+**Update function signature (lines 384-389):**
 ```tsx
 const processEmployeesForExport = useCallback((
   employeesToExport: EmployeeWithAssignments[],
   videosMap: Map<string, any[]>,
   quizzesMap: Map<string, Map<string, any>>,
-  hiddenEmployeeIds: Set<string>
+  hiddenEmployeeIds: Set<string>,
+  includeVisibility: boolean
 ): any[] => {
 ```
 
-**Add Visibility to "no assignments" case (lines 396-405):**
+**Conditionally add Visibility to "no assignments" case (lines 398-407):**
 ```tsx
-if (videos.length === 0) {
-  exportData.push({
-    Name: employeeName,
-    Email: employeeEmail,
-    'Course': 'No assignments',
-    'Status': STATUS_LABELS.unassigned,
-    'Due Date': '--',
-    'Completion Date': '--',
-    'Quiz Results': '--',
-    'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active'
-  });
-}
+exportData.push({
+  Name: employeeName,
+  Email: employeeEmail,
+  'Course': 'No assignments',
+  'Status': STATUS_LABELS.unassigned,
+  'Due Date': '--',
+  'Completion Date': '--',
+  'Quiz Results': '--',
+  ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
+});
 ```
 
-**Add Visibility to assignments case (lines 461-469):**
+**Conditionally add Visibility to assignments case (lines 463-472):**
 ```tsx
 exportData.push({
   Name: employeeName,
@@ -64,27 +62,22 @@ exportData.push({
   'Due Date': dueDate,
   'Completion Date': completionDate,
   'Quiz Results': quizResults,
-  'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active'
+  ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
 });
 ```
 
-**Update call in `exportToExcel` (line 497):**
+**Update call in `exportToExcel` (line 501):**
 ```tsx
 const hiddenEmployeeIds = new Set(hiddenEmployees.map(e => e.id));
-const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds);
+const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds, includeHidden);
 ```
 
 ---
 
 ### Result
 
-The exported Excel file will have these columns in order:
-1. Name
-2. Email
-3. Course
-4. Status
-5. Due Date
-6. Completion Date
-7. Quiz Results
-8. **Visibility** (new - "Active" or "Hidden")
+| Scenario | Columns in Export |
+|----------|-------------------|
+| Hidden employees **not** included | Name, Email, Course, Status, Due Date, Completion Date, Quiz Results |
+| Hidden employees **included** | Name, Email, Course, Status, Due Date, Completion Date, Quiz Results, **Visibility** |
 
