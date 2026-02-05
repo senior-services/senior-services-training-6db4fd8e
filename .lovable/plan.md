@@ -1,67 +1,35 @@
 
-# Plan: Fix Missing Course Titles in Employee Data Export
+# Plan: Update Date Added Column Text Color
 
-## The Problem
+## Changes
 
-When you download the employee data Excel file, 4 course titles show up as blank even though the other data (status, due date, completion date, quiz results) is present. These courses are:
-- YT: Information Security and Data Privacy
-- YT: Time Management and Productivity Best Practices  
-- YT: Timekeeping and Attendance
-- YT: Workplace Safety and Emergency Procedures
+Two simple text color updates to use primary text instead of muted text.
 
-## Root Cause
+| File | Line | Change |
+|------|------|--------|
+| `src/components/dashboard/VideoTable.tsx` | 263 | Change `text-muted-foreground` to `text-foreground` |
+| `src/components/dashboard/AdminManagement.tsx` | 265 | Change `text-muted-foreground` to `text-foreground` |
 
-All 4 courses are **hidden** (archived) in the system. The database function that retrieves employee assignments has a bug - it only joins video titles when the video is NOT hidden:
+## Before → After
 
-```sql
-LEFT JOIN videos v ON va.video_id = v.id AND v.archived_at IS NULL
+**Trainings View (VideoTable.tsx line 263)**
+```jsx
+// Before
+<span className="text-sm text-muted-foreground">
+
+// After
+<span className="text-sm text-foreground">
 ```
 
-This causes hidden video titles to come back as `NULL`, resulting in blank course names in the export.
+**Admins View (AdminManagement.tsx line 265)**
+```jsx
+// Before
+<TableCell className="text-muted-foreground">
 
----
-
-## The Fix
-
-Modify the database function `get_all_employee_assignments` to include video titles regardless of whether the video is hidden. The JOIN should fetch the video title in all cases.
-
-**Change this line:**
-```sql
-LEFT JOIN videos v ON va.video_id = v.id AND v.archived_at IS NULL
+// After
+<TableCell className="text-foreground">
 ```
 
-**To this:**
-```sql
-LEFT JOIN videos v ON va.video_id = v.id
-```
+## Result
 
-This ensures employees still see their assigned courses (and admins see them in exports) even when the video has been hidden from the main course list.
-
----
-
-## Why This Is Correct
-
-According to the system design (noted in the hidden videos section of the UI):
-> "Hidden videos remain functional for employees with assignments"
-
-This means hidden videos should still appear in:
-- Employee dashboards (for those with existing assignments)
-- Admin reports and data exports
-
----
-
-## Database Change Required
-
-| Type | Change |
-|------|--------|
-| Database Migration | Modify `get_all_employee_assignments` function to remove `AND v.archived_at IS NULL` from the videos JOIN |
-
-## Files Modified
-
-None - this is a database-only fix.
-
----
-
-## Expected Result
-
-After the fix, the Excel export will show all course titles including hidden ones, matching the complete data that already exists in the database.
+Date Added columns in both Trainings and Admins views will display in the primary text color, matching other important data columns.
