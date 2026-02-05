@@ -726,7 +726,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <Table>
+                  <Table flush>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[40px]"></TableHead>
