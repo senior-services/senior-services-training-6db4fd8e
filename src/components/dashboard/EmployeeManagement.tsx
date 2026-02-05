@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { UserPlus, Trash2, Download } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { UserPlus, Download, EyeOff, Eye, ChevronDown } from 'lucide-react';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
 import { employeeOperations } from '@/services/api';
 import { IconButtonWithTooltip } from '@/components/ui/icon-button-with-tooltip';
@@ -18,7 +18,7 @@ import { AssignVideosModal } from './AssignVideosModal';
 import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
 import { quizOperations } from '@/services/quizService';
-import { sanitizeText, createSafeDisplayName, validateUserRole } from '@/utils/security';
+import { sanitizeText, createSafeDisplayName } from '@/utils/security';
 import * as XLSX from 'xlsx';
 import { STATUS_LABELS } from '@/constants';
 export const EmployeeManagement: React.FC<{
@@ -27,14 +27,13 @@ export const EmployeeManagement: React.FC<{
   onCountChange
 }) => {
   const [employees, setEmployees] = useState<EmployeeWithAssignments[]>([]);
+  const [hiddenEmployees, setHiddenEmployees] = useState<EmployeeWithAssignments[]>([]);
   const [employeeVideos, setEmployeeVideos] = useState<Map<string, any[]>>(new Map());
   const [employeeQuizzes, setEmployeeQuizzes] = useState<Map<string, Map<string, any>>>(new Map());
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [deleteConfirmEmployee, setDeleteConfirmEmployee] = useState<Employee | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [sortColumn, setSortColumn] = useState<'name' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const {
@@ -42,6 +41,7 @@ export const EmployeeManagement: React.FC<{
   } = useToast();
   useEffect(() => {
     loadEmployees();
+    loadHiddenEmployees();
 
     // Set up real-time subscription for employee data changes
     let channel: any = null;
@@ -53,6 +53,7 @@ export const EmployeeManagement: React.FC<{
       }, () => {
         logger.info('Video assignment changed, refreshing employees...');
         loadEmployees();
+        loadHiddenEmployees();
       }).on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -60,6 +61,7 @@ export const EmployeeManagement: React.FC<{
       }, () => {
         logger.info('Employee changed, refreshing data...');
         loadEmployees();
+        loadHiddenEmployees();
       }).on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -193,36 +195,71 @@ export const EmployeeManagement: React.FC<{
     setSelectedEmployee(employee);
     setShowAssignModal(true);
   }, []);
-  const handleDeleteEmployee = async () => {
-    if (!deleteConfirmEmployee) return;
-    setIsDeleting(true);
+
+  const loadHiddenEmployees = useCallback(async () => {
     try {
-      const result = await employeeOperations.delete(deleteConfirmEmployee.id);
-      if (result.success) {
-        setEmployees(prev => {
-          const updated = prev.filter(emp => emp.id !== deleteConfirmEmployee.id);
-          onCountChange?.(updated.length);
-          return updated;
-        });
-        setDeleteConfirmEmployee(null);
-        toast({
-          title: "Success",
-          description: "Employee deleted successfully"
-        });
-      } else {
-        throw new Error(result.error || 'Failed to delete employee');
+      const result = await employeeOperations.getHidden();
+      if (result.success && result.data) {
+        const transformedEmployees: EmployeeWithAssignments[] = result.data.map((employee: any) => ({
+          id: employee.id,
+          email: employee.email,
+          full_name: createSafeDisplayName(employee.name || '', employee.email || ''),
+          created_at: employee.created_at || new Date().toISOString(),
+          updated_at: employee.updated_at || new Date().toISOString(),
+          assignments: employee.assignments || []
+        }));
+        setHiddenEmployees(transformedEmployees);
       }
     } catch (error) {
-      logger.error('Error deleting employee', error as Error);
+      logger.error('Error loading hidden employees', error as Error);
+    }
+  }, []);
+
+  const handleHideEmployee = useCallback(async (employee: EmployeeWithAssignments) => {
+    try {
+      const result = await employeeOperations.hide(employee.id);
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: `${employee.full_name || employee.email} has been hidden`
+        });
+        loadEmployees();
+        loadHiddenEmployees();
+      } else {
+        throw new Error(result.error || 'Failed to hide employee');
+      }
+    } catch (error) {
+      logger.error('Error hiding employee', error as Error);
       toast({
         title: "Error",
-        description: "Failed to delete employee",
+        description: "Failed to hide employee",
         variant: "destructive"
       });
-    } finally {
-      setIsDeleting(false);
     }
-  };
+  }, [toast, loadEmployees, loadHiddenEmployees]);
+
+  const handleShowEmployee = useCallback(async (employee: EmployeeWithAssignments) => {
+    try {
+      const result = await employeeOperations.show(employee.id);
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: `${employee.full_name || employee.email} is now visible`
+        });
+        loadEmployees();
+        loadHiddenEmployees();
+      } else {
+        throw new Error(result.error || 'Failed to show employee');
+      }
+    } catch (error) {
+      logger.error('Error showing employee', error as Error);
+      toast({
+        title: "Error",
+        description: "Failed to show employee",
+        variant: "destructive"
+      });
+    }
+  }, [toast, loadEmployees, loadHiddenEmployees]);
   const handleSort = useCallback((column: 'name') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -465,9 +502,14 @@ export const EmployeeManagement: React.FC<{
                         <Button variant="outline" size="sm" onClick={() => handleAssignVideos(employee)} aria-label={`Edit assignments for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}>
                           Edit Assignments
                         </Button>
-                        <IconButtonWithTooltip icon={Trash2} tooltip={getTooltipText('delete-item', {
-                    name: sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')
-                  })} onClick={() => setDeleteConfirmEmployee(employee)} variant="ghost" className="text-destructive hover:text-destructive" />
+                        <IconButtonWithTooltip 
+                          icon={EyeOff} 
+                          tooltip={getTooltipText('hide-employee')} 
+                          onClick={() => handleHideEmployee(employee)} 
+                          variant="ghost" 
+                          className="text-muted-foreground hover:text-foreground" 
+                          ariaLabel={`Hide ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>)}
@@ -476,26 +518,78 @@ export const EmployeeManagement: React.FC<{
           </CardContent>
         </Card>}
 
+      {/* Hidden Employees Section */}
+      {hiddenEmployees.length > 0 && (
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="hidden" className="border-0">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/30 [&>svg]:hidden group">
+              <div className="flex items-center gap-3 w-full">
+                <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
+                <EyeOff className="w-5 h-5 text-muted-foreground" />
+                <span className="text-lg font-semibold">Hidden Employees</span>
+                <Badge variant="soft-destructive" className="ml-2">
+                  {hiddenEmployees.length}
+                </Badge>
+                <div className="ml-auto">
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                    Hidden employees remain functional with active assignments
+                  </span>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pb-6">
+              <Card className="shadow-md">
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead className="w-32 text-center">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {hiddenEmployees.map(employee => (
+                          <TableRow key={employee.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium text-sm">
+                                  {sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}
+                                </div>
+                                {employee.email && (
+                                  <div className="text-xs text-muted-foreground">
+                                    {sanitizeText(employee.email)}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex justify-center">
+                                <IconButtonWithTooltip 
+                                  icon={Eye} 
+                                  tooltip={getTooltipText('show-employee')} 
+                                  onClick={() => handleShowEmployee(employee)} 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-muted-foreground hover:text-foreground" 
+                                  ariaLabel={`Show ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')} in main list`} 
+                                />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+
       <AddEmployeeModal open={showAddModal} onOpenChange={setShowAddModal} onEmployeeAdded={handleAddEmployee} />
 
       <AssignVideosModal open={showAssignModal} onOpenChange={setShowAssignModal} employee={selectedEmployee} onAssignmentComplete={loadEmployees} />
-
-      <AlertDialog open={!!deleteConfirmEmployee} onOpenChange={() => setDeleteConfirmEmployee(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Employee</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete {deleteConfirmEmployee?.full_name || deleteConfirmEmployee?.email}? 
-              This will also remove all their video assignments and progress. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteEmployee} disabled={isDeleting}>
-              {isDeleting ? 'Deleting...' : 'Delete Employee'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>;
 };

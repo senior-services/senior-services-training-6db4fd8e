@@ -521,6 +521,115 @@ export const employeeOperations = {
     } finally {
       performanceTracker.end(operation);
     }
+  },
+
+  async getHidden(): Promise<ApiResult<EmployeeWithAssignments[]>> {
+    const operation = 'employee.getHidden';
+    performanceTracker.start(operation);
+    
+    try {
+      const { data: employeeAssignments, error } = await supabase
+        .rpc('get_hidden_employee_assignments');
+
+      if (error) {
+        logger.error('Failed to fetch hidden employees', undefined, { supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      const result: EmployeeWithAssignments[] = employeeAssignments?.map((emp: any) => {
+        const assignments = Array.isArray(emp.assignments) ? emp.assignments : [];
+        const completedVideos = assignments.filter((a: any) => a.progress_percent === 100).length;
+        const totalVideos = assignments.length;
+        
+        return {
+          id: emp.employee_id,
+          name: emp.employee_full_name || emp.employee_email?.split('@')[0] || 'Unknown',
+          email: emp.employee_email || '',
+          requiredProgress: 0,
+          completedVideos,
+          totalVideos,
+          status: employeeOperations.calculateStatus(completedVideos, totalVideos),
+          assignments,
+          created_at: emp.created_at,
+          updated_at: emp.updated_at,
+          archived_at: emp.archived_at
+        };
+      }) || [];
+
+      logger.info('Hidden employees fetched successfully', { count: result.length });
+      return { data: result, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error fetching hidden employees', error as Error);
+      return { data: null, error: 'Failed to fetch hidden employees', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async archive(employeeId: string): Promise<ApiResult<boolean>> {
+    const operation = 'employee.archive';
+    performanceTracker.start(operation);
+    
+    try {
+      const { error } = await supabase
+        .from('employees')
+        .update({ archived_at: new Date().toISOString() })
+        .eq('id', employeeId);
+
+      if (error) {
+        logger.error('Failed to archive employee', undefined, { employeeId, supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Employee archived successfully', { employeeId });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error archiving employee', error as Error, { employeeId });
+      return { data: null, error: 'Failed to archive employee', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  async unarchive(employeeId: string): Promise<ApiResult<boolean>> {
+    const operation = 'employee.unarchive';
+    performanceTracker.start(operation);
+    
+    try {
+      const { error } = await supabase
+        .from('employees')
+        .update({ archived_at: null })
+        .eq('id', employeeId);
+
+      if (error) {
+        logger.error('Failed to unarchive employee', undefined, { employeeId, supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Employee unarchived successfully', { employeeId });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error unarchiving employee', error as Error, { employeeId });
+      return { data: null, error: 'Failed to unarchive employee', success: false };
+    } finally {
+      performanceTracker.end(operation);
+    }
+  },
+
+  // ============ SEMANTIC WRAPPER METHODS FOR HIDE/SHOW ============
+  
+  /**
+   * Hides an employee from the main list (semantic wrapper for archive)
+   */
+  async hide(employeeId: string): Promise<ApiResult<boolean>> {
+    return this.archive(employeeId);
+  },
+
+  /**
+   * Shows a hidden employee in the main list (semantic wrapper for unarchive)
+   */
+  async show(employeeId: string): Promise<ApiResult<boolean>> {
+    return this.unarchive(employeeId);
   }
 };
 

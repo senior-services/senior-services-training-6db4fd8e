@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       employees: {
         Row: {
+          archived_at: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -23,6 +24,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -30,6 +32,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archived_at?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -498,6 +501,16 @@ export type Database = {
         Returns: {
           option_id: string
           question_id: string
+        }[]
+      }
+      get_hidden_employee_assignments: {
+        Args: never
+        Returns: {
+          archived_at: string
+          assignments: Json
+          employee_email: string
+          employee_full_name: string
+          employee_id: string
         }[]
       }
       get_safe_quiz_options: {
