@@ -47,27 +47,21 @@ export const DownloadDataModal: React.FC<DownloadDataModalProps> = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Download Employee Data</DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            Choose which employees to include in the export.
-          </p>
         </DialogHeader>
 
-        <div className="flex items-center justify-between py-4">
-          <div className="space-y-0.5">
-            <Label htmlFor={switchId} className="text-base cursor-pointer">
-              Include hidden employees
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              {hiddenCount} hidden {hiddenCount === 1 ? 'employee' : 'employees'} will be added
-            </p>
-          </div>
+        <div className="flex items-center gap-3 py-4">
           <Switch
             id={switchId}
             checked={includeHidden}
             onCheckedChange={setIncludeHidden}
             disabled={isLoading}
-            aria-describedby={`${switchId}-description`}
           />
+          <Label htmlFor={switchId} className="text-base cursor-pointer flex-1">
+            Include hidden employees
+          </Label>
+          <span className="text-sm text-muted-foreground">
+            &lt;{hiddenCount}&gt;
+          </span>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
