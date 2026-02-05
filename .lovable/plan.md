@@ -1,64 +1,67 @@
 
-# Plan: Simplify Cancel Admin Invitation Dialog
+# Plan: Fix Missing Course Titles in Employee Data Export
 
-## Current State
+## The Problem
 
-When cancelling a pending admin invitation, the dialog shows:
-- A question asking if you want to cancel
-- A bulleted list with "Cancel their pending admin invitation"
-- A bold statement about the invitation being permanently cancelled
+When you download the employee data Excel file, 4 course titles show up as blank even though the other data (status, due date, completion date, quiz results) is present. These courses are:
+- YT: Information Security and Data Privacy
+- YT: Time Management and Productivity Best Practices  
+- YT: Timekeeping and Attendance
+- YT: Workplace Safety and Emergency Procedures
 
-This is overly verbose for a simple action.
+## Root Cause
 
-## What Changes
+All 4 courses are **hidden** (archived) in the system. The database function that retrieves employee assignments has a bug - it only joins video titles when the video is NOT hidden:
 
-**File: `src/components/dashboard/AdminManagement.tsx`**
-
-Simplify the dialog description for pending invitations to show only:
-
-> "Are you sure you want to cancel the invitation for **email@example.com**? The invitation will be permanently cancelled."
-
-The dialog for removing existing admins (non-pending) will remain unchanged since that action has more consequences worth explaining.
-
-## How It Will Work
-
-| Admin Type | Dialog Message |
-|------------|----------------|
-| Pending invitation | "Are you sure you want to cancel the invitation for **{email}**? The invitation will be permanently cancelled." |
-| Active admin | (unchanged) Full list of consequences |
-
-## Changes
-
-**Lines 373-389** - Replace the complex conditional description with a simpler version:
-
-```jsx
-<AlertDialogDescription>
-  {deleteConfirmAdmin?.isPending ? (
-    <>
-      Are you sure you want to cancel the invitation for <strong>{deleteConfirmAdmin?.email}</strong>? The invitation will be permanently cancelled.
-    </>
-  ) : (
-    <>
-      Are you sure you want to remove admin privileges from "{deleteConfirmAdmin?.email}"?
-      <br />
-      <br />
-      This will:
-      <ul className="list-disc list-inside mt-2 space-y-1">
-        <li>Remove their admin access to the system</li>
-        <li>Restrict them to employee-level permissions</li>
-        <li>Prevent them from managing other users</li>
-      </ul>
-      <br />
-      <strong>
-        This action can be reversed by adding them as an admin again.
-      </strong>
-    </>
-  )}
-</AlertDialogDescription>
+```sql
+LEFT JOIN videos v ON va.video_id = v.id AND v.archived_at IS NULL
 ```
 
-## Summary
+This causes hidden video titles to come back as `NULL`, resulting in blank course names in the export.
 
-| File | Change |
+---
+
+## The Fix
+
+Modify the database function `get_all_employee_assignments` to include video titles regardless of whether the video is hidden. The JOIN should fetch the video title in all cases.
+
+**Change this line:**
+```sql
+LEFT JOIN videos v ON va.video_id = v.id AND v.archived_at IS NULL
+```
+
+**To this:**
+```sql
+LEFT JOIN videos v ON va.video_id = v.id
+```
+
+This ensures employees still see their assigned courses (and admins see them in exports) even when the video has been hidden from the main course list.
+
+---
+
+## Why This Is Correct
+
+According to the system design (noted in the hidden videos section of the UI):
+> "Hidden videos remain functional for employees with assignments"
+
+This means hidden videos should still appear in:
+- Employee dashboards (for those with existing assignments)
+- Admin reports and data exports
+
+---
+
+## Database Change Required
+
+| Type | Change |
 |------|--------|
-| `src/components/dashboard/AdminManagement.tsx` | Simplify pending invitation cancellation message (lines 373-389) |
+| Database Migration | Modify `get_all_employee_assignments` function to remove `AND v.archived_at IS NULL` from the videos JOIN |
+
+## Files Modified
+
+None - this is a database-only fix.
+
+---
+
+## Expected Result
+
+After the fix, the Excel export will show all course titles including hidden ones, matching the complete data that already exists in the database.
