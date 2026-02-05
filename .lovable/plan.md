@@ -1,71 +1,70 @@
 
 
-## Add New Background Tokens to Components Gallery
+## Update Header Background and Table Header Styling
 
 ### Summary
 
-Update the Color Palette section in the Components Gallery to display the newly added background tokens and reflect the rename from `--background` to `--background-main`.
+1. Update the site Header component to use the new `--background-header` token
+2. Remove the `--muted` entry from the UI Colors section in Components Gallery
+3. Add `bg-muted` background to table headers (both the base component and Components Gallery examples)
 
 ---
 
 ### Changes Required
 
-**File:** `src/pages/ComponentsGallery.tsx`
+#### 1. Update Header Component
 
-#### Update UI Colors Section (Lines 347-373)
+**File:** `src/components/Header.tsx` - Line 21
 
-Replace the current "Background" entry and add the new tokens:
+| Before | After |
+|--------|-------|
+| `bg-background` | `bg-background-header` |
 
-| Token | Class | Description |
-|-------|-------|-------------|
-| --background-main | `bg-background-main` | Main page background (renamed from --background) |
-| --background-header | `bg-background-header` | Deep navy for headers |
-| --background-primary | `bg-background-primary` | Deep blue (matches primary) |
-| --background-muted | `bg-background-muted` | Light blue tint |
-| --card | `bg-card` | Card background (existing) |
-| --muted | `bg-muted` | Muted background (existing) |
+Since `--background-header` is a dark navy color (`207 55% 25%`), text colors will also need to be updated for contrast:
+
+| Element | Current Class | New Class |
+|---------|--------------|-----------|
+| "Learning Hub" title | `text-primary` | `text-primary-foreground` |
+| Admin subtitle | `text-[hsl(var(--admin-highlight))]` | Keep as-is (yellow/orange highlights work on dark) |
+| Employee subtitle | `text-muted-foreground` | `text-primary-foreground/70` |
+| User name | `text-foreground` | `text-primary-foreground` |
+| User icon container | `bg-primary` | `bg-primary-foreground` |
+| User icon | `text-primary-foreground` | `text-primary` |
+| Chevron | `text-muted-foreground` | `text-primary-foreground/70` |
 
 ---
 
-### Updated UI Colors Section
+#### 2. Remove --muted from UI Colors
 
-```jsx
-{/* UI Colors */}
-<div className="space-y-3">
-  <h4 className="text-sm font-bold uppercase text-secondary">UI Colors</h4>
-  <div className="space-y-2">
-    <div className="flex items-center gap-3">
-      <div className="w-12 h-12 rounded-lg bg-background-main border border-border-primary shadow-md"></div>
-      <div>
-        <div className="text-sm font-medium">Background Main</div>
-        <div className="text-xs text-muted-foreground">--background-main</div>
-      </div>
-    </div>
-    <div className="flex items-center gap-3">
-      <div className="w-12 h-12 rounded-lg bg-background-header border border-border-primary shadow-md"></div>
-      <div>
-        <div className="text-sm font-medium">Background Header</div>
-        <div className="text-xs text-muted-foreground">--background-header</div>
-      </div>
-    </div>
-    <div className="flex items-center gap-3">
-      <div className="w-12 h-12 rounded-lg bg-background-primary border border-border-primary shadow-md"></div>
-      <div>
-        <div className="text-sm font-medium">Background Primary</div>
-        <div className="text-xs text-muted-foreground">--background-primary</div>
-      </div>
-    </div>
-    <div className="flex items-center gap-3">
-      <div className="w-12 h-12 rounded-lg bg-background-muted border border-border-primary shadow-md"></div>
-      <div>
-        <div className="text-sm font-medium">Background Muted</div>
-        <div className="text-xs text-muted-foreground">--background-muted</div>
-      </div>
-    </div>
-    {/* Existing Card and Muted entries remain */}
-  </div>
-</div>
-```
+**File:** `src/pages/ComponentsGallery.tsx` - Lines 386-392
+
+Delete the `--muted` color swatch entry entirely.
+
+---
+
+#### 3. Add bg-muted to TableHeader Component
+
+**File:** `src/components/ui/table.tsx` - Line 23
+
+| Before | After |
+|--------|-------|
+| `[&_tr]:border-b` | `bg-muted [&_tr]:border-b` |
+
+---
+
+#### 4. Update Components Gallery Tables
+
+**File:** `src/pages/ComponentsGallery.tsx`
+
+Add `className="bg-muted"` to all TableHeader components:
+
+| Line | Change |
+|------|--------|
+| 1033 | Add `className="bg-muted"` to TableHeader |
+| 1083 | Add `className="bg-muted"` to TableHeader |
+| 1166 | Add `className="bg-muted"` to TableHeader |
+| 1247 | Add `className="bg-muted"` to TableHeader |
+| 1329 | Add `className="bg-muted"` to TableHeader |
 
 ---
 
@@ -73,17 +72,15 @@ Replace the current "Background" entry and add the new tokens:
 
 | File | Change |
 |------|--------|
-| `src/pages/ComponentsGallery.tsx` | Update UI Colors section to include all 4 new background tokens |
+| `src/components/Header.tsx` | Use `bg-background-header` and update text colors for contrast |
+| `src/components/ui/table.tsx` | Add `bg-muted` to TableHeader base component |
+| `src/pages/ComponentsGallery.tsx` | Remove `--muted` swatch, add `bg-muted` to all TableHeader examples |
 
 ---
 
 ### Visual Result
 
-The UI Colors section will display 6 background-related swatches:
-1. **Background Main** - White (light) / Dark navy (dark)
-2. **Background Header** - Deep navy rgb(29, 69, 100)
-3. **Background Primary** - Deep blue rgb(23, 101, 161)
-4. **Background Muted** - Light blue tint rgb(218, 233, 245)
-5. **Card** - Card surface color
-6. **Muted** - Muted surface color
+- **Header**: Dark navy background matching the new `--background-header` token with white text
+- **Tables**: All table headers will have a subtle muted background for better visual hierarchy
+- **UI Colors Section**: Cleaner list without the redundant `--muted` entry (still exists in the design system, just not shown in UI Colors)
 
