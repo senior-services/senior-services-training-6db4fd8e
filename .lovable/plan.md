@@ -1,47 +1,42 @@
 
 
-# Plan: Simplify Header Right Side with Review Fixes
+# Plan: Update Logout Link Styling
 
 ## Change
 
-### File: `src/components/Header.tsx`
+### File: `src/components/Header.tsx` (lines 49-56)
 
-Replace the dropdown menu section (right side) with an inline layout, incorporating all review feedback.
+Update the Logout button to use the `link` variant with solid white text, underline on hover, and remove the LogOut icon.
 
-**Remove imports**: `DropdownMenu`, `DropdownMenuContent`, `DropdownMenuItem`, `DropdownMenuTrigger`, `ChevronDown`
-
-**Keep imports**: `Button`, `User`, `LogOut`
-
-**Replace lines 44-71** (the right side section) with:
-
+**Before:**
 ```tsx
-<div className="flex items-center space-x-3">
-  <div className="w-8 h-8 rounded-full bg-primary-foreground flex items-center justify-center">
-    <User className="w-4 h-4 text-primary" />
-  </div>
-  <span className="hidden sm:inline text-sm font-medium text-primary-foreground">{userName}</span>
-  <span className="text-primary-foreground/40" aria-hidden="true">|</span>
-  <Button
-    variant="ghost"
-    size="sm"
-    onClick={onLogout}
-    className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-transparent px-1"
-  >
-    <LogOut className="w-4 h-4 mr-1" />
-    Logout
-  </Button>
-</div>
+<Button
+  variant="ghost"
+  size="sm"
+  onClick={onLogout}
+  className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-transparent px-1"
+>
+  <LogOut className="w-4 h-4 mr-1" />
+  Logout
+</Button>
 ```
 
-Key details:
-- Profile name hidden on mobile (`hidden sm:inline`), visible on tablet and up
-- Pipe separator has `aria-hidden="true"` so screen readers skip it
-- Logout uses the design system `Button` with `ghost` variant
-- `LogOut` icon added for visual clarity
-- Works for both admin and employee dashboards (same shared `Header` component)
+**After:**
+```tsx
+<Button
+  variant="link"
+  size="sm"
+  onClick={onLogout}
+  className="text-primary-foreground hover:text-primary-foreground p-0"
+>
+  Logout
+</Button>
+```
+
+Also remove the `LogOut` icon from the lucide-react import since it's no longer used.
 
 ## Summary
 
-- 1 file changed
-- No new dependencies, no database changes
+- 1 file, 2 small edits (import cleanup + button update)
+- Solid white text, underline on hover (built into the `link` variant), no icon
 
