@@ -39,6 +39,7 @@ export interface TrainingVideo {
   video_url?: string | null;
   thumbnail_url?: string | null;
   video_file_name?: string | null;
+  quizPending?: boolean;
   quizSummary?: {
     correct: number;
     total: number;
