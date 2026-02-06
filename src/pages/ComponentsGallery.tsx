@@ -1675,8 +1675,9 @@ export const ComponentsGallery = ({
               <CardTitle>Training Cards</CardTitle>
               <CardDescription>Cards used on the employee dashboard to display assigned training content with progress, due dates, and quiz status</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <CardContent className="space-y-8">
+              {/* Example cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
                 <TrainingCard
                   video={{
                     id: "demo-not-started",
@@ -1691,29 +1692,6 @@ export const ComponentsGallery = ({
                 />
                 <TrainingCard
                   video={{
-                    id: "demo-in-progress",
-                    title: "Fire Evacuation Procedures",
-                    description: "Learn the correct evacuation routes and assembly points.",
-                    thumbnail: "/placeholder.svg",
-                    duration: "15:00",
-                    progress: 45,
-                  }}
-                  onPlay={() => toast({ title: "Training Card", description: "Playing: Fire Evacuation Procedures" })}
-                />
-                <TrainingCard
-                  video={{
-                    id: "demo-quiz-pending",
-                    title: "Hazard Communication",
-                    description: "Understanding chemical labels and safety data sheets.",
-                    thumbnail: "/placeholder.svg",
-                    duration: "8:00",
-                    progress: 100,
-                    quizPending: true,
-                  }}
-                  onPlay={() => toast({ title: "Training Card", description: "Playing: Hazard Communication" })}
-                />
-                <TrainingCard
-                  video={{
                     id: "demo-completed",
                     title: "PPE Requirements",
                     description: "Proper selection and use of personal protective equipment.",
@@ -1724,6 +1702,104 @@ export const ComponentsGallery = ({
                   }}
                   onPlay={() => toast({ title: "Training Card", description: "Playing: PPE Requirements" })}
                 />
+              </div>
+
+              <Separator />
+
+              {/* Badge Rules Reference */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Badge Rules Reference</h3>
+
+                {/* Status Badges */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Status Badges</h4>
+                  <p className="text-sm text-muted-foreground">Displayed in the top-right corner of the card, based on completion status and due date.</p>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[180px]">Badge</TableHead>
+                        <TableHead>Appears When</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell><Badge variant="success" className="gap-1"><CheckCircle className="w-3 h-3" />Completed</Badge></TableCell>
+                        <TableCell className="text-sm">Training is 100% complete</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><Badge variant="destructive" className="gap-1"><AlertCircle className="w-3 h-3" />Overdue</Badge></TableCell>
+                        <TableCell className="text-sm">Due date has passed and training is not 100% done</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><Badge variant="warning">Due Today</Badge></TableCell>
+                        <TableCell className="text-sm">Due date is today and training is not 100% done</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><Badge variant="secondary">Due in X days</Badge></TableCell>
+                        <TableCell className="text-sm">Due within 30 days, training not done</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><Badge variant="secondary">Due MMM d</Badge></TableCell>
+                        <TableCell className="text-sm">Due date is 30+ days away, training not done</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><span className="text-sm text-muted-foreground italic">No badge</span></TableCell>
+                        <TableCell className="text-sm">No due date set and not completed</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Quiz Score Badges */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Quiz Score Badges</h4>
+                  <p className="text-sm text-muted-foreground">Displayed below the title when training is completed and quiz data is available.</p>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[180px]">Badge</TableHead>
+                        <TableHead>Appears When</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell><Badge variant="soft-success">Quiz: 90% (9/10)</Badge></TableCell>
+                        <TableCell className="text-sm">Score is 80% or above</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><Badge variant="soft-warning">Quiz: 70% (7/10)</Badge></TableCell>
+                        <TableCell className="text-sm">Score is 60–79%</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><Badge variant="soft-destructive">Quiz: 40% (4/10)</Badge></TableCell>
+                        <TableCell className="text-sm">Score is below 60%</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Other Indicators */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Other Indicators</h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[180px]">Indicator</TableHead>
+                        <TableHead>Appears When</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell><Badge variant="ghost-attention">Quiz Pending</Badge></TableCell>
+                        <TableCell className="text-sm">Video watched but quiz not yet taken (<code className="text-xs bg-muted px-1 py-0.5 rounded">quizPending: true</code>)</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell><span className="text-sm font-medium">Progress bar</span></TableCell>
+                        <TableCell className="text-sm">Always shown; color shifts based on completion percentage</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </CardContent>
           </Card>
