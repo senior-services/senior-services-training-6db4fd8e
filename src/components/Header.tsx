@@ -32,7 +32,7 @@ export const Header = ({
                   <span className="font-bold">Learning Hub</span>{' '}
                   <span className="font-normal">/ {userRole === 'admin' ? 'Admin' : 'Employee'} Dashboard</span>
                   {userRole === 'admin' && (
-                    <Badge variant="soft-attention" showIcon className="ml-2 text-xs align-middle">
+                    <Badge variant="attention" showIcon className="ml-2 text-xs align-middle">
                       Admin
                     </Badge>
                   )}
