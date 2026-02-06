@@ -76,6 +76,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   const [quizAttemptsByVideo, setQuizAttemptsByVideo] = useState<Record<string, QuizAttemptWithDetails | undefined>>(
     {},
   );
+  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -126,6 +127,14 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             logger.error("Failed to load quiz attempts", error as Error);
             // Don't fail the entire load if quiz attempts fail
             setQuizAttemptsByVideo({});
+          }
+
+          // Fetch which videos have quizzes (same pattern as admin dashboard)
+          try {
+            const { data: quizzesData } = await supabase.from("quizzes").select("video_id");
+            setVideoIdsWithQuizzes(new Set(quizzesData?.map(q => q.video_id) || []));
+          } catch (error) {
+            logger.warn("Failed to load quiz video IDs", { error });
           }
 
           // Data reconciliation: Update video_progress for completed quizzes
@@ -231,23 +240,37 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           }
         : undefined;
 
-      // Calculate effective progress: if quiz completed, force 100%, otherwise use assignment progress
-      let effectiveProgress = assignment?.completed_at
-        ? 100
-        : Math.max(0, Math.min(100, assignment?.progress_percent || 0));
-      let effectiveCompletedAt = assignment?.completed_at;
+      // Quiz-aware completion logic (aligned with admin dashboard)
+      const videoMarkedComplete = assignment?.completed_at || assignment?.progress_percent === 100;
+      const hasQuiz = videoIdsWithQuizzes.has(video.id);
+      const quizDone = quizAttemptsByVideo[video.id] != null;
 
-      // If quiz attempt exists, consider video as completed
-      if (quizAttempt) {
-        effectiveProgress = 100;
-        effectiveCompletedAt = effectiveCompletedAt || quizAttempt.completed_at;
+      let effectiveProgress: number;
+      let effectiveCompletedAt: string | null = assignment?.completed_at ?? null;
+      let quizPending = false;
+
+      if (hasQuiz) {
+        if (videoMarkedComplete && quizDone) {
+          effectiveProgress = 100;
+          effectiveCompletedAt = effectiveCompletedAt || quizAttemptsByVideo[video.id]?.completed_at || null;
+        } else {
+          effectiveProgress = Math.max(0, Math.min(100, assignment?.progress_percent || 0));
+          effectiveCompletedAt = null;
+          if (videoMarkedComplete && !quizDone) {
+            quizPending = true;
+          }
+        }
+      } else {
+        effectiveProgress = videoMarkedComplete
+          ? 100
+          : Math.max(0, Math.min(100, assignment?.progress_percent || 0));
       }
 
       return {
         id: video.id,
         title: sanitizeText(video.title || "Untitled Video"),
         description: sanitizeText(video.description || ""),
-        thumbnail: video.thumbnail_url || "", // Use actual thumbnail_url from database
+        thumbnail: video.thumbnail_url || "",
         duration: formatSeconds(video.duration_seconds || 0),
         progress: effectiveProgress,
         isRequired: video.type === "Required",
@@ -257,10 +280,11 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         video_url: video.video_url,
         thumbnail_url: video.thumbnail_url,
         video_file_name: video.video_file_name,
+        quizPending,
         quizSummary,
       };
     },
-    [userEmail, quizAttemptsByVideo],
+    [userEmail, quizAttemptsByVideo, videoIdsWithQuizzes],
   );
 
   // Enhanced training data processing with comprehensive statistics
