@@ -1,59 +1,66 @@
 
 
-# Update Training Cards Gallery Section
+# Fix: Transparent Background on Training Video Dialog
 
-## What Changes
+## The Problem
 
-Simplify the Training Cards section in the Component Gallery from 4 example cards down to **2 cards** (one incomplete, one completed), and add a **badge rules reference** documenting all possible badge states and when they appear.
+When you open a training video from the employee dashboard, the popup window appears see-through -- the page behind shows through, making text unreadable.
 
-## Changes (1 file: `src/pages/ComponentsGallery.tsx`)
+## Root Cause
 
-### 1. Reduce example cards to 2
+The video player dialog puts `overflow-y-auto` directly on the outer dialog container. This conflicts with the dialog's built-in layout system and causes content to spill outside the area where the background color is painted. The dialog already has a built-in scrollable area component (`DialogScrollArea`) designed for exactly this purpose, but it's not being used here.
 
-Replace the current 4-card grid with 2 cards side by side:
+Additionally, the dialog redundantly sets `max-h-[90vh]` even though the base dialog component already includes that constraint, creating a double-constraint that compounds the layout issue.
 
-- **Not Started** -- 0% progress, due date set (shows a "Due in X days" badge)
-- **Completed** -- 100% progress with quiz summary (shows green "Completed" badge + quiz score badge)
+## The Fix (1 file)
 
-### 2. Add badge rules reference below the cards
+### `src/components/VideoPlayerFullscreen.tsx`
 
-A clearly formatted reference section documenting every badge state the TrainingCard can display, grouped into two categories:
+**Line 445** -- Remove the conflicting classes from DialogContent:
 
-**Status Badges** (top-right of card, based on due date and completion):
+Change:
+```
+className="max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto"
+```
+To:
+```
+className="max-w-6xl w-[95vw]"
+```
 
-| Badge | Appears When | Style |
-|---|---|---|
-| Completed | Training is 100% done | Green (success) |
-| Overdue | Due date has passed, not 100% done | Red (destructive) |
-| Due Today | Due date is today, not 100% done | Amber (warning) |
-| Due in X days | Due within 30 days, not 100% done | Gray (secondary) |
-| Due MMM d | Due date is 30+ days away, not 100% done | Gray (secondary) |
-| No badge | No due date set and not completed | -- |
+**Lines 463-549** -- Wrap the main content area in `DialogScrollArea` instead of a plain `<div>`:
 
-**Quiz Score Badges** (below title, only when training is completed with quiz data):
+Change:
+```
+<div>
+  {/* description, video player, quiz, etc. */}
+</div>
+```
+To:
+```
+<DialogScrollArea>
+  {/* description, video player, quiz, etc. */}
+</DialogScrollArea>
+```
 
-| Badge | Appears When | Style |
-|---|---|---|
-| Quiz: X% (N/M) | Score is 80% or above | Soft green |
-| Quiz: X% (N/M) | Score is 60-79% | Soft amber |
-| Quiz: X% (N/M) | Score is below 60% | Soft red |
+This requires importing `DialogScrollArea` -- it's already exported from the dialog component but not currently imported in this file (line 2).
 
-**Other Indicators:**
+## Why This Works
 
-| Indicator | Appears When |
-|---|---|
-| Quiz Pending label | `quizPending: true` -- video watched but quiz not taken |
-| Progress bar | Always shown; color shifts based on completion percentage |
+- The base dialog already constrains its height to 90% of the screen and uses a flex column layout
+- `DialogScrollArea` is specifically designed to be the scrollable middle section -- it has `overflow-y-auto`, `flex-1`, and `min-h-0` so it fills available space between the header and footer while keeping scrolling contained
+- The header and footer stay fixed in place; only the middle content scrolls
+- The background color stays fully painted because nothing overflows the dialog boundary
 
-This reference section uses existing design-system primitives (Badge components rendered inline as visual examples alongside the rule text) so the styles are shown, not just described.
+## What Won't Change
 
-### Summary
+- No visual changes beyond fixing the transparency
+- No new components or dependencies
+- Video playback, quiz flow, and all interactions remain identical
+- The `VideoPlayerModal` (admin preview) already uses `DialogScrollArea` correctly and needs no changes
 
 | Item | Detail |
 |---|---|
-| Files changed | 1 (`ComponentsGallery.tsx`) |
-| Example cards | 2 (down from 4) |
-| Badge rules reference | Added below cards |
-| New components | None |
-| New dependencies | None |
+| Files changed | 1 (`VideoPlayerFullscreen.tsx`) |
+| Lines changed | ~3 (remove 2 classes, swap 1 wrapper tag, add 1 import) |
+| Risk | Low -- uses the same pattern already working in `VideoPlayerModal` |
 
