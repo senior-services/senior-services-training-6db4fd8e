@@ -1,25 +1,23 @@
 
 
-# Implement Two Styling Updates
+# Push Action Buttons to Bottom of Training Cards
 
-## 1. Change standard due date badges from `soft-secondary` to `soft-primary`
+## What changes
 
-In `src/components/TrainingCard.tsx`, update 3 occurrences:
-- **Line 182**: `'soft-secondary'` to `'soft-primary'` (due within 7 days)
-- **Line 191**: `'soft-secondary'` to `'soft-primary'` (due within 30 days)
-- **Line 205**: `'soft-secondary'` to `'soft-primary'` (due beyond 30 days)
+When training cards have different title lengths or descriptions, the action buttons ("Start Training", "Continue Training", "Review Training") should always sit at the bottom of the card, keeping all cards in a row visually aligned.
 
-## 2. Stack completed footer items vertically
+## How
 
-In `src/components/TrainingCard.tsx`, **line 327**: change the container class from `flex items-center justify-between` to `flex flex-col gap-1` so the completion date and quiz score appear on separate lines.
+A single class addition on the `CardFooter` elements in `src/components/TrainingCard.tsx`:
 
-## 3. Update Component Gallery
+- **Line 326** (completed footer): add `mt-auto` to the existing classes
+- **Line 346** (non-completed footer): add `mt-auto` to the existing classes
 
-In `src/pages/ComponentsGallery.tsx`, update the Badge Rules Reference table to reflect `soft-primary` for standard due date badges.
+The card already uses `h-full flex flex-col`, so adding `mt-auto` to the footer pushes it down to fill any remaining space.
 
 | Item | Detail |
 |---|---|
-| Files changed | 2 |
-| Lines changed | 5 |
-| Risk | Very low -- styling only |
+| Files changed | 1 |
+| Lines changed | 2 |
+| Risk | Very low -- one utility class addition per footer |
 
