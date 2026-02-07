@@ -1754,7 +1754,7 @@ export const ComponentsGallery = ({
                 {/* Quiz Score Badges */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Quiz Score Badges</h4>
-                  <p className="text-sm text-muted-foreground">Displayed in the card footer when training is completed and quiz data is available.</p>
+                  <p className="text-sm text-muted-foreground">Displayed below the description when training is completed and quiz data is available.</p>
                   <Table>
                     <TableHeader>
                       <TableRow>

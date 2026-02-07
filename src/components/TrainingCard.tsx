@@ -8,7 +8,7 @@ import React, { memo, useMemo, useCallback, useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, Play, AlertCircle, CheckCircle, ClipboardList } from 'lucide-react';
+import { Calendar, Clock, Play, AlertCircle, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, differenceInDays, isPast } from 'date-fns';
 
@@ -295,7 +295,19 @@ export const TrainingCard = memo<TrainingCardProps>(({
         {/* Card Content with Semantic HTML */}
         <CardHeader className="pb-3 pt-3 flex-none">
           {/* Status Badge - above title */}
-          {dueDateInfo && (
+          {dueDateInfo && dueDateInfo.text === 'Completed' && (
+            <div className="mb-1 flex items-center gap-2">
+              <Badge variant={dueDateInfo.variant} className={cn('text-xs font-medium', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
+                {dueDateInfo.text}
+              </Badge>
+              {sanitizedVideo.completedAt && (
+                <span className="text-xs text-muted-foreground">
+                  {format(new Date(sanitizedVideo.completedAt), 'MMM d, yyyy')}
+                </span>
+              )}
+            </div>
+          )}
+          {dueDateInfo && dueDateInfo.text !== 'Completed' && (
             <div className="mb-1">
               <Badge variant={dueDateInfo.variant} className={cn('text-xs font-medium', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
                 {dueDateInfo.text}
@@ -303,10 +315,15 @@ export const TrainingCard = memo<TrainingCardProps>(({
             </div>
           )}
           {trainingStatus.isCompleted && !dueDateInfo && (
-            <div className="mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <Badge variant="soft-success" className="text-xs font-medium" aria-label="Training completed successfully" role="status" showIcon>
                 Completed
               </Badge>
+              {sanitizedVideo.completedAt && (
+                <span className="text-xs text-muted-foreground">
+                  {format(new Date(sanitizedVideo.completedAt), 'MMM d, yyyy')}
+                </span>
+              )}
             </div>
           )}
 
@@ -319,32 +336,24 @@ export const TrainingCard = memo<TrainingCardProps>(({
           {sanitizedVideo.description && <CardDescription className="line-clamp-2">
               {sanitizedVideo.description}
             </CardDescription>}
+          {trainingStatus.isCompleted && sanitizedVideo.quizSummary && (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1" role="status" aria-label={`Quiz score: ${sanitizedVideo.quizSummary.percent}% (${sanitizedVideo.quizSummary.correct} out of ${sanitizedVideo.quizSummary.total} correct)`}>
+              <ClipboardList className="w-4 h-4" aria-hidden="true" />
+              <span>Quiz: {sanitizedVideo.quizSummary.percent}% ({sanitizedVideo.quizSummary.correct}/{sanitizedVideo.quizSummary.total})</span>
+            </div>
+          )}
         </CardHeader>
 
         {/* Footer */}
         {trainingStatus.isCompleted ? (
-          <CardFooter className="flex-none flex-col items-start gap-3 mt-auto">
-            <div className="flex flex-col gap-1 w-full text-sm text-muted-foreground">
-              {sanitizedVideo.completedAt && (
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>{format(new Date(sanitizedVideo.completedAt), 'MMM d, yyyy')}</span>
-                </div>
-              )}
-              {sanitizedVideo.quizSummary && (
-                <div className="flex items-center gap-1" role="status" aria-label={`Quiz: ${sanitizedVideo.quizSummary.percent}% (${sanitizedVideo.quizSummary.correct}/${sanitizedVideo.quizSummary.total} correct)`}>
-                  <ClipboardList className="w-4 h-4" aria-hidden="true" />
-                  <span>Quiz: {sanitizedVideo.quizSummary.percent}% ({sanitizedVideo.quizSummary.correct}/{sanitizedVideo.quizSummary.total})</span>
-                </div>
-              )}
-            </div>
-            <Button variant="outline" className="min-h-touch" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
+          <CardFooter className="flex-none mt-auto">
+            <Button variant="outline" className="w-full min-h-touch" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
               Review Training
             </Button>
           </CardFooter>
         ) : (
           <CardFooter className="flex-none mt-auto">
-            <Button variant="outline" className="min-h-touch" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
+            <Button variant="outline" className="w-full min-h-touch" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
               {trainingStatus.hasStarted ? "Continue Training" : "Start Training"}
             </Button>
           </CardFooter>
