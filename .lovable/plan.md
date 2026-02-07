@@ -1,20 +1,28 @@
 
 
-# Add "Quiz Results" Heading
+# Quiz Results Heading -- Use H3 Bold
 
 ## What changes
 
-Add a "Quiz Results" heading text back into the compact banner, placed after the icon and before the percentage.
+Change the "Quiz Results" text from a `<span>` to an `<h3>` element with bold styling for proper semantic heading hierarchy.
 
 ## How
 
-**File: `src/components/quiz/QuizScoreSummary.tsx`** (line 39)
+**File: `src/components/quiz/QuizScoreSummary.tsx`** (line 41)
 
-Insert a `<span className="font-semibold text-sm">Quiz Results</span>` between the icon container and the percentage, inside the existing flex row.
+Replace:
+```tsx
+<span className="font-semibold text-sm">Quiz Results</span>
+```
+
+With:
+```tsx
+<h3 className="font-bold text-sm">Quiz Results</h3>
+```
 
 | Item | Detail |
 |---|---|
 | Files changed | 1 |
 | Lines changed | 1 |
-| Risk | Minimal -- text-only addition |
+| Risk | Minimal |
 
