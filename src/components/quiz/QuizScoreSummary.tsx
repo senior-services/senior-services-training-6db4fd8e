@@ -38,7 +38,7 @@ export function QuizScoreSummary({ quizResults, totalQuestions }: QuizScoreSumma
           <div className={cn("p-2 rounded-full", getScoreColor(percentage))}>
             {getScoreIcon(percentage)}
           </div>
-          <span className="font-semibold text-sm">Quiz Results</span>
+          <h3 className="font-bold text-sm">Quiz Results</h3>
           <span className="text-2xl font-bold">{percentage}%</span>
           <Badge 
             variant="secondary" 
