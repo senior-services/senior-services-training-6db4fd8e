@@ -1,10 +1,10 @@
 
 
-# Quiz Results Heading -- Use H3 Bold
+# Fix Quiz Results Heading Font Size
 
 ## What changes
 
-Change the "Quiz Results" text from a `<span>` to an `<h3>` element with bold styling for proper semantic heading hierarchy.
+Update the `<h3>` "Quiz Results" heading font size from `text-sm` (15px) to `text-2xl` (24px) to match the component gallery guidelines.
 
 ## How
 
@@ -12,12 +12,12 @@ Change the "Quiz Results" text from a `<span>` to an `<h3>` element with bold st
 
 Replace:
 ```tsx
-<span className="font-semibold text-sm">Quiz Results</span>
+<h3 className="font-bold text-sm">Quiz Results</h3>
 ```
 
 With:
 ```tsx
-<h3 className="font-bold text-sm">Quiz Results</h3>
+<h3 className="font-bold text-2xl">Quiz Results</h3>
 ```
 
 | Item | Detail |
