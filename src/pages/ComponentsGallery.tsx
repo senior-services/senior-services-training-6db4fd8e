@@ -1736,11 +1736,11 @@ export const ComponentsGallery = ({
                         <TableCell className="text-sm">Due date is today and training is not 100% done</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell><Badge variant="soft-secondary">Due in X days</Badge></TableCell>
+                        <TableCell><Badge variant="soft-primary">Due in X days</Badge></TableCell>
                         <TableCell className="text-sm">Due within 30 days, training not done</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell><Badge variant="soft-secondary">Due MMM d</Badge></TableCell>
+                        <TableCell><Badge variant="soft-primary">Due MMM d</Badge></TableCell>
                         <TableCell className="text-sm">Due date is 30+ days away, training not done</TableCell>
                       </TableRow>
                       <TableRow>

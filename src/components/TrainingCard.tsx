@@ -179,7 +179,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
     }
     if (daysUntilDue <= 7) {
       return {
-        variant: 'soft-secondary' as const,
+        variant: 'soft-primary' as const,
         className: '',
         text: `Due in ${daysUntilDue} days`,
         ariaLabel: `Training is due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`,
@@ -188,7 +188,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
     }
     if (daysUntilDue <= 30) {
       return {
-        variant: 'soft-secondary' as const,
+        variant: 'soft-primary' as const,
         className: '',
         text: `Due in ${daysUntilDue} days`,
         ariaLabel: `Training is due in ${daysUntilDue} days`,
@@ -202,7 +202,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
     const showYear = dueYear !== currentYear;
     
     return {
-      variant: 'soft-secondary' as const,
+      variant: 'soft-primary' as const,
       className: '',
       text: showYear ? `Due ${format(due, 'MMM d, yyyy')}` : `Due ${format(due, 'MMM d')}`,
       ariaLabel: showYear 
@@ -324,7 +324,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
         {/* Footer */}
         {trainingStatus.isCompleted ? (
           <CardFooter className="flex-none flex-col items-start gap-3">
-            <div className="flex items-center justify-between w-full text-sm text-muted-foreground">
+            <div className="flex flex-col gap-1 w-full text-sm text-muted-foreground">
               {sanitizedVideo.completedAt && (
                 <div className="flex items-center gap-1">
                   <CheckCircle className="w-4 h-4" aria-hidden="true" />
