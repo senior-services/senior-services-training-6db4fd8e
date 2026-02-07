@@ -323,7 +323,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
 
         {/* Footer */}
         {trainingStatus.isCompleted ? (
-          <CardFooter className="flex-none flex-col items-start gap-3">
+          <CardFooter className="flex-none flex-col items-start gap-3 mt-auto">
             <div className="flex flex-col gap-1 w-full text-sm text-muted-foreground">
               {sanitizedVideo.completedAt && (
                 <div className="flex items-center gap-1">
@@ -343,7 +343,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
             </Button>
           </CardFooter>
         ) : (
-          <CardFooter className="flex-none">
+          <CardFooter className="flex-none mt-auto">
             <Button variant="outline" className="min-h-touch" onClick={handlePlay} onKeyDown={handleCardKeyPress} aria-label={ariaLabels.actionButton}>
               {trainingStatus.hasStarted ? "Continue Training" : "Start Training"}
             </Button>
