@@ -1,24 +1,21 @@
 
 
-# Set Minimum Width on Training Cards
+# Simplify Course Count Badges
 
 ## What changes
 
-Each training card will have a minimum width of 280px, preventing cards from becoming too narrow on smaller layouts or when many cards appear in a row.
+The badges next to "Required Courses" and "Completed Courses" headings currently show text like "4 To-do" and "3 Completed". They will be simplified to show just the number: "4" and "3".
 
 ## How
 
-A single class addition on the outer wrapper `div` in `src/components/TrainingCard.tsx`.
+**File: `src/pages/EmployeeDashboard.tsx`**
 
-**Line ~281** -- Add `min-w-[280px]` to the existing classes on the card's outermost `<div>`:
-
-```tsx
-<div className="h-full min-w-[280px]">
-```
+- **Line 553**: Change `{trainingData.required.length} To-do` to `{trainingData.required.length}`
+- **Line 608**: Change `{trainingData.completed.length} Completed` to `{trainingData.completed.length}`
 
 | Item | Detail |
 |---|---|
 | Files changed | 1 |
-| Lines changed | 1 |
-| Risk | Very low -- one utility class addition |
+| Lines changed | 2 |
+| Risk | Minimal -- text-only change |
 
