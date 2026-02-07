@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogScrollArea } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -442,7 +442,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     };
   }, [video]);
   return <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto" onOpenAutoFocus={e => {
+      <DialogContent className="max-w-6xl w-[95vw]" onOpenAutoFocus={e => {
       // Let the video container receive focus instead
       e.preventDefault();
       setTimeout(() => {
@@ -460,7 +460,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </DialogTitle>
         </DialogHeader>
         
-        <div>
+        <DialogScrollArea>
           {video?.description && video.description.trim() && <div className="pb-4" id="video-description">
               <p className="text-sm text-muted-foreground font-normal leading-relaxed">
                 {video.description}
@@ -546,7 +546,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           {(quizStarted && quiz || wasEverCompleted && quiz && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
               <QuizModal quiz={quiz} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} />
             </div>}
-        </div>
+        </DialogScrollArea>
 
         {/* Dialog Footer - Show for quiz interactions */}
         {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter>
