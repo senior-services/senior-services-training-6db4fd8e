@@ -728,7 +728,7 @@ export const EmployeeManagement: React.FC<{
           <AlertDialogHeader>
             <AlertDialogTitle>Hide this employee?</AlertDialogTitle>
             <AlertDialogDescription>
-              {pendingHideEmployee?.full_name || pendingHideEmployee?.email} will be moved to the hidden section. Their assignments and progress data will be preserved.
+              This moves {pendingHideEmployee?.full_name || pendingHideEmployee?.email} to the Hidden section without affecting assignments or progress.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -751,7 +751,7 @@ export const EmployeeManagement: React.FC<{
           <AlertDialogHeader>
             <AlertDialogTitle>Show this employee?</AlertDialogTitle>
             <AlertDialogDescription>
-              {pendingShowEmployee?.full_name || pendingShowEmployee?.email} will be moved back to the main employee list.
+              This restores {pendingShowEmployee?.full_name || pendingShowEmployee?.email} to the main employee list.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
