@@ -487,7 +487,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Hide this training?</AlertDialogTitle>
             <AlertDialogDescription>
-              "{pendingHideVideo?.title}" will be moved to the hidden section. It will remain functional for employees with existing assignments.
+              "{pendingHideVideo?.title}" will move to the Hidden section. It will remain active for existing assignments and can be unhidden at any time.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -510,7 +510,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Show this training?</AlertDialogTitle>
             <AlertDialogDescription>
-              "{pendingShowVideo?.title}" will be moved back to the main training list and become visible to admins.
+              "{pendingShowVideo?.title}" will return to the main training list and be visible to admins.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
