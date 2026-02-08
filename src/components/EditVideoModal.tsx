@@ -76,8 +76,6 @@ export const EditVideoModal = ({
   const [quiz, setQuiz] = useState<QuizWithQuestions | null>(null);
   const [quizLoading, setQuizLoading] = useState(false);
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
-  const [quizTitle, setQuizTitle] = useState('');
-  const [quizDescription, setQuizDescription] = useState('');
   const [questions, setQuestions] = useState<EditableQuestionFormData[]>([]);
   const [questionValidationErrors, setQuestionValidationErrors] = useState<{
     [key: number]: string;
@@ -85,8 +83,6 @@ export const EditVideoModal = ({
   const [showQuizValidation, setShowQuizValidation] = useState(false);
 
   // Track original quiz state for unsaved changes detection
-  const [originalQuizTitle, setOriginalQuizTitle] = useState('');
-  const [originalQuizDescription, setOriginalQuizDescription] = useState('');
   const [originalQuestions, setOriginalQuestions] = useState<EditableQuestionFormData[]>([]);
   const [unsavedChangesDialogOpen, setUnsavedChangesDialogOpen] = useState(false);
 
@@ -140,9 +136,6 @@ export const EditVideoModal = ({
       if (abortSignal?.aborted) return;
       setQuiz(quizData);
       if (quizData) {
-        setQuizTitle(quizData.title);
-        setQuizDescription(quizData.description || '');
-
         // Load existing questions into the editing form
         const loadedQuestions: EditableQuestionFormData[] = quizData.questions.map(q => ({
           id: q.id,
@@ -159,19 +152,13 @@ export const EditVideoModal = ({
         setQuestions(loadedQuestions);
 
         // Store original values for unsaved changes detection
-        setOriginalQuizTitle(quizData.title);
-        setOriginalQuizDescription(quizData.description || '');
         setOriginalQuestions(JSON.parse(JSON.stringify(loadedQuestions)));
       } else {
         // No quiz found, show empty state
         setQuiz(null);
-        setQuizTitle('');
-        setQuizDescription('');
         setQuestions([]);
 
         // Clear original values too
-        setOriginalQuizTitle('');
-        setOriginalQuizDescription('');
         setOriginalQuestions([]);
       }
     } catch (error) {
@@ -338,18 +325,8 @@ export const EditVideoModal = ({
     setShowQuizValidation(true);
 
     // Check quiz creation requirements for new quizzes
-    const isCreatingNewQuiz = !quiz && (quizTitle.trim() || questions.length > 0);
+    const isCreatingNewQuiz = !quiz && questions.length > 0;
     if (isCreatingNewQuiz) {
-      // Check if title is missing
-      if (quizTitle.trim() === '') {
-        toast({
-          title: "Quiz title is required",
-          description: "Please enter a title for the quiz.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       // Check if no questions added
       if (questions.length === 0) {
         toast({
@@ -360,7 +337,7 @@ export const EditVideoModal = ({
         return;
       }
     }
-    if ((quizTitle.trim() || questions.length > 0) && !cleanupAndValidateQuestions()) {
+    if (questions.length > 0 && !cleanupAndValidateQuestions()) {
       toast({
         title: "Validation Error",
         description: "Please fix the question errors before saving.",
@@ -370,10 +347,10 @@ export const EditVideoModal = ({
     }
     setLoading(true);
     try {
-      const isCreatingNewQuiz = !quiz && (quizTitle.trim() || questions.length > 0);
+      const isCreatingNewQuiz = !quiz && questions.length > 0;
 
       // Handle quiz changes first
-      if (quizTitle.trim() || questions.length > 0) {
+      if (questions.length > 0) {
         if (quiz) {
           // Update existing quiz
           await handleUpdateQuiz();
@@ -415,8 +392,6 @@ export const EditVideoModal = ({
     setTitle('');
     setDescription('');
     setQuiz(null);
-    setQuizTitle('');
-    setQuizDescription('');
     setQuestions([]);
     setQuestionValidationErrors({});
     setShowQuizValidation(false);
@@ -442,11 +417,11 @@ export const EditVideoModal = ({
 
   // Check if there are unsaved quiz changes
   const hasQuizChanges = () => {
-    if (!quiz && (quizTitle.trim() || questions.length > 0)) {
+    if (!quiz && questions.length > 0) {
       return true; // New quiz being created
     }
     if (quiz) {
-      return quizTitle !== originalQuizTitle || quizDescription !== originalQuizDescription || JSON.stringify(questions) !== JSON.stringify(originalQuestions);
+      return JSON.stringify(questions) !== JSON.stringify(originalQuestions);
     }
     return false;
   };
@@ -464,12 +439,8 @@ export const EditVideoModal = ({
   const handleDiscardChanges = () => {
     // Reset to original values
     if (quiz) {
-      setQuizTitle(originalQuizTitle);
-      setQuizDescription(originalQuizDescription);
       setQuestions(JSON.parse(JSON.stringify(originalQuestions)));
     } else {
-      setQuizTitle('');
-      setQuizDescription('');
       setQuestions([]);
     }
     setUnsavedChangesDialogOpen(false);
@@ -576,10 +547,10 @@ export const EditVideoModal = ({
     if (!quiz || !video) return;
     setIsCreatingQuiz(true);
     try {
-      // Update quiz basic info
+      // Update quiz basic info (auto-derive title from video)
       await quizOperations.update(quiz.id, {
-        title: sanitizeText(quizTitle),
-        description: sanitizeText(quizDescription) || undefined
+        title: sanitizeText(title),
+        description: undefined
       });
 
       // Handle questions - delete removed ones, update existing ones, create new ones
@@ -702,15 +673,6 @@ export const EditVideoModal = ({
   const handleCreateQuiz = async () => {
     if (!video) return;
 
-    // Defensive validation checks
-    if (quizTitle.trim() === '') {
-      toast({
-        title: "Quiz title is required",
-        description: "Please enter a title for the quiz.",
-        variant: "destructive"
-      });
-      return;
-    }
     if (questions.length === 0) {
       toast({
         title: "Please add at least one question",
@@ -721,10 +683,10 @@ export const EditVideoModal = ({
     }
     setIsCreatingQuiz(true);
     try {
-      // Create the quiz
+      // Create the quiz (auto-derive title from video)
       const newQuiz = await quizOperations.create({
-        title: sanitizeText(quizTitle),
-        description: sanitizeText(quizDescription) || undefined,
+        title: sanitizeText(title),
+        description: undefined,
         video_id: video.id
       });
 
@@ -784,7 +746,7 @@ export const EditVideoModal = ({
       setIsCreatingQuiz(false);
     }
   };
-  const hasChanges = video && (title !== (video.title || '') || description !== (video.description || '') || !quiz && (quizTitle.trim() || questions.length > 0) || quiz && (quizTitle !== quiz.title || quizDescription !== (quiz.description || '') || questions.length !== quiz.questions.length || questions.some((q, i) => {
+  const hasChanges = video && (title !== (video.title || '') || description !== (video.description || '') || !quiz && questions.length > 0 || quiz && (questions.length !== quiz.questions.length || questions.some((q, i) => {
     const originalQ = quiz.questions[i];
     return !originalQ || q.question_text !== originalQ.question_text || q.question_type !== originalQ.question_type || q.options.length !== originalQ.options.length || q.options.some((opt, j) => {
       const originalOpt = originalQ.options[j];
@@ -874,19 +836,9 @@ export const EditVideoModal = ({
                    <div className="space-y-4">
                      
                     
-                    <div>
-                      <Label htmlFor="quiz-title">Quiz Title</Label>
-                      <Input id="quiz-title" value={quizTitle} onChange={e => setQuizTitle(e.target.value)} placeholder="Enter quiz title" />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="quiz-description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
-                      <Textarea id="quiz-description" value={quizDescription} onChange={e => setQuizDescription(e.target.value)} placeholder="Enter quiz description" />
-                    </div>
                   </div>
 
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Questions</h3>
 
                       {questions.map((question, questionIndex) => <Card key={questionIndex} className="border-border">
                           <CardHeader className="pb-3">

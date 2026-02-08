@@ -46,7 +46,7 @@ export interface OptionFormData {
 export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmitting }: CreateQuizModalProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState<QuizFormData>({
-    title: "",
+    title: "",  // Will be auto-populated from video title on submit
     description: "",
     video_id: videoId,
     questions: []
@@ -203,7 +203,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
   };
 
   const { cleanedQuestions, errors: validationErrors } = cleanupAndValidateQuestions(formData.questions);
-  const canSubmit = formData.title.trim() && formData.questions.length > 0 &&
+  const canSubmit = formData.questions.length > 0 &&
     formData.questions.every(q => q.question_text.trim()) &&
     Object.keys(validationErrors).length === 0;
 
@@ -216,30 +216,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
 
         <DialogScrollArea className="space-y-6">
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Quiz Title</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="Enter quiz title"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="description">Description <span className="font-normal italic text-muted-foreground">(optional)</span></Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Enter quiz description"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Questions</h3>
               <Button onClick={addQuestion} variant="outline" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Question
