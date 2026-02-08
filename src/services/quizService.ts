@@ -170,16 +170,25 @@ export const quizOperations = {
     }
   },
 
-  // Get quiz by video ID (optimized)
+  // Get quiz by video ID (optimized) - returns only active (non-archived) quiz
   async getByVideoId(videoId: string): Promise<QuizWithQuestions | null> {
     try {
       const userRole = await getCurrentUserRole();
       
-      // Get quiz first
-      const { data: quiz, error: quizError } = await supabase
+      // Get active quiz (non-archived) first
+      const query = supabase
         .from('quizzes')
         .select('*')
-        .eq('video_id', videoId)
+        .eq('video_id', videoId);
+      
+      // For non-admins, RLS already filters archived. For admins, filter explicitly.
+      if (userRole === 'admin') {
+        query.is('archived_at', null);
+      }
+      
+      const { data: quiz, error: quizError } = await query
+        .order('version', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (quizError) throw quizError;
@@ -238,20 +247,19 @@ export const quizOperations = {
     }
   },
 
-  // Lightweight check for quiz presence (for VideoTable)
+  // Lightweight check for quiz presence (for VideoTable) - only active quizzes
   async hasQuiz(videoId: string): Promise<boolean> {
     try {
-      // First check if quiz exists
       const { data: quizData, error: quizError } = await supabase
         .from('quizzes')
         .select('id')
         .eq('video_id', videoId)
+        .is('archived_at', null)
         .limit(1);
 
       if (quizError) throw quizError;
       if (!quizData || quizData.length === 0) return false;
 
-      // Then check if quiz has at least one question
       const { count, error: questionError } = await supabase
         .from('quiz_questions')
         .select('*', { count: 'exact', head: true })
@@ -265,8 +273,108 @@ export const quizOperations = {
     }
   },
 
+  // Check if a video has any assignments
+  async hasAssignments(videoId: string): Promise<boolean> {
+    try {
+      const { count, error } = await supabase
+        .from('video_assignments')
+        .select('*', { count: 'exact', head: true })
+        .eq('video_id', videoId);
+
+      if (error) throw error;
+      return (count || 0) > 0;
+    } catch (error) {
+      logger.error('Error checking assignments:', error);
+      return false;
+    }
+  },
+
+  // Create a new version of a quiz (archives the old one, returns new quiz ID)
+  async createVersion(quizId: string): Promise<string> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase.rpc('create_quiz_version', {
+        p_quiz_id: quizId,
+        p_admin_user_id: user.id
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      logger.error('Error creating quiz version:', error);
+      throw error;
+    }
+  },
+
+  // Get version history for a video's quizzes (all versions including archived)
+  async getVersionHistory(videoId: string): Promise<QuizWithQuestions[]> {
+    try {
+      const { data: quizzes, error: quizzesError } = await supabase
+        .from('quizzes')
+        .select('*')
+        .eq('video_id', videoId)
+        .order('version', { ascending: true });
+
+      if (quizzesError) throw quizzesError;
+      if (!quizzes || quizzes.length === 0) return [];
+
+      // Load questions + options for each version
+      const results: QuizWithQuestions[] = [];
+      for (const quiz of quizzes) {
+        const { data: questions, error: qError } = await supabase
+          .from('quiz_questions')
+          .select('*')
+          .eq('quiz_id', quiz.id)
+          .order('order_index', { ascending: true });
+
+        if (qError) throw qError;
+
+        const questionsWithOptions = await Promise.all((questions || []).map(async (question: any) => {
+          const { data: options, error: optError } = await supabase
+            .from('quiz_question_options')
+            .select('*')
+            .eq('question_id', question.id)
+            .order('order_index', { ascending: true });
+
+          if (optError) throw optError;
+
+          return {
+            ...question,
+            question_type: question.question_type as 'multiple_choice' | 'true_false' | 'single_answer',
+            options: options || []
+          };
+        }));
+
+        results.push({ ...quiz, questions: questionsWithOptions });
+      }
+
+      return results;
+    } catch (error) {
+      logger.error('Error getting version history:', error);
+      throw error;
+    }
+  },
+
+  // Get the count of versions for a video's quiz
+  async getVersionCount(videoId: string): Promise<number> {
+    try {
+      const { count, error } = await supabase
+        .from('quizzes')
+        .select('*', { count: 'exact', head: true })
+        .eq('video_id', videoId);
+
+      if (error) throw error;
+      return count || 0;
+    } catch (error) {
+      logger.error('Error getting version count:', error);
+      return 0;
+    }
+  },
+
   // Create new quiz
-  async create(quiz: Omit<Quiz, 'id' | 'created_at' | 'updated_at'>): Promise<Quiz> {
+  async create(quiz: Omit<Quiz, 'id' | 'created_at' | 'updated_at' | 'version' | 'version_group_id' | 'archived_at' | 'created_by' | 'updated_by'>): Promise<Quiz> {
     try {
       const { data, error } = await supabase
         .from('quizzes')

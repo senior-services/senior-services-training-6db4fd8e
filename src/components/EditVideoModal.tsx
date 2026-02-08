@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
-import { Play, FileVideo, Trash2, Copy, ExternalLink, Plus, FileQuestion } from "lucide-react";
+import { Play, FileVideo, Trash2, Copy, ExternalLink, Plus, FileQuestion, Download } from "lucide-react";
+import { Banner } from "@/components/ui/banner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { videoOperations } from '@/services/api';
@@ -25,6 +26,7 @@ import { ContentPlayer } from "@/components/content/ContentPlayer";
 import { TrainingContent, VideoType, ContentType } from "@/types";
 import { QuizWithQuestions } from "@/types/quiz";
 import { QuestionFormData, OptionFormData } from "@/components/quiz/CreateQuizModal";
+import * as XLSX from 'xlsx';
 
 // Extended interfaces for editing with IDs
 interface EditableQuestionFormData extends QuestionFormData {
@@ -86,6 +88,13 @@ export const EditVideoModal = ({
   const [originalQuestions, setOriginalQuestions] = useState<EditableQuestionFormData[]>([]);
   const [unsavedChangesDialogOpen, setUnsavedChangesDialogOpen] = useState(false);
 
+  // Versioning state
+  const [hasAssignments, setHasAssignments] = useState(false);
+  const [versionCount, setVersionCount] = useState(0);
+  const [versionConfirmDialogOpen, setVersionConfirmDialogOpen] = useState(false);
+  const [versionAttemptCount, setVersionAttemptCount] = useState(0);
+  const [isDownloadingVersions, setIsDownloadingVersions] = useState(false);
+
   // New state for usage checking
   const [videoUsage, setVideoUsage] = useState<{
     canDelete: boolean;
@@ -116,11 +125,14 @@ export const EditVideoModal = ({
   useEffect(() => {
     const abortController = new AbortController();
     if (video) {
-      setVideoUsage(null); // Reset to prevent showing previous video's state
+      setVideoUsage(null);
       setTitle(video.title || '');
       setDescription(video.description || '');
       loadQuiz(abortController.signal);
       loadUsageInfo();
+      // Load versioning info
+      quizOperations.hasAssignments(video.id).then(setHasAssignments).catch(() => setHasAssignments(false));
+      quizOperations.getVersionCount(video.id).then(setVersionCount).catch(() => setVersionCount(0));
     }
     return () => {
       abortController.abort();
@@ -327,7 +339,6 @@ export const EditVideoModal = ({
     // Check quiz creation requirements for new quizzes
     const isCreatingNewQuiz = !quiz && questions.length > 0;
     if (isCreatingNewQuiz) {
-      // Check if no questions added
       if (questions.length === 0) {
         toast({
           title: "Please add at least one question",
@@ -345,22 +356,62 @@ export const EditVideoModal = ({
       });
       return;
     }
+
+    // Version check: if quiz exists and has been changed, check for attempts
+    if (quiz && hasQuizChanges()) {
+      try {
+        const { attemptCount } = await quizOperations.checkUsage(quiz.id);
+        if (attemptCount > 0) {
+          setVersionAttemptCount(attemptCount);
+          setVersionConfirmDialogOpen(true);
+          return; // Wait for user confirmation
+        }
+      } catch (error) {
+        logger.error('Error checking quiz usage for versioning:', error);
+      }
+    }
+
+    await performSave(false);
+  };
+
+  // Perform the actual save, optionally creating a new version first
+  const performSave = async (createNewVersion: boolean) => {
+    if (!video) return;
     setLoading(true);
     try {
       const isCreatingNewQuiz = !quiz && questions.length > 0;
 
-      // Handle quiz changes first
       if (questions.length > 0) {
         if (quiz) {
-          // Update existing quiz
-          await handleUpdateQuiz();
+          if (createNewVersion) {
+            // Create new version (archives old, clones quiz+questions+options)
+            const newQuizId = await quizOperations.createVersion(quiz.id);
+            // Reload the new quiz so handleUpdateQuiz operates on it
+            const newQuiz = await quizOperations.getById(newQuizId);
+            if (newQuiz) {
+              // Set the new quiz as current - strip IDs from questions so they get created fresh
+              setQuiz(newQuiz);
+              // Clear all question IDs so handleUpdateQuiz treats them as new
+              setQuestions(prev => prev.map(q => ({
+                ...q,
+                id: undefined,
+                options: q.options.map(o => ({ ...o, id: undefined }))
+              })));
+              // Delete the cloned questions (we'll create from the edited state)
+              for (const clonedQ of newQuiz.questions) {
+                await questionOperations.delete(clonedQ.id);
+              }
+            }
+            // Now create all questions fresh on the new quiz
+            await handleCreateQuestionsForQuiz(newQuizId);
+          } else {
+            await handleUpdateQuiz();
+          }
         } else {
-          // Create new quiz - this will show its own success toast
           await handleCreateQuiz();
         }
       }
 
-      // Save video changes (only if not creating a new quiz to avoid duplicate toasts)
       if (!isCreatingNewQuiz) {
         await onSave(video.id, {
           title,
@@ -372,6 +423,90 @@ export const EditVideoModal = ({
       logger.error('Error updating video', error as Error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle version confirmation
+  const handleVersionConfirm = async () => {
+    setVersionConfirmDialogOpen(false);
+    await performSave(true);
+  };
+
+  // Download quiz versions as Excel
+  const handleDownloadVersions = async () => {
+    if (!video) return;
+    setIsDownloadingVersions(true);
+    try {
+      const versions = await quizOperations.getVersionHistory(video.id);
+      if (versions.length === 0) {
+        toast({ title: "No versions found", variant: "destructive" });
+        return;
+      }
+
+      // Get admin emails for created_by/updated_by
+      const userIds = new Set<string>();
+      versions.forEach(v => {
+        if (v.created_by) userIds.add(v.created_by);
+        if (v.updated_by) userIds.add(v.updated_by);
+      });
+
+      let userEmails: Record<string, string> = {};
+      if (userIds.size > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, email')
+          .in('user_id', Array.from(userIds));
+        if (profiles) {
+          profiles.forEach(p => { userEmails[p.user_id] = p.email; });
+        }
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      for (const version of versions) {
+        const sheetData: any[][] = [];
+        sheetData.push([`Version ${version.version}${version.archived_at ? ' (Archived)' : ' (Active)'}`]);
+        sheetData.push([
+          `Created: ${new Date(version.created_at).toLocaleDateString()}`,
+          '',
+          `Created by: ${version.created_by ? userEmails[version.created_by] || 'Unknown' : 'N/A'}`
+        ]);
+        sheetData.push([
+          `Last edited: ${new Date(version.updated_at).toLocaleDateString()}`,
+          '',
+          `Last edited by: ${version.updated_by ? userEmails[version.updated_by] || 'Unknown' : 'N/A'}`
+        ]);
+        sheetData.push([]);
+        sheetData.push(['Question #', 'Question Text', 'Type', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Answer(s)']);
+
+        version.questions.forEach((q, i) => {
+          const options = q.options || [];
+          const correctAnswers = options
+            .filter(o => 'is_correct' in o && o.is_correct)
+            .map(o => o.option_text)
+            .join(', ');
+          sheetData.push([
+            i + 1,
+            q.question_text,
+            q.question_type.replace('_', ' '),
+            options[0]?.option_text || '',
+            options[1]?.option_text || '',
+            options[2]?.option_text || '',
+            options[3]?.option_text || '',
+            correctAnswers
+          ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(sheetData);
+        XLSX.utils.book_append_sheet(wb, ws, `Version ${version.version}`);
+      }
+
+      XLSX.writeFile(wb, `Quiz Versions - ${video.title}.xlsx`);
+    } catch (error) {
+      logger.error('Error downloading versions:', error);
+      toast({ title: "Error downloading versions", variant: "destructive" });
+    } finally {
+      setIsDownloadingVersions(false);
     }
   };
   const handleDelete = async () => {
@@ -388,7 +523,6 @@ export const EditVideoModal = ({
     }
   };
   const handleClose = () => {
-    // Clear all state
     setTitle('');
     setDescription('');
     setQuiz(null);
@@ -397,6 +531,10 @@ export const EditVideoModal = ({
     setShowQuizValidation(false);
     setQuizLoading(false);
     setIsCreatingQuiz(false);
+    setHasAssignments(false);
+    setVersionCount(0);
+    setVersionConfirmDialogOpen(false);
+    setIsDownloadingVersions(false);
     onOpenChange(false);
   };
 
@@ -543,6 +681,67 @@ export const EditVideoModal = ({
       options: finalOptions
     });
   };
+  // Create questions for a specific quiz ID (used for versioning)
+  const handleCreateQuestionsForQuiz = async (quizId: string) => {
+    if (!video) return;
+    setIsCreatingQuiz(true);
+    try {
+      // Update quiz title
+      await quizOperations.update(quizId, {
+        title: sanitizeText(title),
+        description: undefined
+      });
+
+      for (const [index, questionData] of questions.entries()) {
+        const question = await questionOperations.create({
+          quiz_id: quizId,
+          question_text: sanitizeText(questionData.question_text),
+          question_type: questionData.question_type,
+          order_index: index
+        });
+
+        if (questionData.question_type === 'multiple_choice' || questionData.question_type === 'single_answer') {
+          const nonEmptyOptions = questionData.options.filter(opt => opt.option_text.trim());
+          for (const [optionIndex, optionData] of nonEmptyOptions.entries()) {
+            await optionOperations.create({
+              question_id: question.id,
+              option_text: sanitizeText(optionData.option_text),
+              is_correct: optionData.is_correct,
+              order_index: optionIndex
+            });
+          }
+        } else if (questionData.question_type === 'true_false') {
+          const trueOption = questionData.options.find(opt => opt.option_text === 'True');
+          const falseOption = questionData.options.find(opt => opt.option_text === 'False');
+          await optionOperations.create({
+            question_id: question.id,
+            option_text: 'True',
+            is_correct: trueOption?.is_correct || false,
+            order_index: 0
+          });
+          await optionOperations.create({
+            question_id: question.id,
+            option_text: 'False',
+            is_correct: falseOption?.is_correct || false,
+            order_index: 1
+          });
+        }
+      }
+
+      await loadQuiz();
+      if (video) onQuizSaved?.(video.id);
+    } catch (error) {
+      logger.error('Error creating questions for versioned quiz:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save quiz version",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingQuiz(false);
+    }
+  };
+
   const handleUpdateQuiz = async () => {
     if (!quiz || !video) return;
     setIsCreatingQuiz(true);
@@ -832,6 +1031,29 @@ export const EditVideoModal = ({
               </TabsContent>
 
               <TabsContent value="quiz" className="space-y-6 mt-4">
+                     {/* Attention banner for assigned trainings */}
+                     {hasAssignments && quiz && (
+                       <Banner variant="attention" title="Versioning Notice">
+                         This training has been assigned to employees. Editing the quiz will create a new version that future employees will receive. Existing completions will not be affected.
+                       </Banner>
+                     )}
+
+                     {/* Download quiz versions link */}
+                     {versionCount > 1 && (
+                       <div className="flex justify-end">
+                         <Button
+                           variant="link"
+                           size="sm"
+                           onClick={handleDownloadVersions}
+                           disabled={isDownloadingVersions}
+                           className="text-primary p-0 h-auto"
+                         >
+                           <Download className="w-4 h-4 mr-1" />
+                           {isDownloadingVersions ? 'Downloading...' : 'Download quiz versions'}
+                         </Button>
+                       </div>
+                     )}
+
                      <div className="space-y-4">
 
                       {questions.map((question, questionIndex) => <Card key={questionIndex} className="border-border">
@@ -1103,6 +1325,25 @@ export const EditVideoModal = ({
             <AlertDialogCancel>Keep Editing</AlertDialogCancel>
             <AlertDialogAction onClick={handleDiscardChanges} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Version Confirmation Dialog */}
+      <AlertDialog open={versionConfirmDialogOpen} onOpenChange={setVersionConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Create New Quiz Version</AlertDialogTitle>
+            <AlertDialogDescription>
+              This quiz has been completed by {versionAttemptCount} employee{versionAttemptCount !== 1 ? 's' : ''}. 
+              Saving will create Version {(quiz?.version || 1) + 1}. Existing completions will not be affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleVersionConfirm}>
+              Create New Version
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

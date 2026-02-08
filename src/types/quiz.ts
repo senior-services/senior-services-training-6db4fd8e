@@ -3,6 +3,11 @@ export interface Quiz {
   video_id: string;
   title: string;
   description?: string;
+  version: number;
+  version_group_id: string;
+  archived_at?: string | null;
+  created_by?: string | null;
+  updated_by?: string | null;
   created_at: string;
   updated_at: string;
 }

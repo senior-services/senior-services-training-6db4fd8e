@@ -270,27 +270,42 @@ export type Database = {
       }
       quizzes: {
         Row: {
+          archived_at: string | null
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           title: string
           updated_at: string
+          updated_by: string | null
+          version: number
+          version_group_id: string
           video_id: string
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           title: string
           updated_at?: string
+          updated_by?: string | null
+          version?: number
+          version_group_id?: string
           video_id: string
         }
         Update: {
+          archived_at?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           title?: string
           updated_at?: string
+          updated_by?: string | null
+          version?: number
+          version_group_id?: string
           video_id?: string
         }
         Relationships: [
@@ -486,6 +501,10 @@ export type Database = {
           completed_count: number
           quiz_completed_count: number
         }[]
+      }
+      create_quiz_version: {
+        Args: { p_admin_user_id: string; p_quiz_id: string }
+        Returns: string
       }
       get_all_employee_assignments: {
         Args: never

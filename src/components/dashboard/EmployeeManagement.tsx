@@ -116,7 +116,7 @@ export const EmployeeManagement: React.FC<{
         // Load quizzes and map quiz attempts per employee
         const {
           data: quizzesData
-        } = await supabase.from('quizzes').select('video_id');
+        } = await supabase.from('quizzes').select('video_id').is('archived_at', null);
         const videoIdsWithQuizzes = new Set(quizzesData?.map(quiz => quiz.video_id) || []);
         const videoMap = new Map();
         const quizMap = new Map();
@@ -142,7 +142,8 @@ export const EmployeeManagement: React.FC<{
                     videoQuizMap.set(attempt.quiz.video_id, {
                       score: attempt.score,
                       total_questions: attempt.total_questions,
-                      completed_at: attempt.completed_at
+                      completed_at: attempt.completed_at,
+                      quiz_version: attempt.quiz?.version || 1
                     });
                   }
                 }
@@ -334,7 +335,7 @@ export const EmployeeManagement: React.FC<{
     videos: Map<string, any[]>;
     quizzes: Map<string, Map<string, any>>;
   }> => {
-    const { data: quizzesData } = await supabase.from('quizzes').select('video_id');
+    const { data: quizzesData } = await supabase.from('quizzes').select('video_id').is('archived_at', null);
     const videoIdsWithQuizzes = new Set(quizzesData?.map(quiz => quiz.video_id) || []);
 
     const videoMap = new Map<string, any[]>();
@@ -363,7 +364,8 @@ export const EmployeeManagement: React.FC<{
                 videoQuizMap.set(attempt.quiz.video_id, {
                   score: attempt.score,
                   total_questions: attempt.total_questions,
-                  completed_at: attempt.completed_at
+                  completed_at: attempt.completed_at,
+                  quiz_version: attempt.quiz?.version || 1
                 });
               }
             }
@@ -404,6 +406,7 @@ export const EmployeeManagement: React.FC<{
           'Due Date': '--',
           'Completion Date': '--',
           'Quiz Results': '--',
+          'Quiz Version': '--',
           ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
         });
       } else {
@@ -469,6 +472,7 @@ export const EmployeeManagement: React.FC<{
             'Due Date': dueDate,
             'Completion Date': completionDate,
             'Quiz Results': quizResults,
+            'Quiz Version': quizAttempt?.quiz_version ? `v${quizAttempt.quiz_version}` : (assignment.hasQuiz ? '--' : 'N/A'),
             ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
           });
         });
