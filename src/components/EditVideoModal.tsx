@@ -797,7 +797,7 @@ export const EditVideoModal = ({
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="space-y-6 mt-2">
+              <TabsContent value="info" className="space-y-6 mt-4">
                 {/* Video Preview Section */}
                 <div className="space-y-3">
                   
@@ -831,14 +831,8 @@ export const EditVideoModal = ({
                 
               </TabsContent>
 
-              <TabsContent value="quiz" className="space-y-6 mt-2">
-                <div className="space-y-6">
-                   <div className="space-y-4">
-                     
-                    
-                  </div>
-
-                    <div className="space-y-4">
+              <TabsContent value="quiz" className="space-y-6 mt-4">
+                     <div className="space-y-4">
 
                       {questions.map((question, questionIndex) => <Card key={questionIndex} className="border-border">
                           <CardHeader className="pb-3">
@@ -1029,7 +1023,6 @@ export const EditVideoModal = ({
                           </div>
                         </div>}
                     </div>
-                </div>
               </TabsContent>
             </Tabs>
           </DialogScrollArea>
