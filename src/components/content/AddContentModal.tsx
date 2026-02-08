@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { detectContentTypeFromUrl } from "@/utils/videoUtils";
@@ -40,7 +40,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [contentType, setContentType] = useState<ContentType>("video");
-  const [showManualSelector, setShowManualSelector] = useState(false);
+  
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string>("");
   const [titleError, setTitleError] = useState<string>("");
@@ -56,7 +56,6 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     setUrlError("");
 
     if (!newUrl) {
-      setShowManualSelector(false);
       return;
     }
 
@@ -66,7 +65,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     const validation = validateUrl(newUrl);
     if (!validation.isValid) {
       setUrlError(validation.errors[0] || "Invalid URL format");
-      setShowManualSelector(false);
+      
       setIsValidatingUrl(false);
       return;
     }
@@ -76,14 +75,12 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
       const urlObj = new URL(newUrl);
       if (urlObj.protocol !== "https:") {
         setUrlError("Only HTTPS URLs are allowed for security");
-        setShowManualSelector(false);
-        setIsValidatingUrl(false);
-        return;
-      }
-    } catch {
-      setUrlError("Invalid URL format");
-      setShowManualSelector(false);
       setIsValidatingUrl(false);
+      return;
+    }
+  } catch {
+    setUrlError("Invalid URL format");
+    setIsValidatingUrl(false);
       return;
     }
 
@@ -91,10 +88,6 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     const detectedType = detectContentTypeFromUrl(newUrl);
     if (detectedType) {
       setContentType(detectedType);
-      setShowManualSelector(false);
-    } else {
-      // Ambiguous URL - show manual selector
-      setShowManualSelector(true);
     }
 
     setIsValidatingUrl(false);
@@ -181,7 +174,6 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     setDescription("");
     setUrl("");
     setContentType("video");
-    setShowManualSelector(false);
     setIsValidatingUrl(false);
     setUrlError("");
     setTitleError("");
@@ -200,7 +192,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     if (urlError) {
       return <AlertCircle className="h-4 w-4 text-destructive" />;
     }
-    if (url && !showManualSelector) {
+    if (url && !urlError) {
       return <CheckCircle2 className="h-4 w-4 text-green-600" />;
     }
     return null;
@@ -256,7 +248,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                   onChange={handleUrlChange}
                   placeholder="Enter YouTube, Google Drive, or Google Slides URL"
                   aria-invalid={!!urlError}
-                  aria-describedby={urlError ? "url-error" : url && !showManualSelector ? "url-success" : undefined}
+                  aria-describedby={urlError ? "url-error" : url && !urlError ? "url-success" : undefined}
                   className={urlError ? "pr-10 border-destructive" : url ? "pr-10" : ""}
                 />
                 {getUrlStatusIcon() && (
@@ -274,44 +266,8 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                   <span>{urlError}</span>
                 </p>
               )}
-              {url && !urlError && !showManualSelector && !isValidatingUrl && (
-                <p id="url-success" className="text-sm text-green-600 mt-1 flex items-center gap-1" aria-live="polite">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Auto-detected: {contentType === "presentation" ? "Presentation" : "Video"}
-                </p>
-              )}
               <p className="text-xs text-muted-foreground mt-1">Only HTTPS URLs are supported for security</p>
             </div>
-
-            {showManualSelector && !urlError && (
-              <div className="space-y-2 pt-2 border-t">
-                <Label htmlFor="manual-content-type">
-                  Content Type
-                  <span className="text-xs text-muted-foreground block mt-1">
-                    Unable to detect content type automatically. Please select:
-                  </span>
-                </Label>
-                <RadioGroup
-                  id="manual-content-type"
-                  value={contentType}
-                  onValueChange={(value) => setContentType(value as ContentType)}
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="video" id="type-video" />
-                    <Label htmlFor="type-video" className="cursor-pointer font-normal">
-                      Video
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="presentation" id="type-presentation" />
-                    <Label htmlFor="type-presentation" className="cursor-pointer font-normal">
-                      Presentation
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            )}
           </div>
 
           {/* Assign to all employees section */}
