@@ -1,40 +1,37 @@
 
 
-## Make Vertical Spacing Consistent Between Tabs
+## Fix Mismatched Tab Trigger Heights
 
 ### The Problem
 
-The Details tab and Quiz tab in the Edit Course dialog have slightly different vertical spacing between the tab bar and the first piece of content. The Quiz tab has extra wrapper divs that create additional top spacing before the first question card, while the Details tab goes directly into the video preview with just `mt-2`.
+The "Quiz" tab trigger has a custom `className="flex items-center gap-2"` that overrides the default `inline-flex` display, causing it to render slightly taller than the "Details" tab. This creates uneven spacing between the "Details" text and the bottom border line.
 
 ### The Fix
 
-Increase the Details tab's top margin from `mt-2` to `mt-4` to match the effective spacing seen in the Quiz tab, where nested wrapper divs create additional distance before the first content element.
+Remove the custom `flex items-center gap-2` from the Quiz tab trigger. The base `TabsTrigger` component already applies `inline-flex items-center`, so only `gap-2` is needed for spacing between the text and the badge.
 
 ### Principal Engineer Review
 
 **Top 5 Risks/Issues:**
 1. Visual-only change -- no logic or data impact
-2. Very minor layout shift on the Details tab -- video preview moves down slightly
+2. Removing `flex` restores the default `inline-flex` behavior, which is the intended design
 3. No accessibility concern
-4. No other tabs or dialogs affected
-5. No risk of breaking other components
+4. No layout shift risk -- badge will still render inline with text
+5. No other components affected
 
 **Top 5 Fixes/Improvements:**
-1. Change `mt-2` to `mt-4` on the Details tab's `TabsContent` (line 800)
-2. Also clean up the empty wrapper divs in the Quiz tab to simplify the markup (lines 835-839)
-3. Ensure both tabs use the same `mt-4` value for consistency
-4. Single file change
+1. Change `className="flex items-center gap-2"` to `className="gap-2"` on the Quiz TabsTrigger (line 792)
+2. This preserves the gap for the badge while using the component's built-in `inline-flex items-center`
+3. Both tabs will now share identical height and alignment
+4. Single prop change in one file
 5. No other files affected
 
 **Database Change Required:** No
 
-**Go/No-Go Verdict:** Go -- minor spacing alignment, one file.
+**Go/No-Go Verdict:** Go -- one-line className cleanup to fix tab height mismatch.
 
 ### Technical Details
 
-**`src/components/EditVideoModal.tsx`:**
-
-1. **Line 800** -- Details tab: change `mt-2` to `mt-4`
-2. **Line 834** -- Quiz tab: change `mt-2` to `mt-4` (keep consistent)
-3. **Lines 835-839** -- Remove the empty nested wrapper divs in the Quiz tab to clean up redundant markup
+**`src/components/EditVideoModal.tsx` (line 792):**
+- Change: `className="flex items-center gap-2"` to `className="gap-2"`
 
