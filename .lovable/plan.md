@@ -1,33 +1,38 @@
 
 
-## Add Background Color to Dialog Scroll Area
+## Fix Squished Quiz Question Count Badge
 
-### What Changes
+### The Problem
 
-The main content area (`DialogScrollArea`) of both standard and full-screen dialogs will get a subtle muted background (`bg-muted/50`) -- the same background used on table headers. The header and footer already have `bg-background` set explicitly, so they remain white. No other changes needed.
+The quiz question count badge on the Edit Course dialog's Quiz tab has custom size overrides (`px-1.5 py-0.5 h-5`) that make it appear smaller and more cramped than the standard tertiary badge shown in the component gallery.
+
+### The Fix
+
+Remove the custom sizing overrides so the badge uses the default badge dimensions (`px-2.5 py-0.5`), matching the component gallery appearance. The `min-w-[20px]` can also be removed since the default padding will handle spacing naturally.
 
 ### Principal Engineer Review
 
 **Top 5 Risks/Issues:**
-1. Any dialog content with transparent backgrounds may now show the muted tint -- generally desirable but worth a visual check
-2. Very low risk -- this is a single class addition to one shared component
-3. No accessibility concern -- `bg-muted/50` is a soft neutral that maintains sufficient contrast
-4. No logic or data changes
-5. No impact on mobile layouts
+1. Very minor visual-only change -- no logic or data impact
+2. Badge will be slightly wider, which could affect tab layout spacing -- but tabs have flexible space
+3. No accessibility concern -- larger touch target is actually better
+4. No other badges in the app use this same custom override pattern
+5. No risk of breaking other components
 
 **Top 5 Fixes/Improvements:**
-1. Add `bg-muted/50` to the `DialogScrollArea` component's className
-2. Verify header (`bg-background`) and footer (`bg-background`) remain unchanged -- they already do
-3. No changes needed to `DialogContent` or `FullscreenDialogContent` outer wrappers
-4. Single line edit in one file
-5. All dialogs using this pattern benefit automatically
+1. Remove `className="text-xs px-1.5 py-0.5 min-w-[20px] h-5"` from the Badge on the Quiz tab
+2. Keep `variant="tertiary"` and the `text-xs` class (consistent with typography standards for badges)
+3. Single line change in `EditVideoModal.tsx`
+4. Result matches the component gallery exactly
+5. No other files affected
 
 **Database Change Required:** No
 
-**Go/No-Go Verdict:** Go -- one class addition, consistent with existing design tokens.
+**Go/No-Go Verdict:** Go -- one-line CSS cleanup to match design system standards.
 
 ### Technical Details
 
-**`src/components/ui/dialog.tsx` -- `DialogScrollArea` (line 102):**
-- Change: `"flex-1 px-6 py-6 overflow-y-auto min-h-0"` to `"flex-1 px-6 py-6 overflow-y-auto min-h-0 bg-muted/50"`
+**`src/components/EditVideoModal.tsx` (~line 794):**
+- Change: `className="text-xs px-1.5 py-0.5 min-w-[20px] h-5"` to `className="text-xs"`
+- This removes the custom padding and height overrides, letting the badge use its default sizing from the design system
 
