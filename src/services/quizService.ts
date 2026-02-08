@@ -273,6 +273,48 @@ export const quizOperations = {
     }
   },
 
+  // Get quiz version info for a video (version number + total version count)
+  async getQuizVersionInfo(videoId: string): Promise<{ hasQuiz: boolean; version: number; versionCount: number }> {
+    try {
+      // Get all quizzes for this video to determine version count
+      const { data: allQuizzes, error: allError } = await supabase
+        .from('quizzes')
+        .select('id, version, archived_at')
+        .eq('video_id', videoId);
+
+      if (allError) throw allError;
+      if (!allQuizzes || allQuizzes.length === 0) {
+        return { hasQuiz: false, version: 0, versionCount: 0 };
+      }
+
+      // Find the active (non-archived) quiz
+      const activeQuiz = allQuizzes.find(q => q.archived_at === null);
+      if (!activeQuiz) {
+        return { hasQuiz: false, version: 0, versionCount: allQuizzes.length };
+      }
+
+      // Verify it has questions
+      const { count, error: questionError } = await supabase
+        .from('quiz_questions')
+        .select('*', { count: 'exact', head: true })
+        .eq('quiz_id', activeQuiz.id);
+
+      if (questionError) throw questionError;
+      if ((count || 0) === 0) {
+        return { hasQuiz: false, version: 0, versionCount: allQuizzes.length };
+      }
+
+      return {
+        hasQuiz: true,
+        version: activeQuiz.version,
+        versionCount: allQuizzes.length
+      };
+    } catch (error) {
+      logger.debug('Error getting quiz version info:', error);
+      return { hasQuiz: false, version: 0, versionCount: 0 };
+    }
+  },
+
   // Check if a video has any assignments
   async hasAssignments(videoId: string): Promise<boolean> {
     try {

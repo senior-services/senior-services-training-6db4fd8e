@@ -55,28 +55,27 @@ export const VideoTable: React.FC<VideoTableProps> = ({
 }) => {
   const [sortColumn, setSortColumn] = useState<'title' | 'created_at'>('title');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [videoQuizzes, setVideoQuizzes] = useState<Set<string>>(new Set());
+  const [videoQuizzes, setVideoQuizzes] = useState<Map<string, { version: number; versionCount: number }>>(new Map());
 
-  // Load quiz presence data for each video (optimized)
+  // Load quiz version info for each video
   useEffect(() => {
     const loadVideoQuizzes = async () => {
       if (!videos.length) return;
-      const quizVideoIds = new Set<string>();
+      const quizMap = new Map<string, { version: number; versionCount: number }>();
       try {
         await Promise.all(videos.map(async video => {
           try {
-            const hasQuiz = await quizOperations.hasQuiz(video.id);
-            if (hasQuiz) {
-              quizVideoIds.add(video.id);
+            const info = await quizOperations.getQuizVersionInfo(video.id);
+            if (info.hasQuiz) {
+              quizMap.set(video.id, { version: info.version, versionCount: info.versionCount });
             }
           } catch (error) {
-            // Silently handle errors - video just won't show quiz badge
             logger.debug(`Error checking quiz for video ${video.id}`, error);
           }
         }));
-        setVideoQuizzes(quizVideoIds);
+        setVideoQuizzes(quizMap);
       } catch (error) {
-        logger.error('Error loading video quiz presence', error);
+        logger.error('Error loading video quiz info', error);
       }
     };
     loadVideoQuizzes();
@@ -251,10 +250,15 @@ export const VideoTable: React.FC<VideoTableProps> = ({
 
                       {/* Quiz status */}
                       <TableCell className="text-center py-2">
-                        {videoQuizzes.has(video.id) && <div className="flex justify-center">
+                        {videoQuizzes.has(video.id) && <div className="flex items-center justify-center gap-1">
                             <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Quiz available">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
+                            {videoQuizzes.get(video.id)!.versionCount > 1 && (
+                              <Badge variant="soft-tertiary" aria-label={`Quiz version ${videoQuizzes.get(video.id)!.version}`}>
+                                v{videoQuizzes.get(video.id)!.version}
+                              </Badge>
+                            )}
                           </div>}
                       </TableCell>
 
