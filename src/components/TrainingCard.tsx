@@ -259,7 +259,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
       return prev;
     });
   }, [thumbnailCandidates, thumbIndex, sanitizedVideo.id, sanitizedVideo.title]);
-  return <article className={cn('training-card group relative overflow-hidden focus-within:ring-2 focus-within:ring-ring min-w-[280px]', className)} aria-label={ariaLabels.card} role="article">
+  return <article className={cn('training-card group relative overflow-hidden focus-within:ring-2 focus-within:ring-ring', className)} aria-label={ariaLabels.card} role="article">
       <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-card border-0">
         {/* Video Thumbnail with Enhanced Accessibility */}
         <header className="relative">

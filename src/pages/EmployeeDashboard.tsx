@@ -555,7 +555,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             </div>
             {loading ? (
               <div
-                className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+                className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
                 aria-label="Loading training assignments"
               >
                 {Array.from({
@@ -574,7 +574,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
               </div>
             ) : (
               <div
-                className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+                className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
                 role="grid"
                 aria-label="Required training videos"
               >
@@ -610,7 +610,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   </AccordionTrigger>
                   <AccordionContent className="px-0 pb-0">
                     <div
-                      className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 pt-4"
+                      className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-4"
                       role="grid"
                       aria-label="Completed training videos"
                     >
