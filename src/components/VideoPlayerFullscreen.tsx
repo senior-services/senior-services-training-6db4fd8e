@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogScrollArea } from "@/components/ui/dialog";
+import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogScrollArea } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -442,7 +442,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     };
   }, [video]);
   return <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="max-w-6xl w-[95vw]" onOpenAutoFocus={e => {
+      <FullscreenDialogContent onOpenAutoFocus={e => {
       // Let the video container receive focus instead
       e.preventDefault();
       setTimeout(() => {
@@ -584,6 +584,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 </Button>
               </DialogClose>}
           </DialogFooter>}
-      </DialogContent>
+      </FullscreenDialogContent>
     </Dialog>;
 };
