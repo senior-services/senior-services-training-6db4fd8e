@@ -353,19 +353,11 @@ export const quizOperations = {
   // Get version history for a video's quizzes (all versions including archived)
   async getVersionHistory(videoId: string): Promise<QuizWithQuestions[]> {
     try {
-      // Explicitly fetch ALL quiz versions for this video (active + archived)
+      // Use RPC to bypass RLS and reliably fetch ALL quiz versions (active + archived)
       const { data: quizzes, error: quizzesError } = await supabase
-        .from('quizzes')
-        .select('*')
-        .eq('video_id', videoId)
-        .order('version', { ascending: true });
+        .rpc('get_all_quiz_versions', { p_video_id: videoId });
 
       if (quizzesError) throw quizzesError;
-      
-      logger.info(`[getVersionHistory] Fetched ${quizzes?.length ?? 0} quiz version(s) for video ${videoId}`);
-      if (quizzes && quizzes.length > 0) {
-        logger.info(`[getVersionHistory] Versions: ${quizzes.map(q => `v${q.version} (archived: ${!!q.archived_at})`).join(', ')}`);
-      }
       
       if (!quizzes || quizzes.length === 0) return [];
 

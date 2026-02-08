@@ -515,6 +515,28 @@ export type Database = {
           employee_id: string
         }[]
       }
+      get_all_quiz_versions: {
+        Args: { p_video_id: string }
+        Returns: {
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+          version_group_id: string
+          video_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "quizzes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_correct_options_for_quiz: {
         Args: { p_quiz_id: string }
         Returns: {
