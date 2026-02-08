@@ -10,7 +10,7 @@ import { progressOperations } from '@/services/api';
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { QuizSubmissionData, QuizResponse } from "@/types/quiz";
+import type { QuizSubmissionData, QuizResponse, QuizWithQuestions } from "@/types/quiz";
 import type { Video, TrainingContent } from "@/types";
 import { logger } from "@/utils/logger";
 import { QuizModal } from "@/components/quiz/QuizModal";
@@ -77,6 +77,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [hasQuizChanges, setHasQuizChanges] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [completedQuizResults, setCompletedQuizResults] = useState<QuizResponse[]>([]);
+  const [completedQuiz, setCompletedQuiz] = useState<QuizWithQuestions | null>(null);
   const [correctOptions, setCorrectOptions] = useState<Record<string, string[]>>({});
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
@@ -141,6 +142,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         setQuizSubmitted(false);
         setQuizResults([]);
         setCompletedQuizResults([]);
+        setCompletedQuiz(null);
         return;
       }
       const loadResult = await loadVideoData(videoId, initialVideo);
@@ -200,17 +202,25 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // Separate effect to load completed quiz results when completion status is determined
   useEffect(() => {
     const loadCompletedQuizResults = async () => {
-      if (!wasEverCompleted || !quiz || !user?.email || !videoId) return;
+      if (!wasEverCompleted || !user?.email || !videoId) return;
       try {
         const attempts = await quizOperations.getUserAttempts(user.email);
         const videoQuizAttempts = attempts.filter(attempt => attempt.quiz.video_id === videoId);
         const latestAttempt = videoQuizAttempts[0]; // Most recent attempt
 
-        if (latestAttempt?.responses) {
-          setCompletedQuizResults(latestAttempt.responses);
+        if (latestAttempt) {
+          // Load the specific quiz version the employee completed
+          const attemptQuiz = await quizOperations.getById(latestAttempt.quiz_id);
+          if (attemptQuiz) {
+            setCompletedQuiz(attemptQuiz);
+          }
 
-          // Fetch correct options for completed quiz
-          const correctOpts = await quizOperations.getCorrectOptionsForQuiz(quiz.id);
+          if (latestAttempt.responses) {
+            setCompletedQuizResults(latestAttempt.responses);
+          }
+
+          // Fetch correct options for the completed quiz version (not the active one)
+          const correctOpts = await quizOperations.getCorrectOptionsForQuiz(latestAttempt.quiz_id);
           setCorrectOptions(correctOpts);
         }
       } catch (error) {
@@ -221,7 +231,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       }
     };
     loadCompletedQuizResults();
-  }, [wasEverCompleted, quiz, user?.email, videoId]);
+  }, [wasEverCompleted, user?.email, videoId]);
 
   // Simple effect: Show overlay when video ends and training incomplete
   useEffect(() => {
@@ -543,8 +553,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             </div>}
 
           {/* Quiz Section */}
-          {(quizStarted && quiz || wasEverCompleted && quiz && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
-              <QuizModal quiz={quiz} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} />
+          {(quizStarted && quiz || wasEverCompleted && (completedQuiz || quiz) && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
+              <QuizModal quiz={wasEverCompleted && completedQuiz ? completedQuiz : quiz!} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} />
             </div>}
         </DialogScrollArea>
 
