@@ -152,7 +152,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   >
                     Course
                   </SortableTableHead>
-                  <TableHead className="text-center text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
+                  <TableHead className="text-left text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
                   <SortableTableHead
                     column="created_at"
                     sortColumn={sortColumn}
@@ -249,8 +249,8 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       </TableCell>
 
                       {/* Quiz status */}
-                      <TableCell className="text-center py-2">
-                        {videoQuizzes.has(video.id) && <div className="flex items-center justify-center gap-1">
+                      <TableCell className="text-left py-2">
+                        {videoQuizzes.has(video.id) && <div className="flex items-center justify-start gap-1">
                             <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Quiz available">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
