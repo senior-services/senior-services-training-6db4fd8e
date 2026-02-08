@@ -63,6 +63,9 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   const [pendingAssignment, setPendingAssignment] = useState<PendingAssignment | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Hide confirmation state
+  const [pendingHideVideo, setPendingHideVideo] = useState<Video | null>(null);
+
   // Load videos on mount
   useEffect(() => {
     loadVideos();
@@ -410,7 +413,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   return <div className="space-y-6">
-      <VideoTable videos={videos} loading={loading} onEdit={handleEditVideo} onPlay={handlePlayVideo} onAddVideo={() => setIsAddVideoModalOpen(true)} onHide={handleHideVideo} />
+      <VideoTable videos={videos} loading={loading} onEdit={handleEditVideo} onPlay={handlePlayVideo} onAddVideo={() => setIsAddVideoModalOpen(true)} onHide={(video) => setPendingHideVideo(video)} />
 
       {/* Hidden Videos Section */}
       {hiddenVideos.length > 0 && <Accordion type="single" collapsible className="w-full">
@@ -476,6 +479,29 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
 
       {/* Video Player Modal */}
       <VideoPlayerModal open={isVideoPlayerOpen} onOpenChange={setIsVideoPlayerOpen} video={selectedVideo} />
+
+      {/* Confirmation Dialog for Hide Training */}
+      <AlertDialog open={!!pendingHideVideo} onOpenChange={(open) => !open && setPendingHideVideo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hide this training?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{pendingHideVideo?.title}" will be moved to the hidden section. It will remain functional for employees with existing assignments.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingHideVideo(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (pendingHideVideo) {
+                handleHideVideo(pendingHideVideo);
+                setPendingHideVideo(null);
+              }
+            }}>
+              Hide
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Confirmation Dialog for Assign to All */}
       <AlertDialog open={showConfirmDialog} onOpenChange={(open) => !open && handleCancelConfirmation()}>

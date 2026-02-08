@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -39,6 +49,7 @@ export const EmployeeManagement: React.FC<{
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [sortColumn, setSortColumn] = useState<'name' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [pendingHideEmployee, setPendingHideEmployee] = useState<EmployeeWithAssignments | null>(null);
   const {
     toast
   } = useToast();
@@ -615,7 +626,7 @@ export const EmployeeManagement: React.FC<{
                         <IconButtonWithTooltip 
                           icon={EyeOff} 
                           tooltip={getTooltipText('hide-employee')} 
-                          onClick={() => handleHideEmployee(employee)} 
+                          onClick={() => setPendingHideEmployee(employee)} 
                           variant="ghost" 
                           className="text-muted-foreground hover:text-foreground" 
                           ariaLabel={`Hide ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}
@@ -709,5 +720,28 @@ export const EmployeeManagement: React.FC<{
         hiddenCount={hiddenEmployees.length}
         isLoading={isExporting}
       />
+
+      {/* Confirmation Dialog for Hide Employee */}
+      <AlertDialog open={!!pendingHideEmployee} onOpenChange={(open) => !open && setPendingHideEmployee(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hide this employee?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingHideEmployee?.full_name || pendingHideEmployee?.email} will be moved to the hidden section. Their assignments and progress data will be preserved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingHideEmployee(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (pendingHideEmployee) {
+                handleHideEmployee(pendingHideEmployee);
+                setPendingHideEmployee(null);
+              }
+            }}>
+              Hide
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 };
