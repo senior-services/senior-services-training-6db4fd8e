@@ -990,8 +990,8 @@ export const EditVideoModal = ({
                 <TabsTrigger value="info">Details</TabsTrigger>
                 <TabsTrigger value="quiz" className="gap-2">
                    Quiz
-                   {questions.length > 0 && <Badge variant="soft-tertiary" className="text-xs py-0 leading-none">
-                       {questions.length}
+                   {quiz && versionCount > 1 && <Badge variant="soft-tertiary" className="text-xs py-0 leading-none">
+                       v{quiz.version}
                      </Badge>}
                 </TabsTrigger>
               </TabsList>
@@ -1034,25 +1034,24 @@ export const EditVideoModal = ({
                      {/* Attention banner for assigned trainings */}
                      {hasAssignments && quiz && (
                        <Banner variant="attention" title="Versioning Notice">
-                         This training has been assigned to employees. Editing the quiz will create a new version that future employees will receive. Existing completions will not be affected.
+                         This training is already assigned. Editing the quiz will create a new version for future employees. Completed trainings won't be affected.
                        </Banner>
                      )}
 
-                     {/* Download quiz versions link */}
-                     {versionCount > 1 && (
-                       <div className="flex justify-end">
+                     <div className="flex justify-between items-center">
+                       <h3 className="text-sm font-semibold">{questions.length} {questions.length === 1 ? 'Question' : 'Questions'}</h3>
+                       {versionCount > 1 && (
                          <Button
-                           variant="link"
+                           variant="outline"
                            size="sm"
                            onClick={handleDownloadVersions}
                            disabled={isDownloadingVersions}
-                           className="text-primary p-0 h-auto"
                          >
                            <Download className="w-4 h-4 mr-1" />
                            {isDownloadingVersions ? 'Downloading...' : 'Download quiz versions'}
                          </Button>
-                       </div>
-                     )}
+                       )}
+                     </div>
 
                      <div className="space-y-4">
 
