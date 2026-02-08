@@ -990,9 +990,7 @@ export const EditVideoModal = ({
                 <TabsTrigger value="info">Details</TabsTrigger>
                 <TabsTrigger value="quiz" className="gap-2">
                    Quiz
-                   {quiz && versionCount > 1 && <Badge variant="soft-tertiary" className="text-xs py-0 leading-none">
-                       v{quiz.version}
-                     </Badge>}
+                   {quiz && questions.length > 0 && <Badge variant="soft-tertiary" showIcon>{questions.length}</Badge>}
                 </TabsTrigger>
               </TabsList>
 
@@ -1039,7 +1037,12 @@ export const EditVideoModal = ({
                      )}
 
                      <div className="flex justify-between items-center">
-                       <h3 className="text-sm font-semibold">{questions.length} {questions.length === 1 ? 'Question' : 'Questions'}</h3>
+                       <div className="flex items-center gap-2">
+                         <h3 className="text-base font-semibold">{questions.length} {questions.length === 1 ? 'Question' : 'Questions'}</h3>
+                         {versionCount > 1 && quiz && (
+                           <Badge variant="soft-tertiary">v{quiz.version}</Badge>
+                         )}
+                       </div>
                        {versionCount > 1 && (
                          <Button
                            variant="outline"
