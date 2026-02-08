@@ -762,7 +762,7 @@ export const EmployeeManagement: React.FC<{
                 setPendingShowEmployee(null);
               }
             }}>
-              Show
+              Show Employee
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
