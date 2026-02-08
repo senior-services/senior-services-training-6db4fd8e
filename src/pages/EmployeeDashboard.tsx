@@ -76,7 +76,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   const [quizAttemptsByVideo, setQuizAttemptsByVideo] = useState<Record<string, QuizAttemptWithDetails | undefined>>(
     {},
   );
-  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Set<string>>(new Set());
+  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -129,10 +129,12 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             setQuizAttemptsByVideo({});
           }
 
-          // Fetch which videos have quizzes (same pattern as admin dashboard)
+          // Fetch which videos have quizzes with their creation dates
           try {
-            const { data: quizzesData } = await supabase.from("quizzes").select("video_id");
-            setVideoIdsWithQuizzes(new Set(quizzesData?.map(q => q.video_id) || []));
+            const { data: quizzesData } = await supabase.from("quizzes").select("video_id, created_at").is("archived_at", null);
+            const quizMap = new Map<string, string>();
+            quizzesData?.forEach(q => quizMap.set(q.video_id, q.created_at));
+            setVideoIdsWithQuizzes(quizMap);
           } catch (error) {
             logger.warn("Failed to load quiz video IDs", { error });
           }
@@ -242,7 +244,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
       // Quiz-aware completion logic (aligned with admin dashboard)
       const videoMarkedComplete = assignment?.completed_at || assignment?.progress_percent === 100;
-      const hasQuiz = videoIdsWithQuizzes.has(video.id);
+      const quizCreatedAt = videoIdsWithQuizzes.get(video.id);
+      // If employee completed before the quiz was created, they're exempt
+      const completedBeforeQuiz = quizCreatedAt && assignment?.completed_at && new Date(assignment.completed_at) < new Date(quizCreatedAt);
+      const hasQuiz = !!quizCreatedAt && !completedBeforeQuiz;
       const quizDone = quizAttemptsByVideo[video.id] != null;
 
       let effectiveProgress: number;

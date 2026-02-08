@@ -116,16 +116,21 @@ export const EmployeeManagement: React.FC<{
         // Load quizzes and map quiz attempts per employee
         const {
           data: quizzesData
-        } = await supabase.from('quizzes').select('video_id').is('archived_at', null);
-        const videoIdsWithQuizzes = new Set(quizzesData?.map(quiz => quiz.video_id) || []);
+        } = await supabase.from('quizzes').select('video_id, created_at').is('archived_at', null);
+        const quizCreationDates = new Map<string, string>();
+        quizzesData?.forEach(quiz => quizCreationDates.set(quiz.video_id, quiz.created_at));
         const videoMap = new Map();
         const quizMap = new Map();
         for (const employee of transformedEmployees) {
           if (employee.assignments && Array.isArray(employee.assignments)) {
-            const assignmentsWithQuizInfo = employee.assignments.map(assignment => ({
-              ...assignment,
-              hasQuiz: videoIdsWithQuizzes.has(assignment.video_id)
-            }));
+            const assignmentsWithQuizInfo = employee.assignments.map((assignment: any) => {
+              const quizCreatedAt = quizCreationDates.get(assignment.video_id);
+              const completedBeforeQuiz = quizCreatedAt && assignment.completed_at && new Date(assignment.completed_at) < new Date(quizCreatedAt);
+              return {
+                ...assignment,
+                hasQuiz: !!quizCreatedAt && !completedBeforeQuiz
+              };
+            });
             videoMap.set(employee.id, assignmentsWithQuizInfo);
           } else {
             videoMap.set(employee.id, []);
@@ -335,18 +340,23 @@ export const EmployeeManagement: React.FC<{
     videos: Map<string, any[]>;
     quizzes: Map<string, Map<string, any>>;
   }> => {
-    const { data: quizzesData } = await supabase.from('quizzes').select('video_id').is('archived_at', null);
-    const videoIdsWithQuizzes = new Set(quizzesData?.map(quiz => quiz.video_id) || []);
+    const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at').is('archived_at', null);
+    const quizCreationDates = new Map<string, string>();
+    quizzesData?.forEach(quiz => quizCreationDates.set(quiz.video_id, quiz.created_at));
 
     const videoMap = new Map<string, any[]>();
     const quizMap = new Map<string, Map<string, any>>();
 
     for (const employee of hiddenEmployees) {
       if (employee.assignments && Array.isArray(employee.assignments)) {
-        const assignmentsWithQuizInfo = employee.assignments.map(assignment => ({
-          ...assignment,
-          hasQuiz: videoIdsWithQuizzes.has(assignment.video_id)
-        }));
+        const assignmentsWithQuizInfo = employee.assignments.map((assignment: any) => {
+          const quizCreatedAt = quizCreationDates.get(assignment.video_id);
+          const completedBeforeQuiz = quizCreatedAt && assignment.completed_at && new Date(assignment.completed_at) < new Date(quizCreatedAt);
+          return {
+            ...assignment,
+            hasQuiz: !!quizCreatedAt && !completedBeforeQuiz
+          };
+        });
         videoMap.set(employee.id, assignmentsWithQuizInfo);
       } else {
         videoMap.set(employee.id, []);
