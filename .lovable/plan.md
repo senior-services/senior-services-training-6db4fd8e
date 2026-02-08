@@ -1,37 +1,39 @@
 
-## Make Quiz Dialog Full Screen (Employee View)
 
-A simple one-line change. The project already has a `FullscreenDialogContent` component in the design system -- we just need to use it.
+## Make Training Card Dialog Full Screen
+
+The training card video player dialog (`VideoPlayerFullscreen` component) currently uses a standard `DialogContent` with `max-w-6xl w-[95vw]` sizing -- not a true full-screen layout. This needs to be swapped to use the existing `FullscreenDialogContent` component, consistent with how the quiz dialog was updated.
 
 ### What Changes
 
-- The quiz dialog on the employee video page (`VideoPage.tsx`) currently opens as a medium-width modal (`max-w-4xl`).
-- After: it opens as a full-screen dialog (same style used by the video player fullscreen dialog), filling the viewport with a small inset margin.
+- The video player dialog that opens when employees click a training card will fill the viewport (with a small inset margin), matching the full-screen style already used by the quiz dialog.
+- No changes to functionality, data, or layout inside the dialog -- only the outer container changes.
 
 ### Principal Engineer Review
 
 **Top 5 Risks/Issues:**
-1. None significant -- this is a one-component swap using an existing design-system primitive
-2. The quiz title in DialogHeader still shows `quiz?.title || 'Quiz'` which was previously cleared; verify it renders sensibly
-3. No mobile-specific concerns -- `FullscreenDialogContent` already handles responsive insets
+1. None significant -- single component swap using an existing design-system primitive
+2. The `onOpenAutoFocus` handler and `aria-describedby` must be preserved on the new component
+3. No mobile concerns -- `FullscreenDialogContent` already handles responsive behavior
 4. No accessibility impact -- same close button and focus management
 5. No data or logic changes
 
 **Top 5 Fixes/Improvements:**
-1. Swap `DialogContent` to `FullscreenDialogContent` in the quiz dialog
-2. Update the import to include `FullscreenDialogContent`
-3. Remove the `max-w-4xl` class (not needed for fullscreen)
-4. Consider removing the DialogHeader title since QuizModal already renders its own "Quiz questions (N)" heading -- avoids duplication
+1. Replace `DialogContent` import with `FullscreenDialogContent` in `VideoPlayerFullscreen.tsx`
+2. Swap the component at line 445, removing `className="max-w-6xl w-[95vw]"`
+3. Keep existing `onOpenAutoFocus` and `aria-describedby` props
+4. Update the closing tag accordingly
 5. No other changes needed
 
 **Database Change Required:** No
 
-**Go/No-Go Verdict:** Go -- single-line swap using an existing component.
+**Go/No-Go Verdict:** Go -- minimal, one-line swap with no logic or data impact.
 
 ### Technical Details
 
-**`src/pages/VideoPage.tsx`:**
-- Update import: add `FullscreenDialogContent` from `@/components/ui/dialog`
-- Line 329: replace `<DialogContent className="max-w-4xl">` with `<FullscreenDialogContent>`
-- Line 342: replace closing `</DialogContent>` with `</FullscreenDialogContent>`
-- Optionally remove `<DialogHeader>` block (lines 330-334) since QuizModal already shows "Quiz questions (N)" as a heading -- keeping both would be redundant
+**`src/components/VideoPlayerFullscreen.tsx`:**
+- Line 2: Update import to include `FullscreenDialogContent` instead of (or in addition to) `DialogContent`
+- Line 445: Replace `<DialogContent className="max-w-6xl w-[95vw]"` with `<FullscreenDialogContent`
+- Update the corresponding closing `</DialogContent>` tag to `</FullscreenDialogContent>`
+- Preserve the `onOpenAutoFocus` and `aria-describedby` props on the new component
+
