@@ -310,15 +310,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     try {
       const attemptId = await quizOperations.submitQuiz(user.email, quiz.id, quizResponses);
 
-      // Get quiz results to show correct/incorrect answers
-      const attempts = await quizOperations.getUserAttempts(user.email);
+      // Fetch both results and correct answers before updating state
+      // to avoid a flash of "incorrect" while correctOptions is still empty
+      const [attempts, correctOpts] = await Promise.all([
+        quizOperations.getUserAttempts(user.email),
+        quizOperations.getCorrectOptionsForQuiz(quiz.id),
+      ]);
       const currentAttempt = attempts.find(attempt => attempt.id === attemptId);
+
+      // Batch all state updates so React renders once with complete data
       if (currentAttempt?.responses) {
         setQuizResults(currentAttempt.responses);
       }
-
-      // Fetch correct options after submission to show in results
-      const correctOpts = await quizOperations.getCorrectOptionsForQuiz(quiz.id);
       setCorrectOptions(correctOpts);
       logger.info('Quiz submitted successfully', {
         quizId: quiz.id,
