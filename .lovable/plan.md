@@ -1,36 +1,47 @@
 
 
-## Fix Tab Spacing Without Changing Badge Appearance
+## Fix Tab Badge Without Squishing It
 
 ### Problem
-The badge inside the Quiz tab trigger is making that trigger taller than the Details trigger, creating a visible gap between the text and the underline. The previous fix (`py-0 leading-none`) wasn't enough because the badge still has intrinsic height from its icon and text.
+The `-my-1` negative margin is visually squishing the badge, making it look compressed. But without it, the badge stretches the tab trigger taller than "Details".
 
 ### Solution
-Use **negative vertical margins** on the badge to offset its height contribution without changing how the badge itself looks. This pulls the badge back into the vertical space so it doesn't stretch the trigger.
+Remove all height hacks from the badge (`py-0 leading-none -my-1`) and instead position it so it doesn't affect the trigger's height calculation. The approach: make the badge `absolute` within the trigger (which is already `relative`) so it floats alongside the text without influencing the trigger's height.
 
-### Fix
+### Changes
 
-**File: `src/components/EditVideoModal.tsx`** (line 993)
+**File: `src/components/EditVideoModal.tsx`** (line ~991-993)
 
-Add `-my-1` alongside the existing classes:
+Wrap the badge in a relatively-positioned span and use absolute positioning on the badge:
 
 ```tsx
-<Badge variant="soft-tertiary" showIcon className="py-0 leading-none -my-1">
-  {questions.length}
-</Badge>
+<TabsTrigger value="quiz" className="gap-2">
+  Quiz
+  {quiz && questions.length > 0 && (
+    <span className="relative">
+      <Badge variant="soft-tertiary" showIcon className="absolute left-0 top-1/2 -translate-y-1/2">
+        {questions.length}
+      </Badge>
+      {/* Invisible spacer to reserve horizontal width */}
+      <Badge variant="soft-tertiary" showIcon className="invisible">
+        {questions.length}
+      </Badge>
+    </span>
+  )}
+</TabsTrigger>
 ```
 
-The `-my-1` (negative 4px top and bottom margin) compensates for the badge's intrinsic height so the tab trigger stays the same height as the Details tab.
+This keeps the badge at its natural size, reserves horizontal space with an invisible duplicate, and uses absolute positioning to remove it from the vertical flow.
 
 ### Why This Works
-- The badge keeps its natural visual appearance (same size, same padding)
-- The negative margins pull it "into" the available space rather than pushing the container outward
-- Both tab labels will now sit at the same distance from the underline
+- Badge keeps its full natural height and appearance -- no squishing
+- The invisible spacer reserves the correct horizontal width so layout doesn't collapse
+- Absolute positioning removes the badge from vertical flow, so the trigger height matches "Details"
+- Both tabs align flush with the underline
 
 ### Review
 
-- **Top 5 Risks**: None — single CSS class addition, purely layout adjustment
-- **Top 5 Fixes**: (1) Add `-my-1` to neutralize badge height contribution
+- **Top 5 Risks**: (1) Slightly more DOM elements (invisible spacer), but negligible. No other risks.
+- **Top 5 Fixes**: (1) Remove all badge height hacks. (2) Use absolute positioning pattern to decouple badge from trigger height.
 - **Database Change Required**: No
-- **Go/No-Go**: Go — minimal styling fix, badge appearance unchanged
-
+- **Go/No-Go**: Go -- preserves badge appearance while fixing alignment.
