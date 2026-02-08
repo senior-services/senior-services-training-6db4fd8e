@@ -521,7 +521,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                 setPendingShowVideo(null);
               }
             }}>
-              Show
+              Show Training
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
