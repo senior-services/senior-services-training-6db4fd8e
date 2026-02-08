@@ -789,7 +789,7 @@ export const EditVideoModal = ({
             <Tabs defaultValue="info" className="w-full">
               <TabsList>
                 <TabsTrigger value="info">Details</TabsTrigger>
-                <TabsTrigger value="quiz" className="flex items-center gap-2">
+                <TabsTrigger value="quiz" className="gap-2">
                    Quiz
                    {questions.length > 0 && <Badge variant="soft-tertiary" className="text-xs">
                        {questions.length}
