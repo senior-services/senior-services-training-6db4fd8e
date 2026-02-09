@@ -1,27 +1,22 @@
 
-## Update Tooltip Hover Text Formatting
+
+## Update Section Count Badges to Soft Variant
 
 ### What's Changing
-Four tooltip text updates across the TrainingCard component to improve consistency in capitalization and punctuation.
+The count badges next to "Required Courses" and "Completed Courses" section headings will switch from solid variants to soft variants for a lighter, more consistent look.
 
-**Required courses (not completed):**
-1. Due date tooltip: "Due February 9, 2026" becomes "Due: February 9, 2026" (added colon)
-2. Quiz tooltip: "Quiz: 5 questions" becomes "Quiz: 5 Questions" (capitalized "Questions")
-
-**Completed courses:**
-1. Completed date tooltip: "Completed February 9, 2026" becomes "Completed: February 9, 2026" (added colon)
-2. Quiz score tooltip: "Quiz score: 80% (4/5 correct)" becomes "Quiz Score: 80% (4/5 Correct)" (capitalized "Score" and "Correct")
+- **Required Courses badge** (currently `variant="default"`, solid blue): Changes to `variant="soft-primary"` (light blue background with subtle border)
+- **Completed Courses badge** (currently `variant="success"`, solid green): Changes to `variant="soft-success"` (light green background with subtle border)
 
 ### Technical Details
 
-**File: `src/components/TrainingCard.tsx`** -- 4 single-line text changes:
-- Line 316: Add colon after "Completed"
-- Line 330: Capitalize "score" to "Score" and "correct" to "Correct"
-- Line 350: Add colon after "Due"
-- Line 364: Capitalize "question(s)" to "Question(s)"
+**File: `src/pages/EmployeeDashboard.tsx`** -- 2 single-line changes:
+- Line 566: Change `variant="default"` to `variant="soft-primary"`
+- Line 621: Change `variant="success"` to `variant="soft-success"`
 
 ### Review
-- **Top 5 Risks**: None -- text-only tooltip changes.
-- **Top 5 Fixes**: (1-4) Update four tooltip strings for consistent formatting.
+- **Top 5 Risks**: None -- variant-only styling change on existing Badge components.
+- **Top 5 Fixes**: (1) Switch Required badge to soft-primary. (2) Switch Completed badge to soft-success.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
+
