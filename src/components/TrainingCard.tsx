@@ -352,9 +352,18 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   )}
                 </Tooltip>
                 {sanitizedVideo.quizQuestionCount != null && sanitizedVideo.quizQuestionCount > 0 && (
-                  <Badge variant="soft-tertiary" className="text-xs font-medium" showIcon>
-                    {sanitizedVideo.quizQuestionCount} question{sanitizedVideo.quizQuestionCount !== 1 ? 's' : ''}
-                  </Badge>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Badge variant="soft-tertiary" className="text-xs font-medium" showIcon>
+                          {sanitizedVideo.quizQuestionCount}
+                        </Badge>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Quiz: {sanitizedVideo.quizQuestionCount} question{sanitizedVideo.quizQuestionCount !== 1 ? 's' : ''}
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
             )}
