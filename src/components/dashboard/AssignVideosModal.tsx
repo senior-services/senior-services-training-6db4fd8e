@@ -475,6 +475,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   // Format due date for display
   const formatDueDate = (videoId: string): string => {
     // Not selected and not assigned - show "--"
+    // Completed videos: show completion date regardless of assignment status
+    if (completedVideoIds.has(videoId)) {
+      const progressData = videoProgressData.get(videoId);
+      if (progressData?.completed_at) {
+        return format(new Date(progressData.completed_at), "MMM dd, yyyy");
+      }
+    }
     if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return "--";
 
     // Newly selected but not yet assigned - show "--" unless user set a pending deadline
@@ -605,7 +612,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const getQuizResults = (videoId: string): React.ReactNode => {
     const hasQuiz = videoIdsWithQuizzes.has(videoId);
     const quizAttempt = employeeQuizResults.get(videoId);
-    const isAssigned = assignedVideoIds.has(videoId);
+    const isAssigned = assignedVideoIds.has(videoId) || completedVideoIds.has(videoId);
 
     // Priority 1: If employee has a quiz attempt, always show the actual score
     if (quizAttempt) {
@@ -640,7 +647,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   // Get quiz version display for a video
   const getQuizVersion = (videoId: string): string => {
     const hasQuiz = videoIdsWithQuizzes.has(videoId);
-    const isAssigned = assignedVideoIds.has(videoId) || selectedVideoIds.has(videoId);
+    const isAssigned = assignedVideoIds.has(videoId) || selectedVideoIds.has(videoId) || completedVideoIds.has(videoId);
 
     // Unassigned videos always show "--"
     if (!isAssigned) {
