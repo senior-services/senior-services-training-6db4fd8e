@@ -187,7 +187,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
     <div className="h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 flex items-center gap-3">
-          <h2 className="text-2xl font-bold">Quiz questions ({quiz.questions.length})</h2>
+          <h2 className="text-2xl font-bold">Quiz questions ({isSubmitted && storedTotalQuestions ? storedTotalQuestions : quiz.questions.length})</h2>
           {isSubmitted && quizResults && (() => {
             // Use stored attempt data when available (ensures accuracy across quiz versions)
             const useStored = storedScore !== undefined && storedTotalQuestions !== undefined;
@@ -214,7 +214,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
         </div>
 
         <div className="space-y-6">
-          {quiz.questions.map((question, index) => (
+          {(() => {
+            // When reviewing a submitted quiz, only show questions the employee actually answered
+            const questionsToShow = isSubmitted && quizResults
+              ? quiz.questions.filter(q => quizResults.some(r => r.question_id === q.id))
+              : quiz.questions;
+            return questionsToShow.map((question, index) => (
             <Card key={question.id} className="border-border">
               <CardContent className="p-6">
                 <div className="space-y-4">
@@ -511,7 +516,8 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                 </div>
               </CardContent>
             </Card>
-          ))}
+          ));
+          })()}
 
           {/* Attestation Checkbox */}
           <div className="border rounded-lg p-4 bg-muted/30">
