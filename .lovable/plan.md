@@ -1,40 +1,48 @@
 
 
-## Quiz Review: Badge & Styling Cleanup
+## Quiz Review Dialog: Header, Description & Attestation Layout Changes
 
 ### Changes Summary
 
-**File: `src/components/quiz/QuizModal.tsx`**
+**3 changes across 2 files:**
 
-Three question types need the same set of changes (multiple_choice, true_false, single_answer):
+### 1. Remove Play icon from dialog header
+**File: `src/components/VideoPlayerFullscreen.tsx` (line 482)**
+- Remove the `<Play>` icon element from the `DialogTitle`
+- Keep the video title text as-is
 
-1. **Move icons into badges**: Replace the current plain-text badges (e.g., "Correct", "Incorrect", "Also Correct") with badges that include an icon. Use `showIcon` prop on the Badge component:
-   - "Correct" / "Also Correct" badges: use `variant="soft-success"` with `showIcon` (renders a checkmark icon inside the badge)
-   - "Incorrect" badges: use `variant="soft-destructive"` with `showIcon` (renders a warning icon inside the badge)
+### 2. Change video description to primary text color
+**File: `src/components/VideoPlayerFullscreen.tsx` (line 489)**
+- Change `text-muted-foreground` to `text-foreground` on the description paragraph
 
-2. **Remove standalone icons**: Delete all the separate `<CheckCircle>` and `<XCircle>` icon elements that currently appear to the right of the badges (lines 322-331, 411-420, 493-502 and their equivalents).
+### 3. Move attestation checkbox to dialog footer
+**File: `src/components/quiz/QuizModal.tsx` (lines 486-524)**
+- Remove the entire attestation checkbox block from QuizModal (the bordered card with checkbox and label at the bottom of the quiz content area)
 
-3. **Remove banner styling for non-user-selected answers**: For options the user did NOT select, remove the colored background/border styling (`bg-success/10 border-success/20 rounded-md p-3 border`) so they appear as plain text. The badge alone ("Correct" or "Also Correct") will still communicate the answer status.
-   - Specifically, the `else if (!isSelected && isCorrect && ...)` branches that add banner classes will be removed.
-   - The badge for those unselected-but-correct options will remain.
+**File: `src/components/VideoPlayerFullscreen.tsx` (lines 575-610)**
+- Restructure the `DialogFooter` to use `justify-between` layout
+- Add the attestation checkbox + label on the left side of the footer, vertically aligned with the Close/Submit button on the right
+- For the active quiz state (not yet submitted): attestation on the left, Cancel + Submit buttons on the right
+- For the review state (already completed): attestation (checked, disabled) on the left, Close button on the right
+- The attestation state management already exists in VideoPlayerFullscreen (`quizAttestationChecked` state + `handleQuizResponsesChange` callback), so the footer will use those existing values
 
 ### What Stays the Same
-- Banner styling for user-selected answers (green for correct, red for incorrect) remains unchanged
-- Badge text labels ("Correct", "Incorrect", "Also Correct") remain unchanged
-- True/False inline icons (small CheckCircle/XCircle next to "True"/"False" text) are unrelated decorative icons and remain unchanged
-- No database or schema changes
+- Attestation logic and state management (already handled in VideoPlayerFullscreen)
+- Quiz content rendering (questions, options, badges)
+- No database changes
+- VideoPage.tsx quiz dialog is unaffected (it does not use the same fullscreen layout)
 
 ### Technical Details
 
-| Section | Current | After |
+| Change | Before | After |
 |---|---|---|
-| Selected correct answer | Green banner + "Correct" badge + CheckCircle icon | Green banner + "Correct" badge with built-in icon |
-| Selected incorrect answer | Red banner + "Incorrect" badge + XCircle icon | Red banner + "Incorrect" badge with built-in icon |
-| Unselected correct answer | Green banner + "Correct"/"Also Correct" badge + CheckCircle icon | No banner + "Correct"/"Also Correct" badge with built-in icon |
+| Dialog header | Play icon + title | Title only |
+| Description color | `text-muted-foreground` (gray) | `text-foreground` (primary/dark) |
+| Attestation location | Inside QuizModal scroll area (card) | Dialog footer, left-aligned beside Close button |
 
 ### Review
-- **Top 5 Risks**: (1) Badge `showIcon` uses `Check` not `CheckCircle` and `AlertTriangle` not `XCircle` -- slightly different icons but consistent with design system. (2) No accessibility impact -- ARIA labels on badges preserved. (3) No data changes. (4) No logic changes. (5) Minimal risk overall.
-- **Top 5 Fixes**: (1) Add `showIcon` and `variant="soft-success"/"soft-destructive"` to badges. (2) Remove standalone icon elements. (3) Remove banner styling on non-selected options. (4) Apply consistently across all three question types. (5) Remove unused custom `className` overrides on badges now using proper variants.
+- **Top 5 Risks**: (1) Removing attestation from QuizModal may affect VideoPage.tsx which also uses QuizModal -- but VideoPage does not use `onResponsesChange` so attestation was non-functional there anyway. (2) Footer layout needs careful flex alignment for different states. (3) Attestation checkbox accessibility must be maintained with proper labels. (4) No data or logic changes. (5) Minimal risk overall.
+- **Top 5 Fixes**: (1) Delete attestation block from QuizModal. (2) Add attestation to DialogFooter with `justify-between` layout. (3) Remove Play icon from DialogTitle. (4) Update description text color class. (5) Ensure consistent spacing between attestation and buttons.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
 
