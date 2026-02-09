@@ -610,13 +610,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     if (!hasQuiz) {
       // Show "N/A" for assigned courses without quiz, "--" for unassigned
       return isAssigned 
-        ? <span aria-label="No quiz for this course">N/A</span>
-        : <span aria-label="No quiz available">--</span>;
+        ? <span className="text-muted-foreground" aria-label="No quiz for this course">N/A</span>
+        : <span className="text-muted-foreground" aria-label="No quiz available">--</span>;
     }
 
     // Unassigned videos show "--" instead of "Not Completed"
     if (!isAssigned) {
-      return <span aria-label="Not assigned">--</span>;
+      return <span className="text-muted-foreground" aria-label="Not assigned">--</span>;
     }
 
     // Legacy exemption: completed before quiz existed (and no quiz attempt)
@@ -816,7 +816,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             </TableCell>
 
                             <TableCell>
-                              <span className="text-sm whitespace-nowrap">{formatDueDate(video.id)}</span>
+                              {(() => { const dd = formatDueDate(video.id); return <span className={`text-sm whitespace-nowrap ${dd === '--' || dd === 'N/A' ? 'text-muted-foreground' : ''}`}>{dd}</span>; })()}
                             </TableCell>
                             <TableCell>
                               <span className="text-sm whitespace-nowrap">{getQuizResults(video.id)}</span>
