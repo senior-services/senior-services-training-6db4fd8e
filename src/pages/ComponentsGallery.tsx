@@ -728,7 +728,7 @@ export const ComponentsGallery = ({
                     </div>
                     <div>
                       <Label htmlFor="helper-input">Email Address</Label>
-                      <p className="text-xs text-muted-foreground mt-1 mb-1.5">
+                      <p className="text-xs text-muted-foreground mb-1.5">
                         We'll use this to send you login instructions.
                       </p>
                       <Input id="helper-input" placeholder="you@example.com" className="shadow-sm hover:shadow-md transition-shadow" />
