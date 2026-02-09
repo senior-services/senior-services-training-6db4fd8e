@@ -128,9 +128,16 @@ export const EmployeeManagement: React.FC<{
         // Load quizzes and map quiz attempts per employee
         const {
           data: quizzesData
-        } = await supabase.from('quizzes').select('video_id, created_at').is('archived_at', null);
+        } = await supabase.from('quizzes').select('video_id, created_at, version').is('archived_at', null);
         const quizCreationDates = new Map<string, string>();
-        quizzesData?.forEach(quiz => quizCreationDates.set(quiz.video_id, quiz.created_at));
+        const quizVersionsMap = new Map<string, number>();
+        quizzesData?.forEach(quiz => {
+          quizCreationDates.set(quiz.video_id, quiz.created_at);
+          const existing = quizVersionsMap.get(quiz.video_id);
+          if (!existing || quiz.version > existing) {
+            quizVersionsMap.set(quiz.video_id, quiz.version);
+          }
+        });
         const videoMap = new Map();
         const quizMap = new Map();
         for (const employee of transformedEmployees) {
@@ -352,9 +359,16 @@ export const EmployeeManagement: React.FC<{
     videos: Map<string, any[]>;
     quizzes: Map<string, Map<string, any>>;
   }> => {
-    const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at').is('archived_at', null);
+    const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at, version').is('archived_at', null);
     const quizCreationDates = new Map<string, string>();
-    quizzesData?.forEach(quiz => quizCreationDates.set(quiz.video_id, quiz.created_at));
+    const quizVersionsMap = new Map<string, number>();
+    quizzesData?.forEach(quiz => {
+      quizCreationDates.set(quiz.video_id, quiz.created_at);
+      const existing = quizVersionsMap.get(quiz.video_id);
+      if (!existing || quiz.version > existing) {
+        quizVersionsMap.set(quiz.video_id, quiz.version);
+      }
+    });
 
     const videoMap = new Map<string, any[]>();
     const quizMap = new Map<string, Map<string, any>>();
@@ -411,7 +425,8 @@ export const EmployeeManagement: React.FC<{
     quizzesMap: Map<string, Map<string, any>>,
     hiddenEmployeeIds: Set<string>,
     includeVisibility: boolean,
-    quizCreationDates: Map<string, string>
+    quizCreationDates: Map<string, string>,
+    quizVersions: Map<string, number>
   ): any[] => {
     const exportData: any[] = [];
 
@@ -504,7 +519,7 @@ export const EmployeeManagement: React.FC<{
             'Due Date': dueDate,
             'Completion Date': completionDate,
             'Quiz Results': quizResults,
-'Quiz Version': quizAttempt?.quiz_version ? `${quizAttempt.quiz_version}` : (assignment.hasQuiz ? '--' : 'N/A'),
+'Quiz Version': quizAttempt?.quiz_version ? `${quizAttempt.quiz_version}` : (quizVersions.get(assignment.video_id) ? `${quizVersions.get(assignment.video_id)}` : (assignment.hasQuiz ? '--' : 'N/A')),
             ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
           });
         });
@@ -537,16 +552,21 @@ export const EmployeeManagement: React.FC<{
       const hiddenEmployeeIds = new Set(hiddenEmployees.map(e => e.id));
 
       // Fetch quiz creation dates for export
-      const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at').is('archived_at', null);
+      const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at, version').is('archived_at', null);
       const quizCreationDates = new Map<string, string>();
+      const quizVersions = new Map<string, number>();
       quizzesData?.forEach(quiz => {
         const existing = quizCreationDates.get(quiz.video_id);
         if (!existing || new Date(quiz.created_at) < new Date(existing)) {
           quizCreationDates.set(quiz.video_id, quiz.created_at);
         }
+        const existingVersion = quizVersions.get(quiz.video_id);
+        if (!existingVersion || quiz.version > existingVersion) {
+          quizVersions.set(quiz.video_id, quiz.version);
+        }
       });
 
-      const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds, includeHidden, quizCreationDates);
+      const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds, includeHidden, quizCreationDates, quizVersions);
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(exportData);
