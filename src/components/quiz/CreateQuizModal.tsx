@@ -302,7 +302,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                       <div className="flex items-center justify-between">
                         <Label>Answer Options</Label>
                         {question.question_type === 'multiple_choice' && (
-                          <p className="text-xs text-muted-foreground mt-1 mb-1.5">
+                          <p className="text-xs text-muted-foreground mb-1.5">
                             Mark all correct answers. Employees must select all of these to pass the question.
                           </p>
                         )}
