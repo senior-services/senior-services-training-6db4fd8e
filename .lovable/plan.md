@@ -1,48 +1,41 @@
 
 
-## Fix Extra Margin on Helper Text
+## Review: Is the Proposed "block" Fix the Best Approach?
 
-### Problem
-The helper text appears with extra spacing because it sits as a separate child element inside a parent container that uses `space-y-3` (admin) or `space-y-4` (employee). Tailwind's `space-y-*` utility adds top margin to every child after the first, so removing `mt-1` from the `<p>` tag had no visible effect -- the parent's spacing class overrides it.
+### Short Answer
+The `className="block"` fix will work but is not the cleanest solution. A better, more scalable approach exists.
 
-### Solution
-Wrap the Label and its helper text together in a single `<div>` so they are treated as one child by the parent's `space-y` layout. This eliminates the automatic gap between them while keeping the gap between the grouped label/helper and the next sibling (input options).
+### What's Actually Causing the Gap
+The wrapper `<div>` (already applied) correctly fixed the `space-y` problem. The remaining gap you see on the admin side comes from the `<p>` tag's **browser default top margin** (~16px). On the employee side this isn't visible because the `<h3>` above it is a block element with its own bottom margin that collapses with the `<p>`'s top margin. On the admin side, the `<label>` is inline, so margin collapsing doesn't happen the same way.
 
-### Changes (3 files)
+### Recommended Fix (Instead of Adding "block")
+Reset the `<p>` helper text's top margin explicitly. This is cleaner because:
+1. It targets the actual cause (browser default `<p>` margin)
+2. It doesn't require remembering to add `block` to every Label that has helper text
+3. It aligns with the existing pattern of utility-class-driven spacing
 
-**File 1: `src/components/EditVideoModal.tsx`** (~line 1124-1129)
-- Wrap `<Label>Answer Options</Label>` and the conditional helper `<p>` in a single `<div>`:
-```tsx
-<div>
-  <Label>Answer Options</Label>
-  {question.question_type === 'multiple_choice' && (
-    <p className="text-xs text-muted-foreground mb-1.5">
-      Mark all correct answers. Employees must select all of these to pass the question.
-    </p>
-  )}
-</div>
-```
+### Changes (2 files)
 
-**File 2: `src/components/quiz/CreateQuizModal.tsx`** (~line 303-307)
-- Same wrapping approach for the Label and helper text.
+**File 1: `src/components/EditVideoModal.tsx`** (line 1127)
+- Change the helper text class from `text-xs text-muted-foreground mb-1.5` to `text-xs text-muted-foreground mt-0 mb-1.5`
+- The `mt-0` explicitly removes the browser's default paragraph top margin
 
-**File 3: `src/components/quiz/QuizModal.tsx`** (~line 226-234)
-- Wrap the `<h3>` question title and the conditional helper `<p>` in a single `<div>`:
-```tsx
-<div>
-  <h3 className="font-semibold text-lg">
-    {index + 1}. {question.question_text}
-  </h3>
-  {question.question_type === 'multiple_choice' && (
-    <p className="text-xs text-muted-foreground">
-      Select all correct options for full credit.
-    </p>
-  )}
-</div>
-```
+**File 2: `src/components/quiz/CreateQuizModal.tsx`** (line 306)
+- Same change: add `mt-0` to the helper text class
+
+**No changes needed for QuizModal.tsx** -- the employee side already works correctly.
+
+### Why This Is Better Than "block"
+- **Root cause**: Targets the actual issue (default `<p>` margin) rather than working around it by changing the Label's display mode
+- **Scalable**: Any future helper text just follows the documented pattern (`text-xs text-muted-foreground mt-0 mb-1.5`) without needing to also remember to modify the Label
+- **Non-breaking**: Doesn't change Label behavior, which could have unintended side effects in other contexts
+
+### Style Guide Update
+Update `STYLEGUIDE.md` to document the full helper text class as `text-xs text-muted-foreground mt-0 mb-1.5` so future usage is consistent.
 
 ### Review
-- **Top 5 Risks**: (1) Minimal -- structural wrapper only, no logic changes. (2) Must verify wrapping doesn't break existing layout for non-multiple-choice types. (3) No styling regressions. (4) No database changes. (5) No accessibility impact.
-- **Top 5 Fixes**: (1) Wrap label + helper in EditVideoModal. (2) Wrap label + helper in CreateQuizModal. (3) Wrap title + helper in QuizModal. (4) Preserves parent space-y gaps for other siblings. (5) Consistent pattern across all three files.
+- **Top 5 Risks**: (1) None -- single class addition. (2) No logic changes. (3) No layout side effects. (4) No database changes. (5) No accessibility impact.
+- **Top 5 Fixes**: (1) Add `mt-0` to helper text in EditVideoModal. (2) Add `mt-0` in CreateQuizModal. (3) Update STYLEGUIDE.md pattern. (4) No Label modifications needed. (5) Employee side unchanged.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
+
