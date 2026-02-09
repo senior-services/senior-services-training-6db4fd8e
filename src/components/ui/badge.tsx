@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Check, AlertTriangle, AlertCircle, Shield, Clock, Info, MessageSquare } from "lucide-react"
+import { Check, AlertTriangle, AlertCircle, Clock, Info, MessageSquare } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -96,7 +96,7 @@ function Badge({ className, variant, showIcon, children, ...props }: BadgeProps)
         <Clock className="w-3 h-3 mr-1" />
       )}
       {showIcon && (variant === "attention" || variant === "hollow-attention" || variant === "ghost-attention" || variant === "soft-attention") && (
-        <Shield className="w-3 h-3 mr-1" />
+        <AlertTriangle className="w-3 h-3 mr-1" />
       )}
       {showIcon && (variant === "default" || variant === "hollow-primary" || variant === "ghost-primary" || variant === "soft-primary") && (
         <Info className="w-3 h-3 mr-1" />
