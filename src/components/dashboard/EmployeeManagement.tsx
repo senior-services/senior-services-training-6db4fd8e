@@ -519,7 +519,9 @@ export const EmployeeManagement: React.FC<{
             'Due Date': dueDate,
             'Completion Date': completionDate,
             'Quiz Results': quizResults,
-'Quiz Version': quizAttempt?.quiz_version ? `${quizAttempt.quiz_version}` : (quizVersions.get(assignment.video_id) ? `${quizVersions.get(assignment.video_id)}` : (assignment.hasQuiz ? '--' : 'N/A')),
+            'Quiz Version': (quizResults === 'Legacy - No Quiz' || quizResults === 'N/A')
+              ? 'N/A'
+              : (quizVersions.get(assignment.video_id) ? `${quizVersions.get(assignment.video_id)}` : (assignment.hasQuiz ? '--' : 'N/A')),
             ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })
           });
         });
