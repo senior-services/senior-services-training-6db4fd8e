@@ -306,7 +306,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                     <div>
                       <Badge variant={dueDateInfo?.variant || "soft-success"} className="text-xs font-medium" aria-label={dueDateInfo?.ariaLabel || "Training completed successfully"} role="status" showIcon>
                         {sanitizedVideo.completedAt
-                          ? `Completed ${format(new Date(sanitizedVideo.completedAt), 'MMM d')}`
+                          ? format(new Date(sanitizedVideo.completedAt), 'MMM d')
                           : 'Completed'}
                       </Badge>
                     </div>
