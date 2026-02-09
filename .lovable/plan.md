@@ -1,31 +1,54 @@
 
 
-## Hide Quiz for Legacy-Exempt Employees on VideoPage
+## Fix Quiz Version Display in Assign Videos Dialog
 
-### Problem
-When an employee has already completed a training (video only, no quiz at the time), and an admin later adds a quiz, the employee currently sees the new quiz when they revisit the training. Since they are legacy-exempt, the quiz should be hidden entirely -- they should not be prompted to take it.
+### Problems (from screenshot)
+1. **Unassigned videos with quizzes** (e.g., PPSX, PPTX) show a version number like "1" instead of "--". Unassigned videos should always show "--" regardless of whether the course has a quiz.
+2. **Completed videos with quiz attempts** (e.g., Anti-Harassment 67%, Paid Time Off 100%) show "N/A" instead of the actual version number. If there is a quiz and the employee has taken it, the version should always display.
 
 ### Root Cause
-In `VideoPage.tsx`, the quiz is loaded unconditionally via `quizOperations.getByVideoId()` and passed to `CompletionOverlay`. There is no check for whether the employee completed the video before the quiz was created.
+In `getQuizVersion` (line 641 of `AssignVideosModal.tsx`):
+- The `isAssigned` check only runs inside the `!hasQuiz` branch, so unassigned videos with quizzes skip it and display a version number.
+- The `isLegacyExempt` check runs before checking for an actual quiz attempt, so employees who voluntarily took the quiz still get "N/A".
 
 ### Change
 
-**File: `src/pages/VideoPage.tsx`**
+**File: `src/components/dashboard/AssignVideosModal.tsx`** (lines 641-653)
 
-After loading both the quiz data and the existing progress, compare the employee's `completed_at` timestamp with the quiz's `created_at` timestamp. If the employee completed the video before the quiz was created, treat the quiz as `null` so it is never shown.
+Rewrite `getQuizVersion` with corrected priority:
 
-Specifically:
-1. Store `completed_at` from the progress data when loading existing progress (currently only `progress_percent` and `completed_at` are available but `completed_at` is not saved to state).
-2. After both quiz and progress are loaded, add a derived check: if `completed_at` exists and is earlier than `quiz.created_at`, set quiz to `null`.
-3. This also means `hasQuiz` passed to `useVideoProgress` will be `false`, so the progress hook won't cap at 99% unnecessarily.
+```
+const getQuizVersion = (videoId: string): string => {
+  const hasQuiz = videoIdsWithQuizzes.has(videoId);
+  const isAssigned = assignedVideoIds.has(videoId) || selectedVideoIds.has(videoId);
 
-Implementation detail:
-- Add a `completedAt` state variable (or ref) to track the employee's existing completion date.
-- In `loadVideo`, after loading progress, check the exemption condition and clear the quiz if applicable.
-- The `CompletionOverlay` and `useVideoProgress` hook will then behave correctly with no further changes needed since they already check `quiz` / `hasQuiz`.
+  // Unassigned videos always show "--"
+  if (!isAssigned) {
+    return "--";
+  }
+  // No quiz on the course: show "N/A"
+  if (!hasQuiz) {
+    return "N/A";
+  }
+  // If employee has a quiz attempt, always show the version
+  const quizAttempt = employeeQuizResults.get(videoId);
+  if (quizAttempt) {
+    const version = videoQuizVersions.get(videoId);
+    return version !== undefined ? `${version}` : "--";
+  }
+  // Legacy-exempt (no attempt): show "N/A"
+  if (isLegacyExempt(videoId)) {
+    return "N/A";
+  }
+  // Assigned, has quiz, not exempt: show version
+  const version = videoQuizVersions.get(videoId);
+  return version !== undefined ? `${version}` : "--";
+};
+```
 
 ### Review
-- **Top 5 Risks**: (1) Timezone edge case if `completed_at` and `created_at` are very close -- mitigated by the fact that quiz creation is a separate admin action. (2) If progress data fails to load, quiz will show as a safe fallback. No other significant risks.
-- **Top 5 Fixes**: (1) Store `completed_at` from progress. (2) Compare with `quiz.created_at` to determine exemption. (3) Null out quiz for exempt employees.
+- **Top 5 Risks**: (1) None significant -- reuses existing data sources already loaded in the component.
+- **Top 5 Fixes**: (1) Move unassigned check to the top. (2) Check quiz attempts before legacy exemption. (3) Keep "N/A" only for no-quiz or exempt-without-attempt cases.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
+
