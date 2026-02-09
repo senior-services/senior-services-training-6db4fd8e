@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
-import { Edit, Video as VideoIcon, Plus, Play, EyeOff } from 'lucide-react';
+import { Edit, Video as VideoIcon, Plus, Play, EyeOff, MessageSquare } from 'lucide-react';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
 import { format } from 'date-fns';
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveFileId } from '@/utils/videoUtils';
@@ -55,19 +55,19 @@ export const VideoTable: React.FC<VideoTableProps> = ({
 }) => {
   const [sortColumn, setSortColumn] = useState<'title' | 'created_at'>('title');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [videoQuizzes, setVideoQuizzes] = useState<Map<string, { version: number; versionCount: number }>>(new Map());
+  const [videoQuizzes, setVideoQuizzes] = useState<Map<string, { version: number; versionCount: number; questionCount: number }>>(new Map());
 
   // Load quiz version info for each video
   useEffect(() => {
     const loadVideoQuizzes = async () => {
       if (!videos.length) return;
-      const quizMap = new Map<string, { version: number; versionCount: number }>();
+      const quizMap = new Map<string, { version: number; versionCount: number; questionCount: number }>();
       try {
         await Promise.all(videos.map(async video => {
           try {
             const info = await quizOperations.getQuizVersionInfo(video.id);
             if (info.hasQuiz) {
-              quizMap.set(video.id, { version: info.version, versionCount: info.versionCount });
+              quizMap.set(video.id, { version: info.version, versionCount: info.versionCount, questionCount: info.questionCount ?? 0 });
             }
           } catch (error) {
             logger.debug(`Error checking quiz for video ${video.id}`, error);
@@ -250,16 +250,22 @@ export const VideoTable: React.FC<VideoTableProps> = ({
 
                       {/* Quiz status */}
                       <TableCell className="text-left py-2">
-                        {videoQuizzes.has(video.id) && <div className="flex items-center justify-start gap-1">
-                            <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Quiz available">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                            {videoQuizzes.get(video.id)!.versionCount > 1 && (
-                              <Badge variant="soft-tertiary" aria-label={`Quiz version ${videoQuizzes.get(video.id)!.version}`}>
-                                v{videoQuizzes.get(video.id)!.version}
-                              </Badge>
-                            )}
-                          </div>}
+                        {videoQuizzes.has(video.id) && (() => {
+                          const quizInfo = videoQuizzes.get(video.id)!;
+                          return (
+                            <div className="flex items-center justify-start gap-1.5">
+                              <MessageSquare className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                              <span className="text-sm text-foreground" aria-label={`Quiz: ${quizInfo.questionCount} questions`}>
+                                {quizInfo.questionCount}
+                              </span>
+                              {quizInfo.versionCount > 1 && (
+                                <Badge variant="soft-tertiary" aria-label={`Quiz version ${quizInfo.version}`}>
+                                  v{quizInfo.version}
+                                </Badge>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </TableCell>
 
                       {/* Date Added */}
