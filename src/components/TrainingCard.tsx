@@ -313,7 +313,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   </TooltipTrigger>
                   {sanitizedVideo.completedAt && (
                     <TooltipContent>
-                      Completed {format(new Date(sanitizedVideo.completedAt), 'MMMM d, yyyy')}
+                      Completed: {format(new Date(sanitizedVideo.completedAt), 'MMMM d, yyyy')}
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -327,7 +327,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      Quiz score: {sanitizedVideo.quizSummary.percent}% ({sanitizedVideo.quizSummary.correct}/{sanitizedVideo.quizSummary.total} correct)
+                      Quiz Score: {sanitizedVideo.quizSummary.percent}% ({sanitizedVideo.quizSummary.correct}/{sanitizedVideo.quizSummary.total} Correct)
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -347,7 +347,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   </TooltipTrigger>
                   {sanitizedVideo.dueDate && (
                     <TooltipContent>
-                      Due {format(new Date(sanitizedVideo.dueDate), 'MMMM d, yyyy')}
+                      Due: {format(new Date(sanitizedVideo.dueDate), 'MMMM d, yyyy')}
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -361,7 +361,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      Quiz: {sanitizedVideo.quizQuestionCount} question{sanitizedVideo.quizQuestionCount !== 1 ? 's' : ''}
+                      Quiz: {sanitizedVideo.quizQuestionCount} Question{sanitizedVideo.quizQuestionCount !== 1 ? 's' : ''}
                     </TooltipContent>
                   </Tooltip>
                 )}
