@@ -644,6 +644,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     if (!hasQuiz) {
       return isAssigned ? "N/A" : "--";
     }
+    // Legacy-exempt employees should show N/A
+    if (isLegacyExempt(videoId)) {
+      return "N/A";
+    }
     const version = videoQuizVersions.get(videoId);
     return version !== undefined ? `${version}` : "--";
   };
