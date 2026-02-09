@@ -177,8 +177,9 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
       description: descValidation.sanitized,
       content_type: contentType,
       url: url.trim(),
-      assignToAll,
-      dueDate: assignToAll ? calculateDueDate(dueDateOption, noDueDateRequired) : undefined,
+      // TODO: Re-enable when "Assign to All" feature is restored in the UI
+      assignToAll: false,
+      dueDate: undefined,
     };
 
     onSave(formData);
@@ -286,7 +287,9 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
             </div>
           </div>
 
-          {/* Assign to all employees section */}
+          {/* TODO: Re-enable "Assign to All Employees" feature when ready.
+              The state (assignToAll, dueDateOption, noDueDateRequired) and handlers
+              (handleAssignToAllChange, handleDueDateChange) are preserved above.
           <div className="space-y-3 pt-4 border-t">
             <div className="flex items-center space-x-3">
               <Checkbox
@@ -301,8 +304,6 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 Assign this course to all active employees
               </Label>
             </div>
-
-            {/* Progressive disclosure: show due date picker when checkbox is checked */}
             <div
               className={cn(
                 "overflow-hidden transition-all duration-200 ease-in-out",
@@ -320,6 +321,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
               </div>
             </div>
           </div>
+          */}
         </DialogScrollArea>
 
         <DialogFooter>
