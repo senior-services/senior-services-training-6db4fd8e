@@ -1,51 +1,39 @@
 
 
-## Add Compact Inline Banner Variant to Style Guide
+## Improve Multiple Choice "Incomplete" Feedback
 
-### What This Does
-Creates a simplified, more compact way to use the existing Banner component -- without a title, with reduced padding -- for inline contextual messages. No new component is needed; we add a `compact` size prop to the existing Banner and document the pattern in the style guide.
+### Problem
+When a user selects some but not all correct answers for a multiple choice question, the review screen doesn't clearly communicate **why** they got it wrong. The "Also Correct" badge blends in with the "Correct" badge (both green), making it hard to notice missed answers.
 
-### Changes
+### Changes (1 file)
 
-**File 1: `src/components/ui/banner.tsx`**
-- Add a `size` variant to `bannerVariants` with two options:
-  - `default` -- current padding (`p-4`)
-  - `compact` -- reduced padding (`py-2 px-3`), smaller icon (`h-4 w-4`), no shadow, no hover shadow
-- Update the icon size to respond to the `size` prop (compact uses `h-4 w-4` instead of `h-5 w-5`)
-- Add `size` to the `BannerProps` interface
+**File: `src/components/quiz/QuizModal.tsx`**
 
-**File 2: `STYLEGUIDE.md`**
-- After the existing "Other Banner Types" examples, add a new section: **Inline Banners (Compact)**
-- Document the pattern: use `size="compact"` with `description` only (no `title`)
-- Show examples for each variant:
+1. **Add Banner import** at the top of the file alongside existing imports.
 
-```tsx
-// Compact inline info
-<Banner variant="info" size="compact" description="This field is optional." />
+2. **Change "Also Correct" badge variant** (line 317-320): Switch from `soft-success` (green) to `soft-attention` (amber) to visually distinguish missed correct answers from selected correct answers. The attention icon will automatically appear via the `showIcon` prop.
 
-// Compact inline warning
-<Banner variant="warning" size="compact" description="Changes will take effect immediately." />
+3. **Add inline attention banner above the question content** (inside the Card, before the options list around line 237): When the quiz is submitted and the user identified some correct answers but missed others, display:
+   ```tsx
+   <Banner 
+     variant="attention" 
+     size="compact" 
+     description="Incomplete. You identified some correct answers, but not all of them were selected." 
+   />
+   ```
+   This banner only appears for multiple choice questions where `shouldShowAlsoCorrect` is true (user got some right but missed at least one correct option). The logic for `shouldShowAlsoCorrect` already exists at line 269 -- it will be computed earlier (before the options loop) so the banner can reference it.
 
-// Compact inline success
-<Banner variant="success" size="compact" description="All answers saved." />
+4. **Move `shouldShowAlsoCorrect` calculation** outside the per-option loop so it can be used both for the banner (above the options) and for individual option badges (inside the loop). The variables `correctOptionIds`, `selectedOptionIds`, and `hasMissedCorrect` will be calculated once at the question level.
 
-// Compact inline error
-<Banner variant="error" size="compact" description="Please fix the errors above." />
-
-// Compact with dismiss
-<Banner 
-  variant="attention" 
-  size="compact" 
-  description="Review pending items before submitting." 
-  dismissible 
-  onDismiss={() => handleDismiss()} 
-/>
-```
-
-- Add guideline: "Use inline banners for brief, contextual messages within forms or sections. Use full banners for page-level alerts."
+### What the User Will See (Review Mode)
+- A compact amber banner above incomplete multiple choice questions explaining what went wrong
+- Missed correct answers marked with an amber "Also Correct" badge (instead of green)
+- Selected correct answers still show green "Correct" badge
+- Selected incorrect answers still show red "Incorrect" badge
 
 ### Review
-- **Top 5 Risks**: (1) Must ensure compact size doesn't break existing Banner usages (default size remains unchanged). (2) Icon sizing needs to scale with compact mode. (3) No logic changes. (4) No database changes. (5) No accessibility impact -- role="alert" is preserved.
-- **Top 5 Fixes**: (1) Add `size` variant to CVA config. (2) Adjust icon class based on size. (3) Remove shadow in compact mode. (4) Document inline pattern in STYLEGUIDE.md. (5) Add usage guideline for when to use compact vs full.
+- **Top 5 Risks**: (1) Must ensure `shouldShowAlsoCorrect` logic works outside the options loop -- existing variables just need hoisting. (2) Banner only shows for submitted quizzes in review mode. (3) No impact on quiz-taking flow. (4) No database changes. (5) Attention variant already exists and is tested.
+- **Top 5 Fixes**: (1) Hoist question-level correctness calculation above options map. (2) Add conditional Banner render. (3) Change "Also Correct" badge to `soft-attention`. (4) No new components needed. (5) Leverages existing compact Banner variant.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
+
