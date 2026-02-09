@@ -1,22 +1,40 @@
 
 
-## Update Section Count Badges to Soft Variant
+## Fix Admin View: Legacy Quiz Exemption for Pre-Quiz Completions
 
-### What's Changing
-The count badges next to "Required Courses" and "Completed Courses" section headings will switch from solid variants to soft variants for a lighter, more consistent look.
+### Problem
+When an admin views Jane's assignments, "Time Management" shows as "To-do" with "Not Completed" quiz results, even though Jane completed the training before the quiz was added. The employee dashboard correctly handles this exemption, but the admin modal does not.
 
-- **Required Courses badge** (currently `variant="default"`, solid blue): Changes to `variant="soft-primary"` (light blue background with subtle border)
-- **Completed Courses badge** (currently `variant="success"`, solid green): Changes to `variant="soft-success"` (light green background with subtle border)
+### Root Cause
+The AssignVideosModal fetches quiz data as a simple `Set<string>` of video IDs (no creation timestamps), so it cannot compare quiz creation dates against video completion dates to determine exemptions. The employee dashboard correctly uses a `Map` with `createdAt` timestamps.
+
+### What Will Change
+Two fixes in **`src/components/dashboard/AssignVideosModal.tsx`**:
+
+1. **Fetch quiz creation dates** -- Change the quizzes query from `select("video_id")` to `select("video_id, created_at")`, and store as a Map with timestamps instead of a plain Set.
+
+2. **Apply exemption in completion logic** -- Before requiring quiz completion, check if the employee's video completion date is earlier than the quiz creation date. If so, treat as completed without quiz.
+
+3. **Show "Legacy - No Quiz" in quiz results** -- When a video has a quiz but the employee is exempt (completed before quiz existed), display "Legacy - No Quiz" instead of "Not Completed".
+
+### Expected Result
+- "Time Management" will show **Completed** status in admin view
+- Quiz Results column will show **"Legacy - No Quiz"** for exempt completions
+- No change to employee dashboard behavior (already correct)
 
 ### Technical Details
 
-**File: `src/pages/EmployeeDashboard.tsx`** -- 2 single-line changes:
-- Line 566: Change `variant="default"` to `variant="soft-primary"`
-- Line 621: Change `variant="success"` to `variant="soft-success"`
+**File: `src/components/dashboard/AssignVideosModal.tsx`**
+
+- **State change (line 89):** Convert `videoIdsWithQuizzes` from `Set<string>` to `Map<string, string>` (video_id to created_at).
+- **Query change (line 129):** Fetch `created_at` alongside `video_id` from quizzes table.
+- **Completion logic (lines 188-206):** Add exemption check comparing `progress.completed_at` with quiz `created_at`.
+- **Quiz results display (lines 567-595):** Add "Legacy - No Quiz" branch for exempt employees.
 
 ### Review
-- **Top 5 Risks**: None -- variant-only styling change on existing Badge components.
-- **Top 5 Fixes**: (1) Switch Required badge to soft-primary. (2) Switch Completed badge to soft-success.
+
+- **Top 5 Risks**: (1) Slight data model change from Set to Map could affect other references to `videoIdsWithQuizzes` -- low risk since it's scoped to this component. (2) Date comparison edge cases around same-day completion/quiz creation -- mitigated by strict less-than comparison matching employee dashboard logic.
+- **Top 5 Fixes**: (1) Fetch quiz creation dates. (2) Apply exemption in completion determination. (3) Show "Legacy - No Quiz" label. (4) Keep logic aligned with employee dashboard. (5) Maintain existing quiz attempt display for non-exempt cases.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
 
