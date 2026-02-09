@@ -300,12 +300,14 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                   {(question.question_type === 'multiple_choice' || question.question_type === 'single_answer') && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <Label>Answer Options</Label>
-                        {question.question_type === 'multiple_choice' && (
-                          <p className="text-xs text-muted-foreground mb-1.5">
-                            Mark all correct answers. Employees must select all of these to pass the question.
-                          </p>
-                        )}
+                        <div>
+                          <Label>Answer Options</Label>
+                          {question.question_type === 'multiple_choice' && (
+                            <p className="text-xs text-muted-foreground mb-1.5">
+                              Mark all correct answers. Employees must select all of these to pass the question.
+                            </p>
+                          )}
+                        </div>
                         <Button
                           onClick={() => addOption(questionIndex)}
                           variant="outline"

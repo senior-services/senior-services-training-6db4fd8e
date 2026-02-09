@@ -223,15 +223,16 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
             <Card key={question.id} className="border-border">
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">
-                    {index + 1}. {question.question_text}
-                  </h3>
-
-                  {question.question_type === 'multiple_choice' && (
-                    <p className="text-xs text-muted-foreground">
-                      Select all correct options for full credit.
-                    </p>
-                  )}
+                  <div>
+                    <h3 className="font-semibold text-lg">
+                      {index + 1}. {question.question_text}
+                    </h3>
+                    {question.question_type === 'multiple_choice' && (
+                      <p className="text-xs text-muted-foreground">
+                        Select all correct options for full credit.
+                      </p>
+                    )}
+                  </div>
 
                   {question.question_type === 'multiple_choice' && (
                     <>
