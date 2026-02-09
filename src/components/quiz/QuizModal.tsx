@@ -483,45 +483,6 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
           ));
           })()}
 
-          {/* Attestation Checkbox */}
-          <div className="border rounded-lg p-4 bg-muted/30">
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="quiz-attestation"
-                checked={attestationChecked}
-                disabled={!allQuestionsAnswered || isSubmitted}
-                onCheckedChange={(checked) => {
-                  const isChecked = checked === true;
-                  setAttestationChecked(isChecked);
-                  // Notify parent of attestation change
-                  const responseArray: QuizSubmissionData[] = [];
-                  quiz.questions.forEach(question => {
-                    const response = responses[question.id];
-                    if (response) {
-                      if (question.question_type === 'multiple_choice' && response.selected_option_ids) {
-                        response.selected_option_ids.forEach(optionId => {
-                          responseArray.push({ question_id: question.id, selected_option_id: optionId });
-                        });
-                      } else {
-                        responseArray.push({ question_id: question.id, selected_option_id: response.selected_option_id, text_answer: response.text_answer });
-                      }
-                    } else {
-                      responseArray.push({ question_id: question.id });
-                    }
-                  });
-                  onResponsesChange?.(responseArray, allQuestionsAnswered, isChecked);
-                }}
-                className="mt-0.5"
-              />
-              <Label
-                htmlFor="quiz-attestation"
-                className={`text-sm font-medium leading-relaxed cursor-pointer select-none ${(!allQuestionsAnswered && !isSubmitted) ? 'text-muted-foreground cursor-not-allowed' : ''}`}
-                mutedOnDisabled={false}
-              >
-                I certify that I have read and understood this content.
-              </Label>
-            </div>
-          </div>
 
         </div>
       </div>

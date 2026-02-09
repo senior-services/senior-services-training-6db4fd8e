@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogScrollArea } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { quizOperations } from '@/services/quizService';
 import { progressOperations } from '@/services/api';
@@ -478,15 +478,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }} aria-describedby="video-description">
         
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <Play className="w-5 h-5 text-primary" aria-hidden="true" />
+          <DialogTitle>
             {video?.title || 'Training Video'}
           </DialogTitle>
         </DialogHeader>
         
         <DialogScrollArea>
           {video?.description && video.description.trim() && <div className="pb-4" id="video-description">
-              <p className="text-sm text-muted-foreground font-normal leading-relaxed">
+              <p className="text-sm text-foreground font-normal leading-relaxed">
                 {video.description}
               </p>
             </div>}
@@ -573,8 +572,24 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         </DialogScrollArea>
 
         {/* Dialog Footer - Show for quiz interactions */}
-        {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter>
-            {!quizSubmitted && !wasEverCompleted ? <>
+        {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="flex-row justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="footer-quiz-attestation"
+                checked={quizSubmitted || wasEverCompleted ? true : quizAttestationChecked}
+                disabled={quizSubmitted || wasEverCompleted || !allQuestionsAnswered}
+                onCheckedChange={(checked) => setQuizAttestationChecked(checked === true)}
+                className="mt-0"
+              />
+              <Label
+                htmlFor="footer-quiz-attestation"
+                className={`text-sm font-medium leading-relaxed select-none ${(!allQuestionsAnswered && !quizSubmitted && !wasEverCompleted) ? 'text-muted-foreground' : ''}`}
+                mutedOnDisabled={false}
+              >
+                I certify that I have read and understood this content.
+              </Label>
+            </div>
+            {!quizSubmitted && !wasEverCompleted ? <div className="flex gap-2">
                 <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                   <AlertDialogTrigger asChild>
                     <Button variant="outline" onClick={handleCancelClick} className="shadow-md hover:shadow-lg transition-shadow">
@@ -602,7 +617,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 <Button onClick={handleQuizSubmit} disabled={!allQuestionsAnswered || !quizAttestationChecked} className="shadow-md hover:shadow-lg transition-shadow">
                   Submit Quiz
                 </Button>
-              </> : <DialogClose asChild>
+              </div> : <DialogClose asChild>
                 <Button className="shadow-md hover:shadow-lg transition-shadow">
                   Close
                 </Button>
