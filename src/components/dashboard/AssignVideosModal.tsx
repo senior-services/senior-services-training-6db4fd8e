@@ -597,6 +597,16 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     const quizAttempt = employeeQuizResults.get(videoId);
     const isAssigned = assignedVideoIds.has(videoId);
 
+    // Priority 1: If employee has a quiz attempt, always show the actual score
+    if (quizAttempt) {
+      const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
+      return (
+        <span>
+          {percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)
+        </span>
+      );
+    }
+
     if (!hasQuiz) {
       // Show "N/A" for assigned courses without quiz, "--" for unassigned
       return isAssigned 
@@ -609,21 +619,12 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       return <span aria-label="Not assigned">--</span>;
     }
 
-    // Legacy exemption: completed before quiz existed
+    // Legacy exemption: completed before quiz existed (and no quiz attempt)
     if (isLegacyExempt(videoId)) {
       return <span aria-label="Completed before quiz was added">Legacy - No Quiz</span>;
     }
 
-    if (!quizAttempt) {
-      return <span>Not Completed</span>;
-    }
-
-    const percentage = Math.round((quizAttempt.score / quizAttempt.total_questions) * 100);
-    return (
-      <span>
-        {percentage}% ({quizAttempt.score}/{quizAttempt.total_questions} Correct)
-      </span>
-    );
+    return <span>Not Completed</span>;
   };
 
   if (!employee) return null;

@@ -410,7 +410,8 @@ export const EmployeeManagement: React.FC<{
     videosMap: Map<string, any[]>,
     quizzesMap: Map<string, Map<string, any>>,
     hiddenEmployeeIds: Set<string>,
-    includeVisibility: boolean
+    includeVisibility: boolean,
+    quizCreationDates: Map<string, string>
   ): any[] => {
     const exportData: any[] = [];
 
@@ -464,10 +465,19 @@ export const EmployeeManagement: React.FC<{
 
           let quizResults = '--';
           if (quizAttempt) {
+            // Priority 1: actual quiz attempt data always wins
             const percentage = Math.round(quizAttempt.score / quizAttempt.total_questions * 100);
             quizResults = `${percentage}% (${quizAttempt.score}/${quizAttempt.total_questions} Correct)`;
           } else if (!assignment.hasQuiz) {
-            quizResults = 'N/A';
+            // Check if there's a quiz at all for this video (hasQuiz is false for legacy-exempt too)
+            // If the video truly has no quiz, show N/A; if legacy-exempt with no attempt, show Legacy label
+            const quizCreatedAt = quizCreationDates.get(assignment.video_id);
+            if (quizCreatedAt) {
+              // Quiz exists but hasQuiz was set to false due to legacy exemption
+              quizResults = 'Legacy - No Quiz';
+            } else {
+              quizResults = 'N/A';
+            }
           } else {
             quizResults = 'Not Completed';
           }
@@ -525,7 +535,18 @@ export const EmployeeManagement: React.FC<{
       }
 
       const hiddenEmployeeIds = new Set(hiddenEmployees.map(e => e.id));
-      const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds, includeHidden);
+
+      // Fetch quiz creation dates for export
+      const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at').is('archived_at', null);
+      const quizCreationDates = new Map<string, string>();
+      quizzesData?.forEach(quiz => {
+        const existing = quizCreationDates.get(quiz.video_id);
+        if (!existing || new Date(quiz.created_at) < new Date(existing)) {
+          quizCreationDates.set(quiz.video_id, quiz.created_at);
+        }
+      });
+
+      const exportData = processEmployeesForExport(allEmployees, allVideos, allQuizzes, hiddenEmployeeIds, includeHidden, quizCreationDates);
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(exportData);

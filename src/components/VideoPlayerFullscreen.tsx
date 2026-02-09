@@ -80,6 +80,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [completedQuiz, setCompletedQuiz] = useState<QuizWithQuestions | null>(null);
   const [correctOptions, setCorrectOptions] = useState<Record<string, string[]>>({});
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [storedAttemptScore, setStoredAttemptScore] = useState<number | undefined>(undefined);
+  const [storedAttemptTotal, setStoredAttemptTotal] = useState<number | undefined>(undefined);
 
   // Presentation compliance states
   const [viewingSeconds, setViewingSeconds] = useState(0);
@@ -209,6 +211,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         const latestAttempt = videoQuizAttempts[0]; // Most recent attempt
 
         if (latestAttempt) {
+          // Store the attempt's score and total for passing to QuizModal
+          setStoredAttemptScore(latestAttempt.score);
+          setStoredAttemptTotal(latestAttempt.total_questions);
+
           // Load the specific quiz version the employee completed
           const attemptQuiz = await quizOperations.getById(latestAttempt.quiz_id);
           if (attemptQuiz) {
@@ -562,7 +568,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
           {/* Quiz Section */}
           {(quizStarted && quiz || wasEverCompleted && (completedQuiz || quiz) && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
-              <QuizModal quiz={wasEverCompleted && completedQuiz ? completedQuiz : quiz!} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} />
+              <QuizModal quiz={wasEverCompleted && completedQuiz ? completedQuiz : quiz!} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} storedScore={wasEverCompleted ? storedAttemptScore : undefined} storedTotalQuestions={wasEverCompleted ? storedAttemptTotal : undefined} />
             </div>}
         </DialogScrollArea>
 

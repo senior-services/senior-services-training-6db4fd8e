@@ -20,6 +20,10 @@ interface QuizModalProps {
   quizResults?: QuizResponse[];
   isSubmitted?: boolean;
   correctOptions?: Record<string, string[]>;
+  /** Stored score from the quiz attempt record — used instead of recounting from current quiz definition */
+  storedScore?: number;
+  /** Stored total questions from the quiz attempt record */
+  storedTotalQuestions?: number;
 }
 
 // Extended response type for internal state management
@@ -30,7 +34,7 @@ interface ExtendedQuizResponse {
   text_answer?: string;
 }
 
-export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizResults, isSubmitted, correctOptions = {} }: QuizModalProps) {
+export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizResults, isSubmitted, correctOptions = {}, storedScore, storedTotalQuestions }: QuizModalProps) {
   // Initialize responses with saved quiz results when viewing completed quiz
   const initializeResponses = () => {
     if (isSubmitted && quizResults) {
@@ -185,14 +189,17 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
         <div className="mb-6 flex items-center gap-3">
           <h2 className="text-2xl font-bold">Quiz questions ({quiz.questions.length})</h2>
           {isSubmitted && quizResults && (() => {
-            const totalQuestions = quiz.questions.length;
-            // Count unique questions where ALL responses are correct (handles multiple-choice)
-            const questionCorrectness = new Map<string, boolean>();
-            quizResults.forEach(r => {
-              const prev = questionCorrectness.get(r.question_id);
-              questionCorrectness.set(r.question_id, prev === undefined ? r.is_correct : prev && r.is_correct);
-            });
-            const correctAnswers = [...questionCorrectness.values()].filter(Boolean).length;
+            // Use stored attempt data when available (ensures accuracy across quiz versions)
+            const useStored = storedScore !== undefined && storedTotalQuestions !== undefined;
+            const correctAnswers = useStored ? storedScore : (() => {
+              const questionCorrectness = new Map<string, boolean>();
+              quizResults.forEach(r => {
+                const prev = questionCorrectness.get(r.question_id);
+                questionCorrectness.set(r.question_id, prev === undefined ? r.is_correct : prev && r.is_correct);
+              });
+              return [...questionCorrectness.values()].filter(Boolean).length;
+            })();
+            const totalQuestions = useStored ? storedTotalQuestions : quiz.questions.length;
             const percentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
             return (
               <Badge
