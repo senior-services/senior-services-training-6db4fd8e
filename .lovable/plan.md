@@ -1,48 +1,37 @@
 
 
-## Quiz Review Dialog: Header, Description & Attestation Layout Changes
+## Re-apply: Quiz Dialog Header, Description & Attestation Layout Changes
 
-### Changes Summary
+### Changes (3 changes across 2 files)
 
-**3 changes across 2 files:**
+**File 1: `src/components/VideoPlayerFullscreen.tsx`**
 
-### 1. Remove Play icon from dialog header
-**File: `src/components/VideoPlayerFullscreen.tsx` (line 482)**
-- Remove the `<Play>` icon element from the `DialogTitle`
-- Keep the video title text as-is
+1. **Add Label import** (line 6 area) -- add `import { Label } from "@/components/ui/label";`
 
-### 2. Change video description to primary text color
-**File: `src/components/VideoPlayerFullscreen.tsx` (line 489)**
-- Change `text-muted-foreground` to `text-foreground` on the description paragraph
+2. **Remove Play icon from header** (line 482) -- delete the `<Play>` icon, keep just the title text
 
-### 3. Move attestation checkbox to dialog footer
-**File: `src/components/quiz/QuizModal.tsx` (lines 486-524)**
-- Remove the entire attestation checkbox block from QuizModal (the bordered card with checkbox and label at the bottom of the quiz content area)
+3. **Change description text color** (line 489) -- change `text-muted-foreground` to `text-foreground`
 
-**File: `src/components/VideoPlayerFullscreen.tsx` (lines 575-610)**
-- Restructure the `DialogFooter` to use `justify-between` layout
-- Add the attestation checkbox + label on the left side of the footer, vertically aligned with the Close/Submit button on the right
-- For the active quiz state (not yet submitted): attestation on the left, Cancel + Submit buttons on the right
-- For the review state (already completed): attestation (checked, disabled) on the left, Close button on the right
-- The attestation state management already exists in VideoPlayerFullscreen (`quizAttestationChecked` state + `handleQuizResponsesChange` callback), so the footer will use those existing values
+4. **Remove Play import** (line 4) -- remove unused `Play` import from lucide-react
 
-### What Stays the Same
-- Attestation logic and state management (already handled in VideoPlayerFullscreen)
-- Quiz content rendering (questions, options, badges)
+5. **Restructure DialogFooter** (lines 575-610) -- add attestation checkbox on the left side using `justify-between` layout:
+   - Active quiz (not submitted): attestation checkbox + label on left, Cancel + Submit buttons on right
+   - Completed/review: attestation checkbox (checked, disabled) + label on left, Close button on right
+   - Checkbox uses existing `quizAttestationChecked` state and `setQuizAttestationChecked`
+
+**File 2: `src/components/quiz/QuizModal.tsx`**
+
+6. **Remove attestation block** (lines 486-524) -- delete the entire attestation checkbox card from the quiz content area
+
+### What stays the same
+- All quiz logic and state management
+- Quiz content and question rendering
 - No database changes
-- VideoPage.tsx quiz dialog is unaffected (it does not use the same fullscreen layout)
-
-### Technical Details
-
-| Change | Before | After |
-|---|---|---|
-| Dialog header | Play icon + title | Title only |
-| Description color | `text-muted-foreground` (gray) | `text-foreground` (primary/dark) |
-| Attestation location | Inside QuizModal scroll area (card) | Dialog footer, left-aligned beside Close button |
+- VideoPage.tsx unaffected
 
 ### Review
-- **Top 5 Risks**: (1) Removing attestation from QuizModal may affect VideoPage.tsx which also uses QuizModal -- but VideoPage does not use `onResponsesChange` so attestation was non-functional there anyway. (2) Footer layout needs careful flex alignment for different states. (3) Attestation checkbox accessibility must be maintained with proper labels. (4) No data or logic changes. (5) Minimal risk overall.
-- **Top 5 Fixes**: (1) Delete attestation block from QuizModal. (2) Add attestation to DialogFooter with `justify-between` layout. (3) Remove Play icon from DialogTitle. (4) Update description text color class. (5) Ensure consistent spacing between attestation and buttons.
+- **Top 5 Risks**: (1) Footer flex alignment across active vs review states. (2) Accessibility labels must be maintained. (3) Removing from QuizModal doesn't affect VideoPage since attestation was non-functional there. (4) No data changes. (5) Minimal risk.
+- **Top 5 Fixes**: (1) Delete attestation from QuizModal. (2) Add to DialogFooter with justify-between. (3) Remove Play icon. (4) Update text color. (5) Add Label import.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
 
