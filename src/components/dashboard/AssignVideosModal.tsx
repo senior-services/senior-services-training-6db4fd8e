@@ -641,13 +641,26 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const getQuizVersion = (videoId: string): string => {
     const hasQuiz = videoIdsWithQuizzes.has(videoId);
     const isAssigned = assignedVideoIds.has(videoId) || selectedVideoIds.has(videoId);
-    if (!hasQuiz) {
-      return isAssigned ? "N/A" : "--";
+
+    // Unassigned videos always show "--"
+    if (!isAssigned) {
+      return "--";
     }
-    // Legacy-exempt employees should show N/A
+    // No quiz on the course: show "N/A"
+    if (!hasQuiz) {
+      return "N/A";
+    }
+    // If employee has a quiz attempt, always show the version
+    const quizAttempt = employeeQuizResults.get(videoId);
+    if (quizAttempt) {
+      const version = videoQuizVersions.get(videoId);
+      return version !== undefined ? `${version}` : "--";
+    }
+    // Legacy-exempt (no attempt): show "N/A"
     if (isLegacyExempt(videoId)) {
       return "N/A";
     }
+    // Assigned, has quiz, not exempt: show version
     const version = videoQuizVersions.get(videoId);
     return version !== undefined ? `${version}` : "--";
   };
