@@ -28,7 +28,7 @@ export const Header = ({
             }} />
               <div>
                 <h1 className="text-xl text-primary-foreground">
-                  <span className="font-bold">Learning Hub</span>{' '}
+                  <span className="font-bold">Training Hub</span>{' '}
                   <span className="font-normal">/ {userRole === 'admin' ? 'Admin' : 'Employee'} Dashboard</span>
                   {userRole === 'admin' && (
                     <Badge variant="attention" showIcon className="ml-2 text-xs align-middle">
