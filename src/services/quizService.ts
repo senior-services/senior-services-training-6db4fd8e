@@ -274,7 +274,7 @@ export const quizOperations = {
   },
 
   // Get quiz version info for a video (version number + total version count)
-  async getQuizVersionInfo(videoId: string): Promise<{ hasQuiz: boolean; version: number; versionCount: number }> {
+  async getQuizVersionInfo(videoId: string): Promise<{ hasQuiz: boolean; version: number; versionCount: number; questionCount?: number }> {
     try {
       // Get all quizzes for this video to determine version count
       const { data: allQuizzes, error: allError } = await supabase
@@ -307,7 +307,8 @@ export const quizOperations = {
       return {
         hasQuiz: true,
         version: activeQuiz.version,
-        versionCount: allQuizzes.length
+        versionCount: allQuizzes.length,
+        questionCount: count || 0
       };
     } catch (error) {
       logger.debug('Error getting quiz version info:', error);
