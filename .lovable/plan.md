@@ -1,30 +1,32 @@
 
 
-## Fix Quiz Version Discrepancy in Data Download
+## Fix Quiz Version Discrepancies
 
-### Problem
-The data download shows "--" for Quiz Version on courses where the employee hasn't completed the quiz yet, even though the Assign Videos dialog correctly shows "1" (the active quiz version). This happens because the download only pulls version from the employee's quiz *attempt* record, which doesn't exist until they complete the quiz.
+### Problem 1: "Legacy - No Quiz" shows a version number instead of "N/A"
+When an employee is legacy-exempt (Quiz Results = "Legacy - No Quiz"), the data download still shows a version number (e.g., "1") because a quiz technically exists for that video. Since the employee is exempt from the quiz, the version should show "N/A" to match the Assign Videos dialog behavior.
 
-### Solution
-Fetch the active quiz version from the quizzes table (same approach as the Assign Videos dialog) and use it as a fallback when there's no quiz attempt.
+### Problem 2: Completed quiz versions differ between views
+The data download shows the version the employee *took* (from their attempt record), while the Assign Videos dialog shows the *current active* version. For example, if an employee completed version 1 but the quiz has since been updated to version 3, the download shows "1" while the dialog shows "3". These should be consistent -- both showing the current active quiz version.
 
 ### Changes
 
 **File: `src/components/dashboard/EmployeeManagement.tsx`**
 
-1. **Update quiz queries** (3 locations: lines 131, 355, 540): Add `version` to the select: `'video_id, created_at, version'`
+1. **Fix "Legacy - No Quiz" version (line 522)**: Add a condition to check if `quizResults` is "Legacy - No Quiz" and return "N/A" instead of the active quiz version.
 
-2. **Build version maps** (3 locations alongside quizCreationDates): Create a `quizVersions` map storing the highest version per `video_id`, same pattern as the Assign Videos dialog.
+2. **Use active version for completed attempts too (line 522)**: Instead of using `quizAttempt.quiz_version` (the historical version), use the active version from `quizVersions` map for consistency with the Assign Videos dialog.
 
-3. **Pass version map to export function** (line 414 signature + line 549 call): Add `quizVersions: Map<string, number>` parameter.
+Updated logic for the Quiz Version field:
+- If quiz results are "Legacy - No Quiz" or "N/A" (no quiz exists): show "N/A"
+- If a quiz exists for this video: show the active version from `quizVersions` map (regardless of whether the employee has an attempt)
+- Otherwise: show "--"
 
-4. **Update Quiz Version logic** (line 507): Change from attempt-only to fallback logic:
-   - If `quizAttempt?.quiz_version` exists, use it (actual attempt version)
-   - Else if a quiz exists for this video, use the active version from `quizVersions` map
-   - Else if no quiz at all: "N/A"
+**File: `src/components/dashboard/AssignVideosModal.tsx`**
+
+No changes needed -- the dialog already shows the correct values.
 
 ### Review
-- **Top 5 Risks**: (1) Must update all 3 quiz query locations consistently. No other risks -- straightforward data plumbing.
-- **Top 5 Fixes**: (1) Add `version` to quiz selects. (2) Build version maps. (3) Pass to export function. (4) Use as fallback in version column logic.
+- **Top 5 Risks**: (1) Changing from attempt version to active version means historical data (which specific version the employee took) is no longer visible in the export -- acceptable since the user wants consistency. No other significant risks.
+- **Top 5 Fixes**: (1) Add "Legacy - No Quiz" check to return "N/A". (2) Use active quiz version instead of attempt version for all rows.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
