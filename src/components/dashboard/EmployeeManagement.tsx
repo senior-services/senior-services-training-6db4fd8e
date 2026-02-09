@@ -489,7 +489,7 @@ export const EmployeeManagement: React.FC<{
             const quizCreatedAt = quizCreationDates.get(assignment.video_id);
             if (quizCreatedAt) {
               // Quiz exists but hasQuiz was set to false due to legacy exemption
-              quizResults = 'Legacy - No Quiz';
+              quizResults = 'Exempt (No Quiz)';
             } else {
               quizResults = 'N/A';
             }
@@ -519,7 +519,7 @@ export const EmployeeManagement: React.FC<{
             'Due Date': dueDate,
             'Completion Date': completionDate,
             'Quiz Results': quizResults,
-            'Quiz Version': (quizResults === 'Legacy - No Quiz' || quizResults === 'N/A')
+            'Quiz Version': (quizResults === 'Exempt (No Quiz)' || quizResults === 'N/A')
               ? 'N/A'
               : (quizVersions.get(assignment.video_id) ? `${quizVersions.get(assignment.video_id)}` : (assignment.hasQuiz ? '--' : 'N/A')),
             ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(employee.id) ? 'Hidden' : 'Active' })

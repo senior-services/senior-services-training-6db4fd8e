@@ -631,7 +631,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
     // Legacy exemption: completed before quiz existed (and no quiz attempt)
     if (isLegacyExempt(videoId)) {
-      return <span aria-label="Completed before quiz was added">Legacy - No Quiz</span>;
+      return <span aria-label="Completed before quiz was added">Exempt (No Quiz)</span>;
     }
 
     return <span>Not Completed</span>;
