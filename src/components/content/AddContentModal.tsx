@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,22 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
   const [assignToAll, setAssignToAll] = useState(false);
   const [dueDateOption, setDueDateOption] = useState<DueDateOption>("1week");
   const [noDueDateRequired, setNoDueDateRequired] = useState(false);
+
+  // Reset all form state when dialog opens
+  useEffect(() => {
+    if (open) {
+      setTitle("");
+      setDescription("");
+      setUrl("");
+      setContentType("video");
+      setIsValidatingUrl(false);
+      setUrlError("");
+      setTitleError("");
+      setAssignToAll(false);
+      setDueDateOption("1week");
+      setNoDueDateRequired(false);
+    }
+  }, [open]);
 
   const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value.trim();
