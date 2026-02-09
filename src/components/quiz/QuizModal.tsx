@@ -298,12 +298,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="soft-success" showIcon>
+                                        <Badge variant="success" showIcon>
                                           Correct
                                         </Badge>
                                       )}
                                       {isSubmitted && isSelected && !isSelectedCorrect && (
-                                        <Badge variant="soft-destructive" showIcon>
+                                        <Badge variant="destructive" showIcon>
                                           Incorrect
                                         </Badge>
                                       )}
@@ -380,12 +380,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                     </span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="soft-success" showIcon>
+                                        <Badge variant="success" showIcon>
                                           Correct
                                         </Badge>
                                       )}
                                       {isSubmitted && isSelected && !isSelectedCorrect && (
-                                        <Badge variant="soft-destructive" showIcon>
+                                        <Badge variant="destructive" showIcon>
                                           Incorrect
                                         </Badge>
                                       )}
@@ -450,12 +450,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                                     <span className="flex-1">{option.option_text}</span>
                                     <div className="flex items-center gap-2">
                                       {isSubmitted && isSelected && isSelectedCorrect && (
-                                        <Badge variant="soft-success" showIcon>
+                                        <Badge variant="success" showIcon>
                                           Correct
                                         </Badge>
                                       )}
                                       {isSubmitted && isSelected && !isSelectedCorrect && (
-                                        <Badge variant="soft-destructive" showIcon>
+                                        <Badge variant="destructive" showIcon>
                                           Incorrect
                                         </Badge>
                                       )}
