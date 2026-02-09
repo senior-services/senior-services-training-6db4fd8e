@@ -563,7 +563,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                 Required Courses
               </h2>
               {trainingData.required.length > 0 && (
-                <Badge variant="default">{trainingData.required.length}</Badge>
+                <Badge variant="soft-primary">{trainingData.required.length}</Badge>
               )}
             </div>
             {loading ? (
@@ -618,7 +618,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
                         Completed Courses
                       </h2>
-                      <Badge variant="success">{trainingData.completed.length}</Badge>
+                      <Badge variant="soft-success">{trainingData.completed.length}</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-0 pb-0">
