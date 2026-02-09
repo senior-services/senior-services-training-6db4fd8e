@@ -228,6 +228,12 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
                   </h3>
 
                   {question.question_type === 'multiple_choice' && (
+                    <p className="text-xs text-muted-foreground">
+                      Select all correct options for full credit.
+                    </p>
+                  )}
+
+                  {question.question_type === 'multiple_choice' && (
                     <>
                       {question.options && question.options.length > 0 ? (
                         <div className="space-y-3">

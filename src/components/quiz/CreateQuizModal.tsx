@@ -301,6 +301,11 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <Label>Answer Options</Label>
+                        {question.question_type === 'multiple_choice' && (
+                          <p className="text-xs text-muted-foreground mt-1 mb-1.5">
+                            Mark all correct answers. Employees must select all of these to pass the question.
+                          </p>
+                        )}
                         <Button
                           onClick={() => addOption(questionIndex)}
                           variant="outline"

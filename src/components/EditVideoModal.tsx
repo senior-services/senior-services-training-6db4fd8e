@@ -1122,6 +1122,11 @@ export const EditVideoModal = ({
 
                             {(question.question_type === 'multiple_choice' || question.question_type === 'single_answer') && <div className="space-y-3">
                                 <Label>Answer Options</Label>
+                                {question.question_type === 'multiple_choice' && (
+                                  <p className="text-xs text-muted-foreground mt-1 mb-1.5">
+                                    Mark all correct answers. Employees must select all of these to pass the question.
+                                  </p>
+                                )}
                                 
                                  {question.question_type === 'single_answer' ? <div className="space-y-3">
                                     <RadioGroup value={question.options.find(opt => opt.is_correct)?.order_index?.toString() || ""} onValueChange={value => {
