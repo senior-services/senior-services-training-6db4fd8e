@@ -16,7 +16,7 @@ interface QuizModalProps {
   quiz: QuizWithQuestions;
   onSubmit: (responses: QuizSubmissionData[]) => void;
   onCancel: () => void;
-  onResponsesChange?: (responses: QuizSubmissionData[], allAnswered: boolean) => void;
+  onResponsesChange?: (responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => void;
   quizResults?: QuizResponse[];
   isSubmitted?: boolean;
   correctOptions?: Record<string, string[]>;
@@ -71,6 +71,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
 
   const [responses, setResponses] = useState<Record<string, ExtendedQuizResponse>>(initializeResponses);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attestationChecked, setAttestationChecked] = useState(isSubmitted ? true : false);
 
   const handleResponseChange = (questionId: string, response: Partial<ExtendedQuizResponse>) => {
     // Don't allow changes if quiz is submitted
@@ -123,7 +124,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
       return response && response.text_answer?.trim();
     });
     
-    onResponsesChange?.(responseArray, allAnswered);
+    onResponsesChange?.(responseArray, allAnswered, attestationChecked);
   };
 
   // Get quiz results for a specific question (handle multiple results for multiple choice)
@@ -504,6 +505,46 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
               </CardContent>
             </Card>
           ))}
+
+          {/* Attestation Checkbox */}
+          <div className="border rounded-lg p-4 bg-muted/30">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="quiz-attestation"
+                checked={attestationChecked}
+                disabled={!allQuestionsAnswered || isSubmitted}
+                onCheckedChange={(checked) => {
+                  const isChecked = checked === true;
+                  setAttestationChecked(isChecked);
+                  // Notify parent of attestation change
+                  const responseArray: QuizSubmissionData[] = [];
+                  quiz.questions.forEach(question => {
+                    const response = responses[question.id];
+                    if (response) {
+                      if (question.question_type === 'multiple_choice' && response.selected_option_ids) {
+                        response.selected_option_ids.forEach(optionId => {
+                          responseArray.push({ question_id: question.id, selected_option_id: optionId });
+                        });
+                      } else {
+                        responseArray.push({ question_id: question.id, selected_option_id: response.selected_option_id, text_answer: response.text_answer });
+                      }
+                    } else {
+                      responseArray.push({ question_id: question.id });
+                    }
+                  });
+                  onResponsesChange?.(responseArray, allQuestionsAnswered, isChecked);
+                }}
+                className="mt-0.5"
+              />
+              <Label
+                htmlFor="quiz-attestation"
+                className={`text-sm font-medium leading-relaxed cursor-pointer select-none ${(!allQuestionsAnswered && !isSubmitted) ? 'text-muted-foreground cursor-not-allowed' : ''}`}
+                mutedOnDisabled={false}
+              >
+                I certify that I have read and understood this content.
+              </Label>
+            </div>
+          </div>
 
         </div>
       </div>

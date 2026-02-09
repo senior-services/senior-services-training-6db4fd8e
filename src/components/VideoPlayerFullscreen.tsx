@@ -361,6 +361,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setQuizSubmitted(false);
     setQuizResults([]);
     setCompletedQuizResults([]);
+    setQuizAttestationChecked(false);
     
     // Scroll to quiz
     setTimeout(() => {
@@ -375,9 +376,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   }, []);
 
   // Handle quiz responses change
-  const handleQuizResponsesChange = useCallback((responses: QuizSubmissionData[], allAnswered: boolean) => {
+  // Attestation state for quiz flow
+  const [quizAttestationChecked, setQuizAttestationChecked] = useState(false);
+
+  const handleQuizResponsesChange = useCallback((responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => {
     setQuizResponses(responses);
     setAllQuestionsAnswered(allAnswered);
+    setQuizAttestationChecked(attestationChecked);
 
     // Check if any responses have been made (user has started answering)
     const hasAnyResponses = responses.some(response => response.selected_option_id || response.text_answer?.trim());
@@ -588,7 +593,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   </AlertDialogContent>
                 </AlertDialog>
                 
-                <Button onClick={handleQuizSubmit} disabled={!allQuestionsAnswered} className="shadow-md hover:shadow-lg transition-shadow">
+                <Button onClick={handleQuizSubmit} disabled={!allQuestionsAnswered || !quizAttestationChecked} className="shadow-md hover:shadow-lg transition-shadow">
                   Submit Quiz
                 </Button>
               </> : <DialogClose asChild>
