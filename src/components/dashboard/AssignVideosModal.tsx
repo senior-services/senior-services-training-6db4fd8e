@@ -86,7 +86,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   const [showUnassignDialog, setShowUnassignDialog] = useState(false);
   const [hiddenVideoIds, setHiddenVideoIds] = useState<Set<string>>(new Set());
   const [filterMode, setFilterMode] = useState<"unassigned" | "assigned" | "completed" | "all">("assigned");
-  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Set<string>>(new Set());
+  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Map<string, string>>(new Map());
   const [employeeQuizResults, setEmployeeQuizResults] = useState<
     Map<string, { score: number; total_questions: number; completed_at: string }>
   >(new Map());
@@ -126,7 +126,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         employee
           ? progressOperations.getByEmployee(employee.id)
           : Promise.resolve({ success: true, data: [], error: null }),
-        supabase.from("quizzes").select("video_id"),
+        supabase.from("quizzes").select("video_id, created_at").is("archived_at", null),
         employee?.email
           ? quizOperations.getUserAttempts(employee.email).catch((err) => {
               logger.warn("Failed to load quiz attempts:", err);
@@ -157,12 +157,19 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         setVideoProgressData(progressMap);
       }
 
-      // Process quiz data to find which videos have quizzes
+      // Process quiz data to find which videos have quizzes (with creation dates)
       if (quizzesResult.data) {
-        const quizVideoIds = new Set<string>(quizzesResult.data.map((quiz) => quiz.video_id));
-        setVideoIdsWithQuizzes(quizVideoIds);
+        const quizMap = new Map<string, string>();
+        quizzesResult.data.forEach((quiz) => {
+          // Keep the earliest created_at per video_id
+          const existing = quizMap.get(quiz.video_id);
+          if (!existing || new Date(quiz.created_at) < new Date(existing)) {
+            quizMap.set(quiz.video_id, quiz.created_at);
+          }
+        });
+        setVideoIdsWithQuizzes(quizMap);
       } else {
-        setVideoIdsWithQuizzes(new Set());
+        setVideoIdsWithQuizzes(new Map());
       }
 
       // Process employee quiz attempts - keep most recent per video
@@ -184,16 +191,28 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       }
       setEmployeeQuizResults(quizResultsMap);
 
-      // Determine completed videos with full context (video progress + quiz completion)
-      const quizVideoIds = new Set<string>(quizzesResult.data?.map((quiz) => quiz.video_id) || []);
+      // Determine completed videos with full context (video progress + quiz completion + legacy exemption)
+      const quizMap = new Map<string, string>();
+      if (quizzesResult.data) {
+        quizzesResult.data.forEach((quiz) => {
+          const existing = quizMap.get(quiz.video_id);
+          if (!existing || new Date(quiz.created_at) < new Date(existing)) {
+            quizMap.set(quiz.video_id, quiz.created_at);
+          }
+        });
+      }
       const completed = new Set<string>();
 
       progressMap.forEach((progress, videoId) => {
         const videoCompleted = progress.progress_percent === 100 || progress.completed_at;
+        const quizCreatedAt = quizMap.get(videoId);
 
-        if (quizVideoIds.has(videoId)) {
-          // Video has quiz - require both video AND quiz completion
-          if (videoCompleted && quizResultsMap.has(videoId)) {
+        if (quizCreatedAt) {
+          // Video has quiz - check for legacy exemption
+          const isLegacyExempt = progress.completed_at &&
+            new Date(progress.completed_at) < new Date(quizCreatedAt);
+
+          if (videoCompleted && (quizResultsMap.has(videoId) || isLegacyExempt)) {
             completed.add(videoId);
           }
         } else {
@@ -420,7 +439,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     setFilterMode("assigned");
     resetDueDateDialog();
     // Reset quiz state
-    setVideoIdsWithQuizzes(new Set());
+    setVideoIdsWithQuizzes(new Map());
     setEmployeeQuizResults(new Map());
     // Reset sort state to default
     setSortColumn('course');
@@ -563,12 +582,20 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     return sortVideos(filtered);
   };
 
+  // Check if an employee is legacy-exempt for a video's quiz
+  const isLegacyExempt = (videoId: string): boolean => {
+    const quizCreatedAt = videoIdsWithQuizzes.get(videoId);
+    if (!quizCreatedAt) return false;
+    const progress = videoProgressData.get(videoId);
+    if (!progress?.completed_at) return false;
+    return new Date(progress.completed_at) < new Date(quizCreatedAt);
+  };
+
   // Get quiz results display for a video
   const getQuizResults = (videoId: string): React.ReactNode => {
     const hasQuiz = videoIdsWithQuizzes.has(videoId);
     const quizAttempt = employeeQuizResults.get(videoId);
     const isAssigned = assignedVideoIds.has(videoId);
-    const isCompleted = completedVideoIds.has(videoId);
 
     if (!hasQuiz) {
       // Show "N/A" for assigned courses without quiz, "--" for unassigned
@@ -580,6 +607,11 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     // Unassigned videos show "--" instead of "Not Completed"
     if (!isAssigned) {
       return <span aria-label="Not assigned">--</span>;
+    }
+
+    // Legacy exemption: completed before quiz existed
+    if (isLegacyExempt(videoId)) {
+      return <span aria-label="Completed before quiz was added">Legacy - No Quiz</span>;
     }
 
     if (!quizAttempt) {
