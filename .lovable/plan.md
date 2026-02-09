@@ -1,35 +1,20 @@
 
 
-## Fix "Legacy - No Quiz" Quiz Version in Assign Videos Dialog
+## Update "Legacy - No Quiz" Label to "Exempt (No Quiz)"
 
-### Problem
-The "Quiz Version" column in the Assign Videos dialog shows "1" for employees with "Legacy - No Quiz" status. It should show "N/A" because the employee is exempt from the quiz.
+### Changes
 
-### Change
+**File: `src/components/dashboard/AssignVideosModal.tsx`** (line 634)
+- Change the displayed text from `Legacy - No Quiz` to `Exempt (No Quiz)`
+- Update the `aria-label` to match: "Completed before quiz was added" can stay as-is (it's descriptive)
 
-**File: `src/components/dashboard/AssignVideosModal.tsx`**
-
-Update `getQuizVersion` (line 641) to check for legacy exemption before returning the version number. If the employee is legacy-exempt for a given video (same `isLegacyExempt()` function already used for Quiz Results), return "N/A" instead of the active version.
-
-Updated logic:
-```
-const getQuizVersion = (videoId: string): string => {
-  const hasQuiz = videoIdsWithQuizzes.has(videoId);
-  const isAssigned = assignedVideoIds.has(videoId) || selectedVideoIds.has(videoId);
-  if (!hasQuiz) {
-    return isAssigned ? "N/A" : "--";
-  }
-  // Legacy-exempt employees should show N/A
-  if (isLegacyExempt(videoId)) {
-    return "N/A";
-  }
-  const version = videoQuizVersions.get(videoId);
-  return version !== undefined ? `${version}` : "--";
-};
-```
+**File: `src/components/dashboard/EmployeeManagement.tsx`** (lines 492, 522)
+- Line 492: Change the string assignment from `'Legacy - No Quiz'` to `'Exempt (No Quiz)'`
+- Line 522: Update the condition check from `'Legacy - No Quiz'` to `'Exempt (No Quiz)'`
 
 ### Review
-- **Top 5 Risks**: None -- reuses existing `isLegacyExempt()` function.
-- **Top 5 Fixes**: (1) Add legacy exemption check to `getQuizVersion`.
+- **Top 5 Risks**: None -- simple string replacement with no logic changes.
+- **Top 5 Fixes**: (1) Update label in 3 locations across 2 files.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
+
