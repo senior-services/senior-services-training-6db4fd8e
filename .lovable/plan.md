@@ -1,30 +1,48 @@
 
 
-## Remove Top Margin from Helper Text Pattern
+## Fix Extra Margin on Helper Text
 
-### What's changing
-Removing `mt-1` from the helper text pattern everywhere it appears, so the helper text sits closer to the label above it. The bottom margin `mb-1.5` remains to keep spacing before the input.
+### Problem
+The helper text appears with extra spacing because it sits as a separate child element inside a parent container that uses `space-y-3` (admin) or `space-y-4` (employee). Tailwind's `space-y-*` utility adds top margin to every child after the first, so removing `mt-1` from the `<p>` tag had no visible effect -- the parent's spacing class overrides it.
 
-### Changes (5 files)
+### Solution
+Wrap the Label and its helper text together in a single `<div>` so they are treated as one child by the parent's `space-y` layout. This eliminates the automatic gap between them while keeping the gap between the grouped label/helper and the next sibling (input options).
 
-**File 1: `STYLEGUIDE.md`**
-- Update the helper text pattern from `mt-1 mb-1.5` to `mb-1.5`
-- Update the guideline note from "Spacing: `mt-1` below label, `mb-1.5` above input" to "Spacing: `mb-1.5` above input"
+### Changes (3 files)
 
-**File 2: `src/pages/ComponentsGallery.tsx`**
-- Change the helper text example class from `text-xs text-muted-foreground mt-1 mb-1.5` to `text-xs text-muted-foreground mb-1.5`
+**File 1: `src/components/EditVideoModal.tsx`** (~line 1124-1129)
+- Wrap `<Label>Answer Options</Label>` and the conditional helper `<p>` in a single `<div>`:
+```tsx
+<div>
+  <Label>Answer Options</Label>
+  {question.question_type === 'multiple_choice' && (
+    <p className="text-xs text-muted-foreground mb-1.5">
+      Mark all correct answers. Employees must select all of these to pass the question.
+    </p>
+  )}
+</div>
+```
 
-**File 3: `src/components/EditVideoModal.tsx`**
-- Change the multiple choice helper text class from `mt-1 mb-1.5` to `mb-1.5`
+**File 2: `src/components/quiz/CreateQuizModal.tsx`** (~line 303-307)
+- Same wrapping approach for the Label and helper text.
 
-**File 4: `src/components/quiz/CreateQuizModal.tsx`**
-- Change the multiple choice helper text class from `mt-1 mb-1.5` to `mb-1.5`
-
-**File 5: `src/components/quiz/QuizModal.tsx`**
-- No change needed -- this helper text already has no `mt-1`
+**File 3: `src/components/quiz/QuizModal.tsx`** (~line 226-234)
+- Wrap the `<h3>` question title and the conditional helper `<p>` in a single `<div>`:
+```tsx
+<div>
+  <h3 className="font-semibold text-lg">
+    {index + 1}. {question.question_text}
+  </h3>
+  {question.question_type === 'multiple_choice' && (
+    <p className="text-xs text-muted-foreground">
+      Select all correct options for full credit.
+    </p>
+  )}
+</div>
+```
 
 ### Review
-- **Top 5 Risks**: (1) None -- purely cosmetic spacing tweak. (2) All instances must be updated consistently. (3) No logic changes. (4) No database changes. (5) Minimal risk.
-- **Top 5 Fixes**: (1) Update STYLEGUIDE.md pattern. (2) Update gallery example. (3) Update EditVideoModal. (4) Update CreateQuizModal. (5) Keep QuizModal as-is.
+- **Top 5 Risks**: (1) Minimal -- structural wrapper only, no logic changes. (2) Must verify wrapping doesn't break existing layout for non-multiple-choice types. (3) No styling regressions. (4) No database changes. (5) No accessibility impact.
+- **Top 5 Fixes**: (1) Wrap label + helper in EditVideoModal. (2) Wrap label + helper in CreateQuizModal. (3) Wrap title + helper in QuizModal. (4) Preserves parent space-y gaps for other siblings. (5) Consistent pattern across all three files.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
