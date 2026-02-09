@@ -727,6 +727,13 @@ export const ComponentsGallery = ({
                       <Input id="disabled-input" placeholder="Disabled input" disabled className="shadow-sm" />
                     </div>
                     <div>
+                      <Label htmlFor="helper-input">Email Address</Label>
+                      <p className="text-xs text-muted-foreground mt-1 mb-1.5">
+                        We'll use this to send you login instructions.
+                      </p>
+                      <Input id="helper-input" placeholder="you@example.com" className="shadow-sm hover:shadow-md transition-shadow" />
+                    </div>
+                    <div>
                       <Label htmlFor="textarea">Textarea</Label>
                       <Textarea id="textarea" placeholder="Enter longer text here..." className="shadow-sm hover:shadow-md transition-shadow" />
                     </div>
