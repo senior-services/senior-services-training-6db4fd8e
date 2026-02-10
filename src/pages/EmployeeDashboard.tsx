@@ -314,7 +314,14 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
     // Separate completed and incomplete required videos
     const incompleteVideos = allRequiredVideos.filter((video) => video.progress < 100);
-    const completedVideos = allRequiredVideos.filter((video) => video.progress >= 100);
+    const completedVideos = allRequiredVideos
+      .filter((video) => video.progress >= 100)
+      .sort((a, b) => {
+        if (!a.completedAt && !b.completedAt) return 0;
+        if (!a.completedAt) return 1;
+        if (!b.completedAt) return -1;
+        return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
+      });
 
     // Sort incomplete videos by due date (soonest first)
     const requiredVideos = incompleteVideos.sort((a, b) => {
