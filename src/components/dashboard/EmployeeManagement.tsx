@@ -446,7 +446,7 @@ export const EmployeeManagement: React.FC<{
         exportData.push({
           Name: employeeName,
           Email: employeeEmail,
-          'Course': 'No assignments',
+          'Training': 'No assignments',
           'Status': STATUS_LABELS.unassigned,
           'Due Date': '--',
           'Completion Date': '--',
@@ -492,7 +492,7 @@ export const EmployeeManagement: React.FC<{
           exportData.push({
             Name: employeeName,
             Email: employeeEmail,
-            'Course': assignment.video_title || '',
+            'Training': assignment.video_title || '',
             'Status': status,
             'Due Date': dueDate,
             'Completion Date': completionDate,

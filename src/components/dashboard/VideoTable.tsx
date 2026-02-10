@@ -130,9 +130,9 @@ export const VideoTable: React.FC<VideoTableProps> = ({
           </p>
         </div>
         
-        <Button onClick={onAddVideo} {...createButtonAriaProps('Add new course')}>
+        <Button onClick={onAddVideo} {...createButtonAriaProps('Add new training')}>
           <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
-          Add Course
+          Add Training
         </Button>
       </div>
 
@@ -150,7 +150,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                     onSort={handleSort}
                     className="whitespace-nowrap w-full"
                   >
-                    Course
+                    Training
                   </SortableTableHead>
                   <TableHead className="text-left text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
                   <SortableTableHead

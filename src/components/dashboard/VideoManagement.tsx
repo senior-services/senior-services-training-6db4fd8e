@@ -442,7 +442,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                     <Table>
                        <TableHeader>
                          <TableRow>
-                           <TableHead>COURSE
+                           <TableHead>TRAINING
                       </TableHead>
                            <TableHead className="w-32 text-center">Actions</TableHead>
                          </TableRow>

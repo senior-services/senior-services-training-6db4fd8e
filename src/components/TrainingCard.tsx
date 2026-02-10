@@ -298,7 +298,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
         <CardHeader className="pb-3 pt-3 flex-none">
           {/* Status Badge Row - above title */}
           <TooltipProvider delayDuration={300}>
-            {/* Completed courses: [Completed <date>] [quiz score] */}
+            {/* Completed trainings: [Completed <date>] [quiz score] */}
             {trainingStatus.isCompleted && (
               <div className="mb-1 flex items-center gap-2">
                 <Tooltip>
@@ -334,7 +334,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
               </div>
             )}
 
-            {/* Required courses (not completed): [due date] [quiz question count] */}
+            {/* Required trainings (not completed): [due date] [quiz question count] */}
             {!trainingStatus.isCompleted && dueDateInfo && (
               <div className="mb-1 flex items-center gap-2">
                 <Tooltip>

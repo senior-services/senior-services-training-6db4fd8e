@@ -981,7 +981,7 @@ export const EditVideoModal = ({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
-            <DialogTitle>Edit Course</DialogTitle>
+            <DialogTitle>Edit Training</DialogTitle>
           </DialogHeader>
 
           <DialogScrollArea>
@@ -1011,7 +1011,7 @@ export const EditVideoModal = ({
 
                 {/* Title Section */}
                 <div className="space-y-2">
-                  <Label htmlFor="edit-title">Course Title</Label>
+                  <Label htmlFor="edit-title">Training Title</Label>
                   <Input id="edit-title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter video title..." />
                 </div>
 

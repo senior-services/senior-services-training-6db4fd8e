@@ -102,7 +102,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   >(new Map());
   
   // Sorting state
-  const [sortColumn, setSortColumn] = useState<'course' | 'status' | null>('course');
+  const [sortColumn, setSortColumn] = useState<'training' | 'status' | null>('training');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   // Due date dialog state
@@ -453,7 +453,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     setVideoQuizVersions(new Map());
     setEmployeeQuizResults(new Map());
     // Reset sort state to default
-    setSortColumn('course');
+    setSortColumn('training');
     setSortDirection('asc');
     onOpenChange(false);
   };
@@ -522,7 +522,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
   };
 
   // Sort handler for table columns
-  const handleSort = useCallback((column: 'course' | 'status') => {
+  const handleSort = useCallback((column: 'training' | 'status') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -548,7 +548,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     return [...videosToSort].sort((a, b) => {
       let comparison = 0;
       
-      if (sortColumn === 'course') {
+      if (sortColumn === 'training') {
         comparison = a.title.localeCompare(b.title);
       } else if (sortColumn === 'status') {
         comparison = getStatusPriority(a.id) - getStatusPriority(b.id);
@@ -740,12 +740,12 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                       <TableRow>
                         <TableHead className="w-[40px]"></TableHead>
                         <SortableTableHead
-                          column="course"
+                          column="training"
                           sortColumn={sortColumn}
                           sortDirection={sortDirection}
                           onSort={handleSort}
                         >
-                          Course
+                          Training
                         </SortableTableHead>
                         <SortableTableHead
                           column="status"

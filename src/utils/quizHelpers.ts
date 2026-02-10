@@ -47,7 +47,7 @@ export interface QuizAttemptData {
  *
  * Priority order:
  * 1. If the employee has a quiz attempt → actual score
- * 2. No quiz on the course → "N/A"
+ * 2. No quiz on the training → "N/A"
  * 3. Legacy-exempt (no attempt) → "Exempt (No Quiz)"
  * 4. Otherwise → "Not Completed"
  *

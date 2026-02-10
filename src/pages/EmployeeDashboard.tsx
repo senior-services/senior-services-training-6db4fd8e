@@ -567,7 +567,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                 className="text-xl sm:text-2xl font-semibold text-foreground flex items-center"
               >
                 <Clock className="w-6 h-6 text-primary mr-3" aria-hidden="true" />
-                Required Courses
+                Required Trainings
               </h2>
               {trainingData.required.length > 0 && (
                 <Badge variant="soft-primary">{trainingData.required.length}</Badge>
@@ -587,9 +587,9 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             ) : trainingData.required.length === 0 ? (
               <div className="text-center py-12" role="status" aria-live="polite">
                 <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
-                <h3 className="text-lg sm:text-xl font-medium mb-2">No Required Courses Assigned</h3>
+                <h3 className="text-lg sm:text-xl font-medium mb-2">No Required Trainings Assigned</h3>
                 <p className="text-muted-foreground">
-                  You don't have any required courses videos assigned at this time.
+                  You don't have any required trainings assigned at this time.
                 </p>
               </div>
             ) : (
@@ -610,7 +610,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             )}
           </section>
 
-          {/* Completed Courses Accordion Section */}
+          {/* Completed Trainings Accordion Section */}
           {trainingData.completed.length > 0 && (
             <section className="mb-12" aria-labelledby="completed-training-heading" role="region">
               <Accordion type="single" collapsible className="w-full">
@@ -623,7 +623,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                       <ChevronDown className="w-8 h-8 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
                       <h2 className="text-xl sm:text-2xl font-semibold text-foreground flex items-center">
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
-                        Completed Courses
+                        Completed Trainings
                       </h2>
                       <Badge variant="soft-success">{trainingData.completed.length}</Badge>
                     </div>

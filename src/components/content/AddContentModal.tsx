@@ -219,12 +219,12 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add New Course</DialogTitle>
+          <DialogTitle>Add New Training</DialogTitle>
         </DialogHeader>
 
         <DialogScrollArea className="space-y-4">
           <div>
-            <Label htmlFor="title">Course Title</Label>
+            <Label htmlFor="title">Training Title</Label>
             <Input
               id="title"
               value={title}
@@ -301,7 +301,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 htmlFor="assign-to-all" 
                 className="text-sm font-medium cursor-pointer"
               >
-                Assign this course to all active employees
+                Assign this training to all active employees
               </Label>
             </div>
             <div
@@ -329,7 +329,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={!isValid}>
-            Add Course
+            Add Training
           </Button>
         </DialogFooter>
       </DialogContent>
