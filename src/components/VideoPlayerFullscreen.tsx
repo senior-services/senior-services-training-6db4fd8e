@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Clock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { quizOperations } from '@/services/quizService';
 import { progressOperations } from '@/services/api';
@@ -123,12 +123,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     hasQuiz: quizLoading || !!quiz
   });
 
-  // Calculate minimum viewing time for presentations (safely handles video being undefined)
-  const getMinimumViewingSeconds = useCallback(() => {
-    if (!video || video.content_type !== 'presentation') return 0;
-    return 60;
-  }, [video]);
-  const minimumViewingSeconds = getMinimumViewingSeconds();
+  // Presentation timer constants and computed values
+  const PRESENTATION_MIN_SECONDS = 60;
+  const isPresentation = video?.content_type === 'presentation';
+  const remainingSeconds = isPresentation ? Math.max(0, PRESENTATION_MIN_SECONDS - viewingSeconds) : 0;
+  const timerActive = remainingSeconds > 0;
+  const formattedTime = `${Math.floor(remainingSeconds / 60)}:${(remainingSeconds % 60).toString().padStart(2, '0')}`;
 
   // Effect to load video data and existing progress when modal opens
   useEffect(() => {
@@ -172,26 +172,25 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     if (!open || !video || video.content_type !== 'presentation' || checkboxEnabled) {
       return;
     }
-    const minSeconds = getMinimumViewingSeconds();
     const timer = setInterval(() => {
       setViewingSeconds(prev => {
         const newSeconds = prev + 1;
 
         // Enable checkbox when minimum time reached
-        if (newSeconds >= minSeconds && !checkboxEnabled) {
+        if (newSeconds >= PRESENTATION_MIN_SECONDS && !checkboxEnabled) {
           setCheckboxEnabled(true);
-          setA11yAnnouncement(`You may now acknowledge that you have reviewed this training material after viewing for ${minSeconds} seconds.`);
+          setA11yAnnouncement(`You may now acknowledge that you have reviewed this training material after viewing for ${PRESENTATION_MIN_SECONDS} seconds.`);
           logger.info('Presentation acknowledgment unlocked', {
             videoId,
             viewingSeconds: newSeconds,
-            minimumRequired: minSeconds
+            minimumRequired: PRESENTATION_MIN_SECONDS
           });
         }
         return newSeconds;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [open, video, checkboxEnabled, videoId, getMinimumViewingSeconds]);
+  }, [open, video, checkboxEnabled, videoId]);
 
   // Reset presentation states when dialog opens/closes
   useEffect(() => {
@@ -500,10 +499,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               </p>
             </div>}
 
-          {/* Persistent Quiz CTA Button */}
-          {quiz && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && <div className="pb-4">
-              <Button onClick={handleStartQuiz} className="w-full" size="lg" disabled={video?.content_type === 'presentation' && !presentationAcknowledged} title={video?.content_type === 'presentation' && !presentationAcknowledged ? 'Please confirm you have reviewed the training material first' : undefined}>
-                {video?.content_type === 'presentation' && !presentationAcknowledged && <span className="mr-2" aria-hidden="true">🔒</span>}
+          {/* Persistent Quiz CTA Button - only for non-presentation content */}
+          {quiz && !isPresentation && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && <div className="pb-4">
+              <Button onClick={handleStartQuiz} className="w-full" size="lg">
                 Start Quiz to Complete Training
               </Button>
             </div>}
@@ -531,8 +529,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                       Please review all training content carefully. By acknowledging, you confirm you've read and understood the material — your confirmation will be recorded for compliance.
                     </p>
                   </div>
-                  
-                  
                 </div>
 
                 {/* Checkbox */}
@@ -611,8 +607,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           )}
         </DialogScrollArea>
 
-        {/* Dialog Footer - Show for quiz interactions */}
-        {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="flex-row sm:justify-end items-center">
+        {/* Dialog Footer - Show for quiz interactions (non-presentation only) */}
+        {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="flex-row sm:justify-end items-center">
             {!quizSubmitted && !wasEverCompleted ? <div className="flex gap-2">
                 <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                   <AlertDialogTrigger asChild>
@@ -667,34 +663,98 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               </DialogClose>}
           </DialogFooter>}
 
-        {/* Dialog Footer - Presentation (no quiz, not completed) */}
-        {video?.content_type === 'presentation' && !quiz && !wasEverCompleted && (
-          <DialogFooter className="sm:justify-end">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            {(() => {
-              const remainingSeconds = Math.max(0, 60 - viewingSeconds);
-              const timerActive = remainingSeconds > 0;
-              const minutes = Math.floor(remainingSeconds / 60);
-              const seconds = remainingSeconds % 60;
-              const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-              const isDisabled = timerActive || !presentationAcknowledged;
-              return (
-                <Button
-                  onClick={handleCompleteTraining}
-                  disabled={isDisabled}
-                  className={cn(
-                    "transition-all duration-500",
-                    !isDisabled && "animate-scale-in"
+        {/* Unified Presentation Footer */}
+        {isPresentation && !wasEverCompleted && (
+          <DialogFooter className="sm:justify-between">
+            {/* Left: Countdown clock */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              {timerActive
+                ? <span className="tabular-nums">Time Remaining: {formattedTime}</span>
+                : <span className="font-medium" style={{ color: 'hsl(var(--success))' }}>Review complete</span>
+              }
+            </div>
+
+            {/* Right: Action buttons */}
+            <div className="flex gap-2">
+              {quiz && quizStarted && !quizSubmitted ? (
+                <>
+                  {/* Quiz started: Cancel with confirmation + Submit Quiz */}
+                  <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" onClick={handleCancelClick}>
+                        Cancel
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {hasQuizChanges ? 'Discard unsaved progress?' : 'Exit training?'}
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <div>
+                        <AlertDialogDescription>
+                          {hasQuizChanges
+                            ? "If you leave now, your answers won't be saved and your training will remain incomplete."
+                            : "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete."}
+                        </AlertDialogDescription>
+                      </div>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>
+                          {hasQuizChanges ? 'Continue Editing' : 'Return to Quiz'}
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmedCancel}>
+                          {hasQuizChanges ? 'Discard & Exit Training' : 'Exit Training'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  
+                  {(!allQuestionsAnswered || !quizAttestationChecked) ? (
+                    <ButtonWithTooltip
+                      tooltip="Complete the questions above and the final confirmation to submit."
+                      disabled
+                    >
+                      Submit Quiz
+                    </ButtonWithTooltip>
+                  ) : (
+                    <Button onClick={handleQuizSubmit}>
+                      Submit Quiz
+                    </Button>
                   )}
-                >
-                  {timerActive
-                    ? `Complete Training (${formattedTime})`
-                    : "Complete Training"}
-                </Button>
-              );
-            })()}
+                </>
+              ) : (
+                <>
+                  {/* Pre-quiz or no-quiz: Cancel + primary action */}
+                  <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
+                    Cancel
+                  </Button>
+                  {quiz ? (
+                    <Button
+                      disabled={timerActive}
+                      onClick={handleStartQuiz}
+                      className={cn(
+                        "transition-all duration-500",
+                        !timerActive && "animate-scale-in"
+                      )}
+                    >
+                      Start Quiz to Complete Training
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={timerActive || !presentationAcknowledged}
+                      onClick={handleCompleteTraining}
+                      className={cn(
+                        "transition-all duration-500",
+                        !timerActive && presentationAcknowledged && "animate-scale-in"
+                      )}
+                    >
+                      Complete Training
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
           </DialogFooter>
         )}
       </FullscreenDialogContent>
