@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogScrollArea } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -614,9 +615,22 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   </AlertDialogContent>
                 </AlertDialog>
                 
-                <Button onClick={handleQuizSubmit} disabled={!allQuestionsAnswered || !quizAttestationChecked} className="shadow-md hover:shadow-lg transition-shadow">
-                  Submit Quiz
-                </Button>
+                {(!allQuestionsAnswered || !quizAttestationChecked) ? (
+                  <ButtonWithTooltip
+                    tooltip="Please answer all questions and check the attestation to submit."
+                    disabled
+                    className="shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    Submit Quiz
+                  </ButtonWithTooltip>
+                ) : (
+                  <Button
+                    onClick={handleQuizSubmit}
+                    className="shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    Submit Quiz
+                  </Button>
+                )}
               </div> : <DialogClose asChild>
                 <Button className="shadow-md hover:shadow-lg transition-shadow">
                   Close
