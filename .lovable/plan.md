@@ -1,35 +1,49 @@
 
 
-## Fix: Training Auto-Completing Without Attestation
+## Add Tooltip to Disabled "Submit Quiz" Button
 
-### Problem
-When a video without a quiz reaches 100% progress, the system automatically marks the training as complete in the database, bypassing the mandatory attestation checkbox.
+### What Changes
+Replace the plain `Button` for "Submit Quiz" with the existing `ButtonWithTooltip` component. When disabled (questions incomplete or attestation unchecked), hovering shows: "Please answer all questions and check the attestation to submit." When enabled, no tooltip is shown.
 
-### Fix (1 file)
+### Change (1 file)
 
-**File: `src/hooks/useVideoProgress.ts`** (line 49)
+**File: `src/components/VideoPlayerFullscreen.tsx`**
 
-Change the completion condition so that reaching 100% progress alone never auto-completes a training. Only explicit calls to `markComplete()` (after attestation) should set `completed_at`.
+1. **Add import** for `ButtonWithTooltip` from `@/components/ui/button-with-tooltip`
 
-Current logic:
-```
-const shouldComplete = progressPercent >= 100 && (!hasQuiz || forceComplete);
-```
+2. **Replace the Submit Quiz button** (line 617-619):
 
-Fixed logic:
-```
-const shouldComplete = progressPercent >= 100 && forceComplete === true;
-```
+   Current:
+   ```tsx
+   <Button onClick={handleQuizSubmit} disabled={!allQuestionsAnswered || !quizAttestationChecked} className="shadow-md hover:shadow-lg transition-shadow">
+     Submit Quiz
+   </Button>
+   ```
 
-### What This Means
-- Videos can still save 100% watched progress to the database
-- Training is only marked "complete" after the user checks the attestation checkbox and clicks "Complete Training"
-- Quiz flow is unaffected (quiz submission already calls `markComplete()` explicitly)
-- If a user closes and reopens the dialog, their progress is restored and the attestation prompt reappears
+   Updated:
+   ```tsx
+   {(!allQuestionsAnswered || !quizAttestationChecked) ? (
+     <ButtonWithTooltip
+       tooltip="Please answer all questions and check the attestation to submit."
+       disabled
+       className="shadow-md hover:shadow-lg transition-shadow"
+     >
+       Submit Quiz
+     </ButtonWithTooltip>
+   ) : (
+     <Button
+       onClick={handleQuizSubmit}
+       className="shadow-md hover:shadow-lg transition-shadow"
+     >
+       Submit Quiz
+     </Button>
+   )}
+   ```
+
+   This conditionally renders: a disabled button with tooltip when not ready, or an active button without tooltip when ready.
 
 ### Review
-- **Top 5 Risks**: (1) Existing completions unaffected -- forward-only change. (2) Quiz flow still works since `handleQuizSubmit` calls `markComplete()`. (3) Progress shows 100% but not "Completed" until attestation -- correct behavior. (4) Google Drive time-based videos use same path -- fix applies correctly. (5) Presentations use separate flow -- unaffected.
-- **Top 5 Fixes**: (1) Change `shouldComplete` to require `forceComplete === true`. (2-5) No other changes needed.
+- **Top 5 Risks**: (1) None -- uses an existing, tested component (`ButtonWithTooltip`). (2) No change to submission logic. (3) No accessibility regression -- `ButtonWithTooltip` already handles keyboard focus on disabled buttons. (4) No layout shift -- same button styling. (5) No database impact.
+- **Top 5 Fixes**: (1) Swap `Button` for conditional `ButtonWithTooltip`/`Button` render. (2) Add import. (3-5) N/A -- minimal change.
 - **Database Change Required**: No
 - **Go/No-Go**: Go
-
