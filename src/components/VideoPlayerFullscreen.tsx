@@ -570,26 +570,32 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           {(quizStarted && quiz || wasEverCompleted && (completedQuiz || quiz) && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
               <QuizModal quiz={wasEverCompleted && completedQuiz ? completedQuiz : quiz!} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} storedScore={wasEverCompleted ? storedAttemptScore : undefined} storedTotalQuestions={wasEverCompleted ? storedAttemptTotal : undefined} />
             </div>}
+
+          {/* Attestation - below quiz questions */}
+          {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && !quizSubmitted && !wasEverCompleted && (
+            <div className={`mt-6 border border-border rounded-lg p-6${allQuestionsAnswered ? ' bg-background' : ''}`}>
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id="quiz-attestation-inline"
+                  checked={quizAttestationChecked}
+                  disabled={!allQuestionsAnswered}
+                  onCheckedChange={(checked) => setQuizAttestationChecked(checked === true)}
+                  className="mt-1"
+                />
+                <Label
+                  htmlFor="quiz-attestation-inline"
+                  className={`text-sm font-medium leading-relaxed select-none ${!allQuestionsAnswered ? 'text-muted-foreground cursor-not-allowed' : 'cursor-pointer'}`}
+                  mutedOnDisabled={false}
+                >
+                  I certify that I have read and understood this content.
+                </Label>
+              </div>
+            </div>
+          )}
         </DialogScrollArea>
 
         {/* Dialog Footer - Show for quiz interactions */}
-        {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="flex-row sm:justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="footer-quiz-attestation"
-                checked={quizSubmitted || wasEverCompleted ? true : quizAttestationChecked}
-                disabled={quizSubmitted || wasEverCompleted || !allQuestionsAnswered}
-                onCheckedChange={(checked) => setQuizAttestationChecked(checked === true)}
-                className="mt-0"
-              />
-              <Label
-                htmlFor="footer-quiz-attestation"
-                className={`text-sm font-medium leading-relaxed select-none ${(!allQuestionsAnswered && !quizSubmitted && !wasEverCompleted) ? 'text-muted-foreground' : ''}`}
-                mutedOnDisabled={false}
-              >
-                I certify that I have read and understood this content.
-              </Label>
-            </div>
+        {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="flex-row sm:justify-end items-center">
             {!quizSubmitted && !wasEverCompleted ? <div className="flex gap-2">
                 <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                   <AlertDialogTrigger asChild>
