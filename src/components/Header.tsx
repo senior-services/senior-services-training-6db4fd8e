@@ -28,13 +28,12 @@ export const Header = ({
             }} />
               <div>
                 <h1 className="text-xl text-primary-foreground">
-                  <span className="font-bold">Training Hub</span>{' '}
+                  <span className="font-bold">Training Portal
+                </span>{' '}
                   <span className="font-normal">/ {userRole === 'admin' ? 'Admin' : 'Employee'} Dashboard</span>
-                  {userRole === 'admin' && (
-                    <Badge variant="attention" showIcon className="ml-2 text-xs align-middle">
+                  {userRole === 'admin' && <Badge variant="attention" showIcon className="ml-2 text-xs align-middle">
                       Admin
-                    </Badge>
-                  )}
+                    </Badge>}
                 </h1>
               </div>
             </Link>
@@ -47,12 +46,7 @@ export const Header = ({
             </div>
             <span className="hidden sm:inline text-sm font-medium text-primary-foreground">{userName}</span>
             <span className="text-primary-foreground/40" aria-hidden="true">|</span>
-            <Button
-              variant="link"
-              size="sm"
-              onClick={onLogout}
-              className="text-primary-foreground hover:text-primary-foreground p-0"
-            >
+            <Button variant="link" size="sm" onClick={onLogout} className="text-primary-foreground hover:text-primary-foreground p-0">
               Logout
             </Button>
           </div>
