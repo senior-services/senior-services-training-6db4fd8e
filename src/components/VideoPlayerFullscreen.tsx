@@ -654,10 +654,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     </div>
                     <AlertDialogFooter>
                       <AlertDialogCancel>
-                        {hasQuizChanges ? 'Keep editing' : 'Continue Quiz'}
+                        {hasQuizChanges ? 'Continue Editing' : 'Return to Quiz'}
                       </AlertDialogCancel>
                       <AlertDialogAction onClick={handleConfirmedCancel}>
-                        {hasQuizChanges ? 'Discard & Exit' : 'Exit Quiz'}
+                        {hasQuizChanges ? 'Discard & Exit Training' : 'Exit Training'}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
