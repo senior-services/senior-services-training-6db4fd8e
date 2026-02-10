@@ -261,10 +261,15 @@ export const ComponentsGallery = ({
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#toast" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
-                    Toast
-                  </a>
-                </li>
+                   <a href="#toast" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                     Toast
+                   </a>
+                 </li>
+                 <li className="break-inside-avoid mb-1">
+                   <a href="#tooltips" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                     Tooltips
+                   </a>
+                 </li>
                 <li className="break-inside-avoid mb-1">
                   <a href="#training-cards" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Training Cards
@@ -1854,6 +1859,56 @@ export const ComponentsGallery = ({
             </CardContent>
           </Card>
           
+          {/* Tooltips Section */}
+          <Card id="tooltips" className="shadow-card hover:shadow-lg transition-shadow duration-300">
+            <CardHeader>
+              <CardTitle>Tooltips</CardTitle>
+              <CardDescription>Arrow alignment variants — hover each button to see the arrow position</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-8">
+                {/* Center-aligned (default) */}
+                <div className="flex flex-col items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline">Center (default)</Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      Arrow is centered
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="text-xs text-muted-foreground">align="center"</span>
+                </div>
+
+                {/* Start-aligned */}
+                <div className="flex flex-col items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline">Start-aligned</Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="start">
+                      Arrow on the left
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="text-xs text-muted-foreground">align="start"</span>
+                </div>
+
+                {/* End-aligned */}
+                <div className="flex flex-col items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline">End-aligned</Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="end">
+                      Arrow on the right
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="text-xs text-muted-foreground">align="end"</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Footer */}
           <Card>
             <CardContent className="pt-6">
