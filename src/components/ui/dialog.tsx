@@ -60,7 +60,7 @@ const FullscreenDialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-2 sm:inset-2.5 z-50 border bg-background shadow-lg rounded-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 flex flex-col [&>:not([data-dialog-header]):not([data-dialog-footer]):not([data-dialog-scroll-area]):not([data-dialog-close])]:px-6 [&>:not([data-dialog-header]):not([data-dialog-footer]):not([data-dialog-scroll-area]):not([data-dialog-close])]:py-6",
+        "fixed inset-2 sm:inset-2.5 z-50 border bg-background shadow-lg rounded-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 flex flex-col overflow-hidden [&>:not([data-dialog-header]):not([data-dialog-footer]):not([data-dialog-scroll-area]):not([data-dialog-close])]:px-6 [&>:not([data-dialog-header]):not([data-dialog-footer]):not([data-dialog-scroll-area]):not([data-dialog-close])]:py-6",
         className
       )}
       {...props}
