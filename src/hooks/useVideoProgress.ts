@@ -45,8 +45,8 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
 
     const updateResult = await withErrorHandler(
       async () => {
-        // Only complete if 100% AND (no quiz OR forceComplete)
-        const shouldComplete = progressPercent >= 100 && (!hasQuiz || forceComplete);
+        // Only complete if 100% AND explicitly forced (after attestation or quiz submit)
+        const shouldComplete = progressPercent >= 100 && forceComplete === true;
         const completedAt = shouldComplete ? new Date() : undefined;
         
         logger.info('Updating progress to database', {
