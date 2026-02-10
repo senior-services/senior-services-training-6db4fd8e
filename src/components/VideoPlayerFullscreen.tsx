@@ -126,10 +126,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // Calculate minimum viewing time for presentations (safely handles video being undefined)
   const getMinimumViewingSeconds = useCallback(() => {
     if (!video || video.content_type !== 'presentation') return 0;
-    if (video.duration_seconds && video.duration_seconds > 0) {
-      return Math.max(30, Math.floor(video.duration_seconds * 0.8));
-    }
-    return 30;
+    return 60;
   }, [video]);
   const minimumViewingSeconds = getMinimumViewingSeconds();
 
@@ -535,23 +532,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     </p>
                   </div>
                   
-                  {/* Visual Timer - Always visible */}
-                  {(() => {
-                    const timeRemaining = Math.max(0, minimumViewingSeconds - viewingSeconds);
-                    const hasTimeLeft = timeRemaining > 0;
-                    return (
-                      <Badge 
-                        variant={hasTimeLeft ? "soft-warning" : "soft-success"}
-                        showIcon={true}
-                        className="gap-2 px-3 py-1.5 text-sm shrink-0"
-                      >
-                        <span className="font-medium">Time Left:</span>
-                        <span className="font-semibold text-base tabular-nums">
-                          {timeRemaining}
-                        </span>
-                      </Badge>
-                    );
-                  })()}
+                  
                 </div>
 
                 {/* Checkbox */}
@@ -685,6 +666,37 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 </Button>
               </DialogClose>}
           </DialogFooter>}
+
+        {/* Dialog Footer - Presentation (no quiz, not completed) */}
+        {video?.content_type === 'presentation' && !quiz && !wasEverCompleted && (
+          <DialogFooter className="sm:justify-end">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            {(() => {
+              const remainingSeconds = Math.max(0, 60 - viewingSeconds);
+              const timerActive = remainingSeconds > 0;
+              const minutes = Math.floor(remainingSeconds / 60);
+              const seconds = remainingSeconds % 60;
+              const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+              const isDisabled = timerActive || !presentationAcknowledged;
+              return (
+                <Button
+                  onClick={handleCompleteTraining}
+                  disabled={isDisabled}
+                  className={cn(
+                    "transition-all duration-500",
+                    !isDisabled && "animate-scale-in"
+                  )}
+                >
+                  {timerActive
+                    ? `Complete Training (${formattedTime})`
+                    : "Complete Training"}
+                </Button>
+              );
+            })()}
+          </DialogFooter>
+        )}
       </FullscreenDialogContent>
     </Dialog>;
 };
