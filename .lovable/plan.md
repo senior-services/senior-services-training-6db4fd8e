@@ -1,37 +1,154 @@
 
 
-## Should Internal Variable Names Be Updated Too?
+## Quiz Cancel and Reopen: Revised Plan
 
-### Short Answer: Yes, but the scope is small and low-risk.
+### Goal
+When a user cancels a quiz (whether or not they've made selections), a confirmation prompt always appears. Confirming the cancel closes the entire training dialog. Reopening the training automatically shows a fresh quiz.
 
-There is only **one file** with internal code references to "course" — `AssignVideosModal.tsx`. Updating these keeps the codebase consistent and avoids confusion when a developer sees `'course'` in code but "Training" in the UI.
+### Updated Cancel Behavior
 
-### What Needs Updating
+| Scenario | Confirmation Title | Description | Actions |
+|----------|-------------------|-------------|---------|
+| Quiz visible, no selections | "Exit training?" | "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete." | "Continue Quiz" / "Exit Quiz" |
+| Quiz visible, has selections | "Discard unsaved progress?" | "If you leave now, your answers won't be saved and your training will remain incomplete." | "Keep editing" / "Discard & Exit" |
 
-**`src/components/dashboard/AssignVideosModal.tsx`** — 6 internal references:
+Both exit actions close the training dialog and clear quiz state. On reopen, the user sees a fresh quiz automatically.
 
-| Line | Current | Updated | Type |
-|------|---------|---------|------|
-| 105 | `useState<'course' \| 'status' \| null>('course')` | `useState<'training' \| 'status' \| null>('training')` | State type + default |
-| 456 | `setSortColumn('course')` | `setSortColumn('training')` | Reset value |
-| 525 | `handleSort = useCallback((column: 'course' \| 'status')` | `handleSort = useCallback((column: 'training' \| 'status')` | Function parameter type |
-| 551 | `if (sortColumn === 'course')` | `if (sortColumn === 'training')` | Comparison |
-| 743 | `column="course"` | `column="training"` | JSX prop (passed to SortableTableHead) |
+---
 
-The `SortableTableHead` component accepts `column` as a generic `string`, so changing `"course"` to `"training"` requires no changes to the shared component.
+### Changes (2 files)
 
-### What This Plan Adds to the Previous Terminology Plan
+#### File 1: `src/hooks/useVideoProgress.ts`
 
-This would be folded into the existing "Course to Training" terminology plan as an additional section. The combined plan would cover:
+**Line 202** -- Return `progressPercent` alongside `completedAt` so the caller can detect a fully-watched-but-not-completed video:
 
-1. All **20 user-facing text updates** across 8 files (already approved)
-2. These **6 internal code updates** in 1 file (this addition)
+Current:
+```ts
+return { completedAt: progressData.completed_at || null };
+```
+Updated:
+```ts
+return { completedAt: progressData.completed_at || null, progressPercent };
+```
 
-No new files, no new logic, no database changes.
+Also update the fallback on **line 206**:
+```ts
+return { completedAt: null, progressPercent: 0 };
+```
+
+---
+
+#### File 2: `src/components/VideoPlayerFullscreen.tsx`
+
+**Change A -- Initialization (lines 162-165):**
+After `loadExistingProgress`, if progress is 99%+ and not completed, pre-set `overlayDismissed = true` to suppress the completion overlay and allow the auto-quiz effect to fire on reopen:
+
+```ts
+if (user?.email) {
+  const result = await loadExistingProgress();
+  if (result && !result.completedAt && result.progressPercent >= 99) {
+    setOverlayDismissed(true);
+  }
+}
+```
+
+**Change B -- Auto-quiz effect (lines 258-269):**
+Flip the guard so it fires when `overlayDismissed` is true (return user with fully-watched video), instead of requiring it to be false:
+
+Current guard:
+```ts
+if (!open || quizStarted || wasEverCompleted || overlayDismissed) return;
+```
+Updated guard:
+```ts
+if (!open || quizStarted || wasEverCompleted || !overlayDismissed) return;
+```
+
+**Change C -- `handleCancelClick` (lines 414-428):**
+Always show confirmation, removing the no-changes shortcut:
+
+```ts
+const handleCancelClick = useCallback(() => {
+  if (quizSubmitted) {
+    setQuizStarted(false);
+    setShowCompletionOverlay(true);
+    return;
+  }
+  setShowCancelConfirmation(true);
+}, [quizSubmitted]);
+```
+
+**Change D -- `handleConfirmedCancel` (lines 431-441):**
+Clear all quiz state and close the entire dialog:
+
+```ts
+const handleConfirmedCancel = useCallback(() => {
+  setShowCancelConfirmation(false);
+  setQuizStarted(false);
+  setQuizResponses([]);
+  setAllQuestionsAnswered(false);
+  setHasQuizChanges(false);
+  setQuizSubmitted(false);
+  setQuizResults([]);
+  setCompletedQuizResults([]);
+  setQuizAttestationChecked(false);
+  onOpenChange(false);
+}, [onOpenChange]);
+```
+
+**Change E -- Confirmation dialog copy (lines 644-658):**
+Replace static text with conditional copy based on `hasQuizChanges`:
+
+```tsx
+<AlertDialogContent>
+  <AlertDialogHeader>
+    <AlertDialogTitle>
+      {hasQuizChanges ? 'Discard unsaved progress?' : 'Exit training?'}
+    </AlertDialogTitle>
+  </AlertDialogHeader>
+  <div>
+    <AlertDialogDescription>
+      {hasQuizChanges
+        ? "If you leave now, your answers won't be saved and your training will remain incomplete."
+        : "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete."}
+    </AlertDialogDescription>
+  </div>
+  <AlertDialogFooter>
+    <AlertDialogCancel>
+      {hasQuizChanges ? 'Keep editing' : 'Continue Quiz'}
+    </AlertDialogCancel>
+    <AlertDialogAction onClick={handleConfirmedCancel}>
+      {hasQuizChanges ? 'Discard & Exit' : 'Exit Quiz'}
+    </AlertDialogAction>
+  </AlertDialogFooter>
+</AlertDialogContent>
+```
+
+---
+
+### How It All Fits Together
+
+1. User watches video to 100%, sees overlay, starts quiz
+2. User clicks Cancel -- confirmation always appears (different copy depending on whether they made selections)
+3. "Continue Quiz" / "Keep editing" -- closes the confirmation, returns to quiz with state intact
+4. "Exit Quiz" / "Discard & Exit" -- closes the entire training dialog, clears quiz state
+5. User reopens training -- `loadExistingProgress` returns 99%+ progress with no `completedAt`
+6. Initialization sets `overlayDismissed = true`, auto-quiz effect fires, user sees fresh quiz immediately
+
+### Technical Summary
+
+| File | Lines | Change |
+|------|-------|--------|
+| `useVideoProgress.ts` | 202, 206 | Return `progressPercent` in result object |
+| `VideoPlayerFullscreen.tsx` | 162-165 | Pre-set `overlayDismissed` if DB progress >= 99% and not completed |
+| `VideoPlayerFullscreen.tsx` | 260 | Flip auto-quiz guard to `!overlayDismissed` |
+| `VideoPlayerFullscreen.tsx` | 414-428 | Always show confirmation on cancel |
+| `VideoPlayerFullscreen.tsx` | 431-441 | Clear state + close dialog on confirmed cancel |
+| `VideoPlayerFullscreen.tsx` | 644-658 | Two-path conditional title, description, and button labels |
 
 ### Review
 
-- **Top 5 Risks**: (1) The type change from `'course'` to `'training'` is fully contained within one file -- no external consumers. (2) `SortableTableHead` uses `string` typing, so the prop change is safe. (3) Sort behavior is unchanged -- only the identifier string changes. (4) No database impact. (5) No security impact.
-- **Top 5 Fixes**: (1) Update the type union. (2) Update the default state value. (3) Update the reset value. (4) Update the comparison check. (5) Update the JSX column prop.
+- **Top 5 Risks**: (1) Both cancel paths now require confirmation -- matches the stated requirement that quizzes are mandatory. (2) "Keep editing" / "Continue Quiz" preserves quiz state correctly since `AlertDialogCancel` only closes the confirmation. (3) First-time video watch is unaffected -- `overlayDismissed` is only pre-set from DB-loaded progress >= 99%. (4) Submitted/review cancel path (lines 415-419) is untouched. (5) No security or data impact.
+- **Top 5 Fixes**: (1) Return `progressPercent` from hook. (2) Pre-set `overlayDismissed` during initialization. (3) Flip auto-quiz guard direction. (4) Always show confirmation on cancel. (5) Two-path conditional dialog copy.
 - **Database Change Required**: No
-- **Go/No-Go**: Go -- minimal effort, improves consistency, zero risk.
+- **Go/No-Go**: Go
