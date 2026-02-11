@@ -677,7 +677,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               </Badge>
             ) : (
               <Badge variant="soft-success" showIcon>
-                Review Complete
+                Timer Complete
               </Badge>
             )}
 
