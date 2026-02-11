@@ -306,29 +306,34 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
             </div>
           </div>
 
-          <div>
-            <Label>Training Type</Label>
-            <ToggleGroup
-              type="single"
-              variant="pill"
-              value={contentType}
-              onValueChange={(value) => {
-                if (value) setContentType(value as ContentType);
-              }}
-              className="mt-1"
-            >
-              <ToggleGroupItem value="video" aria-label="Video">
-                Video
-              </ToggleGroupItem>
-              <ToggleGroupItem value="presentation" aria-label="Presentation">
-                Presentation
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
-          {contentType === "presentation" && (
+          {url.trim() && !urlError && (
             <div>
-              <Label htmlFor="min-viewing-time">Minimum Viewing Time (seconds)</Label>
+              <Label>Training Type</Label>
+              <ToggleGroup
+                type="single"
+                variant="pill"
+                value={contentType}
+                onValueChange={(value) => {
+                  if (value) setContentType(value as ContentType);
+                }}
+                className="mt-1"
+              >
+                <ToggleGroupItem value="video" aria-label="Video">
+                  Video
+                </ToggleGroupItem>
+                <ToggleGroupItem value="presentation" aria-label="Presentation">
+                  Presentation
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+          )}
+
+          {url.trim() && !urlError && contentType === "presentation" && (
+            <div>
+              <div>
+                <Label htmlFor="min-viewing-time">Viewing Timer</Label>
+                <p className="form-helper-text">Enter the time required for review.</p>
+              </div>
               <Input
                 id="min-viewing-time"
                 type="number"
@@ -339,7 +344,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 aria-describedby="min-viewing-time-additional"
               />
               <p id="min-viewing-time-additional" className="form-additional-text">
-                Minimum 60 seconds recommended – necessary for compliance to ensure review, as progress cannot be tracked for presentation files.
+                Minimum 60 seconds recommended. Necessary for compliance to ensure review, as progress cannot be tracked for presentation files.
               </p>
             </div>
           )}
