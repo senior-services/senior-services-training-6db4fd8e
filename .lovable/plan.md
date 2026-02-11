@@ -1,57 +1,56 @@
 
 
-## Refactor Form Text Elements: Standardized Naming Conventions
+## Refactor Form Field Text Naming Across the Application
 
 ### What Changes
 
-Introduce two new CSS utility classes and update all form field text elements in the Style Guide to use standardized naming. No visual changes -- layout, colors, and positions remain identical.
+Update the two remaining files that use inline form helper text classes to use the standardized `.form-helper-text` CSS class. These are the only instances outside the Style Guide that match the pattern.
 
-### New CSS Classes
+### Files to Change
 
-Added to `src/index.css` in the `@layer components` section:
+**1. `src/components/quiz/CreateQuizModal.tsx` (line 306)**
 
-| Class Name | Replaces | Styles (unchanged visually) |
-|------------|----------|----------------------------|
-| `.form-helper-text` | Inline `text-xs text-foreground mt-0 mb-1.5` | `@apply text-xs text-foreground mt-0 mb-1.5;` |
-| `.form-additional-text` | Inline `text-xs text-muted-foreground italic mt-1.5` | `@apply text-xs text-muted-foreground italic mt-1.5;` |
-
-### File Changes
-
-**1. `src/index.css`** -- Add two new classes inside `@layer components`
-
-```css
-/* Form Helper Text - between label and input */
-.form-helper-text {
-  @apply text-xs text-foreground mt-0 mb-1.5;
-}
-
-/* Form Additional Text - below input/control */
-.form-additional-text {
-  @apply text-xs text-muted-foreground italic mt-1.5;
-}
+Replace:
+```
+className="text-xs text-muted-foreground mt-0 mb-1.5"
+```
+With:
+```
+className="form-helper-text"
 ```
 
-**2. `src/pages/ComponentsGallery.tsx`** -- Replace inline classes with new class names
+This text sits between the "Answer Options" label and the answer option inputs -- it is helper text by definition.
 
-Six replacements total (3 helper text, 3 additional text):
+**2. `src/components/EditVideoModal.tsx` (line 1127)**
 
-- Line 737: `className="text-xs text-foreground mt-0 mb-1.5"` becomes `className="form-helper-text"`
-- Line 742: `className="text-xs text-muted-foreground italic mt-1.5"` becomes `className="form-additional-text"`
-- Line 749: `className="text-xs text-foreground mt-0 mb-1.5"` becomes `className="form-helper-text"`
-- Line 752: `className="text-xs text-muted-foreground italic mt-1.5"` becomes `className="form-additional-text"`
-- Line 847: `className="text-xs text-foreground mt-0 mb-1.5"` becomes `className="form-helper-text"`
-- Line 859: `className="text-xs text-muted-foreground italic mt-1.5"` becomes `className="form-additional-text"`
+Replace:
+```
+className="text-xs text-muted-foreground mt-0 mb-1.5"
+```
+With:
+```
+className="form-helper-text"
+```
+
+Same pattern -- helper text between label and controls.
+
+**Note:** These two instances currently use `text-muted-foreground` (secondary color) rather than `text-foreground` (primary color). Applying `.form-helper-text` will change them to primary color to match the standardized pattern. The position and size remain identical.
 
 ### What Stays the Same
 
-- All visual positions, colors, sizes, and spacing remain identical
-- No structural HTML changes
-- No new components or props introduced
-- All other form controls (switches, toggles, checkboxes, radio groups) unchanged
+- No layout or structural changes
+- No new props or interfaces needed (these are inline `<p>` tags, not component props)
+- Style Guide examples already updated in previous changes
+- CSS classes in `src/index.css` already defined
+- All other form fields, toasts, dialogs, cards using "description" in their standard component APIs are unrelated to this pattern and remain unchanged
+
+### Scope Clarification
+
+No other files in the application use custom form helper/additional text patterns. The `description` prop used in Toast, Card, AlertDialog, and Banner components is part of their standard Radix/shadcn API and is not related to form field helper text -- these are left unchanged.
 
 ### Review
 
-- **Top 5 Risks:** (1) No visual regression risk -- CSS classes map to identical Tailwind utilities. (2) No other files use these inline patterns, so no missed references. (3) No accessibility impact -- same contrast and sizing. (4) No functional impact. (5) No data or security impact.
-- **Top 5 Fixes:** (1) Centralizes form text styling into reusable CSS classes. (2) Standardizes naming to `form-helper-text` and `form-additional-text`. (3) Makes future style changes single-point updates. (4) Reduces inline class duplication. (5) Improves code readability and maintainability.
+- **Top 5 Risks:** (1) Color shift from `text-muted-foreground` to `text-foreground` on two helper texts -- minor visual change, aligns with standard. (2) No other risks -- two single-line class swaps. (3) No accessibility regression. (4) No functional impact. (5) No data or security impact.
+- **Top 5 Fixes:** (1) Completes standardization across the entire app. (2) Single-point style updates now possible via CSS class. (3) Consistent naming convention enforced. (4) Only two files need changes. (5) Clean, minimal refactor.
 - **Database Change Required:** No
 - **Go/No-Go:** Go
