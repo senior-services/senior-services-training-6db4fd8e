@@ -291,7 +291,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 </p>
               )}
               <p className="form-additional-text">
-                Set Google Slides (saved as .ppsx) to 'Anyone with the link' and YouTube to 'Unlisted' so your team can see it.
+                Set YouTube to 'Unlisted' and Google Slides (saved as .ppsx) to 'Anyone with the link' so your team can see it.
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button type="button" className="inline-flex flex-shrink-0" aria-label="More info about privacy settings">
@@ -329,17 +329,18 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
           {contentType === "presentation" && (
             <div>
               <Label htmlFor="min-viewing-time">Minimum Viewing Time (seconds)</Label>
-              <p className="form-helper-text">
-                Minimum 60 seconds required. Necessary for compliance to ensure review, as progress cannot be tracked for PPSX files.
-              </p>
               <Input
                 id="min-viewing-time"
                 type="number"
+                className="max-w-[100px]"
                 value={minViewingTime}
                 onChange={(e) => setMinViewingTime(Math.max(60, parseInt(e.target.value) || 60))}
                 min={60}
-                aria-describedby="min-viewing-time-helper"
+                aria-describedby="min-viewing-time-additional"
               />
+              <p id="min-viewing-time-additional" className="form-additional-text">
+                Minimum 60 seconds recommended – necessary for compliance to ensure review, as progress cannot be tracked for presentation files.
+              </p>
             </div>
           )}
 

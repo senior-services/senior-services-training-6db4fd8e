@@ -182,6 +182,10 @@ The following ESLint rules are enforced to maintain consistency:
 
 Use the wrapper components instead to achieve proper spacing and styling.
 
+### Toggle Components
+
+All Toggle and ToggleGroup items use `text-xs` (14px) for consistency with Labels, Badge, and Tooltip typography standards. This is set globally in the `toggleVariants` CVA definition in `src/components/ui/toggle.tsx`.
+
 ### Tooltip Styling
 
 All tooltips use a high-contrast dark background (`bg-foreground`) with white text (`text-background`), extra-small text (`text-xs`), a max width of `300px`, and include a directional arrow by default. Meets WCAG AA contrast in both light and dark modes.
