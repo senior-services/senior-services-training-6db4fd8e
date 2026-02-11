@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, CheckCircle2, Info, Loader2 } from "lucide-react";
@@ -34,6 +35,7 @@ export interface ContentFormData {
   url: string;
   assignToAll?: boolean;
   dueDate?: Date;
+  duration_seconds?: number;
 }
 
 export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenChange, onSave }) => {
@@ -41,6 +43,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [contentType, setContentType] = useState<ContentType>("video");
+  const [minViewingTime, setMinViewingTime] = useState<number>(60);
   
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string>("");
@@ -58,6 +61,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
       setDescription("");
       setUrl("");
       setContentType("video");
+      setMinViewingTime(60);
       setIsValidatingUrl(false);
       setUrlError("");
       setTitleError("");
@@ -181,6 +185,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
       // TODO: Re-enable when "Assign to All" feature is restored in the UI
       assignToAll: false,
       dueDate: undefined,
+      duration_seconds: contentType === 'presentation' ? minViewingTime : undefined,
     };
 
     onSave(formData);
@@ -192,6 +197,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     setDescription("");
     setUrl("");
     setContentType("video");
+    setMinViewingTime(60);
     setIsValidatingUrl(false);
     setUrlError("");
     setTitleError("");
@@ -299,6 +305,43 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
               </p>
             </div>
           </div>
+
+          <div>
+            <Label>Training Type</Label>
+            <ToggleGroup
+              type="single"
+              variant="pill"
+              value={contentType}
+              onValueChange={(value) => {
+                if (value) setContentType(value as ContentType);
+              }}
+              className="mt-1"
+            >
+              <ToggleGroupItem value="video" aria-label="Video">
+                Video
+              </ToggleGroupItem>
+              <ToggleGroupItem value="presentation" aria-label="Presentation">
+                Presentation
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
+          {contentType === "presentation" && (
+            <div>
+              <Label htmlFor="min-viewing-time">Minimum Viewing Time (seconds)</Label>
+              <p className="form-helper-text">
+                Minimum 60 seconds required. Necessary for compliance to ensure review, as progress cannot be tracked for PPSX files.
+              </p>
+              <Input
+                id="min-viewing-time"
+                type="number"
+                value={minViewingTime}
+                onChange={(e) => setMinViewingTime(Math.max(60, parseInt(e.target.value) || 60))}
+                min={60}
+                aria-describedby="min-viewing-time-helper"
+              />
+            </div>
+          )}
 
           {/* TODO: Re-enable "Assign to All Employees" feature when ready.
               The state (assignToAll, dueDateOption, noDueDateRequired) and handlers

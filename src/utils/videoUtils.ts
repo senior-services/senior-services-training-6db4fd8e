@@ -223,6 +223,16 @@ export const detectContentTypeFromUrl = (url: string): 'video' | 'presentation' 
   if (isGoogleDriveUrl(url)) {
     return null;
   }
+
+  // Check if URL path ends in .ppsx (PowerPoint slideshow)
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    if (pathname.endsWith('.ppsx')) {
+      return 'presentation';
+    }
+  } catch {
+    // Invalid URL, fall through
+  }
   
   return null;
 };
