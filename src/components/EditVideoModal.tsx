@@ -1268,20 +1268,20 @@ export const EditVideoModal = ({
                 tooltip={
                   videoUsage?.canDelete
                     ? quiz
-                      ? "Delete Video and Quiz"
-                      : "Delete Video"
+                      ? "Delete Training and Quiz"
+                      : "Delete Training"
                     : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user${videoUsage?.assignedCount !== 1 ? 's' : ''}. Use Hide on Trainings tab instead.`
                 }
                 aria-label={
                   videoUsage?.canDelete
                     ? quiz
-                      ? "Delete Video and Quiz"
-                      : "Delete Video"
+                      ? "Delete Training and Quiz"
+                      : "Delete Training"
                     : `Cannot delete: Assigned to ${videoUsage?.assignedCount} user(s). Use Hide on Trainings tab instead.`
                 }
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete Video
+                Delete Training
               </ButtonWithTooltip>
             </div>
             
@@ -1301,11 +1301,11 @@ export const EditVideoModal = ({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Video</AlertDialogTitle>
+            <AlertDialogTitle>Delete Training</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{video?.title}"?
               {quiz && " This will also delete the associated quiz."}
-              {" "}This video has not been assigned to any users. This action cannot be undone.
+              {" "}This training has not been assigned to any users. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
