@@ -732,11 +732,16 @@ export const ComponentsGallery = ({
                       <Input id="disabled-input" placeholder="Disabled input" disabled className="shadow-sm" />
                     </div>
                     <div>
-                      <Label htmlFor="helper-input">Email Address</Label>
-                      <p className="text-xs text-muted-foreground mb-1.5">
-                        We'll use this to send you login instructions.
-                      </p>
+                      <div>
+                        <Label htmlFor="helper-input">Email Address</Label>
+                        <p className="text-xs text-foreground mt-0 mb-1.5">
+                          We'll use this to send you login instructions.
+                        </p>
+                      </div>
                       <Input id="helper-input" placeholder="you@example.com" className="shadow-sm hover:shadow-md transition-shadow" />
+                      <p className="text-xs text-muted-foreground italic mt-1.5">
+                        Must be a valid company email address.
+                      </p>
                     </div>
                     <div>
                       <Label htmlFor="textarea">Textarea</Label>
@@ -814,6 +819,9 @@ export const ComponentsGallery = ({
                           <Label htmlFor="size-xl">Extra Large</Label>
                         </div>
                       </RadioGroup>
+                      <p className="text-xs text-muted-foreground italic mt-1.5">
+                        Select the size that best fits your needs.
+                      </p>
                     </div>
                     
                     <div>
@@ -830,6 +838,9 @@ export const ComponentsGallery = ({
                             <Label htmlFor={`checkbox-${option.toLowerCase().replace(" ", "-")}`}>{option}</Label>
                           </div>)}
                       </div>
+                      <p className="text-xs text-muted-foreground italic mt-1.5">
+                        You can select multiple options. Changes take effect immediately.
+                      </p>
                     </div>
                     
                     <div>
@@ -844,6 +855,9 @@ export const ComponentsGallery = ({
                           <SelectItem value="option3">Option 3</SelectItem>
                         </SelectContent>
                       </Select>
+                      <p className="text-xs text-muted-foreground italic mt-1.5">
+                        You can change this selection at any time.
+                      </p>
                     </div>
                   </div>
                 </div>
