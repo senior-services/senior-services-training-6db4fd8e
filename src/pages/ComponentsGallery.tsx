@@ -744,8 +744,12 @@ export const ComponentsGallery = ({
                       </p>
                     </div>
                     <div>
-                      <Label htmlFor="textarea">Textarea</Label>
+                      <div>
+                        <Label htmlFor="textarea">Textarea</Label>
+                        <p className="text-xs text-foreground mt-0 mb-1.5">Provide as much detail as possible.</p>
+                      </div>
                       <Textarea id="textarea" placeholder="Enter longer text here..." className="shadow-sm hover:shadow-md transition-shadow" />
+                      <p className="text-xs text-muted-foreground italic mt-1.5">Maximum 500 characters recommended.</p>
                     </div>
                   </div>
                   
@@ -819,9 +823,6 @@ export const ComponentsGallery = ({
                           <Label htmlFor="size-xl">Extra Large</Label>
                         </div>
                       </RadioGroup>
-                      <p className="text-xs text-muted-foreground italic mt-1.5">
-                        Select the size that best fits your needs.
-                      </p>
                     </div>
                     
                     <div>
@@ -838,13 +839,13 @@ export const ComponentsGallery = ({
                             <Label htmlFor={`checkbox-${option.toLowerCase().replace(" ", "-")}`}>{option}</Label>
                           </div>)}
                       </div>
-                      <p className="text-xs text-muted-foreground italic mt-1.5">
-                        You can select multiple options. Changes take effect immediately.
-                      </p>
                     </div>
                     
                     <div>
-                      <Label>Select Dropdown</Label>
+                      <div>
+                        <Label>Select Dropdown</Label>
+                        <p className="text-xs text-foreground mt-0 mb-1.5">Choose from the available options.</p>
+                      </div>
                       <Select value={selectValue} onValueChange={setSelectValue}>
                         <SelectTrigger className="shadow-sm hover:shadow-md transition-shadow">
                           <SelectValue placeholder="Select an option" />
