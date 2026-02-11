@@ -113,6 +113,7 @@ export interface VideoCreateData extends VideoUpdateData {
   video_url?: string;
   video_file_name?: string;
   type: VideoType;
+  duration_seconds?: number;
 }
 
 // API response types
