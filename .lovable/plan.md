@@ -1,31 +1,64 @@
 
-## Fix: Presentation Footer Not Visible
 
-### Root Cause
+## Update Form Controls in Style Guide -- Revised
 
-The `FullscreenDialogContent` component is missing `overflow-hidden`. Without it, the flex container does not properly constrain its children within the fixed boundaries (`fixed inset-2`). The `DialogScrollArea` (with `flex-1`) can expand beyond the dialog bounds, pushing the `DialogFooter` below the visible viewport. Adding `overflow-hidden` forces the flex layout to respect the container's height, keeping the footer pinned at the bottom.
+### What Changes
 
-### Change
+Update the Form Controls section in the Style Guide to document two distinct types of supporting text for form fields. Additionally, ensure dropdowns, checkbox groups, and radio button groups always include "additional context" examples, since those field types benefit most from supplementary guidance.
 
-**File: `src/components/ui/dialog.tsx`** (line 63)
+### Two Helper Text Types
 
-Add `overflow-hidden` to the `FullscreenDialogContent` class list. This is a one-word addition to the existing className string.
+| Type | Position | Style | Purpose |
+|------|----------|-------|---------|
+| **Helper Text** | Between label and input | `text-xs text-foreground mt-0 mb-1.5` (primary color) | Brief instruction before user interacts |
+| **Additional Context** | Below the input/control | `text-xs text-muted-foreground italic mt-1.5` (secondary, italic) | Extra tips, constraints, or clarification |
 
-Before:
+### Detailed Changes
+
+**File: `src/pages/ComponentsGallery.tsx`**
+
+**1. Update the "Email Address" field (lines 734-740)**
+
+Replace the existing single helper text demo with both types demonstrated together:
+
+- **Helper text** (above input): "We'll use this to send you login instructions." -- styled `text-xs text-foreground mt-0 mb-1.5`
+- **Additional context** (below input): "Must be a valid company email address." -- styled `text-xs text-muted-foreground italic mt-1.5`
+
+Label + helper text wrapped in a single `div` to prevent spacing issues from parent `space-y-*`.
+
+**2. Add additional context to Select Dropdown (lines 835-847)**
+
+Below the `Select` component, add:
 ```
-"fixed inset-2 sm:inset-2.5 z-50 border bg-background shadow-lg rounded-lg duration-200 ... flex flex-col ..."
+"You can change this selection at any time."
 ```
+Styled as `text-xs text-muted-foreground italic mt-1.5`.
 
-After:
-```
-"fixed inset-2 sm:inset-2.5 z-50 border bg-background shadow-lg rounded-lg duration-200 ... flex flex-col overflow-hidden ..."
-```
+**3. Add additional context to Radio Button Group (lines 797-817)**
 
-This ensures the dialog clips its content to the fixed boundaries, the scroll area scrolls internally, and the footer remains visible at the bottom.
+Below the `RadioGroup` component, add:
+```
+"Select the size that best fits your needs."
+```
+Styled as `text-xs text-muted-foreground italic mt-1.5`.
+
+**4. Add additional context to Checkbox Group (lines 819-833)**
+
+Below the checkbox group container, add:
+```
+"You can select multiple options. Changes take effect immediately."
+```
+Styled as `text-xs text-muted-foreground italic mt-1.5`.
+
+### What Stays the Same
+
+- All other form control examples (disabled input, textarea, switches, toggles, single checkbox) remain unchanged
+- Section header and card layout unchanged
+- No new components or imports needed
 
 ### Review
 
-- **Top 5 Risks:** (1) Edge case where other content in `FullscreenDialogContent` might get clipped -- mitigated because scroll area handles internal scrolling. (2) No visual regression expected since the dialog is already bounded by `fixed inset-2`. (3) No data or security impact. (4) No database change. (5) Already recommended in existing architectural memory.
-- **Top 5 Fixes:** (1) Add `overflow-hidden` to `FullscreenDialogContent`. That is the only fix needed.
+- **Top 5 Risks:** (1) Helper text color change from `text-muted-foreground` to `text-foreground` increases visual weight -- intentional per request. (2) Existing forms across the app still use old pattern -- this is style guide only, not a refactor. (3) No accessibility regression -- both text types maintain WCAG AA contrast. (4) No functional impact. (5) No data or security impact.
+- **Top 5 Fixes:** (1) Documents two distinct helper text patterns clearly. (2) Dropdowns, checkbox groups, and radio groups always show additional context. (3) Italic styling on additional context creates clear visual hierarchy. (4) Wrapper pattern prevents spacing issues. (5) Examples can be used independently or together.
 - **Database Change Required:** No
 - **Go/No-Go:** Go
