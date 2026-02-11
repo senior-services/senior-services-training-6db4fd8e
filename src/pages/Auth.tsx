@@ -224,7 +224,7 @@ export const Auth = () => {
                     {!emailError && (
                       <div 
                         id="email-hint" 
-                        className="form-additional-text not-italic"
+                        className="form-additional-text"
                       >
                         Use your company email address to access the training portal
                       </div>
@@ -275,7 +275,7 @@ export const Auth = () => {
                     {!emailError && (
                       <div 
                         id="signup-email-hint" 
-                        className="form-additional-text not-italic"
+                        className="form-additional-text"
                       >
                         Use your company email address to create your training account
                       </div>

@@ -284,7 +284,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                   <span>{urlError}</span>
                 </p>
               )}
-              <p className="form-additional-text not-italic flex items-center gap-1">
+              <p className="form-additional-text">
                 Set Google Slides (saved as .ppsx) to 'Anyone with the link' and YouTube to 'Unlisted' so your team can see it.
                 <Tooltip>
                   <TooltipTrigger asChild>
