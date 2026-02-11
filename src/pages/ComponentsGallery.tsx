@@ -734,22 +734,22 @@ export const ComponentsGallery = ({
                     <div>
                       <div>
                         <Label htmlFor="helper-input">Email Address</Label>
-                        <p className="text-xs text-foreground mt-0 mb-1.5">
+                        <p className="form-helper-text">
                           We'll use this to send you login instructions.
                         </p>
                       </div>
                       <Input id="helper-input" placeholder="you@example.com" className="shadow-sm hover:shadow-md transition-shadow" />
-                      <p className="text-xs text-muted-foreground italic mt-1.5">
+                      <p className="form-additional-text">
                         Must be a valid company email address.
                       </p>
                     </div>
                     <div>
                       <div>
                         <Label htmlFor="textarea">Textarea</Label>
-                        <p className="text-xs text-foreground mt-0 mb-1.5">Provide as much detail as possible.</p>
+                        <p className="form-helper-text">Provide as much detail as possible.</p>
                       </div>
                       <Textarea id="textarea" placeholder="Enter longer text here..." className="shadow-sm hover:shadow-md transition-shadow" />
-                      <p className="text-xs text-muted-foreground italic mt-1.5">Maximum 500 characters recommended.</p>
+                      <p className="form-additional-text">Maximum 500 characters recommended.</p>
                     </div>
                   </div>
                   
@@ -844,7 +844,7 @@ export const ComponentsGallery = ({
                     <div>
                       <div>
                         <Label>Select Dropdown</Label>
-                        <p className="text-xs text-foreground mt-0 mb-1.5">Choose from the available options.</p>
+                        <p className="form-helper-text">Choose from the available options.</p>
                       </div>
                       <Select value={selectValue} onValueChange={setSelectValue}>
                         <SelectTrigger className="shadow-sm hover:shadow-md transition-shadow">
@@ -856,7 +856,7 @@ export const ComponentsGallery = ({
                           <SelectItem value="option3">Option 3</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-muted-foreground italic mt-1.5">
+                      <p className="form-additional-text">
                         You can change this selection at any time.
                       </p>
                     </div>

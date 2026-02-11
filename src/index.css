@@ -298,4 +298,14 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   .status-completed {
     @apply bg-deadline-completed text-white;
   }
+
+  /* Form Helper Text - between label and input */
+  .form-helper-text {
+    @apply text-xs text-foreground mt-0 mb-1.5;
+  }
+
+  /* Form Additional Text - below input/control */
+  .form-additional-text {
+    @apply text-xs text-muted-foreground italic mt-1.5;
+  }
 }
