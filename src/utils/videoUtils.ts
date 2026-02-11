@@ -205,7 +205,7 @@ export const getGooglePresentationThumbnail = (url: string): string | null => {
  * Detection priority:
  * 1. Google Slides URLs (docs.google.com/presentation) → 'presentation'
  * 2. YouTube URLs (youtube.com, youtu.be) → 'video'
- * 3. Generic Google Drive URLs (drive.google.com) → null (ambiguous, file type unknown)
+ * 3. Generic Google Drive URLs (drive.google.com) → 'presentation' (assumed PPSX hosting)
  */
 export const detectContentTypeFromUrl = (url: string): 'video' | 'presentation' | null => {
   // Check Google Slides FIRST (before generic Drive URLs)
@@ -218,10 +218,9 @@ export const detectContentTypeFromUrl = (url: string): 'video' | 'presentation' 
     return 'video';
   }
   
-  // Generic Google Drive URLs are ambiguous - we cannot determine file type
-  // without API access. Return null to force manual selection.
+  // Generic Google Drive URLs default to presentation (PPSX hosting in this app)
   if (isGoogleDriveUrl(url)) {
-    return null;
+    return 'presentation';
   }
 
   // Check if URL path ends in .ppsx (PowerPoint slideshow)
