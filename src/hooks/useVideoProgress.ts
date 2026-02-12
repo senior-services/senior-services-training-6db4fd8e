@@ -186,7 +186,7 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
       if (progressResult.data) {
         const progressData = progressResult.data;
         const progressPercent = progressData.progress_percent;
-        const isVideoCompleted = progressPercent >= 100 || !!progressData.completed_at;
+        const isVideoCompleted = !!progressData.completed_at;
         
         setProgress(progressPercent);
         setIsCompleted(isVideoCompleted);
