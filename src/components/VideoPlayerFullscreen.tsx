@@ -424,13 +424,15 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       }, 100);
     }} aria-describedby="video-description">
         
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full px-6 pb-6 pt-0" data-dialog-scroll-area>
-          <DialogHeader className="pt-6 pb-4 px-0 border-b">
-            <DialogTitle>
-              {video?.title || 'Training Video'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-6 pt-6">
+        {/* Fixed Header */}
+        <DialogHeader>
+          <DialogTitle>
+            {video?.title || 'Training Video'}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* Scrollable Body */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6" data-dialog-scroll-area>
             <div className="flex items-start justify-between gap-4 pb-4">
               {video?.description && video.description.trim() && (
                 <div className="flex-1" id="video-description">
@@ -483,14 +485,74 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 />
               </div>
             )}
-          </div>
+        </div>
 
-          {/* Dialog Footer - Show for quiz interactions (non-presentation only) */}
-          {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="px-0 py-6 mt-6 border-t">
-              {!quizSubmitted && !wasEverCompleted ? <div className="flex w-full items-center justify-end gap-4">
+        {/* Fixed Footer - Quiz interactions (non-presentation only) */}
+        {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter>
+            {!quizSubmitted && !wasEverCompleted ? <div className="flex w-full items-center justify-end gap-4">
+                <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" onClick={handleCancelClick} className="shadow-md hover:shadow-lg transition-shadow">
+                      Cancel
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {hasQuizChanges ? 'Discard unsaved progress?' : 'Exit training?'}
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <div>
+                      <AlertDialogDescription>
+                        {hasQuizChanges
+                          ? "If you leave now, your answers won't be saved and your training will remain incomplete."
+                          : "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete."}
+                      </AlertDialogDescription>
+                    </div>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>
+                        {hasQuizChanges ? 'Continue Editing' : 'Return to Quiz'}
+                      </AlertDialogCancel>
+                      <AlertDialogAction onClick={handleConfirmedCancel}>
+                        {hasQuizChanges ? 'Discard & Exit Training' : 'Exit Training'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                
+                {(!allQuestionsAnswered || !quizAttestationChecked) ? (
+                  <ButtonWithTooltip
+                    tooltip="Complete the questions above and the final confirmation to submit."
+                    disabled
+                    className="shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    Submit Quiz
+                  </ButtonWithTooltip>
+                ) : (
+                  <Button
+                    onClick={handleQuizSubmit}
+                    className="shadow-md hover:shadow-lg transition-shadow"
+                  >
+                    Submit Quiz
+                  </Button>
+                )}
+              </div> : <div className="flex w-full items-center justify-end gap-4">
+                <DialogClose asChild>
+                  <Button className="shadow-md hover:shadow-lg transition-shadow">
+                    Close
+                  </Button>
+                </DialogClose>
+              </div>}
+          </DialogFooter>}
+
+        {/* Fixed Footer - Unified Presentation */}
+        {isPresentation && !wasEverCompleted && (
+          <DialogFooter>
+              {quiz && quizStarted && !quizSubmitted ? (
+                <div className="flex w-full items-center justify-end gap-4">
                   <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" onClick={handleCancelClick} className="shadow-md hover:shadow-lg transition-shadow">
+                      <Button variant="outline" onClick={handleCancelClick}>
                         Cancel
                       </Button>
                     </AlertDialogTrigger>
@@ -522,132 +584,72 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     <ButtonWithTooltip
                       tooltip="Complete the questions above and the final confirmation to submit."
                       disabled
-                      className="shadow-md hover:shadow-lg transition-shadow"
                     >
                       Submit Quiz
                     </ButtonWithTooltip>
                   ) : (
-                    <Button
-                      onClick={handleQuizSubmit}
-                      className="shadow-md hover:shadow-lg transition-shadow"
-                    >
+                    <Button onClick={handleQuizSubmit}>
                       Submit Quiz
                     </Button>
                   )}
-                </div> : <div className="flex w-full items-center justify-end gap-4">
-                  <DialogClose asChild>
-                    <Button className="shadow-md hover:shadow-lg transition-shadow">
-                      Close
+                </div>
+              ) : (
+                <div className="flex w-full items-center justify-between gap-4">
+                  {timerActive ? (
+                    <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
+                      <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
+                    </Banner>
+                  ) : (
+                    <Banner variant="success" size="compact" className="w-fit shrink-0">
+                      Minimum time met
+                    </Banner>
+                  )}
+                  <div className="flex gap-2">
+                    <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
+                      Cancel
                     </Button>
-                  </DialogClose>
-                </div>}
-            </DialogFooter>}
-
-          {/* Unified Presentation Footer */}
-          {isPresentation && !wasEverCompleted && (
-            <DialogFooter className="px-0 py-6 mt-6 border-t">
-                {quiz && quizStarted && !quizSubmitted ? (
-                  <div className="flex w-full items-center justify-end gap-4">
-                    <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" onClick={handleCancelClick}>
-                          Cancel
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            {hasQuizChanges ? 'Discard unsaved progress?' : 'Exit training?'}
-                          </AlertDialogTitle>
-                        </AlertDialogHeader>
-                        <div>
-                          <AlertDialogDescription>
-                            {hasQuizChanges
-                              ? "If you leave now, your answers won't be saved and your training will remain incomplete."
-                              : "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete."}
-                          </AlertDialogDescription>
-                        </div>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>
-                            {hasQuizChanges ? 'Continue Editing' : 'Return to Quiz'}
-                          </AlertDialogCancel>
-                          <AlertDialogAction onClick={handleConfirmedCancel}>
-                            {hasQuizChanges ? 'Discard & Exit Training' : 'Exit Training'}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                    
-                    {(!allQuestionsAnswered || !quizAttestationChecked) ? (
-                      <ButtonWithTooltip
-                        tooltip="Complete the questions above and the final confirmation to submit."
-                        disabled
-                      >
-                        Submit Quiz
-                      </ButtonWithTooltip>
-                    ) : (
-                      <Button onClick={handleQuizSubmit}>
-                        Submit Quiz
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex w-full items-center justify-between gap-4">
-                    {timerActive ? (
-                      <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
-                        <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
-                      </Banner>
-                    ) : (
-                      <Banner variant="success" size="compact" className="w-fit shrink-0">
-                        Minimum time met
-                      </Banner>
-                    )}
-                    <div className="flex gap-2">
-                      <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
-                        Cancel
-                      </Button>
-                      {quizLoading ? null : quiz ? (
-                        timerActive ? (
-                          <ButtonWithTooltip
-                            tooltip="Please wait for the viewing timer to complete."
-                            disabled
-                            className="transition-all duration-500"
-                          >
-                            Start Quiz to Complete Training
-                          </ButtonWithTooltip>
-                        ) : (
-                          <Button
-                            onClick={handleStartQuiz}
-                            className="transition-all duration-500 animate-scale-in"
-                          >
-                            Start Quiz to Complete Training
-                          </Button>
-                        )
-                      ) : (timerActive || !presentationAcknowledged) ? (
+                    {quizLoading ? null : quiz ? (
+                      timerActive ? (
                         <ButtonWithTooltip
-                          tooltip={timerActive
-                            ? "Please wait for the viewing timer to complete."
-                            : "Please check the acknowledgment checkbox above to proceed."
-                          }
+                          tooltip="Please wait for the viewing timer to complete."
                           disabled
-                          className={cn("transition-all duration-500")}
+                          className="transition-all duration-500"
                         >
-                          Complete Training
+                          Start Quiz to Complete Training
                         </ButtonWithTooltip>
                       ) : (
                         <Button
-                          onClick={handleCompleteTraining}
-                          className={cn("transition-all duration-500 animate-scale-in")}
+                          onClick={handleStartQuiz}
+                          className="transition-all duration-500 animate-scale-in"
                         >
-                          Complete Training
+                          Start Quiz to Complete Training
                         </Button>
-                      )}
-                    </div>
+                      )
+                    ) : (timerActive || !presentationAcknowledged) ? (
+                      <ButtonWithTooltip
+                        tooltip={timerActive
+                          ? "Please wait for the viewing timer to complete."
+                          : "Please check the acknowledgment checkbox above to proceed."
+                        }
+                        disabled
+                        className={cn("transition-all duration-500")}
+                      >
+                        Complete Training
+                      </ButtonWithTooltip>
+                    ) : (
+                      <Button
+                        onClick={handleCompleteTraining}
+                        className={cn("transition-all duration-500 animate-scale-in")}
+                      >
+                        Complete Training
+                      </Button>
+                    )}
                   </div>
-                )}
-            </DialogFooter>
-          )}
-        </div>
+                </div>
+              )}
+          </DialogFooter>
+        )}
+
       </FullscreenDialogContent>
     </Dialog>;
 };
