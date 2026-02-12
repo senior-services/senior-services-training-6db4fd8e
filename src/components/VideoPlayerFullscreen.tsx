@@ -606,9 +606,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
         {/* Unified Presentation Footer */}
         {isPresentation && !wasEverCompleted && (
-          <DialogFooter className="items-center">
+          <DialogFooter>
               {quiz && quizStarted && !quizSubmitted ? (
-                <div className="flex gap-2 ml-auto">
+                <div className="flex w-full items-center justify-end gap-2">
                   {/* Quiz started: Cancel with confirmation + Submit Quiz */}
                   <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                     <AlertDialogTrigger asChild>
