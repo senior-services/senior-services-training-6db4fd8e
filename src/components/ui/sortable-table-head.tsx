@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button } from "@/components/ui/button";
+
 import { TableHead } from "@/components/ui/table";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -56,12 +56,14 @@ const SortableTableHead = React.forwardRef<
 
     return (
       <TableHead ref={ref} aria-sort={getAriaSort()} className={className} {...props}>
-        <Button
-          variant="ghost"
+        <button
+          type="button"
           onClick={handleClick}
           className={cn(
-            "button-compact uppercase text-muted-foreground",
-            "hover:bg-transparent hover:text-primary hover:shadow-none group",
+            "inline-flex items-center bg-transparent border-none cursor-pointer",
+            "uppercase text-muted-foreground",
+            "hover:text-primary group",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isActive ? "font-bold" : "font-medium"
           )}
           aria-label={getAriaLabel()}
@@ -76,7 +78,7 @@ const SortableTableHead = React.forwardRef<
           ) : (
             <ArrowUpDown className="ml-2 h-4 w-4 opacity-50 group-hover:text-primary group-hover:opacity-100" />
           )}
-        </Button>
+        </button>
       </TableHead>
     );
   }
