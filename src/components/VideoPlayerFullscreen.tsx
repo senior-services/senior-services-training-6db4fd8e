@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogScrollArea } from "@/components/ui/dialog";
+import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
@@ -487,13 +487,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       }, 100);
     }} aria-describedby="video-description">
         
-        <DialogHeader>
+        <div className="flex-1 overflow-y-auto min-h-0" data-dialog-scroll-area>
+        <DialogHeader className="flex-shrink-[unset] border-b-0">
           <DialogTitle>
             {video?.title || 'Training Video'}
           </DialogTitle>
         </DialogHeader>
-        
-        <DialogScrollArea>
           <div className="flex items-start justify-between gap-4 pb-4">
             {video?.description && video.description.trim() && (
               <div className="flex-1" id="video-description">
@@ -546,11 +545,11 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               />
             </div>
           )}
-        </DialogScrollArea>
+        </div>
 
         {/* Dialog Footer - Show for quiz interactions (non-presentation only) */}
-        {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="flex-row sm:justify-end items-center">
-            {!quizSubmitted && !wasEverCompleted ? <div className="flex gap-2">
+        {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter>
+            {!quizSubmitted && !wasEverCompleted ? <div className="flex w-full items-center justify-end gap-4 p-4">
                 <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                   <AlertDialogTrigger asChild>
                     <Button variant="outline" onClick={handleCancelClick} className="shadow-md hover:shadow-lg transition-shadow">
@@ -597,18 +596,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     Submit Quiz
                   </Button>
                 )}
-              </div> : <DialogClose asChild>
-                <Button className="shadow-md hover:shadow-lg transition-shadow">
-                  Close
-                </Button>
-              </DialogClose>}
+              </div> : <div className="flex w-full items-center justify-end gap-4 p-4">
+                <DialogClose asChild>
+                  <Button className="shadow-md hover:shadow-lg transition-shadow">
+                    Close
+                  </Button>
+                </DialogClose>
+              </div>}
           </DialogFooter>}
 
         {/* Unified Presentation Footer */}
         {isPresentation && !wasEverCompleted && (
           <DialogFooter>
               {quiz && quizStarted && !quizSubmitted ? (
-                <div className="flex w-full items-center justify-end gap-2">
+                <div className="flex w-full items-center justify-end gap-4 p-4">
                   {/* Quiz started: Cancel with confirmation + Submit Quiz */}
                   <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                     <AlertDialogTrigger asChild>
@@ -654,7 +655,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   )}
                 </div>
               ) : (
-                <div className="flex w-full items-center justify-between gap-2">
+                <div className="flex w-full items-center justify-between gap-4 p-4">
                   {/* Timer pinned to footer left */}
                   {timerActive ? (
                     <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
