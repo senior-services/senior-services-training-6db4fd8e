@@ -138,7 +138,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   useEffect(() => {
     const initializeVideo = async () => {
       if (!open || !videoId) {
-        // Reset state when modal is closed or no video selected
         resetVideoData();
         resetProgress();
         setShowCompletionOverlay(false);
@@ -160,7 +159,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         return;
       }
 
-      // Load existing progress if user is authenticated
       if (user?.email) {
         const result = await loadExistingProgress();
         if (result && !result.completedAt && result.progressPercent >= 99) {
@@ -178,7 +176,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }
   }, [open, videoId]);
 
-  // Timer effect for presentations - track viewing duration
+  // Timer effect for presentations
   useEffect(() => {
     if (!open || !video || video.content_type !== 'presentation' || checkboxEnabled) {
       return;
@@ -186,8 +184,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     const timer = setInterval(() => {
       setViewingSeconds(prev => {
         const newSeconds = prev + 1;
-
-        // Enable checkbox when minimum time reached
         if (newSeconds >= presentationMinSeconds && !checkboxEnabled) {
           setCheckboxEnabled(true);
           setA11yAnnouncement(`You may now acknowledge that you have reviewed this training material after viewing for ${presentationMinSeconds} seconds.`);
@@ -213,21 +209,19 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }
   }, [open]);
 
-  // Separate effect to load completed quiz results when completion status is determined
+  // Load completed quiz results
   useEffect(() => {
     const loadCompletedQuizResults = async () => {
       if (!wasEverCompleted || !user?.email || !videoId) return;
       try {
         const attempts = await quizOperations.getUserAttempts(user.email);
         const videoQuizAttempts = attempts.filter(attempt => attempt.quiz.video_id === videoId);
-        const latestAttempt = videoQuizAttempts[0]; // Most recent attempt
+        const latestAttempt = videoQuizAttempts[0];
 
         if (latestAttempt) {
-          // Store the attempt's score and total for passing to QuizModal
           setStoredAttemptScore(latestAttempt.score);
           setStoredAttemptTotal(latestAttempt.total_questions);
 
-          // Load the specific quiz version the employee completed
           const attemptQuiz = await quizOperations.getById(latestAttempt.quiz_id);
           if (attemptQuiz) {
             setCompletedQuiz(attemptQuiz);
@@ -237,35 +231,28 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             setCompletedQuizResults(latestAttempt.responses);
           }
 
-          // Fetch correct options for the completed quiz version (not the active one)
           const correctOpts = await quizOperations.getCorrectOptionsForQuiz(latestAttempt.quiz_id);
           setCorrectOptions(correctOpts);
         }
       } catch (error) {
-        logger.warn('Failed to load completed quiz results', {
-          videoId,
-          error
-        });
+        logger.warn('Failed to load completed quiz results', { videoId, error });
       }
     };
     loadCompletedQuizResults();
   }, [wasEverCompleted, user?.email, videoId]);
 
-  // Simple effect: Show overlay when video ends and training incomplete
+  // Show overlay when video ends
   useEffect(() => {
-    // Don't show if user dismissed it or started quiz or training was ever completed
     if (overlayDismissed || quizStarted || wasEverCompleted) {
       setShowCompletionOverlay(false);
       return;
     }
-    
-    // Show overlay when progress hits 99%+ (video ended)
     if (progress >= 99) {
       setShowCompletionOverlay(true);
     }
   }, [progress, overlayDismissed, quizStarted, wasEverCompleted]);
 
-  // Auto-start quiz when reopening dialog with video already fully watched
+  // Auto-start quiz when reopening
   useEffect(() => {
     if (!open || quizStarted || wasEverCompleted || !overlayDismissed) return;
     if (progress >= 99 && quiz && !quizLoading) {
@@ -278,21 +265,15 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }
   }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted, overlayDismissed]);
 
-  // Handle video ended
   const handleVideoEnded = useCallback(() => {
-    // Update progress based on quiz existence
     const finalProgress = quiz ? 99 : 100;
     updateProgress(finalProgress);
-    
-    // Show overlay if training not yet completed
     if (!wasEverCompleted) {
       setShowCompletionOverlay(true);
     }
   }, [updateProgress, wasEverCompleted, quiz]);
 
-  // Handle complete training (no quiz)
   const handleCompleteTraining = useCallback(async () => {
-    // Check presentation acknowledgment if needed
     if (video?.content_type === 'presentation' && !presentationAcknowledged) {
       toast({
         variant: 'destructive',
@@ -301,91 +282,57 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       });
       return;
     }
-    
-    // Mark complete
     await markComplete();
-    
-    // Save presentation acknowledgment if needed
     if (video?.content_type === 'presentation' && user?.email && videoId) {
       await progressOperations.updateByEmail(
-        user.email, 
-        videoId, 
-        100, 
-        new Date(), 
-        new Date(), 
-        viewingSeconds
+        user.email, videoId, 100, new Date(), new Date(), viewingSeconds
       );
     }
-    
-    // Close everything
     setShowCompletionOverlay(false);
     toast({
       title: "Training Completed! 🎉",
       description: "You've successfully completed this training."
     });
-    
     onProgressUpdate?.(100);
     onOpenChange(false);
   }, [video, presentationAcknowledged, markComplete, user, videoId, viewingSeconds, toast, onProgressUpdate, onOpenChange]);
 
-  // Handle quiz submission
   const handleQuizSubmit = useCallback(async () => {
     if (!quiz || !user?.email || !quizResponses.length) {
       logger.warn('Cannot submit quiz: missing quiz, user, or responses', {
-        hasQuiz: !!quiz,
-        hasUser: !!user?.email,
-        hasResponses: quizResponses.length > 0
+        hasQuiz: !!quiz, hasUser: !!user?.email, hasResponses: quizResponses.length > 0
       });
       return;
     }
     try {
       const attemptId = await quizOperations.submitQuiz(user.email, quiz.id, quizResponses);
-
-      // Fetch both results and correct answers before updating state
-      // to avoid a flash of "incorrect" while correctOptions is still empty
       const [attempts, correctOpts] = await Promise.all([
         quizOperations.getUserAttempts(user.email),
         quizOperations.getCorrectOptionsForQuiz(quiz.id),
       ]);
       const currentAttempt = attempts.find(attempt => attempt.id === attemptId);
-
-      // Batch all state updates so React renders once with complete data
       if (currentAttempt?.responses) {
         setQuizResults(currentAttempt.responses);
       }
       setCorrectOptions(correctOpts);
-      logger.info('Quiz submitted successfully', {
-        quizId: quiz.id,
-        videoId: video?.id,
-        userEmail: user.email
-      });
+      logger.info('Quiz submitted successfully', { quizId: quiz.id, videoId: video?.id, userEmail: user.email });
       setQuizSubmitted(true);
-
-      // Mark training as complete now that quiz is submitted
       await markComplete();
-      toast({
-        title: "Quiz Submitted! 📝",
-        description: "Review your answers."
-      });
+      toast({ title: "Quiz Submitted! 📝", description: "Review your answers." });
     } catch (error) {
       logger.error('Failed to submit quiz', error);
-      toast({
-        title: "Quiz Submission Error",
-        description: "Failed to submit quiz. Please try again.",
-        variant: "destructive"
-      });
+      toast({ title: "Quiz Submission Error", description: "Failed to submit quiz. Please try again.", variant: "destructive" });
     }
   }, [quiz, user?.email, video?.id, toast, quizResponses, markComplete]);
 
-  // Handle starting the quiz
+  // Attestation state for quiz flow
+  const [quizAttestationChecked, setQuizAttestationChecked] = useState(false);
+
   const handleStartQuiz = useCallback(() => {
     if (wasEverCompleted) return;
-    
     setQuizStarted(true);
     setShowCompletionOverlay(false);
     setOverlayDismissed(true);
-    
-    // Reset quiz state
     setQuizResponses([]);
     setAllQuestionsAnswered(false);
     setHasQuizChanges(false);
@@ -393,37 +340,26 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setQuizResults([]);
     setCompletedQuizResults([]);
     setQuizAttestationChecked(false);
-    
-    // Scroll to quiz
     setTimeout(() => {
       document.getElementById('quiz-section')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }, [wasEverCompleted]);
 
-  // Handle closing the completion overlay
   const handleCloseOverlay = useCallback(() => {
     setShowCompletionOverlay(false);
     setOverlayDismissed(true);
   }, []);
 
-  // Handle quiz responses change
-  // Attestation state for quiz flow
-  const [quizAttestationChecked, setQuizAttestationChecked] = useState(false);
-
   const handleQuizResponsesChange = useCallback((responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => {
     setQuizResponses(responses);
     setAllQuestionsAnswered(allAnswered);
     setQuizAttestationChecked(attestationChecked);
-
-    // Check if any responses have been made (user has started answering)
     const hasAnyResponses = responses.some(response => response.selected_option_id || response.text_answer?.trim());
     setHasQuizChanges(hasAnyResponses);
   }, []);
 
-  // Handle cancel button click
   const handleCancelClick = useCallback(() => {
     if (quizSubmitted) {
-      // Quiz already submitted, just go back to completion overlay
       setQuizStarted(false);
       setShowCompletionOverlay(true);
       return;
@@ -431,7 +367,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setShowCancelConfirmation(true);
   }, [quizSubmitted]);
 
-  // Handle confirmed cancellation (user wants to lose changes)
   const handleConfirmedCancel = useCallback(() => {
     setShowCancelConfirmation(false);
     setQuizStarted(false);
@@ -445,31 +380,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     onOpenChange(false);
   }, [onOpenChange]);
 
-  // Handle dialog close
   const handleDialogOpenChange = useCallback((open: boolean) => {
     onOpenChange(open);
   }, [onOpenChange]);
 
-  // Convert Video to TrainingContent with validation and safe defaults
   const trainingContent = useMemo<TrainingContent | null>(() => {
     if (!video) return null;
-
-    // Validate required fields
     if (!video.id || !video.title) {
-      logger.warn('Video missing required fields', {
-        videoId: video?.id,
-        hasTitle: !!video?.title
-      });
+      logger.warn('Video missing required fields', { videoId: video?.id, hasTitle: !!video?.title });
       return null;
     }
     if (!video.video_url && !video.video_file_name) {
-      logger.warn('Video missing both video_url and video_file_name', {
-        videoId: video.id
-      });
+      logger.warn('Video missing both video_url and video_file_name', { videoId: video.id });
       return null;
     }
-
-    // Create TrainingContent with safe defaults
     return {
       id: video.id,
       title: video.title,
@@ -485,9 +409,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       archived_at: video.archived_at || null
     };
   }, [video]);
+
   return <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <FullscreenDialogContent onOpenAutoFocus={e => {
-      // Let the video container receive focus instead
       e.preventDefault();
       setTimeout(() => {
         const videoContainer = document.querySelector('[data-video-container]') as HTMLElement;
@@ -500,133 +424,73 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       }, 100);
     }} aria-describedby="video-description">
         
-        <DialogHeader>
-          <DialogTitle>
-            {video?.title || 'Training Video'}
-          </DialogTitle>
-        </DialogHeader>
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6" data-dialog-scroll-area>
-          <div className="flex items-start justify-between gap-4 pb-4">
-            {video?.description && video.description.trim() && (
-              <div className="flex-1" id="video-description">
-                <p className="text-body text-foreground">
-                  {video.description}
-                </p>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full px-6 pb-6 pt-0" data-dialog-scroll-area>
+          <DialogHeader className="pt-6 pb-4 px-0 border-b">
+            <DialogTitle>
+              {video?.title || 'Training Video'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-6 pt-6">
+            <div className="flex items-start justify-between gap-4 pb-4">
+              {video?.description && video.description.trim() && (
+                <div className="flex-1" id="video-description">
+                  <p className="text-body text-foreground">
+                    {video.description}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Persistent Quiz CTA Button - only for non-presentation content */}
+            {quiz && !isPresentation && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && <div className="pb-4">
+                <Button onClick={handleStartQuiz} className="w-full" size="lg">
+                  Start Quiz to Complete Training
+                </Button>
+              </div>}
+
+            <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative" data-video-container tabIndex={0} aria-label="Video player. Press spacebar to play or pause." role="application">
+              {trainingContent && <ContentPlayer content={trainingContent} loading={vLoading} progress={progress} onProgressUpdate={updateProgress} onComplete={handleVideoEnded} />}
+              
+              {/* Completion Overlay */}
+              {showCompletionOverlay && !wasEverCompleted && <CompletionOverlay video={video} quiz={quiz} onStartQuiz={handleStartQuiz} onCompleteTraining={handleCompleteTraining} onClose={quiz ? handleCloseOverlay : undefined} />}
+            </div>
+
+            {/* Compliance Checkbox - Only for Presentations */}
+            {video && video.content_type === 'presentation' && !wasEverCompleted && !quiz && !quizLoading && (
+              <div className="mt-4">
+                <TrainingAttestation
+                  enabled={checkboxEnabled}
+                  checked={presentationAcknowledged}
+                  onCheckedChange={setPresentationAcknowledged}
+                  disabledTooltip="Please wait for the viewing timer to complete."
+                />
+              </div>
+            )}
+
+            {/* Quiz Section */}
+            {(quizStarted && quiz || wasEverCompleted && (completedQuiz || quiz) && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
+                <QuizModal quiz={wasEverCompleted && completedQuiz ? completedQuiz : quiz!} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} storedScore={wasEverCompleted ? storedAttemptScore : undefined} storedTotalQuestions={wasEverCompleted ? storedAttemptTotal : undefined} />
+              </div>}
+
+            {/* Attestation - below quiz questions */}
+            {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && !quizSubmitted && !wasEverCompleted && (
+              <div className="mt-6 max-w-4xl mx-auto">
+                <TrainingAttestation
+                  enabled={allQuestionsAnswered}
+                  checked={quizAttestationChecked}
+                  onCheckedChange={setQuizAttestationChecked}
+                  disabledTooltip="Complete the questions above to enable this checkbox."
+                />
               </div>
             )}
           </div>
 
-          {/* Persistent Quiz CTA Button - only for non-presentation content */}
-          {quiz && !isPresentation && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && <div className="pb-4">
-              <Button onClick={handleStartQuiz} className="w-full" size="lg">
-                Start Quiz to Complete Training
-              </Button>
-            </div>}
-
-          <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative" data-video-container tabIndex={0} aria-label="Video player. Press spacebar to play or pause." role="application">
-            {trainingContent && <ContentPlayer content={trainingContent} loading={vLoading} progress={progress} onProgressUpdate={updateProgress} onComplete={handleVideoEnded} />}
-            
-            {/* Completion Overlay - Only show if training was never completed */}
-            {showCompletionOverlay && !wasEverCompleted && <CompletionOverlay video={video} quiz={quiz} onStartQuiz={handleStartQuiz} onCompleteTraining={handleCompleteTraining} onClose={quiz ? handleCloseOverlay : undefined} />}
-          </div>
-
-          {/* Compliance Checkbox - Only for Presentations */}
-          {video && video.content_type === 'presentation' && !wasEverCompleted && !quiz && !quizLoading && (
-            <div className="mt-4">
-              <TrainingAttestation
-                enabled={checkboxEnabled}
-                checked={presentationAcknowledged}
-                onCheckedChange={setPresentationAcknowledged}
-                disabledTooltip="Please wait for the viewing timer to complete."
-              />
-            </div>
-          )}
-
-          {/* Quiz Section */}
-          {(quizStarted && quiz || wasEverCompleted && (completedQuiz || quiz) && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
-              <QuizModal quiz={wasEverCompleted && completedQuiz ? completedQuiz : quiz!} onSubmit={handleQuizSubmit} onCancel={() => {}} onResponsesChange={handleQuizResponsesChange} quizResults={wasEverCompleted ? completedQuizResults : quizResults} isSubmitted={wasEverCompleted || quizSubmitted} correctOptions={correctOptions} storedScore={wasEverCompleted ? storedAttemptScore : undefined} storedTotalQuestions={wasEverCompleted ? storedAttemptTotal : undefined} />
-            </div>}
-
-          {/* Attestation - below quiz questions */}
-          {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && !quizSubmitted && !wasEverCompleted && (
-            <div className="mt-6 max-w-4xl mx-auto">
-              <TrainingAttestation
-                enabled={allQuestionsAnswered}
-                checked={quizAttestationChecked}
-                onCheckedChange={setQuizAttestationChecked}
-                disabledTooltip="Complete the questions above to enable this checkbox."
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Dialog Footer - Show for quiz interactions (non-presentation only) */}
-        {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter>
-            {!quizSubmitted && !wasEverCompleted ? <div className="flex w-full items-center justify-end gap-4">
-                <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" onClick={handleCancelClick} className="shadow-md hover:shadow-lg transition-shadow">
-                      Cancel
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {hasQuizChanges ? 'Discard unsaved progress?' : 'Exit training?'}
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <div>
-                      <AlertDialogDescription>
-                        {hasQuizChanges
-                          ? "If you leave now, your answers won't be saved and your training will remain incomplete."
-                          : "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete."}
-                      </AlertDialogDescription>
-                    </div>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>
-                        {hasQuizChanges ? 'Continue Editing' : 'Return to Quiz'}
-                      </AlertDialogCancel>
-                      <AlertDialogAction onClick={handleConfirmedCancel}>
-                        {hasQuizChanges ? 'Discard & Exit Training' : 'Exit Training'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                
-                {(!allQuestionsAnswered || !quizAttestationChecked) ? (
-                  <ButtonWithTooltip
-                    tooltip="Complete the questions above and the final confirmation to submit."
-                    disabled
-                    className="shadow-md hover:shadow-lg transition-shadow"
-                  >
-                    Submit Quiz
-                  </ButtonWithTooltip>
-                ) : (
-                  <Button
-                    onClick={handleQuizSubmit}
-                    className="shadow-md hover:shadow-lg transition-shadow"
-                  >
-                    Submit Quiz
-                  </Button>
-                )}
-              </div> : <div className="flex w-full items-center justify-end gap-4">
-                <DialogClose asChild>
-                  <Button className="shadow-md hover:shadow-lg transition-shadow">
-                    Close
-                  </Button>
-                </DialogClose>
-              </div>}
-          </DialogFooter>}
-
-        {/* Unified Presentation Footer */}
-        {isPresentation && !wasEverCompleted && (
-          <DialogFooter>
-              {quiz && quizStarted && !quizSubmitted ? (
-                <div className="flex w-full items-center justify-end gap-4">
-                  {/* Quiz started: Cancel with confirmation + Submit Quiz */}
+          {/* Dialog Footer - Show for quiz interactions (non-presentation only) */}
+          {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter className="px-0 py-6 mt-6 border-t">
+              {!quizSubmitted && !wasEverCompleted ? <div className="flex w-full items-center justify-end gap-4">
                   <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" onClick={handleCancelClick}>
+                      <Button variant="outline" onClick={handleCancelClick} className="shadow-md hover:shadow-lg transition-shadow">
                         Cancel
                       </Button>
                     </AlertDialogTrigger>
@@ -658,73 +522,132 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     <ButtonWithTooltip
                       tooltip="Complete the questions above and the final confirmation to submit."
                       disabled
+                      className="shadow-md hover:shadow-lg transition-shadow"
                     >
                       Submit Quiz
                     </ButtonWithTooltip>
                   ) : (
-                    <Button onClick={handleQuizSubmit}>
+                    <Button
+                      onClick={handleQuizSubmit}
+                      className="shadow-md hover:shadow-lg transition-shadow"
+                    >
                       Submit Quiz
                     </Button>
                   )}
-                </div>
-              ) : (
-                <div className="flex w-full items-center justify-between gap-4">
-                  {/* Timer pinned to footer left */}
-                  {timerActive ? (
-                    <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
-                      <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
-                    </Banner>
-                  ) : (
-                    <Banner variant="success" size="compact" className="w-fit shrink-0">
-                      Minimum time met
-                    </Banner>
-                  )}
-                  {/* Pre-quiz or no-quiz: Cancel + primary action */}
-                  <div className="flex gap-2">
-                    <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
-                      Cancel
+                </div> : <div className="flex w-full items-center justify-end gap-4">
+                  <DialogClose asChild>
+                    <Button className="shadow-md hover:shadow-lg transition-shadow">
+                      Close
                     </Button>
-                    {quizLoading ? null : quiz ? (
-                      timerActive ? (
-                        <ButtonWithTooltip
-                          tooltip="Please wait for the viewing timer to complete."
-                          disabled
-                          className="transition-all duration-500"
-                        >
-                          Start Quiz to Complete Training
-                        </ButtonWithTooltip>
-                      ) : (
-                        <Button
-                          onClick={handleStartQuiz}
-                          className="transition-all duration-500 animate-scale-in"
-                        >
-                          Start Quiz to Complete Training
+                  </DialogClose>
+                </div>}
+            </DialogFooter>}
+
+          {/* Unified Presentation Footer */}
+          {isPresentation && !wasEverCompleted && (
+            <DialogFooter className="px-0 py-6 mt-6 border-t">
+                {quiz && quizStarted && !quizSubmitted ? (
+                  <div className="flex w-full items-center justify-end gap-4">
+                    <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" onClick={handleCancelClick}>
+                          Cancel
                         </Button>
-                      )
-                    ) : (timerActive || !presentationAcknowledged) ? (
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {hasQuizChanges ? 'Discard unsaved progress?' : 'Exit training?'}
+                          </AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <div>
+                          <AlertDialogDescription>
+                            {hasQuizChanges
+                              ? "If you leave now, your answers won't be saved and your training will remain incomplete."
+                              : "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete."}
+                          </AlertDialogDescription>
+                        </div>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            {hasQuizChanges ? 'Continue Editing' : 'Return to Quiz'}
+                          </AlertDialogCancel>
+                          <AlertDialogAction onClick={handleConfirmedCancel}>
+                            {hasQuizChanges ? 'Discard & Exit Training' : 'Exit Training'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    
+                    {(!allQuestionsAnswered || !quizAttestationChecked) ? (
                       <ButtonWithTooltip
-                        tooltip={timerActive
-                          ? "Please wait for the viewing timer to complete."
-                          : "Please check the acknowledgment checkbox above to proceed."
-                        }
+                        tooltip="Complete the questions above and the final confirmation to submit."
                         disabled
-                        className={cn("transition-all duration-500")}
                       >
-                        Complete Training
+                        Submit Quiz
                       </ButtonWithTooltip>
                     ) : (
-                      <Button
-                        onClick={handleCompleteTraining}
-                        className={cn("transition-all duration-500 animate-scale-in")}
-                      >
-                        Complete Training
+                      <Button onClick={handleQuizSubmit}>
+                        Submit Quiz
                       </Button>
                     )}
                   </div>
-                </div>
-              )}
-          </DialogFooter>
-        )}
+                ) : (
+                  <div className="flex w-full items-center justify-between gap-4">
+                    {timerActive ? (
+                      <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
+                        <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
+                      </Banner>
+                    ) : (
+                      <Banner variant="success" size="compact" className="w-fit shrink-0">
+                        Minimum time met
+                      </Banner>
+                    )}
+                    <div className="flex gap-2">
+                      <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
+                        Cancel
+                      </Button>
+                      {quizLoading ? null : quiz ? (
+                        timerActive ? (
+                          <ButtonWithTooltip
+                            tooltip="Please wait for the viewing timer to complete."
+                            disabled
+                            className="transition-all duration-500"
+                          >
+                            Start Quiz to Complete Training
+                          </ButtonWithTooltip>
+                        ) : (
+                          <Button
+                            onClick={handleStartQuiz}
+                            className="transition-all duration-500 animate-scale-in"
+                          >
+                            Start Quiz to Complete Training
+                          </Button>
+                        )
+                      ) : (timerActive || !presentationAcknowledged) ? (
+                        <ButtonWithTooltip
+                          tooltip={timerActive
+                            ? "Please wait for the viewing timer to complete."
+                            : "Please check the acknowledgment checkbox above to proceed."
+                          }
+                          disabled
+                          className={cn("transition-all duration-500")}
+                        >
+                          Complete Training
+                        </ButtonWithTooltip>
+                      ) : (
+                        <Button
+                          onClick={handleCompleteTraining}
+                          className={cn("transition-all duration-500 animate-scale-in")}
+                        >
+                          Complete Training
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+            </DialogFooter>
+          )}
+        </div>
       </FullscreenDialogContent>
     </Dialog>;
 };
