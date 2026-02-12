@@ -507,7 +507,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             {isPresentation && !wasEverCompleted && (
               timerActive ? (
                 <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
-                  <span className="tabular-nums whitespace-nowrap">Time Remaining: {formattedTime}</span>
+                  <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
                 </Banner>
               ) : (
                 <Banner variant="success" size="compact" className="w-fit shrink-0">
