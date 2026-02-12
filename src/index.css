@@ -300,6 +300,12 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   }
 
   /* Semantic typography classes — Major Third (1.250) scale */
+  /* Heading utility classes — for visual overrides on non-heading tags */
+  .text-h1      { font-size: 3.052rem;  line-height: 1.2; }
+  .text-h2      { font-size: 1.953rem;  line-height: 1.3; }
+  .text-h3      { font-size: 1.563rem;  line-height: 1.4; }
+  .text-h4      { font-size: 1.25rem;   line-height: 1.5; }
+  /* Body / small / caption / code */
   .text-body    { font-size: 1rem;      line-height: 1.6; }
   .text-small   { font-size: 0.8rem;    line-height: 1.5; }
   .text-caption  { font-size: 0.64rem;   line-height: 1.4; }
