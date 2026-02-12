@@ -1,131 +1,116 @@
 
 
-## Layout Audit Report: Separating Layout Spacing from Component Styling
+## Final Purge of Overrides: Audit Report
 
-### Scope
+### Summary
 
-All page-level files (`pages/*.tsx`, `components/Header.tsx`, `components/TrainingCard.tsx`, `components/layout/DashboardLayout.tsx`, `components/dashboard/*.tsx`) audited for violations of the "No Internal Override" rule.
-
----
-
-### Violation Summary
-
-| # | File | Line | Violation | Severity |
-|---|------|------|-----------|----------|
-| 1 | `Header.tsx` | 49 | `<Button>` with `className="text-primary-foreground hover:text-primary-foreground p-0"` -- overrides internal padding AND color variant | HIGH |
-| 2 | `Header.tsx` | 26 | `py-[5px]` arbitrary value on logo `<img>` | MEDIUM |
-| 3 | `Auth.tsx` | 154 | `<Button className="border-primary/30 text-primary hover:bg-primary/10">` -- overrides outline variant colors | HIGH |
-| 4 | `Auth.tsx` | 158 | `<Button className="border-success/30 text-success hover:bg-success/10">` -- same pattern | HIGH |
-| 5 | `Auth.tsx` | 162 | `<Button className="border-destructive/30 text-destructive hover:bg-destructive/10">` -- same pattern | HIGH |
-| 6 | `Auth.tsx` | 174 | `<Button className="w-full bg-card text-foreground border border-border hover:bg-muted">` -- completely overrides variant styling | HIGH |
-| 7 | `Auth.tsx` | 147 | Dev testing section uses raw `bg-attention/10 border border-attention/20 rounded-lg` on a `<div>` -- should be a `<Banner>` component | MEDIUM |
-| 8 | `Landing.tsx` | 35 | `<Button className="w-full bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">` -- fully overrides variant | HIGH |
-| 9 | `VideoPage.tsx` | 272 | `<Badge className="bg-success hover:bg-success/90">` -- overrides variant styling; should use `variant="success"` | HIGH |
-| 10 | `VideoPage.tsx` | 290 | `<Button className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary...">` on TrainingCard play overlay -- overrides size and variant | HIGH |
-| 11 | `TrainingCard.tsx` | 290 | Same play button override (duplicated from VideoPage pattern) | HIGH |
-| 12 | `EmployeeManagement.tsx` | 624-625 | `<TableHead className="px-4 py-3 ...">` -- overrides table cell padding | LOW |
-| 13 | `EmployeeManagement.tsx` | 630, 638, 641 | `<TableCell className="py-3 ...">` -- overrides table cell padding | LOW |
-| 14 | `AuthCallback.tsx` | 234 | `<Button className="bg-card text-foreground hover:bg-muted">` -- overrides variant styling | MEDIUM |
+After the previous three rounds of refactoring, the CVA primitives (Button, Badge, Toggle, Banner, Sheet, Toast) are fully semantic. However, **Card sub-components** and **page-level typography** still carry raw Tailwind utilities. This final purge addresses all remaining violations.
 
 ---
 
-### Clean Files (No Violations)
+### Violation Inventory
 
-- `AdminDashboard.tsx` -- CLEAN
-- `EmployeeDashboard.tsx` -- CLEAN (typography uses `text-h2`, `text-h3`, `text-small` correctly; headings use raw `<h1>`, `<h2>`, `<h3>` tags)
-- `NotFound.tsx` -- CLEAN
-- `Index.tsx` -- CLEAN
-- `DashboardLayout.tsx` -- CLEAN
+| # | File | Line(s) | Violation | Type |
+|---|------|---------|-----------|------|
+| 1 | `card.tsx` | 23 | CardHeader: `"flex flex-col space-y-1.5 p-6"` | Raw layout utilities in component |
+| 2 | `card.tsx` | 36 | CardTitle: `"font-semibold leading-none tracking-tight"` | Raw typography utilities |
+| 3 | `card.tsx` | 60 | CardContent: `"p-6 pt-0"` | Raw padding |
+| 4 | `card.tsx` | 70 | CardFooter: `"flex items-center p-6 pt-0"` | Raw layout + padding |
+| 5 | `TrainingCard.tsx` | 307, 324, 343, 358 | `<Badge className="font-medium">` (x4) | Font-weight override on primitive |
+| 6 | `TrainingCard.tsx` | 373 | `<CardTitle className="text-h4 leading-tight line-clamp-2">` | `leading-tight` overrides CardTitle's default |
+| 7 | `Auth.tsx` | 119 | `<h1 className="text-h2 font-bold text-white mb-2">` | `font-bold` on heading |
+| 8 | `Auth.tsx` | 147 | `<div className="mb-6 p-4 banner-base banner-attention">` | `p-4` internal padding alongside banner classes |
+| 9 | `Auth.tsx` | 149 | `<h3 className="font-semibold text-attention text-small">` | `font-semibold` on heading |
+| 10 | `Landing.tsx` | 19 | `<h1 className="font-bold text-white mb-4">` | `font-bold` on heading |
+| 11 | `VideoPage.tsx` | 232 | `<CardContent className="p-6 relative">` | Redundant `p-6` (same as default) |
+| 12 | `VideoPage.tsx` | 332 | `<h3 className="text-h4 font-semibold">` | `font-semibold` on heading |
+| 13 | `EmployeeManagement.tsx` | 624-625 | `<TableHead className="px-4 py-3 text-small font-medium uppercase text-muted-foreground">` | Padding + font overrides on primitive |
+| 14 | `EmployeeManagement.tsx` | 630, 638, 641 | `<TableCell className="py-3 ...">` | Padding overrides on primitive |
+| 15 | `EmployeeDashboard.tsx` | 501, 544, 567, 624 | `font-bold`/`font-semibold` on h1/h2 tags | Font-weight overrides |
+| 16 | `EmployeeManagement.tsx` | 670 | `<span className="text-h4 font-semibold">` | `font-semibold` on heading-styled span |
 
 ---
 
 ### Remediation Plan
 
-#### Phase 1: Create Missing Semantic Variants in `src/index.css`
+#### Phase 1: Absorb Card Sub-Component Utilities into `src/index.css`
 
-Several violations exist because the design system lacks the needed variant. We need to add:
+Add semantic classes for Card's internal components. This is the same pattern used for Button/Badge -- move raw utilities to CSS.
 
 ```css
-/* Google/Social sign-in button -- neutral white style */
-.button-social {
-  @apply bg-card text-foreground border border-border hover:bg-muted shadow-sm;
-}
-
-/* Play overlay button -- large circular white */
-.button-play-overlay {
-  @apply rounded-full bg-white/90 hover:bg-white text-primary hover:text-primary
-    shadow-lg hover:shadow-xl;
-}
-
-/* Test/dev quick-login color tints (outline variants with color hints) */
-.button-outline-primary {
-  @apply border-primary/30 text-primary hover:bg-primary/10;
-}
-.button-outline-success {
-  @apply border-success/30 text-success hover:bg-success/10;
-}
-.button-outline-destructive {
-  @apply border-destructive/30 text-destructive hover:bg-destructive/10;
-}
-
-/* Header logout -- link variant with inverted colors, no padding */
-.button-header-link {
-  @apply shadow-none hover:shadow-none text-primary-foreground hover:text-primary-foreground
-    underline-offset-4 hover:underline active:scale-100 p-0;
-}
-
-/* Button size: play overlay (large circle) */
-.button-size-play {
-  @apply w-16 h-16;
-}
+/* Card Sub-Component Templates */
+.card-header  { @apply flex flex-col space-y-1.5 p-6; }
+.card-title   { @apply font-semibold leading-none tracking-tight; }
+.card-description { @apply text-small text-muted-foreground; }
+.card-content { @apply p-6 pt-0; }
+.card-footer  { @apply flex items-center p-6 pt-0; }
 ```
 
-#### Phase 2: Fix Page-Level Files
+Then strip the raw utilities from `card.tsx`:
+- CardHeader: `cn("flex flex-col space-y-1.5 p-6", className)` becomes `cn("card-header", className)`
+- CardTitle: `cn("font-semibold leading-none tracking-tight", className)` becomes `cn("card-title", className)`
+- CardDescription: `cn("text-small text-muted-foreground", className)` becomes `cn("card-description", className)`
+- CardContent: `cn("p-6 pt-0", className)` becomes `cn("card-content", className)`
+- CardFooter: `cn("flex items-center p-6 pt-0", className)` becomes `cn("card-footer", className)`
 
-**`Header.tsx` (line 49):**
-- Before: `<Button variant="link" size="sm" onClick={onLogout} className="text-primary-foreground hover:text-primary-foreground p-0">`
-- After: `<Button variant="link" size="sm" onClick={onLogout} className="button-header-link">`
-- Also fix line 26: replace `py-[5px]` with `py-1` (standard 4px, close enough to 5px without arbitrary values)
+#### Phase 2: Bake Font-Weight into Typography Scale in `src/index.css`
 
-**`Auth.tsx` (lines 154-162):**
-- Before: `<Button ... className="border-primary/30 text-primary hover:bg-primary/10">`
-- After: `<Button ... className="button-outline-primary">`
-- Same for success and destructive variants
-- Line 174 Google button: replace raw utilities with `className="w-full button-social"`
-- Line 147 dev section `<div>`: replace raw `bg-attention/10 border border-attention/20 rounded-lg` with `<Banner variant="attention" size="compact">` or a semantic class
+Add `font-weight` to all heading definitions so page-level `font-bold`/`font-semibold` becomes unnecessary:
 
-**`Landing.tsx` (line 35):**
-- Before: `<Button ... className="w-full bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">`
-- After: `<Button ... className="w-full button-social">`
+```css
+.text-h1 { font-size: 3.052rem; line-height: 1.2; font-weight: 700; }
+.text-h2 { font-size: 1.953rem; line-height: 1.3; font-weight: 700; }
+.text-h3 { font-size: 1.563rem; line-height: 1.4; font-weight: 600; }
+.text-h4 { font-size: 1.25rem;  line-height: 1.5; font-weight: 600; }
+```
 
-**`VideoPage.tsx` (line 272):**
-- Before: `<Badge className="bg-success hover:bg-success/90">`
-- After: `<Badge variant="success">`
+Also add base heading tag rules so raw `<h1>`-`<h4>` tags inherit weight:
 
-**`TrainingCard.tsx` (line 290):**
-- Before: `<Button size="lg" className="rounded-full w-16 h-16 bg-white/90 hover:bg-white text-primary hover:text-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">`
-- After: `<Button size="icon" className="button-play-overlay button-size-play">`
+```css
+h1 { font-weight: 700; }
+h2 { font-weight: 700; }
+h3 { font-weight: 600; }
+h4 { font-weight: 600; }
+```
 
-**`AuthCallback.tsx` (line 234):**
-- Before: `<Button ... className="bg-card text-foreground hover:bg-muted">`
-- After: `<Button ... className="button-social">`
+#### Phase 3: Add Table Head/Cell Semantic Class in `src/index.css`
 
-**`EmployeeManagement.tsx` (lines 624-625, 630, 638, 641):**
-- The `px-4 py-3` on `<TableHead>` and `py-3` on `<TableCell>` are table layout overrides. These should be absorbed into `.table-head` and `.table-cell` base classes in `index.css`, or left as-is since table components are layout-only (no CVA). Verdict: LOW priority, leave as layout utilities on structural elements.
+To eliminate the repeated `px-4 py-3 text-small font-medium uppercase text-muted-foreground` pattern on TableHead:
 
-#### Phase 3: Verify Typography Compliance
+```css
+.table-head-cell { @apply px-4 py-3 text-small font-medium uppercase text-muted-foreground; }
+.table-body-cell { @apply py-3; }
+```
 
-All page files confirmed compliant:
-- `EmployeeDashboard.tsx`: `text-h2` (line 544), `text-h3` (line 567, 624), raw `<h3>` (line 590) -- all correct
-- `Header.tsx`: `text-h3` on `<h1>` (line 30) -- correct semantic class
-- `Landing.tsx`: `text-h4` (line 20) -- correct
-- `VideoPage.tsx`: `text-h2` (line 270), `text-h4` (line 332), `text-small` throughout -- correct
-- Zero instances of `text-xl`, `text-lg`, `text-sm`, `text-xs`, `text-base` found in page files
+#### Phase 4: Strip Overrides from Page-Level Files
 
-#### Phase 4: Arbitrary Spacing Cleanup
+**`TrainingCard.tsx`:**
+- Lines 307, 324, 343, 358: Remove `className="font-medium"` from all four Badge instances (Badge's font-size is already defined in `.badge-base`)
+- Line 373: Change `className="text-h4 leading-tight line-clamp-2"` to `className="text-h4 line-clamp-2"` (remove `leading-tight` -- `text-h4` already defines `line-height: 1.5`)
 
-- `Header.tsx` line 26: `py-[5px]` on logo image -- change to `py-1` (4px standard step)
-- No other arbitrary spacing values found in page-level files
+**`Auth.tsx`:**
+- Line 119: `<h1 className="text-h2 font-bold text-white mb-2">` becomes `<h1 className="text-h2 text-white mb-2">` (font-weight now baked into `.text-h2`)
+- Line 147: `<div className="mb-6 p-4 banner-base banner-attention">` -- the `p-4` fights `.banner-size-default` which applies `p-4` already. Remove the redundant `p-4`: `<div className="mb-6 banner-base banner-attention banner-size-default">`
+- Line 149: `<h3 className="font-semibold text-attention text-small">` becomes `<h3 className="text-attention text-small">` (h3 tag now inherits `font-weight: 600`)
+
+**`Landing.tsx`:**
+- Line 19: `<h1 className="font-bold text-white mb-4">` becomes `<h1 className="text-white mb-4">` (h1 inherits `font-weight: 700`)
+
+**`VideoPage.tsx`:**
+- Line 232: `<CardContent className="p-6 relative">` becomes `<CardContent className="relative">` (p-6 is the default in `.card-content`)
+- Line 332: `<h3 className="text-h4 font-semibold">` becomes `<h3 className="text-h4">` (h3 inherits `font-weight: 600`)
+
+**`EmployeeManagement.tsx`:**
+- Line 624: `<TableHead className="px-4 py-3 text-small font-medium uppercase text-muted-foreground">` becomes `<TableHead className="table-head-cell">`
+- Line 625: Same treatment
+- Lines 630, 638, 641: `<TableCell className="py-3 ...">` becomes `<TableCell className="table-body-cell ...">` (keeping non-padding classes like `font-medium` or `text-right`)
+- Line 670: `<span className="text-h4 font-semibold">` becomes `<span className="text-h4">` (font-weight baked into `.text-h4`)
+
+**`EmployeeDashboard.tsx`:**
+- Line 501: `<h2 ... className="font-semibold mb-2">` becomes `<h2 ... className="mb-2">`
+- Line 544: `<h1 ... className="text-h2 font-bold text-foreground">` becomes `<h1 ... className="text-h2 text-foreground">`
+- Line 567: `<h2 ... className="text-h3 font-semibold text-foreground ...">` becomes `<h2 ... className="text-h3 text-foreground ...">`
+- Line 624: `<h2 className="text-h3 font-semibold text-foreground ...">` becomes `<h2 className="text-h3 text-foreground ...">`
 
 ---
 
@@ -133,22 +118,23 @@ All page files confirmed compliant:
 
 | File | Change |
 |---|---|
-| `src/index.css` | Add 7 new semantic variant classes (button-social, button-play-overlay, button-outline-primary/success/destructive, button-header-link, button-size-play) |
-| `src/components/Header.tsx` | Replace `p-0` + color overrides on logout Button with `button-header-link`; fix `py-[5px]` to `py-1` |
-| `src/pages/Auth.tsx` | Replace 4 Button className overrides with semantic classes; convert dev section div to Banner or semantic class |
-| `src/pages/Landing.tsx` | Replace Button className override with `button-social` |
-| `src/pages/VideoPage.tsx` | Replace Badge className with `variant="success"`; remove raw color utilities |
-| `src/components/TrainingCard.tsx` | Replace play overlay Button overrides with `button-play-overlay button-size-play` |
-| `src/pages/AuthCallback.tsx` | Replace Button className override with `button-social` |
+| `src/index.css` | Add `.card-header`, `.card-title`, `.card-description`, `.card-content`, `.card-footer`, `.table-head-cell`, `.table-body-cell`; add `font-weight` to `.text-h1`-`.text-h4` and `h1`-`h4` tags |
+| `src/components/ui/card.tsx` | Replace all raw utility strings with semantic class names |
+| `src/components/TrainingCard.tsx` | Remove `font-medium` from 4 Badge classNames; remove `leading-tight` from CardTitle |
+| `src/pages/Auth.tsx` | Remove `font-bold`, `font-semibold`, redundant `p-4` |
+| `src/pages/Landing.tsx` | Remove `font-bold` from h1 |
+| `src/pages/VideoPage.tsx` | Remove redundant `p-6` and `font-semibold` |
+| `src/components/dashboard/EmployeeManagement.tsx` | Replace TableHead/Cell padding overrides with semantic classes; remove `font-semibold` |
+| `src/pages/EmployeeDashboard.tsx` | Remove `font-bold`/`font-semibold` from all headings |
 
-**Total: 7 files**
+**Total: 8 files**
 
 ---
 
 ### Review
 
-1. **Top 3 Risks:** (1) The `button-social` class introduces a new variant not in the CVA map -- consumers must use `className` instead of `variant`. This is acceptable because it is a one-off styling need, not a reusable variant. (2) Changing `py-[5px]` to `py-1` (4px) on the logo shifts it by 1px -- visually negligible. (3) Converting the dev testing section in Auth.tsx from raw utilities to a Banner component changes its DOM structure slightly.
-2. **Top 3 Fixes:** (1) Eliminates all raw `bg-`, `border-`, and `p-` overrides on Button, Badge, and Card components across all pages. (2) Ensures that changing `.button-base` or `.badge-base` padding in CSS propagates everywhere without page-level fights. (3) Removes the only arbitrary spacing value in page files.
+1. **Top 3 Risks:** (1) Adding `font-weight` to the global `h1`-`h4` tags affects every heading in the app -- but this is the desired behavior since we want the CSS to be the single source of truth. (2) CardTitle already renders as `<h3>`, so adding `font-weight: 600` to both `h3` and `.card-title` is redundant but harmless (CSS cascade). (3) Removing `leading-tight` from TrainingCard's CardTitle changes its line-height from 1.25 to the `.card-title` default of `leading-none` (1.0) -- the `text-h4` class will then apply `line-height: 1.5`, which is the correct scale value.
+2. **Top 3 Fixes:** (1) Card sub-components join Button/Badge/Banner as fully semantic -- rendered HTML shows `card-header`, `card-title`, etc. instead of raw utilities. (2) Font-weight is now baked into the typography scale, eliminating the most common page-level override across the entire codebase. (3) Table styling is standardized via `.table-head-cell` and `.table-body-cell`.
 3. **Database Change:** No
-4. **Verdict:** Go -- this completes the layout/component separation mandate.
+4. **Verdict:** Go -- this is the final purge to achieve 100% compliance.
 
