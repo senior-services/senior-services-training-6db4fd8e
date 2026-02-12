@@ -747,7 +747,7 @@ size: {
                     <p className="text-caption text-muted-foreground mb-3">Referenced by <code className="text-code bg-muted px-1 rounded">badge.tsx</code> — CVA base: <code className="text-code bg-muted px-1 rounded">"badge-base"</code></p>
                     <pre className="text-code bg-card p-3 rounded border overflow-x-auto whitespace-pre-wrap">{`.badge-base {
   @apply inline-flex items-center rounded-full
-    border px-2.5 py-0.5 text-caption font-semibold
+    border px-2.5 py-0.5 text-small font-semibold
     transition-all duration-200 whitespace-nowrap;
   @apply focus:outline-none focus:ring-2
     focus:ring-ring focus:ring-offset-2;

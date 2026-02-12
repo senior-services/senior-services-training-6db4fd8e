@@ -230,8 +230,10 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
   /* ── Master Template: Badge ── */
   .badge-base {
-    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-caption font-semibold transition-all duration-200 whitespace-nowrap;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-small font-semibold transition-all duration-200 whitespace-nowrap;
     @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+    font-size: 0.8rem;
+    line-height: 1.5;
   }
 
   /* ── Master Template: Input ── */

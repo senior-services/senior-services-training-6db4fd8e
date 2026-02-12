@@ -87,7 +87,7 @@ export const ComponentUpdateIndicator: React.FC<ComponentUpdateIndicatorProps> =
           {Object.entries(COMPONENT_USAGE_MAP).slice(0, 6).map(([component, areas]) => (
             <div key={component} className="flex items-center justify-between p-2 border rounded">
               <span className="text-small font-medium">{component}</span>
-              <Badge variant="secondary" className="text-caption">
+              <Badge variant="secondary">
                 {Array.isArray(areas) ? areas.length : 1} areas
               </Badge>
             </div>
@@ -104,7 +104,7 @@ export const ComponentUpdateIndicator: React.FC<ComponentUpdateIndicatorProps> =
             {recentUpdates.map((update, index) => (
               <div key={index} className="p-2 bg-muted rounded text-caption space-y-1">
                 <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="text-caption">
+                  <Badge variant="secondary">
                     {update.component}
                   </Badge>
                   <span className="text-muted-foreground">
