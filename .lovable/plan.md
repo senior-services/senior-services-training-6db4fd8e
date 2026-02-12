@@ -1,26 +1,34 @@
 
 
-## Fix Assign Videos Dialog: Replace `text-small` with `text-body`
+## Add `text-body` to Label Component for Senior Legibility
 
 ### Problem
-The `AssignVideosModal` table cells contain inline `text-small` classes on `<span>` elements, which override the `TableCell` primitive's `text-body` class. This forces row data to render at 13px instead of the 16px senior minimum.
+The `Label` component (used for radio group labels, checkbox group labels, and form field labels) has no explicit font-size class. It inherits from its parent context, which can result in labels rendering below the 16px senior minimum depending on the surrounding layout.
 
-### Changes (1 file)
+### Solution
+Add `text-body` to the Label primitive's base class so all labels -- including radio group labels, checkbox group labels, and form field group labels -- render at 16px (1rem) with the standard 1.6 line-height.
 
-**`src/components/dashboard/AssignVideosModal.tsx`** -- 4 lines to update:
+### Changes (2 files)
 
-| Line | Element | Change |
-|------|---------|--------|
-| 786 | Video title `<span>` | `text-small` to `text-body` |
-| 809 | Due date `<span>` | `text-small` to `text-body` |
-| 812 | Quiz results `<span>` | `text-small` to `text-body` |
-| 815 | Quiz version `<span>` | `text-small` to `text-body` |
+**1. `src/components/ui/label.tsx`** -- Add `text-body` to the CVA base class
 
-Each span currently reads `text-small whitespace-nowrap` and will be updated to `text-body whitespace-nowrap`.
+| Before | After |
+|--------|-------|
+| `"font-medium leading-none"` | `"text-body font-medium leading-none"` |
+
+This locks every Label instance to 16px system-wide.
+
+**2. `src/components/content/AddContentModal.tsx`** -- Remove conflicting `text-small` override (line 365)
+
+| Before | After |
+|--------|-------|
+| `className="text-small font-medium cursor-pointer"` | `className="cursor-pointer"` |
+
+The `text-small` override on this Label would fight the new base class. Removing it lets the Label inherit `text-body` from its own base. The `font-medium` is also redundant since it's already in the Label base class.
 
 ### Review
-1. **Risks:** None -- these are purely typographic overrides within a single dialog.
-2. **Fixes:** All table row data in the Assign Videos dialog will render at 16px, matching the senior legibility standard.
+1. **Risks:** None -- `text-body` (16px) is the intended minimum for senior users. All label contexts benefit from this change.
+2. **Fixes:** All radio button group labels, checkbox group labels, and form field labels now render at a guaranteed 16px.
 3. **Database Change:** No.
-4. **Verdict:** Go -- four identical find-and-replace edits in one file.
+4. **Verdict:** Go -- two small edits.
 
