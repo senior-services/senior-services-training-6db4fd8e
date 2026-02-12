@@ -724,6 +724,22 @@ export const ComponentsGallery = ({
   min-height: 44px;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
+}
+
+/* CVA variants → semantic classes */
+variant: {
+  default: "button-default",
+  destructive: "button-destructive",
+  outline: "button-outline",
+  secondary: "button-secondary",
+  ghost: "button-ghost",
+  link: "button-link",
+}
+size: {
+  default: "button-size-default",
+  sm: "button-size-sm",
+  lg: "button-size-lg",
+  icon: "button-size-icon",
 }`}</pre>
                   </div>
                   <div className="p-4 rounded-lg bg-muted/30 border border-border-primary/50">
@@ -735,6 +751,16 @@ export const ComponentsGallery = ({
     transition-all duration-200 whitespace-nowrap;
   @apply focus:outline-none focus:ring-2
     focus:ring-ring focus:ring-offset-2;
+}
+
+/* 28 variants → semantic classes */
+variant: {
+  default: "badge-default",
+  success: "badge-success",
+  "hollow-primary": "badge-hollow-primary",
+  "ghost-success": "badge-ghost-success",
+  "soft-warning": "badge-soft-warning",
+  ...
 }`}</pre>
                   </div>
                   <div className="p-4 rounded-lg bg-muted/30 border border-border-primary/50">

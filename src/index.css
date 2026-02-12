@@ -250,6 +250,65 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     @apply rounded-lg border border-border-primary bg-card text-card-foreground shadow-card;
   }
 
+  /* ── Button Variant Classes ── */
+  .button-default     { @apply bg-primary text-primary-foreground hover:bg-primary/80; }
+  .button-destructive { @apply bg-destructive text-destructive-foreground hover:bg-destructive/80; }
+  .button-outline     { @apply border border-input bg-background hover:bg-muted hover:text-primary; }
+  .button-secondary   { @apply bg-secondary text-secondary-foreground hover:bg-secondary/80; }
+  .button-ghost       { @apply shadow-none hover:shadow-md hover:bg-muted hover:text-primary; }
+  .button-link        { @apply shadow-none hover:shadow-none text-primary underline-offset-4 hover:underline active:scale-100; }
+
+  /* ── Button Size Classes ── */
+  .button-size-default { @apply h-10 px-4 py-2; }
+  .button-size-sm      { @apply h-9 rounded-md px-3; }
+  .button-size-lg      { @apply h-11 rounded-md px-8; }
+  .button-size-icon    { @apply h-10 w-10; }
+
+  /* ── Badge Variant Classes ── */
+  /* Solid */
+  .badge-default          { @apply border-transparent bg-primary text-primary-foreground; }
+  .badge-secondary        { @apply border-transparent bg-secondary text-secondary-foreground; }
+  .badge-tertiary         { @apply border-transparent bg-muted-foreground text-white; }
+  .badge-destructive      { @apply border-transparent bg-destructive text-destructive-foreground; }
+  .badge-success          { @apply border-transparent bg-success text-success-foreground; }
+  .badge-warning          { @apply border-transparent bg-warning text-warning-foreground; }
+  .badge-attention        { @apply border-transparent bg-attention text-attention-foreground; }
+  /* Hollow */
+  .badge-hollow-primary     { @apply border-primary text-primary bg-background; }
+  .badge-hollow-secondary   { @apply border-secondary text-secondary bg-background; }
+  .badge-hollow-tertiary    { @apply border-muted-foreground text-muted-foreground bg-background; }
+  .badge-hollow-destructive { @apply border-destructive text-destructive bg-background; }
+  .badge-hollow-success     { @apply border-success text-success bg-background; }
+  .badge-hollow-warning     { @apply border-warning text-warning bg-background; }
+  .badge-hollow-attention   { @apply border-attention text-attention bg-background; }
+  /* Ghost */
+  .badge-ghost-primary      { @apply border-transparent text-primary bg-transparent; }
+  .badge-ghost-secondary    { @apply border-transparent text-secondary bg-transparent; }
+  .badge-ghost-tertiary     { @apply border-transparent text-muted-foreground bg-transparent; }
+  .badge-ghost-destructive  { @apply border-transparent text-destructive bg-transparent; }
+  .badge-ghost-success      { @apply border-transparent text-success bg-transparent; }
+  .badge-ghost-warning      { @apply border-transparent text-warning bg-transparent; }
+  .badge-ghost-attention    { @apply border-transparent text-attention bg-transparent; }
+  /* Soft */
+  .badge-soft-primary       { @apply border-transparent text-primary bg-primary/10; }
+  .badge-soft-secondary     { @apply border-transparent text-secondary bg-secondary/10; }
+  .badge-soft-tertiary      { @apply border-transparent text-muted-foreground bg-muted; }
+  .badge-soft-destructive   { @apply border-transparent text-destructive bg-destructive/10; }
+  .badge-soft-success       { @apply border-transparent text-success bg-success/10; }
+  .badge-soft-warning       { @apply border-transparent text-warning bg-warning/10; }
+  .badge-soft-attention     { @apply border-transparent text-attention bg-attention/10; }
+
+  /* ── Toggle Variant Classes ── */
+  .toggle-default  { @apply bg-transparent; }
+  .toggle-outline  { @apply border border-input bg-transparent hover:bg-accent hover:text-accent-foreground; }
+  .toggle-pill     { @apply bg-transparent rounded-full hover:bg-white/60 data-[state=on]:bg-white data-[state=on]:text-gray-900 data-[state=on]:font-semibold data-[state=on]:shadow-sm transition-all duration-200 h-8 px-4; }
+
+  /* ── Toggle Size Classes ── */
+  .toggle-size-default { @apply h-10 px-6; }
+  .toggle-size-sm      { @apply h-9 px-2.5; }
+  .toggle-size-lg      { @apply h-11 px-5; }
+  .toggle-size-pill    { @apply h-8 px-4; }
+
   /* Carbon Design System Form Controls */
   .radio-group {
     @apply flex flex-col gap-2; /* 8px vertical spacing per Carbon spec */

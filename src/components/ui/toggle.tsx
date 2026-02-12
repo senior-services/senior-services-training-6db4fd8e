@@ -9,16 +9,15 @@ const toggleVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-transparent",
-        outline:
-          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
-        pill: "bg-transparent rounded-full hover:bg-white/60 data-[state=on]:bg-white data-[state=on]:text-gray-900 data-[state=on]:font-semibold data-[state=on]:shadow-sm transition-all duration-200 h-8 px-4",
+        default: "toggle-default",
+        outline: "toggle-outline",
+        pill: "toggle-pill",
       },
       size: {
-        default: "h-10 px-6",
-        sm: "h-9 px-2.5", 
-        lg: "h-11 px-5",
-        pill: "h-8 px-4",
+        default: "toggle-size-default",
+        sm: "toggle-size-sm",
+        lg: "toggle-size-lg",
+        pill: "toggle-size-pill",
       },
     },
     defaultVariants: {
