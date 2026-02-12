@@ -432,7 +432,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         </DialogHeader>
 
         {/* Scrollable Body */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full px-6 pb-6 pt-0 flex flex-col gap-6" data-dialog-scroll-area>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6" data-dialog-scroll-area>
             {video?.description && video.description.trim() !== '' && (
               <div id="video-description">
                 <p className="text-body text-foreground">
@@ -486,7 +486,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         </div>
 
         {/* Fixed Footer - Quiz interactions (non-presentation only) */}
-        {quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter>
+        {quiz && !isPresentation && !wasEverCompleted && (quizStarted || quizSubmitted) && <DialogFooter>
             {!quizSubmitted && !wasEverCompleted ? <div className="flex w-full items-center justify-end gap-4">
                 <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                   <AlertDialogTrigger asChild>
