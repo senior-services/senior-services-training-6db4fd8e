@@ -606,7 +606,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
         {/* Unified Presentation Footer */}
         {isPresentation && !wasEverCompleted && (
-          <DialogFooter className="sm:justify-between items-center">
+          <DialogFooter className="items-center">
               {quiz && quizStarted && !quizSubmitted ? (
                 <div className="flex gap-2 ml-auto">
                   {/* Quiz started: Cancel with confirmation + Submit Quiz */}
@@ -654,7 +654,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   )}
                 </div>
               ) : (
-                <>
+                <div className="flex w-full items-center justify-between gap-2">
                   {/* Timer pinned to footer left */}
                   {timerActive ? (
                     <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
@@ -707,7 +707,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                       </Button>
                     )}
                   </div>
-                </>
+                </div>
               )}
           </DialogFooter>
         )}
