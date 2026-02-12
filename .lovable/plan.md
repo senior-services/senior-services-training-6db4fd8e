@@ -1,113 +1,159 @@
 
 
-## Total Search-and-Destroy: Eliminate Utility Stacking Across All UI Primitives
+## Hard Reset: Absorb ALL CVA Variant Utilities into Global CSS
 
 ### Problem
 
-The previous refactor *added* semantic class names but *left* the old Tailwind utility strings in place, resulting in "stacking" -- e.g., `button.tsx` line 8 reads `"button-base inline-flex items-center justify-center gap-2 ..."` with 15+ utilities after the semantic class. The CSS class is present but decorative; the actual styling still comes from inline utilities.
+The CVA **base** strings are clean (`"button-base"`, `"badge-base"`, etc.), but every **variant** and **size** still outputs raw Tailwind utilities into the rendered HTML. A default button currently renders as:
 
----
-
-### Phase 1: Absorb All Utilities into Global CSS Classes (`src/index.css`)
-
-Move every utility string from the component CVA base into the corresponding CSS class. After this, each CSS class becomes the **complete** definition.
-
-**`.button-base`** (currently only has min-height, padding, font-size):
-```css
-.button-base {
-  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap
-    rounded-md font-medium ring-offset-background transition-all duration-200
-    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-    focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
-    shadow-md hover:shadow-lg;
-  @apply [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0;
-  min-height: 44px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  active: scale-[0.98]; /* via @apply active:scale-[0.98] */
-}
+```
+button-base bg-primary text-primary-foreground hover:bg-primary/80 h-10 px-4 py-2
 ```
 
-**`.button-compact`** (absorb Radix form control resets -- stays minimal).
+That's 9+ classes. The target is 3: `button-base button-default button-md`.
 
-**`.button-toggle`** (absorb toggle.tsx utilities):
+---
+
+### Phase 1: Button Variant + Size Classes in `src/index.css`
+
+Add semantic CSS classes for every button variant and size:
+
 ```css
-.button-toggle {
-  @apply inline-flex items-center justify-center rounded-md text-small
-    font-medium ring-offset-background transition-colors
-    hover:bg-muted hover:text-muted-foreground
-    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-    focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
-    data-[state=on]:bg-accent data-[state=on]:text-accent-foreground w-fit;
-  min-height: auto;
-  padding: 0;
-  font-size: inherit;
-  box-sizing: border-box;
-  margin: 0;
-}
+/* Button Color Variants */
+.button-default     { @apply bg-primary text-primary-foreground hover:bg-primary/80; }
+.button-destructive { @apply bg-destructive text-destructive-foreground hover:bg-destructive/80; }
+.button-outline     { @apply border border-input bg-background hover:bg-muted hover:text-primary; }
+.button-secondary   { @apply bg-secondary text-secondary-foreground hover:bg-secondary/80; }
+.button-ghost       { @apply shadow-none hover:shadow-md hover:bg-muted hover:text-primary; }
+.button-link        { @apply shadow-none hover:shadow-none text-primary underline-offset-4 hover:underline active:scale-100; }
+
+/* Button Sizes */
+.button-size-default { @apply h-10 px-4 py-2; }
+.button-size-sm      { @apply h-9 rounded-md px-3; }
+.button-size-lg      { @apply h-11 rounded-md px-8; }
+.button-size-icon    { @apply h-10 w-10; }
 ```
 
-**`.input-base`** (new -- absorb input.tsx utilities):
-```css
-.input-base {
-  @apply flex h-10 w-full rounded-md border border-input bg-background
-    px-3 py-2 ring-offset-background
-    file:border-0 file:bg-transparent file:font-medium file:text-foreground
-    placeholder:text-muted-foreground
-    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-    focus-visible:ring-offset-2
-    disabled:cursor-not-allowed disabled:opacity-50;
-}
+Then in `button.tsx`, the CVA becomes:
+
+```tsx
+const buttonVariants = cva("button-base", {
+  variants: {
+    variant: {
+      default: "button-default",
+      destructive: "button-destructive",
+      outline: "button-outline",
+      secondary: "button-secondary",
+      ghost: "button-ghost",
+      link: "button-link",
+    },
+    size: {
+      default: "button-size-default",
+      sm: "button-size-sm",
+      lg: "button-size-lg",
+      icon: "button-size-icon",
+    },
+  },
+  defaultVariants: { variant: "default", size: "default" },
+});
 ```
 
-**`.card-base`** (new -- absorb card.tsx utilities):
+**Rendered HTML result:** `button-base button-default button-size-default` (3 classes).
+
+---
+
+### Phase 2: Badge Variant Classes in `src/index.css`
+
+Add semantic CSS classes for all 28 badge variants:
+
 ```css
-.card-base {
-  @apply rounded-lg border border-border-primary bg-card
-    text-card-foreground shadow-card;
-}
+/* Badge Solid Variants */
+.badge-default       { @apply border-transparent bg-primary text-primary-foreground; }
+.badge-secondary     { @apply border-transparent bg-secondary text-secondary-foreground; }
+.badge-tertiary      { @apply border-transparent bg-muted-foreground text-white; }
+.badge-destructive   { @apply border-transparent bg-destructive text-destructive-foreground; }
+.badge-success       { @apply border-transparent bg-success text-success-foreground; }
+.badge-warning       { @apply border-transparent bg-warning text-warning-foreground; }
+.badge-attention     { @apply border-transparent bg-attention text-attention-foreground; }
+/* Badge Hollow Variants */
+.badge-hollow-primary     { @apply border-primary text-primary bg-background; }
+.badge-hollow-secondary   { @apply border-secondary text-secondary bg-background; }
+/* ... (all 7 hollow + 7 ghost + 7 soft variants) */
 ```
 
-**`.badge-base`** stays as-is (already correct from previous pass).
+Then in `badge.tsx`:
+
+```tsx
+const badgeVariants = cva("badge-base", {
+  variants: {
+    variant: {
+      default: "badge-default",
+      secondary: "badge-secondary",
+      // ... all 28 map to their CSS class
+    },
+  },
+});
+```
+
+**Rendered HTML result:** `badge-base badge-success` (2 classes).
 
 ---
 
-### Phase 2: Strip Utility Strings from Component Files
+### Phase 3: Toggle Variant + Size Classes in `src/index.css`
 
-Each component's CVA base string (or inline className) becomes the semantic class name only.
+```css
+/* Toggle Variants */
+.toggle-default  { @apply bg-transparent; }
+.toggle-outline  { @apply border border-input bg-transparent hover:bg-accent hover:text-accent-foreground; }
+.toggle-pill     { @apply bg-transparent rounded-full hover:bg-white/60
+                     data-[state=on]:bg-white data-[state=on]:text-gray-900
+                     data-[state=on]:font-semibold data-[state=on]:shadow-sm
+                     transition-all duration-200 h-8 px-4; }
 
-| File | Before (CVA base / className) | After |
-|---|---|---|
-| `button.tsx` (line 8) | `"button-base inline-flex items-center ... active:scale-[0.98]"` | `"button-base"` |
-| `toggle.tsx` (line 8) | `"button-toggle inline-flex items-center ... w-fit"` | `"button-toggle"` |
-| `input.tsx` (line 11) | `"flex h-10 w-full rounded-md border ..."` | `"input-base"` |
-| `card.tsx` (line 12) | `"rounded-lg border border-border-primary ..."` | `"card-base"` |
-| `badge.tsx` | `"badge-base"` | No change (already clean) |
+/* Toggle Sizes */
+.toggle-size-default { @apply h-10 px-6; }
+.toggle-size-sm      { @apply h-9 px-2.5; }
+.toggle-size-lg      { @apply h-11 px-5; }
+.toggle-size-pill    { @apply h-8 px-4; }
+```
+
+Then in `toggle.tsx`:
+
+```tsx
+const toggleVariants = cva("button-toggle", {
+  variants: {
+    variant: {
+      default: "toggle-default",
+      outline: "toggle-outline",
+      pill: "toggle-pill",
+    },
+    size: {
+      default: "toggle-size-default",
+      sm: "toggle-size-sm",
+      lg: "toggle-size-lg",
+      pill: "toggle-size-pill",
+    },
+  },
+});
+```
 
 ---
 
-### Phase 3: Table Component Cleanup
+### Phase 4: Header and EmployeeDashboard Verification
 
-`table.tsx` sub-components have layout utilities (not a "primitive shape" like button/badge), so they stay as utility strings. However, `TableHead` on line 83 has `text-small` which is correct semantic usage -- no changes needed here.
+Both files are **already clean** -- no changes needed:
 
----
-
-### Phase 4: Header Verification
-
-`Header.tsx` is already clean:
-- Line 30: `<h1 className="text-h3 text-primary-foreground">` -- `text-h3` is semantic, `text-primary-foreground` is a color (not a font-size). No issues.
+- `Header.tsx` line 30: `<h1 className="text-h3 text-primary-foreground">` -- `text-h3` is semantic, `text-primary-foreground` is a color token (not a font-size override). This is correct.
+- `EmployeeDashboard.tsx`: Uses `text-h2`, `text-h3`, `text-small` -- all semantic classes. No `text-xl`/`text-sm`/`text-lg` present.
 
 ---
 
-### Phase 5: Final text-xs/text-sm Sweep
+### Phase 5: Style Guide Update (`ComponentsGallery.tsx`)
 
-Search confirms zero `text-sm` or `text-xs` remain in `.tsx` files. All 1003 matches from the search are `text-small` or `text-caption` -- our semantic classes. The refactor from the previous pass is confirmed complete.
-
----
-
-### Phase 6: Update Style Guide Master Templates
-
-Update `ComponentsGallery.tsx` (lines 707-734) to show the **full** `.button-base` definition (with all absorbed utilities) instead of the current abbreviated version. Add `.input-base` and `.card-base` to the Master Templates grid. Label all four as "Single Source of Truth."
+Update the Master Templates section (lines 707-760) to:
+1. Show the **clean CVA pattern** -- e.g., `variant: { default: "button-default" }` instead of utility strings.
+2. Add the full list of variant CSS classes beneath each Master Template.
+3. Ensure all `<pre>` and `<code>` blocks use `.text-code` (0.9375rem / 15px) -- already in place.
 
 ---
 
@@ -115,21 +161,15 @@ Update `ComponentsGallery.tsx` (lines 707-734) to show the **full** `.button-bas
 
 | File | Change |
 |---|---|
-| `src/index.css` | Expand `.button-base` and `.button-toggle` with absorbed utilities; add `.input-base` and `.card-base` |
-| `src/components/ui/button.tsx` | CVA base: `"button-base"` (strip ~15 utilities) |
-| `src/components/ui/toggle.tsx` | CVA base: `"button-toggle"` (strip ~12 utilities) |
-| `src/components/ui/input.tsx` | className: `"input-base"` (strip ~10 utilities) |
-| `src/components/ui/card.tsx` | Card className: `"card-base"` (strip 5 utilities) |
-| `src/pages/ComponentsGallery.tsx` | Expand Master Templates to show all 4 base classes with full definitions |
-
-**Total: 6 files**
-
----
+| `src/index.css` | Add ~45 new CSS classes: 6 button variants, 4 button sizes, 28 badge variants, 3 toggle variants, 4 toggle sizes |
+| `src/components/ui/button.tsx` | Replace 6 variant utility strings + 4 size utility strings with semantic class names |
+| `src/components/ui/badge.tsx` | Replace 28 variant utility strings with semantic class names |
+| `src/components/ui/toggle.tsx` | Replace 3 variant utility strings + 4 size utility strings with semantic class names |
+| `src/pages/ComponentsGallery.tsx` | Update Master Templates to show clean CVA + variant class definitions |
 
 ### Review
 
-1. **Top 3 Risks:** (1) Moving all button utilities into CSS means CVA's `cn()` merge can no longer override base layout properties like `gap-2` or `rounded-md` via className -- but no variant currently does this, so this is safe. (2) The `active:scale-[0.98]` arbitrary value must be tested in `@apply` syntax. (3) `input-base` absorbs `h-10` which may conflict with the global `input { min-height: 44px }` rule on line 188 -- h-10 is 40px vs 44px. Resolution: remove `h-10` from `.input-base` and let the global rule control height.
-2. **Top 3 Fixes:** (1) Eliminates all utility stacking -- each component references exactly one semantic class. (2) CSS becomes the true single source of truth for all primitive shapes. (3) Style Guide documents the complete definitions.
+1. **Top 3 Risks:** (1) Badge has 28 variants -- that's 28 new CSS classes. High volume but each is a simple 2-3 property declaration. (2) CVA's `cn()` merge uses Tailwind-merge which resolves conflicts by class name; semantic class names (e.g., `.button-default`) won't conflict with each other, so this is safe. (3) Any consumer passing raw Tailwind color overrides via className will now need `!important` or a more specific selector to override the CSS-defined variant -- but this is the desired behavior (CSS as source of truth).
+2. **Top 3 Fixes:** (1) Rendered HTML drops from 10+ classes to 2-3 per element. (2) Every visual property lives in CSS -- zero utility strings in component files. (3) Future theme changes require editing only `index.css`.
 3. **Database Change:** No
-4. **Verdict:** Go -- this completes the "CSS as the Brain" mandate.
-
+4. **Verdict:** Go -- this completes the hard reset.
