@@ -521,69 +521,86 @@ export const ComponentsGallery = ({
             </CardContent>
           </Card>
 
-          {/* Typography Section */}
+          {/* Typography Section — Major Third (1.250) Scale */}
           <Card id="typography" className="shadow-card hover:shadow-lg transition-shadow duration-300">
             <CardHeader>
               <CardTitle>Typography</CardTitle>
-              <CardDescription>Text styles and hierarchy</CardDescription>
+              <CardDescription>Major Third (1.250) type scale — 16px base</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4 rounded-lg p-6 border border-border-primary/50 shadow-md">
+                {/* Headings — use bare HTML tags, sized by global CSS */}
                 <div className="flex items-baseline gap-2">
-                  <h1 className="text-4xl font-bold">Heading 1</h1>
-                  <span className="text-xs text-muted-foreground">(36px)</span>
+                  <h1>Heading 1</h1>
+                  <span className="text-small text-muted-foreground">(~49px / 3.052rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <h2 className="text-3xl font-semibold">Heading 2</h2>
-                  <span className="text-xs text-muted-foreground">(30px)</span>
+                  <h2>Heading 2</h2>
+                  <span className="text-small text-muted-foreground">(~31px / 1.953rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-2xl font-medium">Heading 3</h3>
-                  <span className="text-xs text-muted-foreground">(24px)</span>
+                  <h3>Heading 3</h3>
+                  <span className="text-small text-muted-foreground">(~25px / 1.563rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <h4 className="text-xl font-medium">Heading 4</h4>
-                  <span className="text-xs text-muted-foreground">(20px)</span>
+                  <h4>Heading 4</h4>
+                  <span className="text-small text-muted-foreground">(20px / 1.25rem)</span>
+                </div>
+
+                <Separator />
+
+                {/* Body — .text-body (1rem / 16px) */}
+                <div className="flex items-baseline gap-2">
+                  <p className="text-body">Body text — Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                  <span className="text-small text-muted-foreground">(16px / 1rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-base">Body text - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                  <span className="text-xs text-muted-foreground">(16px)</span>
+                  <p className="text-body font-medium">Body text medium — Lorem ipsum dolor sit amet.</p>
+                  <span className="text-small text-muted-foreground">(16px / 1rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-base font-bold">Body text bold - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                  <span className="text-xs text-muted-foreground">(16px)</span>
+                  <p className="text-body font-bold">Body text bold — Lorem ipsum dolor sit amet.</p>
+                  <span className="text-small text-muted-foreground">(16px / 1rem)</span>
+                </div>
+
+                <Separator />
+
+                {/* Small — .text-small (0.8rem / ~13px) */}
+                <div className="flex items-baseline gap-2">
+                  <p className="text-small text-muted-foreground">Small text — Secondary information</p>
+                  <span className="text-small text-muted-foreground">(~13px / 0.8rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-base font-medium">Body text medium - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                  <span className="text-xs text-muted-foreground">(16px)</span>
+                  <p className="text-small text-muted-foreground font-medium">Small text medium — Secondary information</p>
+                  <span className="text-small text-muted-foreground">(~13px / 0.8rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-sm text-muted-foreground">Small text - Secondary information</p>
-                  <span className="text-xs text-muted-foreground">(15px)</span>
+                  <p className="text-small text-muted-foreground font-bold">Small text bold — Secondary information</p>
+                  <span className="text-small text-muted-foreground">(~13px / 0.8rem)</span>
+                </div>
+
+                <Separator />
+
+                {/* Caption — .text-caption (0.64rem / ~10px) */}
+                <div className="flex items-baseline gap-2">
+                  <p className="text-caption text-muted-foreground">Caption text — Labels and captions</p>
+                  <span className="text-small text-muted-foreground">(~10px / 0.64rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-sm text-muted-foreground font-bold">Small text bold - Secondary information</p>
-                  <span className="text-xs text-muted-foreground">(15px)</span>
+                  <p className="text-caption text-muted-foreground font-medium">Caption text medium — Labels and captions</p>
+                  <span className="text-small text-muted-foreground">(~10px / 0.64rem)</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-sm text-muted-foreground font-medium">Small text medium - Secondary information</p>
-                  <span className="text-xs text-muted-foreground">(15px)</span>
+                  <p className="text-caption text-muted-foreground font-bold">Caption text bold — Labels and captions</p>
+                  <span className="text-small text-muted-foreground">(~10px / 0.64rem)</span>
                 </div>
+
+                <Separator />
+
+                {/* Code — .text-code (0.9375rem / 15px) */}
                 <div className="flex items-baseline gap-2">
-                  <p className="text-xs text-muted-foreground">Extra small text - Captions and labels</p>
-                  <span className="text-xs text-muted-foreground">(14px)</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-xs text-muted-foreground font-bold">Extra small text bold - Captions and labels</p>
-                  <span className="text-xs text-muted-foreground">(14px)</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-xs text-muted-foreground font-medium">Extra small text medium - Captions and labels</p>
-                  <span className="text-xs text-muted-foreground">(14px)</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <code className="bg-muted px-2 py-1 rounded text-sm font-mono shadow-sm border border-border-primary/30">Code snippet</code>
-                  <span className="text-xs text-muted-foreground">(15px)</span>
+                  <code className="text-code bg-muted px-2 py-1 rounded shadow-sm border border-border-primary/30">Code snippet</code>
+                  <span className="text-small text-muted-foreground">(15px / 0.9375rem)</span>
                 </div>
               </div>
             </CardContent>

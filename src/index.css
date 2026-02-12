@@ -176,12 +176,12 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     line-height: 1.3; /* Improved line height for readability */
   }
 
-  h1 { font-size: 2.25rem; } /* 36px - larger headers */
-  h2 { font-size: 1.875rem; } /* 30px */
-  h3 { font-size: 1.5rem; } /* 24px */
-  h4 { font-size: 1.25rem; } /* 20px */
-  h5 { font-size: 1.125rem; } /* 18px */
-  h6 { font-size: 1rem; } /* 16px */
+  h1 { font-size: 3.052rem; }  /* ~49px - Major Third scale */
+  h2 { font-size: 1.953rem; }  /* ~31px */
+  h3 { font-size: 1.563rem; }  /* ~25px */
+  h4 { font-size: 1.25rem; }   /* 20px */
+  h5 { font-size: 1rem; }      /* 16px */
+  h6 { font-size: 0.8rem; }    /* ~13px */
 
   /* Enhanced input sizing */
   input, textarea, select {
@@ -299,13 +299,21 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     @apply bg-deadline-completed text-white;
   }
 
+  /* Semantic typography classes — Major Third (1.250) scale */
+  .text-body    { font-size: 1rem;      line-height: 1.6; }
+  .text-small   { font-size: 0.8rem;    line-height: 1.5; }
+  .text-caption  { font-size: 0.64rem;   line-height: 1.4; }
+  .text-code    { font-size: 0.9375rem; line-height: 1.5; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
   /* Form Helper Text - between label and input */
   .form-helper-text {
-    @apply text-xs text-foreground mt-0 mb-1.5;
+    font-size: 0.8rem;
+    @apply text-foreground mt-0 mb-1.5;
   }
 
   /* Form Additional Text - below input/control */
   .form-additional-text {
-    @apply text-xs text-muted-foreground italic mt-1.5;
+    font-size: 0.8rem;
+    @apply text-muted-foreground italic mt-1.5;
   }
 }
