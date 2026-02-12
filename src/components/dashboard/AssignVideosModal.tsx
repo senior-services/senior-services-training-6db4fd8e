@@ -783,7 +783,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                 htmlFor={`video-${video.id}`}
                                 className={cn("flex items-center gap-2", !isCompleted && "cursor-pointer")}
                               >
-                                <span className="font-medium text-small">{video.title}</span>
+                                <span className="font-medium text-body">{video.title}</span>
                                 {hiddenVideoIds.has(video.id) && (
                                   <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
                                     <TooltipTrigger asChild>
@@ -806,13 +806,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             </TableCell>
 
                             <TableCell>
-                              {(() => { const dd = formatDueDate(video.id); return <span className={`text-small whitespace-nowrap ${dd === '--' || dd === 'N/A' ? 'text-muted-foreground' : ''}`}>{dd}</span>; })()}
+                              {(() => { const dd = formatDueDate(video.id); return <span className={`text-body whitespace-nowrap ${dd === '--' || dd === 'N/A' ? 'text-muted-foreground' : ''}`}>{dd}</span>; })()}
                             </TableCell>
                             <TableCell>
-                              <span className="text-small whitespace-nowrap">{getQuizResults(video.id)}</span>
+                              <span className="text-body whitespace-nowrap">{getQuizResults(video.id)}</span>
                             </TableCell>
                             <TableCell>
-                              {(() => { const qv = getQuizVersion(video.id); return <span className={`text-small whitespace-nowrap ${qv === '--' || qv === 'N/A' ? 'text-muted-foreground' : ''}`}>{qv}</span>; })()}
+                              {(() => { const qv = getQuizVersion(video.id); return <span className={`text-body whitespace-nowrap ${qv === '--' || qv === 'N/A' ? 'text-muted-foreground' : ''}`}>{qv}</span>; })()}
                             </TableCell>
                           </TableRow>
                         );
