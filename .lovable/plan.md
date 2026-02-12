@@ -1,117 +1,135 @@
 
 
-## Zero-Exception Final Typography Refactor
+## Total Search-and-Destroy: Eliminate Utility Stacking Across All UI Primitives
 
-### Summary
+### Problem
 
-This is the final, absolute cleanup. After this pass, zero Tailwind font-size utility strings (`text-xs`, `text-sm`, `text-base`, `text-lg`, etc.) will remain in any `.tsx` file. Additionally, `.btn-base` is renamed to `.button-base`, `.badge-base` is created as the single source of truth for badge shape, and the Style Guide is updated to document both as "Master Templates."
-
----
-
-### 1. Rename `.btn-base` to `.button-base` (2 files)
-
-**`src/index.css`** (line 196):
-- Rename `.btn-base` to `.button-base`
-- Also rename `.btn-compact` to `.button-compact` and `.btn-toggle` to `.button-toggle` for consistency
-- Update all `@apply` references: the Radix reset selector on line 246 changes from `@apply btn-compact` to `@apply button-compact`
-
-**`src/components/ui/button.tsx`** (line 8):
-- Change `btn-base` to `button-base` in the CVA base string
-
-**`src/components/ui/toggle.tsx`** (line 8):
-- Change `btn-toggle` to `button-toggle` in the CVA base string
+The previous refactor *added* semantic class names but *left* the old Tailwind utility strings in place, resulting in "stacking" -- e.g., `button.tsx` line 8 reads `"button-base inline-flex items-center justify-center gap-2 ..."` with 15+ utilities after the semantic class. The CSS class is present but decorative; the actual styling still comes from inline utilities.
 
 ---
 
-### 2. Create `.badge-base` and Refactor `badge.tsx` (2 files)
+### Phase 1: Absorb All Utilities into Global CSS Classes (`src/index.css`)
 
-**`src/index.css`** -- Add new class after `.button-toggle`:
+Move every utility string from the component CVA base into the corresponding CSS class. After this, each CSS class becomes the **complete** definition.
+
+**`.button-base`** (currently only has min-height, padding, font-size):
 ```css
-.badge-base {
-  @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-caption font-semibold transition-all duration-200 whitespace-nowrap;
-  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+.button-base {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap
+    rounded-md font-medium ring-offset-background transition-all duration-200
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+    focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+    shadow-md hover:shadow-lg;
+  @apply [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0;
+  min-height: 44px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  active: scale-[0.98]; /* via @apply active:scale-[0.98] */
 }
 ```
 
-**`src/components/ui/badge.tsx`** (line 8):
-- Replace the long inline utility string with `badge-base`:
+**`.button-compact`** (absorb Radix form control resets -- stays minimal).
+
+**`.button-toggle`** (absorb toggle.tsx utilities):
+```css
+.button-toggle {
+  @apply inline-flex items-center justify-center rounded-md text-small
+    font-medium ring-offset-background transition-colors
+    hover:bg-muted hover:text-muted-foreground
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+    focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+    data-[state=on]:bg-accent data-[state=on]:text-accent-foreground w-fit;
+  min-height: auto;
+  padding: 0;
+  font-size: inherit;
+  box-sizing: border-box;
+  margin: 0;
+}
 ```
-Before: "inline-flex items-center rounded-full border px-2.5 py-0.5 text-caption font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap"
-After:  "badge-base"
+
+**`.input-base`** (new -- absorb input.tsx utilities):
+```css
+.input-base {
+  @apply flex h-10 w-full rounded-md border border-input bg-background
+    px-3 py-2 ring-offset-background
+    file:border-0 file:bg-transparent file:font-medium file:text-foreground
+    placeholder:text-muted-foreground
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+    focus-visible:ring-offset-2
+    disabled:cursor-not-allowed disabled:opacity-50;
+}
 ```
-- CVA now references the global CSS class as its single source of truth
+
+**`.card-base`** (new -- absorb card.tsx utilities):
+```css
+.card-base {
+  @apply rounded-lg border border-border-primary bg-card
+    text-card-foreground shadow-card;
+}
+```
+
+**`.badge-base`** stays as-is (already correct from previous pass).
 
 ---
 
-### 3. Replace ALL 60 `text-xs` Instances with `text-caption` (9 files)
+### Phase 2: Strip Utility Strings from Component Files
 
-Every single `text-xs` becomes `text-caption`. No exceptions.
+Each component's CVA base string (or inline className) becomes the semantic class name only.
 
-| File | Instances | Context |
+| File | Before (CVA base / className) | After |
 |---|---|---|
-| `chart.tsx` | 2 | Recharts container + tooltip content |
-| `command.tsx` | 2 | Group heading selector + shortcut span |
-| `context-menu.tsx` | 1 | Shortcut span |
-| `dropdown-menu.tsx` | 1 | Shortcut span |
-| `menubar.tsx` | 1 | Shortcut span |
-| `AddContentModal.tsx` | 1 | Character count |
-| `AuthErrorBoundary.tsx` | 1 | Dev-only details |
-| `error-boundary.tsx` | 2 | Dev-only details + fallback error |
-| `ErrorBoundary.tsx` | 1 | Dev-only pre |
+| `button.tsx` (line 8) | `"button-base inline-flex items-center ... active:scale-[0.98]"` | `"button-base"` |
+| `toggle.tsx` (line 8) | `"button-toggle inline-flex items-center ... w-fit"` | `"button-toggle"` |
+| `input.tsx` (line 11) | `"flex h-10 w-full rounded-md border ..."` | `"input-base"` |
+| `card.tsx` (line 12) | `"rounded-lg border border-border-primary ..."` | `"card-base"` |
+| `badge.tsx` | `"badge-base"` | No change (already clean) |
 
 ---
 
-### 4. Fix `.status-badge` in `src/index.css` (line 276)
+### Phase 3: Table Component Cleanup
 
-Replace `text-sm` with `text-small` in the `@apply` directive.
-
----
-
-### 5. Remove `text-base` from body in `src/index.css` (line 167)
-
-The `text-base` Tailwind utility on the `body` tag is redundant because `font-size: 1rem` is explicitly set on line 169. Remove `text-base` from the `@apply` directive to eliminate the last hardcoded Tailwind font-size utility from CSS.
+`table.tsx` sub-components have layout utilities (not a "primitive shape" like button/badge), so they stay as utility strings. However, `TableHead` on line 83 has `text-small` which is correct semantic usage -- no changes needed here.
 
 ---
 
-### 6. Update Style Guide -- Master Templates Section (ComponentsGallery.tsx)
+### Phase 4: Header Verification
 
-Add a new "Master Templates" subsection inside the Typography Utility Classes card (after the Semantic vs Visual Example block, around line 705). This section will document:
+`Header.tsx` is already clean:
+- Line 30: `<h1 className="text-h3 text-primary-foreground">` -- `text-h3` is semantic, `text-primary-foreground` is a color (not a font-size). No issues.
 
-- **`.button-base`**: Shows the consolidated properties (min-height: 44px, padding, font-size: 1rem) and notes that `button.tsx` CVA references this class.
-- **`.badge-base`**: Shows the consolidated properties (inline-flex, items-center, rounded-full, border, px-2.5, py-0.5, text-caption, font-semibold) and notes that `badge.tsx` CVA references this class.
-- Both are labeled as **"Master Templates -- Single Source of Truth for all UI primitives."**
+---
 
-Uses a two-column card layout with code blocks showing the class definitions.
+### Phase 5: Final text-xs/text-sm Sweep
+
+Search confirms zero `text-sm` or `text-xs` remain in `.tsx` files. All 1003 matches from the search are `text-small` or `text-caption` -- our semantic classes. The refactor from the previous pass is confirmed complete.
+
+---
+
+### Phase 6: Update Style Guide Master Templates
+
+Update `ComponentsGallery.tsx` (lines 707-734) to show the **full** `.button-base` definition (with all absorbed utilities) instead of the current abbreviated version. Add `.input-base` and `.card-base` to the Master Templates grid. Label all four as "Single Source of Truth."
 
 ---
 
 ### Files Changed Summary
 
-| File | Changes |
+| File | Change |
 |---|---|
-| `src/index.css` | Rename `.btn-*` to `.button-*`; add `.badge-base`; fix `.status-badge`; remove `text-base` from body |
-| `src/components/ui/button.tsx` | `btn-base` to `button-base` |
-| `src/components/ui/toggle.tsx` | `btn-toggle` to `button-toggle` |
-| `src/components/ui/badge.tsx` | CVA base string to `badge-base` |
-| `src/components/ui/chart.tsx` | `text-xs` to `text-caption` (2 instances) |
-| `src/components/ui/command.tsx` | `text-xs` to `text-caption` (2 instances) |
-| `src/components/ui/context-menu.tsx` | `text-xs` to `text-caption` |
-| `src/components/ui/dropdown-menu.tsx` | `text-xs` to `text-caption` |
-| `src/components/ui/menubar.tsx` | `text-xs` to `text-caption` |
-| `src/components/ui/error-boundary.tsx` | `text-xs` to `text-caption` (2 instances) |
-| `src/components/ui/ErrorBoundary.tsx` | `text-xs` to `text-caption` |
-| `src/components/auth/AuthErrorBoundary.tsx` | `text-xs` to `text-caption` |
-| `src/components/content/AddContentModal.tsx` | `text-xs` to `text-caption` |
-| `src/pages/ComponentsGallery.tsx` | Add Master Templates section |
+| `src/index.css` | Expand `.button-base` and `.button-toggle` with absorbed utilities; add `.input-base` and `.card-base` |
+| `src/components/ui/button.tsx` | CVA base: `"button-base"` (strip ~15 utilities) |
+| `src/components/ui/toggle.tsx` | CVA base: `"button-toggle"` (strip ~12 utilities) |
+| `src/components/ui/input.tsx` | className: `"input-base"` (strip ~10 utilities) |
+| `src/components/ui/card.tsx` | Card className: `"card-base"` (strip 5 utilities) |
+| `src/pages/ComponentsGallery.tsx` | Expand Master Templates to show all 4 base classes with full definitions |
 
-**Total: 14 files, ~20 targeted edits**
+**Total: 6 files**
 
 ---
 
 ### Review
 
-1. **Top 3 Risks:** (1) Renaming `.btn-base` to `.button-base` touches the button CVA and the Radix data-attribute resets -- must update all three references or buttons break. (2) Replacing `text-xs` in `chart.tsx` with `text-caption` -- since both resolve to 0.64rem, this is safe, but Recharts uses Tailwind's raw value; the semantic class must still generate the same CSS output. (3) `badge-base` as a CVA base string must not conflict with CVA's `cn()` merge behavior.
-2. **Top 3 Fixes:** (1) Zero hardcoded Tailwind font-size utilities remain in any file. (2) CSS is the single source of truth for button and badge shape. (3) Style Guide documents the Master Templates for future developers.
+1. **Top 3 Risks:** (1) Moving all button utilities into CSS means CVA's `cn()` merge can no longer override base layout properties like `gap-2` or `rounded-md` via className -- but no variant currently does this, so this is safe. (2) The `active:scale-[0.98]` arbitrary value must be tested in `@apply` syntax. (3) `input-base` absorbs `h-10` which may conflict with the global `input { min-height: 44px }` rule on line 188 -- h-10 is 40px vs 44px. Resolution: remove `h-10` from `.input-base` and let the global rule control height.
+2. **Top 3 Fixes:** (1) Eliminates all utility stacking -- each component references exactly one semantic class. (2) CSS becomes the true single source of truth for all primitive shapes. (3) Style Guide documents the complete definitions.
 3. **Database Change:** No
-4. **Verdict:** Go -- final zero-exception refactor.
+4. **Verdict:** Go -- this completes the "CSS as the Brain" mandate.
 
