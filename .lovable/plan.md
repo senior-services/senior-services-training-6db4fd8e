@@ -1,35 +1,38 @@
 
 
-## Replace `Button` with Native `<button>` in SortableTableHead
+## Add `text-h3` to Dialog Titles and Strip Inline Overrides
 
 ### Problem
-The `Button` component's `button-base` class forces `font-size: 1rem` (16px), overriding the 13px `text-small` inherited from `TableHead`. The previous `button-compact` fix did not resolve the cascade conflict.
+`DialogTitle` currently applies `font-semibold leading-loose tracking-tight` inline, which conflicts with the CSS base layer. The user wants dialog titles sized at `text-h3` (25px) rather than the default `h2` size (31px).
 
-### Change (1 file)
+### Changes (2 files)
 
-**`src/components/ui/sortable-table-head.tsx`**
+**1. `src/components/ui/dialog.tsx`** -- line 133
 
-1. **Remove** the `Button` import (line 2)
-2. **Replace** `<Button variant="ghost" ...>` (lines 59-79) with `<button type="button" ...>`
-3. **Apply** direct styling that inherits font-size from parent `TableHead`
+| Before | After |
+|--------|-------|
+| `"font-semibold leading-loose tracking-tight"` | `"text-h3"` |
 
-Final className:
-```
-cn(
-  "inline-flex items-center bg-transparent border-none cursor-pointer",
-  "uppercase text-muted-foreground",
-  "hover:text-primary group",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-  isActive ? "font-bold" : "font-medium"
-)
-```
+This applies the 25px scale step and removes `font-semibold` (which was downgrading `h2` weight from 700 to 600), `leading-loose` (line-height 2.0, too tall for seniors), and redundant `tracking-tight`.
 
-No `font-size` class needed -- the native `<button>` inherits `text-small` (13px) from the `<th>` parent since there is no `button-base` to override it.
+**2. `src/components/ui/alert-dialog.tsx`** -- line 94
+
+| Before | After |
+|--------|-------|
+| `"font-semibold"` | `"text-h3"` |
+
+Keeps `AlertDialogTitle` consistent with `DialogTitle`.
+
+### Result
+- **Size**: All dialog titles render at 25px (`text-h3`) instead of 31px
+- **Weight**: Inherits 700 from `h2` base rule (was incorrectly 600 via `font-semibold`)
+- **Line-height**: Resets from 2.0 to design-system standard (~1.3)
+- **Scope**: Applies to all normal, fullscreen, and alert dialogs app-wide via these shared primitives
 
 ### Review
 
-1. **Top 3 Risks:** (1) Focus ring previously came from `button-base` -- explicitly added via `focus-visible:ring-2 focus-visible:ring-ring`. (2) No visual regression -- every Button ghost style was already overridden. (3) Zero impact on non-sortable headers.
-2. **Top 3 Fixes:** (1) Permanently eliminates the `button-base` 16px override. (2) Sortable headers inherit 13px from `TableHead`. (3) Cleaner markup, no unnecessary abstraction.
+1. **Top 3 Risks:** (1) Titles shift from 31px to 25px -- intentional per user request. (2) Weight shifts from 600 to 700 -- correct per `h2` base rule. (3) Zero impact on non-dialog headings.
+2. **Top 3 Fixes:** (1) Dialog titles adopt 25px scale step globally. (2) Eliminates three redundant inline utilities. (3) Line-height improves from 2.0 to ~1.3 for senior readability.
 3. **Database Change:** No
-4. **Verdict:** Go -- removes the conflicting layer entirely.
+4. **Verdict:** Go -- two-line change across two files.
 
