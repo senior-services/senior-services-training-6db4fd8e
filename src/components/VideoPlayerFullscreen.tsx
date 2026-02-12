@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -84,6 +84,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [storedAttemptScore, setStoredAttemptScore] = useState<number | undefined>(undefined);
   const [storedAttemptTotal, setStoredAttemptTotal] = useState<number | undefined>(undefined);
 
+  // Scroll reset ref
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   // Presentation compliance states
   const [viewingSeconds, setViewingSeconds] = useState(0);
   const [checkboxEnabled, setCheckboxEnabled] = useState(false);
@@ -167,6 +170,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     };
     initializeVideo();
   }, [open, videoId, user?.email, loadVideoData, resetVideoData, resetProgress, loadExistingProgress, toast, initialVideo]);
+
+  // Scroll reset on open or video change
+  useEffect(() => {
+    if (open && scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [open, videoId]);
 
   // Timer effect for presentations - track viewing duration
   useEffect(() => {
@@ -487,8 +497,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       }, 100);
     }} aria-describedby="video-description">
         
-        <div className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6" data-dialog-scroll-area>
-        <DialogHeader className="flex-shrink-[unset] border-b-0 px-0 pb-0 pt-0">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6" data-dialog-scroll-area>
+        <DialogHeader className="-mx-6 -mt-6 px-6 py-4 border-b flex-shrink-0">
           <DialogTitle>
             {video?.title || 'Training Video'}
           </DialogTitle>
