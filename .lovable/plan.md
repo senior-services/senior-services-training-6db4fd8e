@@ -1,28 +1,25 @@
 
 
-## Add Tooltip to Disabled "Start Quiz to Complete Training" Button
+## Fix Quiz Footer Button Alignment
 
 ### Problem
-When the presentation timer is still running, the "Start Quiz to Complete Training" button is disabled but provides no tooltip explaining why. The no-quiz variant ("Complete Training") already uses `ButtonWithTooltip` with the message "Please wait for the viewing timer to complete." -- this same pattern should apply here.
+The `DialogFooter` uses `sm:justify-between` to create a left/right split for the timer view. But when the quiz is active, there is no timer -- only a single `<div>` of buttons. With `justify-between` and one child, the buttons default to the left side.
 
 ### Fix (1 file)
 
-**`src/components/VideoPlayerFullscreen.tsx`** -- lines 673-683
+**`src/components/VideoPlayerFullscreen.tsx`** -- line 611
 
-Replace the plain `<Button>` with a conditional that uses `ButtonWithTooltip` when `timerActive` is true, and a regular `<Button>` when the timer is done:
+Add `ml-auto` to the quiz buttons wrapper so it pushes itself to the right:
 
 ```text
-Before:  <Button disabled={timerActive} onClick={handleStartQuiz}>
-After:   timerActive
-           ? <ButtonWithTooltip tooltip="Please wait for the viewing timer to complete." disabled>
-           : <Button onClick={handleStartQuiz} className="animate-scale-in">
+Before:  <div className="flex gap-2">
+After:   <div className="flex gap-2 ml-auto">
 ```
 
-This reuses the exact same tooltip copy from the no-quiz path (line 687).
+This ensures the Cancel and Submit Quiz buttons stay right-aligned when there is no timer present, while the timer view continues to work with `justify-between`.
 
 ### Review
-1. **Risks:** None -- same pattern already used 10 lines below.
-2. **Fixes:** Disabled quiz-start button now explains itself via tooltip.
+1. **Risks:** None -- single class addition.
+2. **Fixes:** Quiz footer buttons pinned to far right.
 3. **Database Change:** No.
 4. **Verdict:** Go.
-
