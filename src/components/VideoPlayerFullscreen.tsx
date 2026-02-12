@@ -606,10 +606,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
         {/* Unified Presentation Footer */}
         {isPresentation && !wasEverCompleted && (
-          <DialogFooter className="sm:justify-end">
-            <div className="flex gap-2">
+          <DialogFooter className="sm:justify-between items-center">
               {quiz && quizStarted && !quizSubmitted ? (
-                <>
+                <div className="flex gap-2">
                   {/* Quiz started: Cancel with confirmation + Submit Quiz */}
                   <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                     <AlertDialogTrigger asChild>
@@ -653,20 +652,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                       Submit Quiz
                     </Button>
                   )}
-                </>
+                </div>
               ) : (
                 <>
                   {/* Timer pinned to footer left */}
-                  {isPresentation && !wasEverCompleted && (
-                    timerActive ? (
-                      <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
-                        <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
-                      </Banner>
-                    ) : (
-                      <Banner variant="success" size="compact" className="w-fit shrink-0">
-                        Minimum time met
-                      </Banner>
-                    )
+                  {timerActive ? (
+                    <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
+                      <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
+                    </Banner>
+                  ) : (
+                    <Banner variant="success" size="compact" className="w-fit shrink-0">
+                      Minimum time met
+                    </Banner>
                   )}
                   {/* Pre-quiz or no-quiz: Cancel + primary action */}
                   <div className="flex gap-2">
@@ -706,7 +703,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   </div>
                 </>
               )}
-            </div>
           </DialogFooter>
         )}
       </FullscreenDialogContent>
