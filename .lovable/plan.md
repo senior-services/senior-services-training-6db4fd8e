@@ -1,32 +1,24 @@
 
 
-## Remove Three Sections from Style Guide
+## Admin Dashboard Table Text Size Update
 
-### What's Being Removed
+### Problem
+Three data elements in the Trainings table use `text-small` (0.8rem / 13px), which is too small for comfortable reading. They need to be bumped to `text-body` (1rem / 16px).
 
-1. **"Semantic Tag vs. Visual Style"** (lines 685-705) — sub-section inside Typography showing semantic vs. visual heading examples
-2. **"Master Templates — Single Source of Truth for UI Primitives"** (lines 707-867) — sub-section inside Typography showing `.button-base`, `.badge-base`, `.input-base`, etc. code snippets
-3. **"Component Updates"** card (lines 2146-2155) — standalone Card section with the `ComponentUpdateIndicator` widget
+### Changes (1 file: `src/components/dashboard/VideoTable.tsx`)
 
-### Changes
+| # | Element | Line | Before | After |
+|---|---------|------|--------|-------|
+| 1 | Training description | 244 | `text-small text-muted-foreground` | `text-body text-muted-foreground` |
+| 2 | Quiz question count | 258 | `text-small text-foreground` | `text-body text-foreground` |
+| 3 | Date added | 273 | `text-small text-foreground` | `text-body text-foreground` |
 
-| File | Change |
-|------|--------|
-| `src/pages/ComponentsGallery.tsx` line 27 | Remove `ComponentUpdateIndicator` import (no longer used) |
-| `src/pages/ComponentsGallery.tsx` lines 685-867 | Delete the "Semantic Tag vs. Visual Style" and "Master Templates" sub-sections from the Typography card |
-| `src/pages/ComponentsGallery.tsx` lines 2146-2155 | Delete the "Component Updates" Card section |
-
-### What Stays
-
-- The Typography Scale table (lines ~620-683) remains untouched
-- The Typography Utility Classes section remains untouched
-- All other Style Guide sections (Banners, Badges, Buttons, etc.) are unaffected
-- The Tooltips section that follows "Component Updates" remains in place
+All three are `<span>` or `<p>` tags inside `<TableCell>` elements -- legitimate data-display text, not metadata labels. Bumping to `text-body` aligns them with the training title's base font size for consistent readability.
 
 ### Review
 
-1. **Top 3 Risks:** (1) None -- pure content removal with no logic dependencies. (2) The `ComponentUpdateIndicator` component file itself is not deleted, only its usage in the gallery. (3) No nav links point to these sub-sections, so no broken anchors.
-2. **Top 3 Fixes:** (1) Cleaner Style Guide focused on live component demos rather than documentation prose. (2) Removes ~190 lines of static reference content. (3) Eliminates the unused `ComponentUpdateIndicator` import.
+1. **Top 3 Risks:** (1) Slightly taller table rows due to larger text -- acceptable trade-off for legibility. (2) Description `line-clamp-2` still works at `text-body`. (3) No impact on the hidden-videos accordion table (separate markup in `VideoManagement.tsx`).
+2. **Top 3 Fixes:** (1) Description, quiz count, and date are now consistently sized at 16px. (2) Zero layout-breaking risk. (3) Single-file change.
 3. **Database Change:** No
-4. **Verdict:** Go -- clean removal, zero side effects.
+4. **Verdict:** Go -- 3 class swaps in one file.
 
