@@ -304,7 +304,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div>
-                      <Badge variant={dueDateInfo?.variant || "soft-success"} className="text-xs font-medium" aria-label={dueDateInfo?.ariaLabel || "Training completed successfully"} role="status" showIcon>
+                      <Badge variant={dueDateInfo?.variant || "soft-success"} className="font-medium" aria-label={dueDateInfo?.ariaLabel || "Training completed successfully"} role="status" showIcon>
                         {sanitizedVideo.completedAt
                           ? format(new Date(sanitizedVideo.completedAt), 'MMM d')
                           : 'Completed'}
@@ -321,7 +321,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
-                        <Badge variant="soft-tertiary" className="text-xs font-medium" showIcon>
+                        <Badge variant="soft-tertiary" className="font-medium" showIcon>
                           {sanitizedVideo.quizSummary.percent}%
                         </Badge>
                       </div>
@@ -340,7 +340,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div>
-                      <Badge variant={dueDateInfo.variant} className={cn('text-xs font-medium', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
+                      <Badge variant={dueDateInfo.variant} className={cn('font-medium', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
                         {dueDateInfo.text}
                       </Badge>
                     </div>
@@ -355,7 +355,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
-                        <Badge variant="soft-tertiary" className="text-xs font-medium" showIcon>
+                        <Badge variant="soft-tertiary" className="font-medium" showIcon>
                           {sanitizedVideo.quizQuestionCount}
                         </Badge>
                       </div>

@@ -152,7 +152,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   >
                     Training
                   </SortableTableHead>
-                  <TableHead className="text-left text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
+                  <TableHead className="text-left text-sm font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
                   <SortableTableHead
                     column="created_at"
                     sortColumn={sortColumn}
@@ -162,7 +162,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   >
                     Date Added
                   </SortableTableHead>
-                  <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="text-right text-sm font-medium uppercase text-muted-foreground whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

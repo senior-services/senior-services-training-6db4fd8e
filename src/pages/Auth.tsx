@@ -147,7 +147,7 @@ export const Auth = () => {
             <div className="mb-6 p-4 bg-attention/10 border border-attention/20 rounded-lg">
               <div className="text-center mb-3">
                 <h3 className="font-semibold text-attention text-sm">Development Testing</h3>
-                <p className="text-xs text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
+                <p className="text-sm text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
               </div>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2">
@@ -165,7 +165,7 @@ export const Auth = () => {
                   </Button>
                 </div>
               </div>
-              <div className="mt-2 text-xs text-attention/80 text-center">
+              <div className="mt-2 text-sm text-attention/80 text-center">
                 Employee 1: jane.doe | Employee 2: john.doe | Admin: admin@southsoundseniors.org
               </div>
             </div>
@@ -180,7 +180,7 @@ export const Auth = () => {
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
+              <div className="relative flex justify-center text-sm uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
                   Or continue with email
                 </span>
@@ -199,7 +199,7 @@ export const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">
                       Email
-                      <span className="text-xs text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
+                      <span className="text-sm text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
                     </Label>
                     <Input 
                       id="signin-email" 
@@ -250,7 +250,7 @@ export const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">
                       Email
-                      <span className="text-xs text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
+                      <span className="text-sm text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
                     </Label>
                     <Input 
                       id="signup-email" 

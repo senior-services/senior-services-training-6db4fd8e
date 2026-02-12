@@ -431,7 +431,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                   {hiddenVideos.length}
                 </Badge>
                 <div className="ml-auto">
-                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
                     Hidden videos remain functional for employees with assignments
                   </span>
                 </div>
@@ -453,8 +453,8 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                         {hiddenVideos.map(video => <TableRow key={video.id}>
                              <TableCell>
                               <div>
-                                <div className="font-medium text-sm">{video.title}</div>
-                                {video.description && <div className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                <div className="font-medium">{video.title}</div>
+                                {video.description && <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
                                     {video.description}
                                   </div>}
                               </div>

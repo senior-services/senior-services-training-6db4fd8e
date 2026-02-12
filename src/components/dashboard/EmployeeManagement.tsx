@@ -621,8 +621,8 @@ export const EmployeeManagement: React.FC<{
                     Name
                   </SortableTableHead>
                   
-                  <TableHead className="px-4 py-3 text-xs font-medium uppercase text-muted-foreground">STATUS</TableHead>
-                  <TableHead className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
+                  <TableHead className="px-4 py-3 text-sm font-medium uppercase text-muted-foreground">STATUS</TableHead>
+                  <TableHead className="px-4 py-3 text-right text-sm font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -630,7 +630,7 @@ export const EmployeeManagement: React.FC<{
                     <TableCell className="py-3 font-medium">
                       <div className="flex flex-col">
                         <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
-                        {employee.email && <span className="text-xs text-muted-foreground font-normal truncate max-w-[400px]" title={employee.email}>
+                        {employee.email && <span className="text-sm text-muted-foreground font-normal truncate max-w-[400px]" title={employee.email}>
                             {sanitizeText(employee.email)}
                           </span>}
                       </div>
@@ -672,7 +672,7 @@ export const EmployeeManagement: React.FC<{
                   {hiddenEmployees.length}
                 </Badge>
                 <div className="ml-auto">
-                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
                     Hidden employees remain functional with active assignments
                   </span>
                 </div>
@@ -694,11 +694,11 @@ export const EmployeeManagement: React.FC<{
                           <TableRow key={employee.id}>
                             <TableCell>
                               <div>
-                                <div className="font-medium text-sm">
+                                <div className="font-medium">
                                   {sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}
                                 </div>
                                 {employee.email && (
-                                  <div className="text-xs text-muted-foreground">
+                                  <div className="text-sm text-muted-foreground">
                                     {sanitizeText(employee.email)}
                                   </div>
                                 )}

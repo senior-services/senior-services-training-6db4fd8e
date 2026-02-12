@@ -31,7 +31,7 @@ export const Header = ({
                   <span className="font-bold">Training Portal
                 </span>{' '}
                   <span className="font-normal">/ {userRole === 'admin' ? 'Admin' : 'Employee'} Dashboard</span>
-                  {userRole === 'admin' && <Badge variant="attention" showIcon className="ml-2 text-xs align-middle">
+                  {userRole === 'admin' && <Badge variant="attention" showIcon className="ml-2 align-middle">
                       Admin
                     </Badge>}
                 </h1>
