@@ -1,50 +1,47 @@
 
 
-## Fix Presentation Dialog Flicker During Quiz Loading
+## Move Presentation Timer to Dialog Footer (Bottom-Left)
 
-### Problem
-When opening a presentation training that has a quiz, there's a visible flicker:
-1. Dialog opens with `quiz = null` and `quizLoading = true`
-2. The `!quiz` condition passes, briefly showing the attestation section and "Complete Training" button
-3. Quiz finishes loading, `quiz` becomes populated, UI updates to hide attestation and show "Start Quiz..." button
-
-The root cause is that the UI renders the "no quiz" state while the quiz is still being fetched.
-
-### Solution
-Add `!quizLoading` to the conditions so the "no quiz" UI elements only render once we **know** there is no quiz (loading finished and quiz is still null).
-
-### Changes (1 file)
+### Change (1 file)
 
 **`src/components/VideoPlayerFullscreen.tsx`** -- 2 edits
 
-**Edit 1: Attestation block (line 533)**
-Gate the standalone presentation attestation on `!quizLoading` so it doesn't flash while the quiz fetch is in-flight.
+**Edit 1: Remove timer from scroll area (lines 505-515)**
+Delete the timer Banner block from the description row inside `DialogScrollArea`.
 
-| Before | After |
-|--------|-------|
-| `video.content_type === 'presentation' && !wasEverCompleted && !quiz` | `video.content_type === 'presentation' && !wasEverCompleted && !quiz && !quizLoading` |
+**Edit 2: Add timer to footer (inside the pre-quiz/no-quiz branch, lines 668-704)**
+Insert the timer Banner as the first element inside the `<>` fragment (line 669), before the Cancel button. The footer already uses `sm:justify-between`, so placing the timer on the left and keeping Cancel + action buttons on the right is straightforward.
 
-**Edit 2: Footer "Complete Training" branch (line 674)**
-Gate the no-quiz footer buttons on `!quizLoading` so the "Complete Training" button doesn't flash before switching to "Start Quiz...".
+Structure after change:
+```text
+DialogFooter (sm:justify-between)
+  [LEFT]  Timer Banner (or "Minimum time met")
+  [RIGHT] Cancel | Action Button
+```
 
-| Before | After |
-|--------|-------|
-| `{quiz ? (` (line 674, inside the pre-quiz/no-quiz footer branch) | `{quizLoading ? null : quiz ? (` |
-| closing `)` of the ternary (line 703) | Add matching `)` to close the new outer ternary |
+The timer block renders conditionally (`isPresentation && !wasEverCompleted`), so for video content or already-completed presentations, the footer layout is unchanged.
 
-This means: while `quizLoading` is true, render nothing in that slot; once loaded, render either "Start Quiz..." (if quiz exists) or "Complete Training" (if no quiz).
+When the quiz is active (`quizStarted`), the footer switches to the quiz-submit branch (line 632+), so the timer naturally disappears -- no extra logic needed.
 
-### Flow After Fix
+### Detail
 
 ```text
-Dialog opens:
-  quizLoading=true --> No attestation shown, no footer action button shown
-  quizLoading=false, quiz exists --> "Start Quiz..." button appears (no flicker)
-  quizLoading=false, no quiz --> Attestation + "Complete Training" appear (no flicker)
+Footer layout:
+
+  +--------------------------------------------------+
+  | [i] Minimum review time: 2:30   Cancel | Start.. |
+  +--------------------------------------------------+
+
+  or after timer completes:
+
+  +--------------------------------------------------+
+  | [check] Minimum time met     Cancel | Complete.. |
+  +--------------------------------------------------+
 ```
 
 ### Review
-1. **Risks:** Minimal -- during the brief quiz load (~100-300ms), the footer action area will be empty. This is preferable to showing incorrect UI that immediately changes.
-2. **Fixes:** Eliminates the attestation/button flicker for presentation trainings with quizzes.
+1. **Risks:** None -- the timer is purely presentational and all state variables are already in scope at the footer level.
+2. **Fixes:** Timer is always visible and pinned bottom-left, freeing up scroll area space.
 3. **Database Change:** No.
-4. **Verdict:** Go -- two condition additions in one file.
+4. **Verdict:** Go -- cut/paste of one block within the same component.
+
