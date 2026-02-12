@@ -24,7 +24,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
 import { LoadingSkeleton } from "@/components/ui/loading-spinner";
-import { ComponentUpdateIndicator } from "@/components/ui/ComponentUpdateIndicator";
+
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { IconButtonWithTooltip } from "@/components/ui/icon-button-with-tooltip";
@@ -680,28 +680,6 @@ export const ComponentsGallery = ({
                     </TableRow>
                   </TableBody>
                 </Table>
-              </div>
-
-              {/* Semantic vs Visual Example */}
-              <div className="space-y-4">
-                <h4 className="text-h4 font-medium text-foreground border-b pb-2">Semantic Tag vs. Visual Style</h4>
-                <div className="p-6 rounded-lg bg-card border border-border-primary/50 shadow-sm space-y-6">
-                  <div className="space-y-2">
-                    <p className="text-small text-muted-foreground font-medium uppercase tracking-wide">Standard H2</p>
-                    <h2 className="border-l-4 border-primary pl-4 py-1 bg-muted/30 rounded-r">
-                      This is a standard &lt;h2&gt; tag
-                    </h2>
-                    <p className="text-small text-muted-foreground">Inherits 1.953rem from semantic styles.</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-small text-muted-foreground font-medium uppercase tracking-wide">H2 with .text-h3 Utility</p>
-                    <h2 className="text-h3 border-l-4 border-secondary pl-4 py-1 bg-muted/30 rounded-r">
-                      This is an &lt;h2&gt; tag with .text-h3 class
-                    </h2>
-                    <p className="text-small text-muted-foreground">Semantically an H2, but visually styled as an H3 (1.563rem).</p>
-                  </div>
-                </div>
               </div>
 
               {/* Master Templates */}
@@ -2143,16 +2121,6 @@ variant: {
             </CardContent>
           </Card>
 
-          {/* Component Updates */}
-          <Card id="component-updates">
-            <CardHeader>
-              <CardTitle>Component Updates</CardTitle>
-              <CardDescription>Track and validate component changes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ComponentUpdateIndicator className="max-w-md" />
-            </CardContent>
-          </Card>
           
           {/* Tooltips Section */}
           <Card id="tooltips" className="shadow-card hover:shadow-lg transition-shadow duration-300">
