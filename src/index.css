@@ -191,7 +191,6 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     font-weight: 700;
   } /* ~31px */
   h3 {
-    @apply tracking-tight;
     font-size: 1.563rem;
     font-weight: 600;
   } /* ~25px */
