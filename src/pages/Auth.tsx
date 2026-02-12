@@ -116,7 +116,7 @@ export const Auth = () => {
         {/* Header */}
         <div className="text-center">
           <img src="/lovable-uploads/SS_2019_logo_Reversed.png" alt="Senior Services for South Sound" className="mx-auto h-32 w-auto mb-4" />
-          <h1 className="text-h2 font-bold text-white mb-2">Training Portal</h1>
+          <h1 className="text-h2 text-white mb-2">Training Portal</h1>
           
         </div>
 
@@ -144,9 +144,9 @@ export const Auth = () => {
               {emailError && `Email validation error: ${emailError}`}
             </div>
             {/* Development Testing Section */}
-            <div className="mb-6 p-4 banner-base banner-attention">
+            <div className="mb-6 banner-base banner-attention banner-size-default">
               <div className="text-center mb-3">
-                <h3 className="font-semibold text-attention text-small">Development Testing</h3>
+                <h3 className="text-attention text-small">Development Testing</h3>
                 <p className="text-small text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
               </div>
               <div className="space-y-2">

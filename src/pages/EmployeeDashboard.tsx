@@ -498,7 +498,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="error-heading">
           <div className="text-center py-12">
             <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" aria-hidden="true" />
-            <h2 id="error-heading" className="font-semibold mb-2">
+            <h2 id="error-heading" className="mb-2">
               Unable to Load Training Data
             </h2>
             <p className="text-muted-foreground mb-4">{error}</p>
@@ -541,7 +541,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           {/* Enhanced Welcome Section with Status Information */}
           <header className="mb-8" role="banner">
             <div className="mb-4">
-              <h1 id="dashboard-heading" className="text-h2 font-bold text-foreground">
+              <h1 id="dashboard-heading" className="text-h2 text-foreground">
                 Welcome back, {sanitizedUserData.firstName}!
               </h1>
             </div>
@@ -564,7 +564,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             <div className="flex items-center gap-3 mb-6">
               <h2
                 id="required-training-heading"
-                className="text-h3 font-semibold text-foreground flex items-center"
+                className="text-h3 text-foreground flex items-center"
               >
                 <Clock className="w-6 h-6 text-primary mr-3" aria-hidden="true" />
                 Required Trainings
@@ -621,7 +621,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   >
                     <div className="flex items-center gap-3 w-full">
                       <ChevronDown className="w-8 h-8 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
-                      <h2 className="text-h3 font-semibold text-foreground flex items-center">
+                      <h2 className="text-h3 text-foreground flex items-center">
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
                         Completed Trainings
                       </h2>

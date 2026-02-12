@@ -304,7 +304,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div>
-                      <Badge variant={dueDateInfo?.variant || "soft-success"} className="font-medium" aria-label={dueDateInfo?.ariaLabel || "Training completed successfully"} role="status" showIcon>
+                      <Badge variant={dueDateInfo?.variant || "soft-success"} aria-label={dueDateInfo?.ariaLabel || "Training completed successfully"} role="status" showIcon>
                         {sanitizedVideo.completedAt
                           ? format(new Date(sanitizedVideo.completedAt), 'MMM d')
                           : 'Completed'}
@@ -321,7 +321,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
-                        <Badge variant="soft-tertiary" className="font-medium" showIcon>
+                        <Badge variant="soft-tertiary" showIcon>
                           {sanitizedVideo.quizSummary.percent}%
                         </Badge>
                       </div>
@@ -340,7 +340,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div>
-                      <Badge variant={dueDateInfo.variant} className={cn('font-medium', dueDateInfo.className)} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
+                      <Badge variant={dueDateInfo.variant} className={dueDateInfo.className || undefined} aria-label={dueDateInfo.ariaLabel} role="status" showIcon={dueDateInfo.priority === 'high'}>
                         {dueDateInfo.text}
                       </Badge>
                     </div>
@@ -355,7 +355,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
-                        <Badge variant="soft-tertiary" className="font-medium" showIcon>
+                        <Badge variant="soft-tertiary" showIcon>
                           {sanitizedVideo.quizQuestionCount}
                         </Badge>
                       </div>
@@ -370,7 +370,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
           </TooltipProvider>
 
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-h4 leading-tight line-clamp-2">
+            <CardTitle className="text-h4 line-clamp-2">
               {sanitizedVideo.title}
             </CardTitle>
             {sanitizedVideo.isRequired}

@@ -229,7 +229,7 @@ export const VideoPage = () => {
 
         {/* Video Player */}
         <Card className="mb-6">
-          <CardContent className="p-6 relative">
+          <CardContent className="relative">
             {!validatedVideo ? (
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
                 <p className="text-muted-foreground">Video URL validation failed</p>
@@ -329,7 +329,7 @@ export const VideoPage = () => {
             
             {video.description && (
               <div className="space-y-4">
-                <h3 className="text-h4 font-semibold">Description</h3>
+                <h3 className="text-h4">Description</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   {video.description}
                 </p>

@@ -621,13 +621,13 @@ export const EmployeeManagement: React.FC<{
                     Name
                   </SortableTableHead>
                   
-                  <TableHead className="px-4 py-3 text-small font-medium uppercase text-muted-foreground">STATUS</TableHead>
-                  <TableHead className="px-4 py-3 text-right text-small font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
+                  <TableHead className="table-head-cell">STATUS</TableHead>
+                  <TableHead className="table-head-cell text-right">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {getSortedEmployees.map(employee => <TableRow key={employee.id}>
-                    <TableCell className="py-3 font-medium">
+                    <TableCell className="table-body-cell font-medium">
                       <div className="flex flex-col">
                         <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
                         {employee.email && <span className="text-small text-muted-foreground font-normal truncate max-w-[400px]" title={employee.email}>
@@ -635,10 +635,10 @@ export const EmployeeManagement: React.FC<{
                           </span>}
                       </div>
                     </TableCell>
-                    <TableCell className="py-3">
+                    <TableCell className="table-body-cell">
                       {getEmployeeStatus(employee.id)}
                     </TableCell>
-                    <TableCell className="py-3 text-right">
+                    <TableCell className="table-body-cell text-right">
                       <div className="flex gap-2 justify-end">
                         <Button variant="outline" size="sm" onClick={() => handleAssignVideos(employee)} aria-label={`Edit assignments for ${sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}`}>
                           Edit Assignments
@@ -667,7 +667,7 @@ export const EmployeeManagement: React.FC<{
               <div className="flex items-center gap-3 w-full">
                 <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
                 <EyeOff className="w-5 h-5 text-muted-foreground" />
-                <span className="text-h4 font-semibold">Hidden Employees</span>
+                <span className="text-h4">Hidden Employees</span>
                 <Badge variant="soft-destructive" className="ml-2">
                   {hiddenEmployees.length}
                 </Badge>
