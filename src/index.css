@@ -164,7 +164,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   }
 
   body {
-    @apply bg-background-main text-foreground font-sans antialiased text-base leading-relaxed;
+    @apply bg-background-main text-foreground font-sans antialiased leading-relaxed;
     /* Enhanced base font size for seniors - minimum 16px */
     font-size: 1rem;
     line-height: 1.6;
@@ -193,26 +193,31 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
 @layer components {
   /* Button Base Classes - Component-Scoped Styling */
-  .btn-base {
+  .button-base {
     min-height: 44px; /* Minimum touch target size for seniors */
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
   }
 
-  .btn-compact {
+  .button-compact {
     /* For form controls and toggle components */
     min-height: auto;
     padding: 0;
     font-size: inherit;
   }
 
-  .btn-toggle {
+  .button-toggle {
     /* Specific styling for toggle components */
     min-height: auto;
     padding: 0;
     font-size: inherit;
     box-sizing: border-box;
     margin: 0;
+  }
+
+  .badge-base {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-caption font-semibold transition-all duration-200 whitespace-nowrap;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
 
   /* Carbon Design System Form Controls */
@@ -243,7 +248,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   [data-radix-radio-group-item],
   [data-radix-toggle-root],
   [data-radix-toggle-group-item] {
-    @apply btn-compact;
+    @apply button-compact;
   }
 
   /* Ensure Radix UI switch thumb has proper positioning */
@@ -273,7 +278,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   }
 
   .status-badge {
-    @apply px-3 py-2 rounded-md text-sm font-semibold; /* Larger badges for better visibility */
+    @apply px-3 py-2 rounded-md text-small font-semibold; /* Larger badges for better visibility */
     min-height: 32px; /* Ensure adequate size */
     border-width: 1px;
     border-style: solid;

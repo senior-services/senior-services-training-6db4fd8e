@@ -140,7 +140,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   <summary className="text-small font-medium cursor-pointer text-foreground mb-2">
                     Technical Details (Development)
                   </summary>
-                  <pre className="text-xs text-muted-foreground overflow-auto whitespace-pre-wrap">
+                  <pre className="text-caption text-muted-foreground overflow-auto whitespace-pre-wrap">
                     {this.state.error.toString()}
                     {this.state.errorInfo?.componentStack}
                   </pre>
