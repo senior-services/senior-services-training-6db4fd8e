@@ -1,119 +1,148 @@
 
 
-## Refactor: Shared Training Attestation Component
+## Phase 1: Major Third Type Scale -- Global Foundation
 
-### Current State
+### Overview
 
-There are **three separate attestation implementations**, each with different styling, text, and structure:
+This is Phase 1 of a 3-phase rollout to implement the Major Third (1.250) type scale across the entire application. Phase 1 establishes the global foundation: CSS variables, Tailwind config, and the Typography section of the Components Gallery.
 
-1. **CompletionOverlay** (video without quiz) -- `CompletionOverlay.tsx` lines 51-65
-2. **Presentation acknowledgment** (presentation without quiz) -- `VideoPlayerFullscreen.tsx` lines 534-574
-3. **Quiz attestation** (video/presentation with quiz) -- `VideoPlayerFullscreen.tsx` lines 581-625
+Phases 2 and 3 (UI primitives and app components) will follow in separate implementations after this phase is reviewed.
 
-### New Shared Component
+---
 
-Create `src/components/shared/TrainingAttestation.tsx` with unified content, styling, and enablement logic.
-
-**Standardized Content:**
-- **Title (bold):** "Training Acknowledgment"
-- **Body text:** "Please review all training content carefully. By acknowledging, you confirm you've read and understood the material -- your confirmation will be recorded for compliance."
-- **Checkbox label:** "I certify that I have read and understood this content."
-
-**Standardized Styling:**
-- Disabled state: transparent/no background, disabled checkbox, muted text
-- Enabled state: `bg-background` with standard `border border-border rounded-lg p-6`, active checkbox, `text-foreground` on all text
-- No utility classes like `not-italic`, `flex`, `items-center`, `gap-1` on text elements
-- Title and checkbox label use `text-foreground`
-
-**Props interface:**
+### Major Third Scale Reference
 
 ```text
-enabled        boolean    Whether the checkbox can be interacted with
-checked        boolean    Current checked state
-onCheckedChange (checked: boolean) => void
-disabledTooltip string    Tooltip text shown when disabled
+Step       Ratio       Rem         Pixels    Usage
+----       -----       ---         ------    -----
+h1         3.052       3.052rem    ~49px     Page titles
+h2         1.953       1.953rem    ~31px     Section headings
+h3         1.563       1.563rem    ~25px     Subsection headings
+h4         1.25        1.25rem     20px      Minor headings / Labels
+body       1.0         1rem        16px      Body text (Regular/Medium/Bold)
+small      0.8         0.8rem      ~13px     Secondary info
+caption    0.64        0.64rem     ~10px     Captions and labels
+code       0.9375      0.9375rem   15px      Monospace code snippets
 ```
 
-**Enablement logic is handled by the parent** -- the component simply receives `enabled`:
-- For videos with quiz: enabled when all questions answered
-- For presentations without quiz: enabled when timer reaches 0:00
-- For videos without quiz (CompletionOverlay): always enabled
-
-**Tooltip integration:** When `enabled` is false, the entire attestation section is wrapped in a Tooltip (reusing existing pattern) with the `disabledTooltip` message.
-
 ---
 
-### Files Changed
+### File Changes
 
-| File | Change |
-|------|--------|
-| `src/components/shared/TrainingAttestation.tsx` | **New** -- shared attestation component |
-| `src/components/VideoPlayerFullscreen.tsx` | Replace presentation attestation (lines 534-574) and quiz attestation (lines 581-625) with `TrainingAttestation` |
-| `src/components/video/CompletionOverlay.tsx` | Replace inline attestation (lines 51-65) with `TrainingAttestation` |
+#### 1. `src/index.css` -- Update heading sizes (lines 179-184)
 
----
+Replace the current heading sizes with the Major Third scale values:
 
-### Detailed Changes
+```css
+/* Before */
+h1 { font-size: 2.25rem; }   /* 36px */
+h2 { font-size: 1.875rem; }  /* 30px */
+h3 { font-size: 1.5rem; }    /* 24px */
+h4 { font-size: 1.25rem; }   /* 20px */
+h5 { font-size: 1.125rem; }  /* 18px */
+h6 { font-size: 1rem; }      /* 16px */
 
-#### 1. New File: `src/components/shared/TrainingAttestation.tsx`
+/* After */
+h1 { font-size: 3.052rem; }  /* ~49px - Major Third */
+h2 { font-size: 1.953rem; }  /* ~31px */
+h3 { font-size: 1.563rem; }  /* ~25px */
+h4 { font-size: 1.25rem; }   /* 20px */
+h5 { font-size: 1rem; }      /* 16px */
+h6 { font-size: 0.8rem; }    /* ~13px */
+```
 
-- Renders a card container (`border border-border rounded-lg p-6`)
-- Background toggles: transparent when disabled, `bg-background` when enabled
-- Title: `<p>` with `font-semibold text-sm text-foreground`
-- Body: `<p>` with `text-sm text-foreground`
-- Checkbox + label section with proper `id` and `htmlFor` linkage
-- When disabled: wraps in `Tooltip` with `disabledTooltip` text, checkbox is disabled, label uses `text-muted-foreground cursor-not-allowed`
-- When enabled: checkbox is active, label uses `text-foreground cursor-pointer`
-- Includes screen reader live region for accessibility announcements
-- All text elements use only semantic classes -- no `flex`, `items-center`, `gap-1`, `not-italic` on text
+Add semantic text classes to the `@layer components` block:
 
-#### 2. Update `VideoPlayerFullscreen.tsx`
+```css
+/* Semantic typography classes -- Major Third (1.250) scale */
+.text-body       { font-size: 1rem; line-height: 1.6; }
+.text-small      { font-size: 0.8rem; line-height: 1.5; }
+.text-caption    { font-size: 0.64rem; line-height: 1.4; }
+.text-code       { font-size: 0.9375rem; line-height: 1.5; font-family: ui-monospace, monospace; }
+```
 
-- **Remove** presentation attestation block (lines 534-574) and replace with:
-  ```
-  <TrainingAttestation
-    enabled={checkboxEnabled}
-    checked={presentationAcknowledged}
-    onCheckedChange={setPresentationAcknowledged}
-    disabledTooltip="Please wait for the viewing timer to complete."
-  />
-  ```
-- **Remove** quiz attestation block (lines 581-625) and replace with:
-  ```
-  <TrainingAttestation
-    enabled={allQuestionsAnswered}
-    checked={quizAttestationChecked}
-    onCheckedChange={setQuizAttestationChecked}
-    disabledTooltip="Complete the questions above to enable this checkbox."
-  />
-  ```
-- Remove now-unused inline Checkbox/Label imports if no longer needed elsewhere in the file (they are still used elsewhere, so imports stay)
+Update existing helper/additional text classes to use the new scale:
 
-#### 3. Update `CompletionOverlay.tsx`
+```css
+/* Before */
+.form-helper-text     { @apply text-xs text-foreground mt-0 mb-1.5; }
+.form-additional-text { @apply text-xs text-muted-foreground italic mt-1.5; }
 
-- Replace the inline attestation block (lines 51-65) with:
-  ```
-  <TrainingAttestation
-    enabled={true}
-    checked={attestationChecked}
-    onCheckedChange={setAttestationChecked}
-    disabledTooltip=""
-  />
-  ```
-- The overlay context is always-enabled (video finished, no quiz), so `enabled={true}`
+/* After -- uses 0.8rem (small) instead of text-xs */
+.form-helper-text     { font-size: 0.8rem; @apply text-foreground mt-0 mb-1.5; }
+.form-additional-text { font-size: 0.8rem; @apply text-muted-foreground italic mt-1.5; }
+```
+
+#### 2. `tailwind.config.ts` -- Remap fontSize tokens (lines 21-33)
+
+Remap the Tailwind `fontSize` entries to match the Major Third scale so any remaining utility usage aligns:
+
+```ts
+/* Before */
+'xs': ['0.875rem', ...],   /* 14px */
+'sm': ['0.9375rem', ...],  /* 15px */
+'base': ['1rem', ...],     /* 16px */
+'lg': ['1.125rem', ...],   /* 18px */
+'xl': ['1.25rem', ...],    /* 20px */
+'2xl': ['1.5rem', ...],    /* 24px */
+'3xl': ['1.875rem', ...],  /* 30px */
+'4xl': ['2.25rem', ...],   /* 36px */
+
+/* After -- Major Third aligned */
+'xs': ['0.64rem', { lineHeight: '1.4' }],     /* ~10px - caption */
+'sm': ['0.8rem', { lineHeight: '1.5' }],      /* ~13px - small */
+'base': ['1rem', { lineHeight: '1.6' }],      /* 16px  - body */
+'lg': ['1.25rem', { lineHeight: '1.5' }],     /* 20px  - h4 */
+'xl': ['1.563rem', { lineHeight: '1.4' }],    /* ~25px - h3 */
+'2xl': ['1.953rem', { lineHeight: '1.3' }],   /* ~31px - h2 */
+'3xl': ['3.052rem', { lineHeight: '1.2' }],   /* ~49px - h1 */
+'4xl': ['3.815rem', { lineHeight: '1.1' }],   /* ~61px - display (reserved) */
+```
+
+Also add a `code` size token:
+
+```ts
+'code': ['0.9375rem', { lineHeight: '1.5' }], /* 15px - monospace */
+```
+
+#### 3. `src/pages/ComponentsGallery.tsx` -- Update Typography section (lines 524-590)
+
+Replace the current Typography showcase with the new scale values and semantic class usage:
+
+- h1: "Heading 1" with annotation "(~49px / 3.052rem)"
+- h2: "Heading 2" with annotation "(~31px / 1.953rem)"
+- h3: "Heading 3" with annotation "(~25px / 1.563rem)"
+- h4: "Heading 4" with annotation "(20px / 1.25rem)"
+- Body (Regular, Medium, Bold): annotation "(16px / 1rem)"
+- Small (Regular, Medium, Bold): annotation "(~13px / 0.8rem)"
+- Caption (Regular, Medium, Bold): annotation "(~10px / 0.64rem)"
+- Code snippet: annotation "(15px / 0.9375rem)"
+
+Heading elements will use bare `<h1>` through `<h4>` tags (no `text-*` utility classes), relying on the global CSS rules. Body/small/caption will use the new semantic classes (`.text-body`, `.text-small`, `.text-caption`).
+
+#### 4. `STYLEGUIDE.md` -- Add typography scale documentation
+
+Add a new "Typography Scale" section documenting the Major Third scale values and the semantic CSS classes.
 
 ---
 
 ### What Stays the Same
 
-- All timer logic, quiz flow, and button gating logic in `VideoPlayerFullscreen.tsx`
-- `ButtonWithTooltip` usage on action buttons
-- `CompletionOverlay` structure (only the attestation internals change)
-- Screen reader announcements (moved into the shared component)
+- All component files (badge, button, label, tooltip, etc.) are untouched in Phase 1
+- All page/dashboard components are untouched in Phase 1
+- Color tokens, spacing, and all non-typography CSS remain unchanged
+- Dark mode behavior is unaffected
+
+### What Will Break (Temporarily)
+
+Because the Tailwind `text-xs` and `text-sm` tokens will change meaning globally, some components will render at different sizes until Phases 2 and 3 replace those utility classes with semantic alternatives. This is expected and will be resolved in subsequent phases.
+
+---
 
 ### Review
 
-1. **Top 3 Risks:** (1) The CompletionOverlay has a more compact layout -- the shared component's card style may feel large inside the overlay. Mitigated by passing an optional `compact` prop or letting the overlay's existing container handle spacing. (2) Removing the a11y announcement state from the parent -- the shared component will manage its own announcements. (3) Tooltip portal rendering inside the overlay's absolute-positioned container -- already handled by TooltipPrimitive.Portal per existing standards.
-2. **Top 3 Fixes:** (1) Single source of truth for attestation text, eliminating drift. (2) Consistent disabled/enabled visual states across all flows. (3) Clean semantic styling with no stray utility classes on text.
+1. **Top 3 Risks:** (1) Changing Tailwind `fontSize` tokens globally will immediately affect all 64 files using `text-xs`/`text-sm` -- components will temporarily render at the new (different) sizes until explicitly migrated. (2) The `text-xs` token drops from 14px to ~10px, which could make some UI elements too small for senior users until Phase 2 migrates them. (3) The `text-sm` token drops from 15px to ~13px, affecting Labels, badges, and form descriptions.
+2. **Top 3 Fixes:** (1) Establishes a mathematically consistent type scale as the single source of truth. (2) Semantic CSS classes (`.text-body`, `.text-small`, `.text-caption`) decouple intent from arbitrary Tailwind tokens. (3) Typography gallery becomes an accurate reference for the new scale.
 3. **Database Change:** No
-4. **Verdict:** Go -- consolidates three duplicated patterns into one reusable component with consistent UX.
+4. **Verdict:** Go -- foundational change that enables clean migration in Phases 2 and 3.
+
