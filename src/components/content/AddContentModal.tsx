@@ -259,7 +259,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
               rows={3}
               maxLength={1000}
             />
-            <p className="text-xs text-muted-foreground mt-1">{description.length}/1000 characters</p>
+            <p className="text-caption text-muted-foreground mt-1">{description.length}/1000 characters</p>
           </div>
 
           <div className="space-y-4">

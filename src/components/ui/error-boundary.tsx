@@ -125,7 +125,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   <summary className="cursor-pointer font-medium mb-2">
                     Technical Details (Development Only)
                   </summary>
-                  <div className="space-y-2 text-xs font-mono">
+                  <div className="space-y-2 text-caption font-mono">
                     <div>
                       <strong>Error:</strong> {this.state.error.message}
                     </div>
@@ -230,7 +230,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError 
             This component encountered an error and cannot be displayed.
           </p>
           {process.env.NODE_ENV === 'development' && (
-            <p className="mt-2 text-xs font-mono text-destructive/70 break-all">
+            <p className="mt-2 text-caption font-mono text-destructive/70 break-all">
               {error.message}
             </p>
           )}

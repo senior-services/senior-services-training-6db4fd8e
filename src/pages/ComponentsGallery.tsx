@@ -703,6 +703,36 @@ export const ComponentsGallery = ({
                   </div>
                 </div>
               </div>
+
+              {/* Master Templates */}
+              <div className="space-y-4">
+                <h4 className="text-h4 font-medium text-foreground border-b pb-2">Master Templates — Single Source of Truth for UI Primitives</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border-primary/50">
+                    <p className="text-small font-semibold text-foreground mb-2">.button-base</p>
+                    <p className="text-caption text-muted-foreground mb-3">Referenced by <code className="text-code bg-muted px-1 rounded">button.tsx</code> CVA base string.</p>
+                    <pre className="text-code bg-card p-3 rounded border overflow-x-auto whitespace-pre-wrap">{`.button-base {
+  min-height: 44px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem; /* text-body */
+}`}</pre>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border-primary/50">
+                    <p className="text-small font-semibold text-foreground mb-2">.badge-base</p>
+                    <p className="text-caption text-muted-foreground mb-3">Referenced by <code className="text-code bg-muted px-1 rounded">badge.tsx</code> CVA base string.</p>
+                    <pre className="text-code bg-card p-3 rounded border overflow-x-auto whitespace-pre-wrap">{`.badge-base {
+  @apply inline-flex items-center
+    rounded-full border px-2.5 py-0.5
+    text-caption font-semibold
+    transition-all duration-200
+    whitespace-nowrap;
+  @apply focus:outline-none
+    focus:ring-2 focus:ring-ring
+    focus:ring-offset-2;
+}`}</pre>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 

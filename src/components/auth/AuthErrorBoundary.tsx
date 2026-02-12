@@ -128,7 +128,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
               </div>
 
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="text-xs bg-muted p-3 rounded">
+                <details className="text-caption bg-muted p-3 rounded">
                   <summary className="cursor-pointer font-medium">
                     Technical Details (Development)
                   </summary>
