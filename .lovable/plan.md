@@ -1,38 +1,23 @@
 
 
-## Add `text-h3` to Dialog Titles and Strip Inline Overrides
+## Apply `max-w-4xl mx-auto` to Post-Quiz Attestation Container
 
 ### Problem
-`DialogTitle` currently applies `font-semibold leading-loose tracking-tight` inline, which conflicts with the CSS base layer. The user wants dialog titles sized at `text-h3` (25px) rather than the default `h2` size (31px).
+The `TrainingAttestation` container that appears after quiz questions is full-width, while the quiz questions themselves are constrained to `max-w-4xl`. This creates a visual mismatch.
 
-### Changes (2 files)
+### Change (1 file)
 
-**1. `src/components/ui/dialog.tsx`** -- line 133
-
-| Before | After |
-|--------|-------|
-| `"font-semibold leading-loose tracking-tight"` | `"text-h3"` |
-
-This applies the 25px scale step and removes `font-semibold` (which was downgrading `h2` weight from 700 to 600), `leading-loose` (line-height 2.0, too tall for seniors), and redundant `tracking-tight`.
-
-**2. `src/components/ui/alert-dialog.tsx`** -- line 94
+**`src/components/VideoPlayerFullscreen.tsx`** -- line 551
 
 | Before | After |
 |--------|-------|
-| `"font-semibold"` | `"text-h3"` |
+| `<div className="mt-6">` | `<div className="mt-6 max-w-4xl mx-auto">` |
 
-Keeps `AlertDialogTitle` consistent with `DialogTitle`.
-
-### Result
-- **Size**: All dialog titles render at 25px (`text-h3`) instead of 31px
-- **Weight**: Inherits 700 from `h2` base rule (was incorrectly 600 via `font-semibold`)
-- **Line-height**: Resets from 2.0 to design-system standard (~1.3)
-- **Scope**: Applies to all normal, fullscreen, and alert dialogs app-wide via these shared primitives
+This wrapping `<div>` around `TrainingAttestation` gains the same width constraint as the quiz question container, centering it consistently.
 
 ### Review
-
-1. **Top 3 Risks:** (1) Titles shift from 31px to 25px -- intentional per user request. (2) Weight shifts from 600 to 700 -- correct per `h2` base rule. (3) Zero impact on non-dialog headings.
-2. **Top 3 Fixes:** (1) Dialog titles adopt 25px scale step globally. (2) Eliminates three redundant inline utilities. (3) Line-height improves from 2.0 to ~1.3 for senior readability.
+1. **Risks:** None -- purely cosmetic alignment change on a single wrapper div.
+2. **Fixes:** Attestation card visually aligns with quiz content above it.
 3. **Database Change:** No
-4. **Verdict:** Go -- two-line change across two files.
+4. **Verdict:** Go -- one-line edit.
 
