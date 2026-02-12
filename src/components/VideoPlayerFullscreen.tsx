@@ -265,6 +265,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }
   }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted, overlayDismissed]);
 
+  // Re-show completion overlay for non-quiz videos reopened at 99%+
+  useEffect(() => {
+    if (!open || wasEverCompleted || quizLoading) return;
+    if (!quiz && !quizStarted && progress >= 99 && overlayDismissed) {
+      setShowCompletionOverlay(true);
+    }
+  }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted, overlayDismissed]);
+
   const handleVideoEnded = useCallback(() => {
     const finalProgress = quiz ? 99 : 100;
     updateProgress(finalProgress);
