@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const labelVariants = cva(
-  "text-base font-medium leading-none",
+  "font-medium leading-none",
   {
     variants: {
       mutedOnDisabled: {
