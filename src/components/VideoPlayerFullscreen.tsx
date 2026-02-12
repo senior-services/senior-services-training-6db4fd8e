@@ -548,7 +548,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
           {/* Attestation - below quiz questions */}
           {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && !quizSubmitted && !wasEverCompleted && (
-            <div className="mt-6">
+            <div className="mt-6 max-w-4xl mx-auto">
               <TrainingAttestation
                 enabled={allQuestionsAnswered}
                 checked={quizAttestationChecked}
