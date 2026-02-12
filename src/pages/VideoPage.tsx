@@ -267,7 +267,7 @@ export const VideoPage = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <CardTitle className="text-2xl">{video.title || 'Untitled Video'}</CardTitle>
+                <CardTitle className="text-h2">{video.title || 'Untitled Video'}</CardTitle>
                 {isCompleted && (
                   <Badge className="bg-success hover:bg-success/90">
                     <CheckCircle className="w-4 h-4 mr-1" />
@@ -278,7 +278,7 @@ export const VideoPage = () => {
               
               {/* Circular Progress Indicator */}
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-muted-foreground">Progress</span>
+                <span className="text-small text-muted-foreground">Progress</span>
                 <div className="relative w-16 h-16">
                   <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
                     <path
@@ -303,7 +303,7 @@ export const VideoPage = () => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className={`text-sm font-medium ${isCompleted ? 'text-success' : 'text-primary'}`}>
+                    <span className={`text-small font-medium ${isCompleted ? 'text-success' : 'text-primary'}`}>
                       {progress}%
                     </span>
                   </div>
@@ -314,7 +314,7 @@ export const VideoPage = () => {
           <CardContent>
             {/* Linear Progress Bar */}
             <div className="mb-6">
-              <div className="flex justify-between text-sm text-muted-foreground mb-2">
+              <div className="flex justify-between text-small text-muted-foreground mb-2">
                 <span>Video Progress</span>
                 <span>{progress}% Complete</span>
               </div>
@@ -322,14 +322,14 @@ export const VideoPage = () => {
               {isCompleted && (
                 <div className="flex items-center gap-2 mt-2 text-success">
                   <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">Training completed successfully!</span>
+                  <span className="text-small font-medium">Training completed successfully!</span>
                 </div>
               )}
             </div>
             
             {video.description && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Description</h3>
+                <h3 className="text-h4 font-semibold">Description</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   {video.description}
                 </p>

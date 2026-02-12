@@ -370,7 +370,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
           </TooltipProvider>
 
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-lg leading-tight line-clamp-2">
+            <CardTitle className="text-h4 leading-tight line-clamp-2">
               {sanitizedVideo.title}
             </CardTitle>
             {sanitizedVideo.isRequired}

@@ -665,26 +665,26 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                 >
                   <ToggleGroupItem
                     value="assigned"
-                    className="text-xs px-3 py-1"
+                    className="text-caption px-3 py-1"
                     aria-label="Filter by assigned videos"
                   >
                     Assigned
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="unassigned"
-                    className="text-xs px-3 py-1"
+                    className="text-caption px-3 py-1"
                     aria-label="Filter by unassigned videos"
                   >
                     Unassigned
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="completed"
-                    className="text-xs px-3 py-1"
+                    className="text-caption px-3 py-1"
                     aria-label="Filter by completed videos"
                   >
                     Completed
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="all" className="text-xs px-3 py-1" aria-label="Show all videos">
+                  <ToggleGroupItem value="all" className="text-caption px-3 py-1" aria-label="Show all videos">
                     All
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -783,7 +783,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                                 htmlFor={`video-${video.id}`}
                                 className={cn("flex items-center gap-2", !isCompleted && "cursor-pointer")}
                               >
-                                <span className="font-medium text-sm">{video.title}</span>
+                                <span className="font-medium text-small">{video.title}</span>
                                 {hiddenVideoIds.has(video.id) && (
                                   <Tooltip delayDuration={TOOLTIP_CONFIG.delayDuration}>
                                     <TooltipTrigger asChild>
@@ -806,13 +806,13 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
                             </TableCell>
 
                             <TableCell>
-                              {(() => { const dd = formatDueDate(video.id); return <span className={`text-sm whitespace-nowrap ${dd === '--' || dd === 'N/A' ? 'text-muted-foreground' : ''}`}>{dd}</span>; })()}
+                              {(() => { const dd = formatDueDate(video.id); return <span className={`text-small whitespace-nowrap ${dd === '--' || dd === 'N/A' ? 'text-muted-foreground' : ''}`}>{dd}</span>; })()}
                             </TableCell>
                             <TableCell>
-                              <span className="text-sm whitespace-nowrap">{getQuizResults(video.id)}</span>
+                              <span className="text-small whitespace-nowrap">{getQuizResults(video.id)}</span>
                             </TableCell>
                             <TableCell>
-                              {(() => { const qv = getQuizVersion(video.id); return <span className={`text-sm whitespace-nowrap ${qv === '--' || qv === 'N/A' ? 'text-muted-foreground' : ''}`}>{qv}</span>; })()}
+                              {(() => { const qv = getQuizVersion(video.id); return <span className={`text-small whitespace-nowrap ${qv === '--' || qv === 'N/A' ? 'text-muted-foreground' : ''}`}>{qv}</span>; })()}
                             </TableCell>
                           </TableRow>
                         );

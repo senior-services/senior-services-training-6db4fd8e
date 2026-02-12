@@ -241,7 +241,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
               aria-describedby={titleError ? "title-error" : undefined}
             />
             {titleError && (
-              <p id="title-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
+              <p id="title-error" className="text-small text-destructive mt-1" role="alert" aria-live="polite">
                 {titleError}
               </p>
             )}
@@ -282,7 +282,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
               {urlError && (
                 <p
                   id="url-error"
-                  className="text-sm text-destructive mt-1 flex items-start gap-1"
+                  className="text-small text-destructive mt-1 flex items-start gap-1"
                   role="alert"
                   aria-live="polite"
                 >
@@ -362,7 +362,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
               />
               <Label 
                 htmlFor="assign-to-all" 
-                className="text-sm font-medium cursor-pointer"
+                className="text-small font-medium cursor-pointer"
               >
                 Assign this training to all active employees
               </Label>

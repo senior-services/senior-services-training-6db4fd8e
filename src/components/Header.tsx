@@ -27,7 +27,7 @@ export const Header = ({
               objectPosition: 'left center'
             }} />
               <div>
-                <h1 className="text-xl text-primary-foreground">
+                <h1 className="text-h3 text-primary-foreground">
                   <span className="font-bold">Training Portal
                 </span>{' '}
                   <span className="font-normal">/ {userRole === 'admin' ? 'Admin' : 'Employee'} Dashboard</span>
@@ -44,7 +44,7 @@ export const Header = ({
             <div className="w-8 h-8 rounded-full bg-primary-foreground flex items-center justify-center">
               <User className="w-4 h-4 text-primary" />
             </div>
-            <span className="hidden sm:inline text-sm font-medium text-primary-foreground">{userName}</span>
+            <span className="hidden sm:inline text-small font-medium text-primary-foreground">{userName}</span>
             <span className="text-primary-foreground/40" aria-hidden="true">|</span>
             <Button variant="link" size="sm" onClick={onLogout} className="text-primary-foreground hover:text-primary-foreground p-0">
               Logout

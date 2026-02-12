@@ -541,12 +541,12 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           {/* Enhanced Welcome Section with Status Information */}
           <header className="mb-8" role="banner">
             <div className="mb-4">
-              <h1 id="dashboard-heading" className="text-2xl sm:text-3xl font-bold text-foreground">
+              <h1 id="dashboard-heading" className="text-h2 font-bold text-foreground">
                 Welcome back, {sanitizedUserData.firstName}!
               </h1>
             </div>
 
-            <p className="text-muted-foreground text-base sm:text-lg">
+            <p className="text-muted-foreground text-body sm:text-lg">
               Training that turns our mission into daily practice.
             </p>
 
@@ -564,7 +564,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             <div className="flex items-center gap-3 mb-6">
               <h2
                 id="required-training-heading"
-                className="text-xl sm:text-2xl font-semibold text-foreground flex items-center"
+                className="text-h3 font-semibold text-foreground flex items-center"
               >
                 <Clock className="w-6 h-6 text-primary mr-3" aria-hidden="true" />
                 Required Trainings
@@ -621,7 +621,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   >
                     <div className="flex items-center gap-3 w-full">
                       <ChevronDown className="w-8 h-8 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
-                      <h2 className="text-xl sm:text-2xl font-semibold text-foreground flex items-center">
+                      <h2 className="text-h3 font-semibold text-foreground flex items-center">
                         <CheckCircle className="w-6 h-6 text-success mr-3" aria-hidden="true" />
                         Completed Trainings
                       </h2>

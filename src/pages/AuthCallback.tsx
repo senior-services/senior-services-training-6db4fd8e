@@ -256,7 +256,7 @@ const AuthCallbackContent = () => {
         />
         <div>
           <span className="text-lg">Completing authentication...</span>
-          <div className="text-sm text-white/70 mt-1">
+          <div className="text-small text-white/70 mt-1">
             Please wait while we verify your credentials
           </div>
         </div>

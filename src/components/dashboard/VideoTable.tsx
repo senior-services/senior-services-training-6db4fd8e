@@ -124,7 +124,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold">Training Videos &amp; Presentations</h3>
+          <h3 className="font-semibold">Training Videos &amp; Presentations</h3>
           <p className="text-muted-foreground">
             Manage your training content and track engagement
           </p>
@@ -152,7 +152,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   >
                     Training
                   </SortableTableHead>
-                  <TableHead className="text-left text-sm font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
+                  <TableHead className="text-left text-small font-medium uppercase text-muted-foreground whitespace-nowrap">Quiz</TableHead>
                   <SortableTableHead
                     column="created_at"
                     sortColumn={sortColumn}
@@ -162,7 +162,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                   >
                     Date Added
                   </SortableTableHead>
-                  <TableHead className="text-right text-sm font-medium uppercase text-muted-foreground whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="text-right text-small font-medium uppercase text-muted-foreground whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -182,7 +182,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                           <h4 className="font-medium text-foreground">
                             No videos found
                           </h4>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-small text-muted-foreground">
                             Add your first video to get started with training content.
                           </p>
                         </div>
@@ -241,7 +241,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                                 {video.title}
                               </p>
                             </div>
-                            {video.description && <p className="text-sm text-muted-foreground line-clamp-2 mt-1" title={video.description}>
+                            {video.description && <p className="text-small text-muted-foreground line-clamp-2 mt-1" title={video.description}>
                                 {video.description.length > 150 ? `${video.description.substring(0, 150)}...` : video.description}
                               </p>}
                           </div>
@@ -255,7 +255,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                           return (
                             <div className="flex items-center justify-start gap-1.5">
                               <MessageSquare className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                              <span className="text-sm text-foreground" aria-label={`Quiz: ${quizInfo.questionCount} questions`}>
+                              <span className="text-small text-foreground" aria-label={`Quiz: ${quizInfo.questionCount} questions`}>
                                 {quizInfo.questionCount}
                               </span>
                               {quizInfo.versionCount > 1 && (
@@ -270,7 +270,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
 
                       {/* Date Added */}
                       <TableCell className="text-left py-2">
-                        <span className="text-sm text-foreground">
+                        <span className="text-small text-foreground">
                           {format(new Date(video.created_at), 'MMM dd, yyyy')}
                         </span>
                       </TableCell>
