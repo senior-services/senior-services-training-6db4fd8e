@@ -54,11 +54,11 @@ export function TrainingAttestation({
         {a11yAnnouncement}
       </div>
 
-      <p className="font-semibold text-sm text-foreground">
+      <p className="font-semibold text-foreground">
         Training Acknowledgment
       </p>
       <p className={cn(
-        "text-sm mt-1",
+        "mt-1",
         enabled ? "text-foreground" : "text-muted-foreground"
       )}>
         Please review all training content carefully. By acknowledging, you confirm you've read and understood the material — your confirmation will be recorded for compliance.
@@ -76,7 +76,7 @@ export function TrainingAttestation({
           htmlFor={checkboxId}
           id="attestation-label"
           className={cn(
-            "text-sm font-medium leading-relaxed select-none ml-3",
+            "font-medium leading-relaxed select-none ml-3",
             enabled
               ? "text-foreground cursor-pointer"
               : "text-muted-foreground cursor-not-allowed"

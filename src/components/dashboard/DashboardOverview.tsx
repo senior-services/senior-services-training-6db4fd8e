@@ -41,7 +41,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{videoCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Active training content
             </p>
           </CardContent>
@@ -56,7 +56,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{employeeCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Registered employees
             </p>
           </CardContent>
@@ -71,7 +71,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{mockOverviewData.totalCompletions}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Total video completions
             </p>
           </CardContent>
@@ -86,7 +86,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{mockOverviewData.averageProgress}%</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Employee completion rate
             </p>
           </CardContent>
