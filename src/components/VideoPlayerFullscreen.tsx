@@ -3,11 +3,9 @@ import { Dialog, FullscreenDialogContent, DialogHeader, DialogTitle, DialogFoote
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Clock } from "lucide-react";
 import { Banner } from "@/components/ui/banner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TrainingAttestation } from "@/components/shared/TrainingAttestation";
 import { quizOperations } from '@/services/quizService';
 import { progressOperations } from '@/services/api';
 import { useAuth } from "@/hooks/useAuth";
@@ -532,46 +530,16 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </div>
 
           {/* Compliance Checkbox - Only for Presentations */}
-          {video && video.content_type === 'presentation' && !wasEverCompleted && <div className="mt-4 p-4 border rounded-lg bg-muted/30">
-              {/* Screen reader live region */}
-              <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-                {a11yAnnouncement}
-              </div>
-              
-              <div className="space-y-3">
-                {/* Header with Title and Timer */}
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <p className="font-medium mb-2 text-sm text-foreground">Training Acknowledgment</p>
-                    <p className="text-sm text-foreground">
-                      Please review all training content carefully. By acknowledging, you confirm you've read and understood the material — your confirmation will be recorded for compliance.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Checkbox */}
-                <div className="flex items-start gap-3 pt-2">
-                  <Checkbox id="presentation-acknowledgment" checked={presentationAcknowledged} disabled={!checkboxEnabled} onCheckedChange={checked => {
-                const isChecked = checked === true;
-                setPresentationAcknowledged(isChecked);
-                if (isChecked) {
-                  setA11yAnnouncement('Training material acknowledgment confirmed. You may now proceed with the quiz or mark training as complete.');
-                  logger.info('Presentation acknowledged by user', {
-                    videoId,
-                    viewingSeconds,
-                    acknowledgedAt: new Date().toISOString()
-                  });
-                } else {
-                  setA11yAnnouncement('Training material acknowledgment removed.');
-                }
-              }} aria-describedby="acknowledgment-label" className="mt-1" />
-                  <label htmlFor="presentation-acknowledgment" id="acknowledgment-label" className={cn("text-sm font-medium leading-relaxed cursor-pointer select-none text-foreground", !checkboxEnabled && "opacity-60 cursor-not-allowed")}>
-                    I confirm that I have read and understood this training material.
-                  </label>
-                </div>
-
-              </div>
-            </div>}
+          {video && video.content_type === 'presentation' && !wasEverCompleted && (
+            <div className="mt-4">
+              <TrainingAttestation
+                enabled={checkboxEnabled}
+                checked={presentationAcknowledged}
+                onCheckedChange={setPresentationAcknowledged}
+                disabledTooltip="Please wait for the viewing timer to complete."
+              />
+            </div>
+          )}
 
           {/* Quiz Section */}
           {(quizStarted && quiz || wasEverCompleted && (completedQuiz || quiz) && completedQuizResults.length > 0) && <div id="quiz-section" className="mt-8 border-t pt-8">
@@ -580,47 +548,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
           {/* Attestation - below quiz questions */}
           {quiz && (quizStarted || quizSubmitted || wasEverCompleted) && !quizSubmitted && !wasEverCompleted && (
-            <div className={`mt-6 border border-border rounded-lg p-6${allQuestionsAnswered ? ' bg-background' : ''}`}>
-              {!allQuestionsAnswered ? (
-                <Tooltip delayDuration={300}>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-start gap-2">
-                      <Checkbox
-                        id="quiz-attestation-inline"
-                        checked={quizAttestationChecked}
-                        disabled
-                        className="mt-1"
-                      />
-                      <Label
-                        htmlFor="quiz-attestation-inline"
-                        className="text-sm font-medium leading-relaxed select-none text-muted-foreground cursor-not-allowed"
-                        mutedOnDisabled={false}
-                      >
-                        I certify that I have read and understood this content.
-                      </Label>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" align="start" sideOffset={6}>
-                    <p>Complete the questions above to enable this checkbox.</p>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <div className="flex items-start gap-2">
-                  <Checkbox
-                    id="quiz-attestation-inline"
-                    checked={quizAttestationChecked}
-                    onCheckedChange={(checked) => setQuizAttestationChecked(checked === true)}
-                    className="mt-1"
-                  />
-                  <Label
-                    htmlFor="quiz-attestation-inline"
-                    className="text-sm font-medium leading-relaxed select-none cursor-pointer"
-                    mutedOnDisabled={false}
-                  >
-                    I certify that I have read and understood this content.
-                  </Label>
-                </div>
-              )}
+            <div className="mt-6">
+              <TrainingAttestation
+                enabled={allQuestionsAnswered}
+                checked={quizAttestationChecked}
+                onCheckedChange={setQuizAttestationChecked}
+                disabledTooltip="Complete the questions above to enable this checkbox."
+              />
             </div>
           )}
         </DialogScrollArea>

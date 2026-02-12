@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { CheckCircle, X } from "lucide-react";
+import { TrainingAttestation } from "@/components/shared/TrainingAttestation";
 import type { Video } from "@/types";
 import type { QuizWithQuestions } from "@/types/quiz";
 
@@ -49,20 +48,12 @@ export function CompletionOverlay({ video, quiz, onStartQuiz, onCompleteTraining
           </Button>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-start gap-3 text-left border rounded-lg p-3 bg-muted/30">
-              <Checkbox
-                id="completion-attestation"
-                checked={attestationChecked}
-                onCheckedChange={(checked) => setAttestationChecked(checked === true)}
-                className="mt-0.5"
-              />
-              <Label
-                htmlFor="completion-attestation"
-                className="text-sm font-medium leading-relaxed cursor-pointer select-none"
-              >
-                I certify that I have read and understood this content.
-              </Label>
-            </div>
+            <TrainingAttestation
+              enabled={true}
+              checked={attestationChecked}
+              onCheckedChange={setAttestationChecked}
+              disabledTooltip=""
+            />
             <Button 
               onClick={onCompleteTraining}
               className="w-full"
