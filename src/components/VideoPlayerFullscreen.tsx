@@ -502,17 +502,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 </p>
               </div>
             )}
-            {isPresentation && !wasEverCompleted && (
-              timerActive ? (
-                <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0 ml-auto">
-                  <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
-                </Banner>
-              ) : (
-                <Banner variant="success" size="compact" className="w-fit shrink-0 ml-auto">
-                  Minimum time met
-                </Banner>
-              )
-            )}
           </div>
 
           {/* Persistent Quiz CTA Button - only for non-presentation content */}
@@ -667,6 +656,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 </>
               ) : (
                 <>
+                  {/* Timer pinned to footer left */}
+                  {isPresentation && !wasEverCompleted && (
+                    timerActive ? (
+                      <Banner variant="information" size="compact" icon={Clock} className="w-fit shrink-0">
+                        <span className="tabular-nums whitespace-nowrap">Minimum review time: {formattedTime}</span>
+                      </Banner>
+                    ) : (
+                      <Banner variant="success" size="compact" className="w-fit shrink-0">
+                        Minimum time met
+                      </Banner>
+                    )
+                  )}
                   {/* Pre-quiz or no-quiz: Cancel + primary action */}
                   <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
                     Cancel
