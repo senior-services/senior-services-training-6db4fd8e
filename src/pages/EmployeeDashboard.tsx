@@ -28,8 +28,8 @@ import {
   calculateTrainingProgress,
   useOptimizedMemo,
   useOptimizedCallback,
-  usePerformanceMonitor,
-} from "@/utils/performance";
+  usePerformanceMonitor } from
+"@/utils/performance";
 
 /**
  * Enhanced props interface with comprehensive type safety
@@ -62,7 +62,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   userEmail,
   onLogout,
   onPlayVideo,
-  refreshTrigger = 0,
+  refreshTrigger = 0
 }) => {
   // Performance monitoring
   usePerformanceMonitor("EmployeeDashboard");
@@ -72,12 +72,12 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     {
       video: Video;
       assignment: any;
-    }[]
-  >([]);
+    }[]>(
+    []);
   const [quizAttemptsByVideo, setQuizAttemptsByVideo] = useState<Record<string, QuizAttemptWithDetails | undefined>>(
-    {},
+    {}
   );
-  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Map<string, { createdAt: string; questionCount: number }>>(new Map());
+  const [videoIdsWithQuizzes, setVideoIdsWithQuizzes] = useState<Map<string, {createdAt: string;questionCount: number;}>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -88,14 +88,14 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     () => ({
       displayName: createSafeDisplayName(userName, userEmail),
       firstName: createSafeDisplayName(userName, userEmail).split(" ")[0],
-      email: userEmail, // Already validated by auth system
+      email: userEmail // Already validated by auth system
     }),
-    [userName, userEmail],
+    [userName, userEmail]
   );
 
   // Load assigned videos with enhanced error handling
   const loadAssignedVideos = useOptimizedCallback(
-    async (opts?: { silent?: boolean }) => {
+    async (opts?: {silent?: boolean;}) => {
       performanceTracker.start("loadAssignedVideos");
       const loadResult = await withErrorHandler(
         async () => {
@@ -118,7 +118,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   }
                   return acc;
                 },
-                {} as Record<string, QuizAttemptWithDetails>,
+                {} as Record<string, QuizAttemptWithDetails>
               );
               setQuizAttemptsByVideo(attemptsByVideo);
             } else {
@@ -132,12 +132,12 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
           // Fetch which videos have quizzes with their creation dates and question counts
           try {
-            const { data: quizzesData } = await supabase
-              .from("quizzes")
-              .select("video_id, created_at, quiz_questions(count)")
-              .is("archived_at", null);
-            const quizMap = new Map<string, { createdAt: string; questionCount: number }>();
-            quizzesData?.forEach(q => {
+            const { data: quizzesData } = await supabase.
+            from("quizzes").
+            select("video_id, created_at, quiz_questions(count)").
+            is("archived_at", null);
+            const quizMap = new Map<string, {createdAt: string;questionCount: number;}>();
+            quizzesData?.forEach((q) => {
               const questionCount = (q.quiz_questions as any)?.[0]?.count ?? 0;
               quizMap.set(q.video_id, { createdAt: q.created_at, questionCount });
             });
@@ -164,7 +164,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                     logger.warn("Failed to reconcile video progress for quiz completion", {
                       videoId,
                       userEmail,
-                      error: updateError instanceof Error ? updateError.message : String(updateError),
+                      error: updateError instanceof Error ? updateError.message : String(updateError)
                     });
                   }
                 }
@@ -173,13 +173,13 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           } catch (error) {
             // Silent failure for reconciliation
             logger.warn("Failed to reconcile quiz completion with video progress", {
-              error: error instanceof Error ? error.message : String(error),
+              error: error instanceof Error ? error.message : String(error)
             });
           }
 
           logger.info("Successfully loaded assigned videos", {
             videoCount: videoData.length,
-            userEmail,
+            userEmail
           });
 
           // Announce successful load to screen readers only on non-silent loads
@@ -190,9 +190,9 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         },
         {
           operation: "loadAssignedVideos",
-          userEmail,
+          userEmail
         },
-        "Failed to load your assigned videos. Please try refreshing the page.",
+        "Failed to load your assigned videos. Please try refreshing the page."
       );
       if (!loadResult.success) {
         const errorMessage = "Failed to load your assigned videos. Please try refreshing the page.";
@@ -200,7 +200,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         toast({
           title: "Error",
           description: errorMessage,
-          variant: "destructive",
+          variant: "destructive"
         });
 
         // Announce error to screen readers
@@ -209,7 +209,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       performanceTracker.end("loadAssignedVideos");
       if (!opts?.silent) setLoading(false);
     },
-    [userEmail, toast],
+    [userEmail, toast]
   );
 
   // Enhanced video data transformation with security and accessibility
@@ -220,7 +220,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         videoTitle: video.title,
         hasDescription: !!video.description,
         hasAssignment: !!assignment,
-        userEmail,
+        userEmail
       });
 
       // Simple duration formatter (inline to fix runtime error)
@@ -240,14 +240,14 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
       // Get quiz summary if available
       const quizAttempt = quizAttemptsByVideo[video.id];
-      const quizSummary = quizAttempt
-        ? {
-            correct: quizAttempt.score,
-            total: quizAttempt.total_questions,
-            percent: Math.round((quizAttempt.score / quizAttempt.total_questions) * 100),
-            completedAt: quizAttempt.completed_at,
-          }
-        : undefined;
+      const quizSummary = quizAttempt ?
+      {
+        correct: quizAttempt.score,
+        total: quizAttempt.total_questions,
+        percent: Math.round(quizAttempt.score / quizAttempt.total_questions * 100),
+        completedAt: quizAttempt.completed_at
+      } :
+      undefined;
 
       // Quiz-aware completion logic (aligned with admin dashboard)
       const videoMarkedComplete = assignment?.completed_at || assignment?.progress_percent === 100;
@@ -273,9 +273,9 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           }
         }
       } else {
-        effectiveProgress = videoMarkedComplete
-          ? 100
-          : Math.max(0, Math.min(100, assignment?.progress_percent || 0));
+        effectiveProgress = videoMarkedComplete ?
+        100 :
+        Math.max(0, Math.min(100, assignment?.progress_percent || 0));
       }
 
       return {
@@ -288,17 +288,17 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         isRequired: video.type === "Required",
         deadline: assignment?.due_date ? new Date(assignment.due_date).toLocaleDateString() : undefined,
         dueDate: assignment?.due_date || null,
-        status: !video.video_url && !video.video_file_name ? ("warning" as const) : undefined,
+        status: !video.video_url && !video.video_file_name ? "warning" as const : undefined,
         video_url: video.video_url,
         thumbnail_url: video.thumbnail_url,
         video_file_name: video.video_file_name,
         quizPending,
         quizSummary,
         quizQuestionCount: hasQuiz ? quizInfo?.questionCount : undefined,
-        completedAt: effectiveCompletedAt || undefined,
+        completedAt: effectiveCompletedAt || undefined
       };
     },
-    [userEmail, quizAttemptsByVideo, videoIdsWithQuizzes],
+    [userEmail, quizAttemptsByVideo, videoIdsWithQuizzes]
   );
 
   // Enhanced training data processing with comprehensive statistics
@@ -306,22 +306,22 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     performanceTracker.start("processTrainingData");
     logger.debug("Processing assigned video data", {
       totalAssignments: assignedVideoData.length,
-      userEmail,
+      userEmail
     });
-    const allRequiredVideos = assignedVideoData
-      .filter((item) => item.video.type === "Required")
-      .map((item) => transformToTrainingVideo(item.video, item.assignment));
+    const allRequiredVideos = assignedVideoData.
+    filter((item) => item.video.type === "Required").
+    map((item) => transformToTrainingVideo(item.video, item.assignment));
 
     // Separate completed and incomplete required videos
     const incompleteVideos = allRequiredVideos.filter((video) => video.progress < 100);
-    const completedVideos = allRequiredVideos
-      .filter((video) => video.progress >= 100)
-      .sort((a, b) => {
-        if (!a.completedAt && !b.completedAt) return 0;
-        if (!a.completedAt) return 1;
-        if (!b.completedAt) return -1;
-        return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
-      });
+    const completedVideos = allRequiredVideos.
+    filter((video) => video.progress >= 100).
+    sort((a, b) => {
+      if (!a.completedAt && !b.completedAt) return 0;
+      if (!a.completedAt) return 1;
+      if (!b.completedAt) return -1;
+      return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
+    });
 
     // Sort incomplete videos by due date (soonest first)
     const requiredVideos = incompleteVideos.sort((a, b) => {
@@ -339,7 +339,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       requiredIncomplete: requiredVideos.length,
       completed: completedVideos.length,
       totalRequired: allRequiredVideos.length,
-      userEmail,
+      userEmail
     });
 
     // Calculate comprehensive training statistics using all required videos
@@ -367,20 +367,20 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       completed: completedVideos,
       stats: {
         ...stats,
-        overallStatus,
-      } as TrainingStats,
+        overallStatus
+      } as TrainingStats
     };
   }, [assignedVideoData, transformToTrainingVideo]);
 
   const handlePlayVideo = useOptimizedCallback(
     (videoId: string) => {
       const video =
-        trainingData.required.find((v) => v.id === videoId) || trainingData.completed.find((v) => v.id === videoId);
+      trainingData.required.find((v) => v.id === videoId) || trainingData.completed.find((v) => v.id === videoId);
       logger.videoEvent("employee_video_selected", videoId, {
         videoTitle: video?.title,
         hasDescription: !!video?.description,
         userEmail,
-        videoFound: !!video,
+        videoFound: !!video
       });
       if (video) {
         const announcement = `Opening ${video.title}. ${getStatusAnnouncement(video.progress, video.isRequired || false, video.dueDate)}`;
@@ -392,12 +392,12 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       } else {
         logger.warn("Video not found when attempting to play", {
           videoId,
-          userEmail,
+          userEmail
         });
         onPlayVideo(videoId); // Fallback without original video
       }
     },
-    [trainingData.required, trainingData.completed, onPlayVideo, userEmail, assignedVideoData],
+    [trainingData.required, trainingData.completed, onPlayVideo, userEmail, assignedVideoData]
   );
 
   // Callback to refresh training data when progress is updated
@@ -405,7 +405,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     logger.videoEvent("progress_updated_callback", "unknown", {
       progress,
       userEmail,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     });
 
     // Optionally refresh the training data to show updated progress
@@ -419,35 +419,35 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     // Set up realtime subscription for video progress updates with error handling
     let channel: any = null;
     try {
-      channel = supabase
-        .channel("video-progress-changes")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            // Listen to all changes (INSERT, UPDATE, DELETE)
-            schema: "public",
-            table: "video_progress",
-          },
-          (payload) => {
-            logger.info("Real-time video progress update received", {
-              event: payload.eventType,
-              table: payload.table,
-              userEmail,
-              timestamp: new Date().toISOString(),
-            });
+      channel = supabase.
+      channel("video-progress-changes").
+      on(
+        "postgres_changes",
+        {
+          event: "*",
+          // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: "public",
+          table: "video_progress"
+        },
+        (payload) => {
+          logger.info("Real-time video progress update received", {
+            event: payload.eventType,
+            table: payload.table,
+            userEmail,
+            timestamp: new Date().toISOString()
+          });
 
-            // Debounce refreshes to prevent rapid re-fetch loops
-            if (reloadTimer.current) {
-              window.clearTimeout(reloadTimer.current);
-            }
-            reloadTimer.current = window.setTimeout(() => {
-              loadAssignedVideos({ silent: true });
-              reloadTimer.current = null;
-            }, 500);
-          },
-        )
-        .subscribe();
+          // Debounce refreshes to prevent rapid re-fetch loops
+          if (reloadTimer.current) {
+            window.clearTimeout(reloadTimer.current);
+          }
+          reloadTimer.current = window.setTimeout(() => {
+            loadAssignedVideos({ silent: true });
+            reloadTimer.current = null;
+          }, 500);
+        }
+      ).
+      subscribe();
     } catch (error) {
       // Silently fail if WebSockets aren't available (e.g., in insecure contexts)
       logger.error("Failed to set up real-time subscription for video progress", error as Error);
@@ -476,7 +476,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       logger.info("Dashboard refresh triggered by external event", {
         refreshTrigger,
         userEmail,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString()
       });
 
       // Force reload assigned videos with cache bypass
@@ -492,8 +492,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           userRole="employee"
           userName={sanitizedUserData.displayName}
           userEmail={userEmail}
-          onLogout={onLogout}
-        />
+          onLogout={onLogout} />
+
 
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="error-heading">
           <div className="text-center py-12">
@@ -505,8 +505,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             <button
               onClick={() => loadAssignedVideos()}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring"
-              aria-describedby="retry-description"
-            >
+              aria-describedby="retry-description">
+
               Try Again
             </button>
             <p id="retry-description" className="sr-only">
@@ -514,8 +514,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             </p>
           </div>
         </main>
-      </div>
-    );
+      </div>);
+
   }
   return (
     <ErrorBoundary>
@@ -524,8 +524,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           userRole="employee"
           userName={sanitizedUserData.displayName}
           userEmail={userEmail}
-          onLogout={onLogout}
-        />
+          onLogout={onLogout} />
+
 
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="dashboard-heading">
           {/* Skip Navigation Link for Accessibility */}
@@ -533,8 +533,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             href="#main-content"
             className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 
                        bg-primary text-primary-foreground px-4 py-2 rounded-md z-50
-                       focus:outline-none focus:ring-2 focus:ring-ring"
-          >
+                       focus:outline-none focus:ring-2 focus:ring-ring">
+
             Skip to main content
           </a>
 
@@ -546,9 +546,9 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
               </h1>
             </div>
 
-            <p className="text-muted-foreground">
-              Training that turns our mission into daily practice.
-            </p>
+            
+
+
 
             {/* Training Statistics for Screen Readers */}
             <div className="sr-only" aria-live="polite">
@@ -564,61 +564,61 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             <div className="flex items-center gap-3 mb-6">
               <h2
                 id="required-training-heading"
-                className="text-h3 text-foreground flex items-center"
-              >
+                className="text-h3 text-foreground flex items-center">
+
                 <Clock className="w-6 h-6 text-primary mr-3" aria-hidden="true" />
                 Required Trainings
               </h2>
-              {trainingData.required.length > 0 && (
-                <Badge variant="soft-primary">{trainingData.required.length}</Badge>
-              )}
+              {trainingData.required.length > 0 &&
+              <Badge variant="soft-primary">{trainingData.required.length}</Badge>
+              }
             </div>
-            {loading ? (
-              <div
-                className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-                aria-label="Loading training assignments"
-              >
+            {loading ?
+            <div
+              className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              aria-label="Loading training assignments">
+
                 {Array.from({
-                  length: 6,
-                }).map((_, index) => (
-                  <LoadingSkeleton key={index} lines={1} className="h-64" />
-                ))}
-              </div>
-            ) : trainingData.required.length === 0 ? (
-              <div className="text-center py-12" role="status" aria-live="polite">
+                length: 6
+              }).map((_, index) =>
+              <LoadingSkeleton key={index} lines={1} className="h-64" />
+              )}
+              </div> :
+            trainingData.required.length === 0 ?
+            <div className="text-center py-12" role="status" aria-live="polite">
                 <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
                 <h3 className="mb-2">No Required Trainings Assigned</h3>
                 <p className="text-muted-foreground">
                   You don't have any required trainings assigned at this time.
                 </p>
+              </div> :
+
+            <div
+              className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              role="grid"
+              aria-label="Required training videos">
+
+                {trainingData.required.map((video, index) =>
+              <TrainingCard
+                key={video.id}
+                video={video}
+                onPlay={handlePlayVideo}
+                priority={index < 3} // Prioritize first 3 cards for performance
+              />
+              )}
               </div>
-            ) : (
-              <div
-                className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-                role="grid"
-                aria-label="Required training videos"
-              >
-                {trainingData.required.map((video, index) => (
-                  <TrainingCard
-                    key={video.id}
-                    video={video}
-                    onPlay={handlePlayVideo}
-                    priority={index < 3} // Prioritize first 3 cards for performance
-                  />
-                ))}
-              </div>
-            )}
+            }
           </section>
 
           {/* Completed Trainings Accordion Section */}
-          {trainingData.completed.length > 0 && (
-            <section className="mb-12" aria-labelledby="completed-training-heading" role="region">
+          {trainingData.completed.length > 0 &&
+          <section className="mb-12" aria-labelledby="completed-training-heading" role="region">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="completed-training" className="border-0">
                   <AccordionTrigger
-                    id="completed-training-heading"
-                    className="text-left py-4 hover:no-underline hover:bg-muted/30 data-[state=open]:pb-2 [&>svg]:hidden"
-                  >
+                  id="completed-training-heading"
+                  className="text-left py-4 hover:no-underline hover:bg-muted/30 data-[state=open]:pb-2 [&>svg]:hidden">
+
                     <div className="flex items-center gap-3 w-full">
                       <ChevronDown className="w-8 h-8 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
                       <h2 className="text-h3 text-foreground flex items-center">
@@ -630,21 +630,21 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   </AccordionTrigger>
                   <AccordionContent className="px-0 pb-0">
                     <div
-                      className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-4"
-                      role="grid"
-                      aria-label="Completed training videos"
-                    >
-                      {trainingData.completed.map((video, index) => (
-                        <TrainingCard key={video.id} video={video} onPlay={handlePlayVideo} priority={false} />
-                      ))}
+                    className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-4"
+                    role="grid"
+                    aria-label="Completed training videos">
+
+                      {trainingData.completed.map((video, index) =>
+                    <TrainingCard key={video.id} video={video} onPlay={handlePlayVideo} priority={false} />
+                    )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
             </section>
-          )}
+          }
         </main>
       </div>
-    </ErrorBoundary>
-  );
+    </ErrorBoundary>);
+
 };
