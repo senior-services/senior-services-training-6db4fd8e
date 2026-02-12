@@ -280,6 +280,11 @@ export const ComponentsGallery = ({
                     Typography
                   </a>
                 </li>
+                <li className="break-inside-avoid mb-1">
+                  <a href="#typography-utilities" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                    Typography Utility Classes
+                  </a>
+                </li>
               </ul>
             </nav>
           </div>
@@ -605,6 +610,102 @@ export const ComponentsGallery = ({
               </div>
             </CardContent>
           </Card>
+          <Card id="typography-utilities" className="shadow-card hover:shadow-lg transition-shadow duration-300">
+            <CardHeader>
+              <CardTitle>Typography Utility Classes</CardTitle>
+              <CardDescription>
+                Visual overrides for semantic tags using the Major Third scale. Use semantic HTML tags (h1-h4, p) by default. Apply these utility classes only when a visual override is needed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {/* Reference Table */}
+              <div className="rounded-lg border border-border-primary/50 overflow-hidden shadow-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
+                      <TableHead className="font-semibold text-foreground">Class Name</TableHead>
+                      <TableHead className="font-semibold text-foreground">Size (rem)</TableHead>
+                      <TableHead className="font-semibold text-foreground">Size (px)</TableHead>
+                      <TableHead className="font-semibold text-foreground">Usage</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-h1</code></TableCell>
+                      <TableCell>3.052rem</TableCell>
+                      <TableCell>~49px</TableCell>
+                      <TableCell>Page titles (visual override)</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-h2</code></TableCell>
+                      <TableCell>1.953rem</TableCell>
+                      <TableCell>~31px</TableCell>
+                      <TableCell>Section headings (visual override)</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-h3</code></TableCell>
+                      <TableCell>1.563rem</TableCell>
+                      <TableCell>~25px</TableCell>
+                      <TableCell>Subsection headings (visual override)</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-h4</code></TableCell>
+                      <TableCell>1.25rem</TableCell>
+                      <TableCell>20px</TableCell>
+                      <TableCell>Minor headings (visual override)</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-body</code></TableCell>
+                      <TableCell>1rem</TableCell>
+                      <TableCell>16px</TableCell>
+                      <TableCell>Body text</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-small</code></TableCell>
+                      <TableCell>0.8rem</TableCell>
+                      <TableCell>~13px</TableCell>
+                      <TableCell>Secondary info</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-caption</code></TableCell>
+                      <TableCell>0.64rem</TableCell>
+                      <TableCell>~10px</TableCell>
+                      <TableCell>Captions and labels</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell><code className="text-code bg-muted px-1.5 py-0.5 rounded">.text-code</code></TableCell>
+                      <TableCell>0.9375rem</TableCell>
+                      <TableCell>15px</TableCell>
+                      <TableCell>Code snippets</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Semantic vs Visual Example */}
+              <div className="space-y-4">
+                <h4 className="text-h4 font-medium text-foreground border-b pb-2">Semantic Tag vs. Visual Style</h4>
+                <div className="p-6 rounded-lg bg-card border border-border-primary/50 shadow-sm space-y-6">
+                  <div className="space-y-2">
+                    <p className="text-small text-muted-foreground font-medium uppercase tracking-wide">Standard H2</p>
+                    <h2 className="border-l-4 border-primary pl-4 py-1 bg-muted/30 rounded-r">
+                      This is a standard &lt;h2&gt; tag
+                    </h2>
+                    <p className="text-small text-muted-foreground">Inherits 1.953rem from semantic styles.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-small text-muted-foreground font-medium uppercase tracking-wide">H2 with .text-h3 Utility</p>
+                    <h2 className="text-h3 border-l-4 border-secondary pl-4 py-1 bg-muted/30 rounded-r">
+                      This is an &lt;h2&gt; tag with .text-h3 class
+                    </h2>
+                    <p className="text-small text-muted-foreground">Semantically an H2, but visually styled as an H3 (1.563rem).</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
 
           {/* Buttons Section */}
           <Card id="buttons" className="shadow-card hover:shadow-lg transition-shadow duration-300">

@@ -188,7 +188,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
     <div className="h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 flex items-center gap-3">
-          <h2 className="text-2xl font-bold">Quiz questions ({isSubmitted && storedTotalQuestions ? storedTotalQuestions : quiz.questions.length})</h2>
+          <h2 className="font-bold">Quiz questions ({isSubmitted && storedTotalQuestions ? storedTotalQuestions : quiz.questions.length})</h2>
           {isSubmitted && quizResults && (() => {
             // Use stored attempt data when available (ensures accuracy across quiz versions)
             const useStored = storedScore !== undefined && storedTotalQuestions !== undefined;
@@ -225,7 +225,7 @@ export function QuizModal({ quiz, onSubmit, onCancel, onResponsesChange, quizRes
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-lg">
+                    <h3 className="font-semibold text-h4">
                       {index + 1}. {question.question_text}
                     </h3>
                     {question.question_type === 'multiple_choice' && (

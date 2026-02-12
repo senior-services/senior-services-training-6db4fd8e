@@ -425,13 +425,13 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
               <div className="flex items-center gap-3 w-full">
                 <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
                 <EyeOff className="w-5 h-5 text-muted-foreground" />
-                <span className="text-lg font-semibold">Hidden Trainings
+                <span className="text-h4 font-semibold">Hidden Trainings
             </span>
                 <Badge variant="soft-destructive" className="ml-2">
                   {hiddenVideos.length}
                 </Badge>
                 <div className="ml-auto">
-                  <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+                  <span className="text-small text-muted-foreground bg-muted px-2 py-1 rounded">
                     Hidden videos remain functional for employees with assignments
                   </span>
                 </div>
@@ -454,7 +454,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                              <TableCell>
                               <div>
                                 <div className="font-medium">{video.title}</div>
-                                {video.description && <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                {video.description && <div className="text-small text-muted-foreground line-clamp-2 mt-1">
                                     {video.description}
                                   </div>}
                               </div>

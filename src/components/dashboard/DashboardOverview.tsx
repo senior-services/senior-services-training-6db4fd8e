@@ -34,14 +34,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-small font-medium">
               Training Videos
             </CardTitle>
             <Video className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{videoCount}</div>
-            <p className="text-sm text-muted-foreground">
+            <div className="text-h2 font-bold">{videoCount}</div>
+            <p className="text-small text-muted-foreground">
               Active training content
             </p>
           </CardContent>
@@ -49,14 +49,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-small font-medium">
               Employees
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{employeeCount}</div>
-            <p className="text-sm text-muted-foreground">
+            <div className="text-h2 font-bold">{employeeCount}</div>
+            <p className="text-small text-muted-foreground">
               Registered employees
             </p>
           </CardContent>
@@ -64,14 +64,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-small font-medium">
               Completions
             </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockOverviewData.totalCompletions}</div>
-            <p className="text-sm text-muted-foreground">
+            <div className="text-h2 font-bold">{mockOverviewData.totalCompletions}</div>
+            <p className="text-small text-muted-foreground">
               Total video completions
             </p>
           </CardContent>
@@ -79,14 +79,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-small font-medium">
               Avg Progress
             </CardTitle>
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockOverviewData.averageProgress}%</div>
-            <p className="text-sm text-muted-foreground">
+            <div className="text-h2 font-bold">{mockOverviewData.averageProgress}%</div>
+            <p className="text-small text-muted-foreground">
               Employee completion rate
             </p>
           </CardContent>
@@ -104,8 +104,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Overall Progress</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-small font-medium">Overall Progress</span>
+              <span className="text-small text-muted-foreground">
                 {mockOverviewData.averageProgress}%
               </span>
             </div>
@@ -115,15 +115,15 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div className="flex gap-4 pt-4">
             <div className="flex items-center gap-2">
               <Badge variant="default" className="w-3 h-3 p-0 rounded-full" />
-              <span className="text-sm">Completed</span>
+              <span className="text-small">Completed</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="w-3 h-3 p-0 rounded-full" />
-              <span className="text-sm">In Progress</span>
+              <span className="text-small">In Progress</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="hollow-primary" className="w-3 h-3 p-0 rounded-full" />
-              <span className="text-sm">Not Started</span>
+              <span className="text-small">Not Started</span>
             </div>
           </div>
         </CardContent>

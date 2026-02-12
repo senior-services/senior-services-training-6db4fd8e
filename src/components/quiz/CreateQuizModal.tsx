@@ -240,7 +240,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
               <Card key={questionIndex} className="border-border">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">Question {questionIndex + 1}</CardTitle>
+                    <CardTitle>Question {questionIndex + 1}</CardTitle>
                     <Button
                       onClick={() => removeQuestion(questionIndex)}
                       variant="ghost"
@@ -265,7 +265,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                       )}
                     />
                     {validationErrors[questionIndex]?.includes('Question text is required') && (
-                      <div className="text-sm text-destructive mt-1">
+                      <div className="text-small text-destructive mt-1">
                         Question text is required.
                       </div>
                     )}
@@ -368,7 +368,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                           </RadioGroup>
                           
                           {validationErrors[questionIndex] && (
-                            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                            <div className="text-small text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                               {validationErrors[questionIndex]}
                             </div>
                           )}
@@ -416,7 +416,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                           </OptionList>
                           
                           {validationErrors[questionIndex] && (
-                            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                            <div className="text-small text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                               {validationErrors[questionIndex]}
                             </div>
                           )}
@@ -429,7 +429,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                     <div className="space-y-3">
                       <Label>Select Correct Answer</Label>
                       <div className="space-y-3">
-                        <div className="text-sm text-muted-foreground mb-2">
+                        <div className="text-small text-muted-foreground mb-2">
                           Choose which option is correct:
                         </div>
                         <RadioGroup
@@ -457,7 +457,7 @@ export function CreateQuizModal({ open, onOpenChange, onSubmit, videoId, isSubmi
                         </RadioGroup>
                         
                         {validationErrors[questionIndex] && (
-                          <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                          <div className="text-small text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                             {validationErrors[questionIndex]}
                           </div>
                         )}

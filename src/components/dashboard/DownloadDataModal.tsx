@@ -56,7 +56,7 @@ export const DownloadDataModal: React.FC<DownloadDataModalProps> = ({
             onCheckedChange={setIncludeHidden}
             disabled={isLoading}
           />
-          <Label htmlFor={switchId} className="text-base cursor-pointer">
+          <Label htmlFor={switchId} className="cursor-pointer">
             Include hidden employees ({hiddenCount})
           </Label>
         </div>

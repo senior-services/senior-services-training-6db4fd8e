@@ -95,7 +95,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
                   aria-hidden="true"
                 />
               </div>
-              <CardTitle id="error-title" className="text-xl">
+              <CardTitle id="error-title">
                 {isCompanyEmailError ? 'Company Email Required' : 'Authentication Error'}
               </CardTitle>
             </CardHeader>
@@ -111,7 +111,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
                     <p className="mb-2">
                       Only @southsoundseniors.org email addresses are allowed to access this training portal.
                     </p>
-                    <p className="text-sm">
+                    <p className="text-small">
                       Need access? Contact {APP_CONFIG.supportEmail}
                     </p>
                   </>
@@ -120,7 +120,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
                     <p className="mb-2">
                       Something went wrong during the authentication process.
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-small text-muted-foreground">
                       Error ID: {this.state.errorId}
                     </p>
                   </>

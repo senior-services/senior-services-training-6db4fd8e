@@ -116,7 +116,7 @@ export const Auth = () => {
         {/* Header */}
         <div className="text-center">
           <img src="/lovable-uploads/SS_2019_logo_Reversed.png" alt="Senior Services for South Sound" className="mx-auto h-32 w-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Training Portal</h1>
+          <h1 className="text-h2 font-bold text-white mb-2">Training Portal</h1>
           
         </div>
 
@@ -165,7 +165,7 @@ export const Auth = () => {
                   </Button>
                 </div>
               </div>
-              <div className="mt-2 text-sm text-attention/80 text-center">
+              <div className="mt-2 text-small text-attention/80 text-center">
                 Employee 1: jane.doe | Employee 2: john.doe | Admin: admin@southsoundseniors.org
               </div>
             </div>
@@ -180,7 +180,7 @@ export const Auth = () => {
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
-              <div className="relative flex justify-center text-sm uppercase">
+              <div className="relative flex justify-center text-small uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
                   Or continue with email
                 </span>
@@ -199,7 +199,7 @@ export const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">
                       Email
-                      <span className="text-sm text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
+                      <span className="text-small text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
                     </Label>
                     <Input 
                       id="signin-email" 
@@ -214,7 +214,7 @@ export const Auth = () => {
                     {emailError && (
                       <div 
                         id="email-error" 
-                        className="text-sm text-destructive" 
+                        className="text-small text-destructive"
                         role="alert"
                         aria-live="polite"
                       >
@@ -250,7 +250,7 @@ export const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">
                       Email
-                      <span className="text-sm text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
+                      <span className="text-small text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
                     </Label>
                     <Input 
                       id="signup-email" 
@@ -265,7 +265,7 @@ export const Auth = () => {
                     {emailError && (
                       <div 
                         id="signup-email-error" 
-                        className="text-sm text-destructive" 
+                        className="text-small text-destructive" 
                         role="alert"
                         aria-live="polite"
                       >
@@ -293,7 +293,7 @@ export const Auth = () => {
               </TabsContent>
             </Tabs>
             
-            <div className="mt-4 text-center text-sm text-muted-foreground">
+            <div className="mt-4 text-center text-small text-muted-foreground">
               New employees will be automatically registered with employee access upon first login
             </div>
           </CardContent>

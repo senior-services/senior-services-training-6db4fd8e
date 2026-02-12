@@ -215,7 +215,7 @@ export const AdminManagement: React.FC = () => {
                   <h4 className="font-medium text-foreground">
                     No admins found
                   </h4>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-small text-muted-foreground">
                     Add administrators to manage the system.
                   </p>
                 </div>
@@ -235,7 +235,7 @@ export const AdminManagement: React.FC = () => {
                   >
                     Name
                   </SortableTableHead>
-                  <TableHead className="text-xs font-medium uppercase text-muted-foreground">Email</TableHead>
+                  <TableHead className="text-small font-medium uppercase text-muted-foreground">Email</TableHead>
                   <SortableTableHead
                     column="dateAdded"
                     sortColumn={sortColumn}
@@ -244,7 +244,7 @@ export const AdminManagement: React.FC = () => {
                   >
                     Date Added
                   </SortableTableHead>
-                  <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                  <TableHead className="text-right text-small font-medium uppercase text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -253,7 +253,7 @@ export const AdminManagement: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <div>
                           <span>{admin.isPending ? '--' : admin.full_name || 'Unknown'}</span>
-                          <Badge variant="soft-attention" showIcon className="ml-2 text-xs">
+                          <Badge variant="soft-attention" showIcon className="ml-2 text-caption">
                             {admin.isPending ? 'Pending' : 'Admin'}
                           </Badge>
                         </div>
