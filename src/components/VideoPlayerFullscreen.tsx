@@ -669,39 +669,41 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     )
                   )}
                   {/* Pre-quiz or no-quiz: Cancel + primary action */}
-                  <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
-                    Cancel
-                  </Button>
-                  {quizLoading ? null : quiz ? (
-                    <Button
-                      disabled={timerActive}
-                      onClick={handleStartQuiz}
-                      className={cn(
-                        "transition-all duration-500",
-                        !timerActive && "animate-scale-in"
-                      )}
-                    >
-                      Start Quiz to Complete Training
+                  <div className="flex gap-2">
+                    <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
+                      Cancel
                     </Button>
-                  ) : (timerActive || !presentationAcknowledged) ? (
-                    <ButtonWithTooltip
-                      tooltip={timerActive
-                        ? "Please wait for the viewing timer to complete."
-                        : "Please check the acknowledgment checkbox above to proceed."
-                      }
-                      disabled
-                      className={cn("transition-all duration-500")}
-                    >
-                      Complete Training
-                    </ButtonWithTooltip>
-                  ) : (
-                    <Button
-                      onClick={handleCompleteTraining}
-                      className={cn("transition-all duration-500 animate-scale-in")}
-                    >
-                      Complete Training
-                    </Button>
-                  )}
+                    {quizLoading ? null : quiz ? (
+                      <Button
+                        disabled={timerActive}
+                        onClick={handleStartQuiz}
+                        className={cn(
+                          "transition-all duration-500",
+                          !timerActive && "animate-scale-in"
+                        )}
+                      >
+                        Start Quiz to Complete Training
+                      </Button>
+                    ) : (timerActive || !presentationAcknowledged) ? (
+                      <ButtonWithTooltip
+                        tooltip={timerActive
+                          ? "Please wait for the viewing timer to complete."
+                          : "Please check the acknowledgment checkbox above to proceed."
+                        }
+                        disabled
+                        className={cn("transition-all duration-500")}
+                      >
+                        Complete Training
+                      </ButtonWithTooltip>
+                    ) : (
+                      <Button
+                        onClick={handleCompleteTraining}
+                        className={cn("transition-all duration-500 animate-scale-in")}
+                      >
+                        Complete Training
+                      </Button>
+                    )}
+                  </div>
                 </>
               )}
             </div>
