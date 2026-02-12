@@ -542,6 +542,10 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     font-size: 0.8rem;
     line-height: 1.5;
   }
+  .tooltip-content {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
   .text-caption {
     font-size: 0.64rem;
     line-height: 1.4;
