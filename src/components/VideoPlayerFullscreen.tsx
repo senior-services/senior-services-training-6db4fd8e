@@ -530,7 +530,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </div>
 
           {/* Compliance Checkbox - Only for Presentations */}
-          {video && video.content_type === 'presentation' && !wasEverCompleted && !quiz && (
+          {video && video.content_type === 'presentation' && !wasEverCompleted && !quiz && !quizLoading && (
             <div className="mt-4">
               <TrainingAttestation
                 enabled={checkboxEnabled}
@@ -671,7 +671,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   <Button variant="outline" disabled={timerActive} onClick={() => onOpenChange(false)}>
                     Cancel
                   </Button>
-                  {quiz ? (
+                  {quizLoading ? null : quiz ? (
                     <Button
                       disabled={timerActive}
                       onClick={handleStartQuiz}
