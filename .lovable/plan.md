@@ -1,86 +1,79 @@
 
 
-## Restore Natural Scroll Flow in VideoPlayerFullscreen.tsx
+## Final Structural Restoration: "Sandwich" Layout
 
-### Problem
+### Goal
+Restore the fixed header / scrollable body / fixed footer layout so header and footer are always visible, and only the middle content scrolls.
 
-The current layout has `DialogHeader` fixed outside the scroll area and `DialogFooter` also outside. The user wants a **natural scroll flow** where header, content, and footer all live inside a single scrollable container -- the footer only appears when you scroll to the bottom.
+### Current vs. Target Structure
 
-### Structural Change
-
-Current structure:
 ```text
-FullscreenDialogContent (flex-col, overflow-hidden)
-  +-- DialogHeader (fixed, flex-shrink-0)
-  +-- div[scrollable] (flex-1 overflow-y-auto, p-6)
-  |     +-- content (video/slides/quiz/attestation)
-  +-- DialogFooter (fixed, flex-shrink-0)
-```
-
-New structure:
-```text
+CURRENT (everything scrolls together):
 FullscreenDialogContent (flex-col, overflow-hidden)
   +-- div[scrollable] (flex-1 overflow-y-auto, px-6 pb-6 pt-0)
         +-- DialogHeader (pt-6 pb-4 px-0 border-b)
-        +-- content (video/slides/quiz/attestation)
+        +-- content wrapper div
         +-- DialogFooter (px-0 py-6 mt-6 border-t)
+        +-- DialogFooter (px-0 py-6 mt-6 border-t)
+
+TARGET (sandwich):
+FullscreenDialogContent (flex-col, overflow-hidden)
+  +-- DialogHeader (flex-shrink-0) -- no className override, inherits primitive defaults
+  +-- div[scrollable] (flex-1 overflow-y-auto p-6 flex flex-col gap-6)
+  |     +-- description, video/slides, quiz, attestation
+  +-- DialogFooter (flex-shrink-0) -- no className override, inherits primitive defaults
 ```
 
-### Changes (single file: `src/components/VideoPlayerFullscreen.tsx`)
+### Technical Changes (single file: `src/components/VideoPlayerFullscreen.tsx`)
 
-**1. Move DialogHeader back inside the scrollable div and wrap footer inside it too**
+**1. Move DialogHeader outside the scrollable div (lines 427-432)**
 
-Line 503-508: Move `DialogHeader` inside the scrollable div and change the div's padding:
+Extract `DialogHeader` from inside the scrollable div and place it as a direct child of `FullscreenDialogContent`, before the scrollable div. Remove all className overrides (`pt-6 pb-4 px-0 border-b`) so it inherits the primitive defaults (`px-6 py-4 border-b flex-shrink-0`).
 
 ```tsx
-<div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full px-6 pb-6 pt-0" data-dialog-scroll-area>
-  <DialogHeader className="pt-6 pb-4 px-0 border-b">
-    <DialogTitle>
-      {video?.title || 'Training Video'}
-    </DialogTitle>
+<FullscreenDialogContent ...>
+  <DialogHeader>
+    <DialogTitle>{video?.title || 'Training Video'}</DialogTitle>
   </DialogHeader>
-  <div className="flex flex-col gap-6 pt-6">
-    ... existing content (description, video, quiz, attestation) ...
-  </div>
+  <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6" data-dialog-scroll-area>
+    {/* content starts here -- no inner wrapper div needed, gap-6 handles spacing */}
 ```
 
-The header overrides:
-- `pt-6 pb-4`: top padding provides the 24px top spacing, bottom padding gives 16px before the border
-- `px-0`: zeroes out the primitive's built-in `px-6` since the parent already provides it
-- `border-b`: kept (primitive default, but explicitly stated to override any prior removal)
-- The primitive's `bg-background` and `flex-shrink-0` remain from the base class -- `flex-shrink-0` is harmless inside a scroll container
+**2. Flatten the content wrapper (line 433)**
 
-**2. Move both DialogFooter blocks inside the scrollable div**
+Remove the inner `<div className="flex flex-col gap-6 pt-6">` wrapper. The scrollable div itself now carries `flex flex-col gap-6`, so the description block, video container, quiz section, and attestation become direct children. Remove `pt-6` since the scrollable div's `p-6` already provides top spacing.
 
-Move the two footer blocks (quiz footer at line 563-619 and presentation footer at line 621-727) from after `</div>` (closing the scroll area) to just before `</div>`. Apply className overrides to remove their own padding/border since the parent handles gutters:
+**3. Move both DialogFooter blocks outside the scrollable div (lines 488-649)**
 
-```tsx
-<DialogFooter className="px-0 py-6 mt-6 border-t">
-```
+Move the two `DialogFooter` blocks (quiz footer at line 489 and presentation footer at line 548) from inside the scrollable div to after the closing `</div>` of the scrollable div, as direct children of `FullscreenDialogContent`. Remove all className overrides (`px-0 py-6 mt-6 border-t`) so they inherit primitive defaults (`px-6 py-4 border-t flex-shrink-0`).
 
-This override:
-- `px-0`: zeroes out primitive's `px-6` since the scrollable parent provides `px-6`
-- `py-6`: 24px vertical padding for breathing room
-- `mt-6`: gap above the footer separator
-- `border-t`: kept from primitive default (explicitly stated for clarity)
+**4. Harden scroll reset (line 414-424)**
 
-**3. Scroll reset -- no changes needed**
+The existing `onOpenAutoFocus` handler already resets `scrollRef.current.scrollTop = 0` inside a `setTimeout`. No change needed here -- with the header outside the scroll area, `scrollTop = 0` correctly shows the top of the content.
 
-The existing `useEffect` and `onOpenAutoFocus` handler both reset `scrollRef.current.scrollTop = 0`. Since the header is now the first child inside the scroll container, resetting to 0 guarantees the header is visible on open.
+**5. Add autoFocus={false} to ContentPlayer**
+
+Pass `autoFocus={false}` to the `ContentPlayer` component (line 452) to prevent the browser from scrolling to embedded iframes on dialog open. If `ContentPlayer` does not currently accept this prop, the `tabIndex={0}` on the parent `data-video-container` div already handles focus, and the `e.preventDefault()` in `onOpenAutoFocus` blocks native autofocus. This step may be a no-op if the iframe focus is already suppressed.
+
+**6. Senior-First Compliance Verification**
+
+- `DialogTitle` renders as a bare tag with no inline overrides -- it inherits `.text-h3` (25px, weight 600) from the global CSS. Per the user's request for `.text-h4`, this would change to 20px/600 weight. This is a design decision.
+- Footer buttons use the `Button` primitive which inherits `.text-body` (16px) from the global CSS. No change needed.
 
 ### Summary
 
 | Area | Change |
 |------|--------|
-| Scrollable div | Now wraps header + content + footer; className changes to `px-6 pb-6 pt-0` |
-| DialogHeader | Moved inside scroll div; className `pt-6 pb-4 px-0 border-b` |
-| Content wrapper | Wrapped in inner `div` with `flex flex-col gap-6 pt-6` for spacing |
-| Both DialogFooters | Moved inside scroll div; className `px-0 py-6 mt-6 border-t` |
-| Scroll reset | No change -- existing logic already handles it |
+| DialogHeader | Moved outside scrollable div; no className override; inherits primitive `px-6 py-4 border-b flex-shrink-0` |
+| Scrollable div | `className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6"` |
+| Content wrapper | Removed inner wrapper div; children become direct children of scrollable div |
+| Both DialogFooters | Moved outside scrollable div; no className override; inherits primitive `px-6 py-4 border-t flex-shrink-0` |
+| Scroll reset | No change needed -- existing logic handles it |
+| autoFocus | Already suppressed by `onOpenAutoFocus` `e.preventDefault()` |
 
 ### Review
 
-1. **Risks:** Footer is no longer pinned -- it scrolls away. This is the explicitly requested behavior. Users must scroll to reach action buttons. For short content that fits the viewport, the footer will still be visible.
-2. **Fixes:** Header visible on open; natural document flow; consistent 24px side gutters; border separators on header and footer; no negative-margin hacks.
+1. **Top 3 Risks:** (a) Footer is now always visible, reducing vertical space for video by ~56px -- acceptable for senior legibility. (b) Two conditional DialogFooters render as siblings; only one shows at a time due to conditional logic, so no double-footer risk. (c) The `DialogTitle` scale step (h3 vs h4) needs a design decision from the user.
+2. **Top 3 Fixes:** (a) Header and footer permanently visible with consistent borders. (b) No negative-margin hacks or padding overrides on primitives. (c) Scroll position guaranteed at top on open.
 3. **Database Change:** No.
 4. **Verdict:** Go.
