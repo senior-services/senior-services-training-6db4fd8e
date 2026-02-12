@@ -192,7 +192,7 @@ export const AdminManagement: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-semibold">Admin Management</h3>
+          <h3 className="font-semibold">Admin Management</h3>
           <p className="text-muted-foreground">Manage admins, employees, and training assignments</p>
         </div>
         <Button onClick={() => setShowAddModal(true)}>

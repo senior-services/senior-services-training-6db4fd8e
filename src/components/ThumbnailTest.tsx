@@ -23,7 +23,7 @@ export const ThumbnailTest = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <h3 className="text-lg font-bold">Thumbnail Loading Test</h3>
+      <h3 className="font-bold">Thumbnail Loading Test</h3>
       {testThumbnails.map((test, index) => (
         <div key={index} className="border p-4 rounded">
           <h4 className="font-medium mb-2">{test.title}</h4>
@@ -34,7 +34,7 @@ export const ThumbnailTest = () => {
             onLoad={() => console.log(`✅ Loaded: ${test.title}`)}
             onError={() => console.log(`❌ Failed: ${test.title}`)}
           />
-          <p className="text-sm text-gray-600 mt-2">{test.url}</p>
+          <p className="text-small text-muted-foreground mt-2">{test.url}</p>
         </div>
       ))}
     </div>

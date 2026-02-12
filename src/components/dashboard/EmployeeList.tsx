@@ -152,7 +152,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
       {/* Header and statistics */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-xl font-semibold">Employee Progress Overview</h3>
+          <h3 className="font-semibold">Employee Progress Overview</h3>
           <p className="text-muted-foreground">
             Track training completion and identify employees who need support
           </p>

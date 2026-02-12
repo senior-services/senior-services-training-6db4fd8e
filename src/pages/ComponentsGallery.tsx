@@ -199,89 +199,89 @@ export const ComponentsGallery = ({
         <main className="container mx-auto px-4 py-8 space-y-12">
           {/* Page Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-foreground">Components Gallery</h1>
+            <h1 className="font-bold text-foreground">Components Gallery</h1>
             
             
             {/* Anchor Navigation */}
             <nav className="pt-4">
               <ul className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-x-6 text-left">
                  <li className="break-inside-avoid mb-1">
-                    <a href="#banners" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                    <a href="#banners" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                       Banners
                     </a>
                   </li>
                  <li className="break-inside-avoid mb-1">
-                   <a href="#badges" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                   <a href="#badges" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                      Badges
                    </a>
                  </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#buttons" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#buttons" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Buttons
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#calendar" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#calendar" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Calendar
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#color-palette" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#color-palette" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Color Palette
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#data-display" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#data-display" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Data Display
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#form-controls" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#form-controls" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Form Controls
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#icons" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#icons" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Icons
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#interactive" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#interactive" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Interactive
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#layout" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#layout" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Layout
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#progress" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#progress" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Progress
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                   <a href="#toast" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                   <a href="#toast" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                      Toast
                    </a>
                  </li>
                  <li className="break-inside-avoid mb-1">
-                   <a href="#tooltips" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                   <a href="#tooltips" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                      Tooltips
                    </a>
                  </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#training-cards" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#training-cards" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Training Cards
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#typography" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#typography" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Typography
                   </a>
                 </li>
                 <li className="break-inside-avoid mb-1">
-                  <a href="#typography-utilities" className="block text-xs text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
+                  <a href="#typography-utilities" className="block text-caption text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors font-medium">
                     Typography Utility Classes
                   </a>
                 </li>
@@ -300,13 +300,13 @@ export const ComponentsGallery = ({
                 
                 {/* Primary Colors */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase text-secondary">Primary Colors</h4>
+                  <h4 className="text-small font-bold uppercase text-secondary">Primary Colors</h4>
                   <div className="space-y-2">
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-primary border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Primary</div>
-                         <div className="text-xs text-muted-foreground">--primary</div>
+                         <div className="text-small font-medium">Primary</div>
+                         <div className="text-caption text-muted-foreground">--primary</div>
                        </div>
                      </div>
                   </div>
@@ -314,13 +314,13 @@ export const ComponentsGallery = ({
 
                 {/* Secondary Colors */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase text-secondary">Secondary Colors</h4>
+                  <h4 className="text-small font-bold uppercase text-secondary">Secondary Colors</h4>
                   <div className="space-y-2">
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-secondary border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Secondary</div>
-                         <div className="text-xs text-muted-foreground">--secondary</div>
+                         <div className="text-small font-medium">Secondary</div>
+                         <div className="text-caption text-muted-foreground">--secondary</div>
                        </div>
                      </div>
                   </div>
@@ -328,34 +328,34 @@ export const ComponentsGallery = ({
 
                 {/* Status Colors */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase text-secondary">Status Colors</h4>
+                  <h4 className="text-small font-bold uppercase text-secondary">Status Colors</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-success border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Success</div>
-                        <div className="text-xs text-muted-foreground">--success</div>
+                        <div className="text-small font-medium">Success</div>
+                        <div className="text-caption text-muted-foreground">--success</div>
                       </div>
                     </div>
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-warning border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Warning</div>
-                         <div className="text-xs text-muted-foreground">--warning</div>
+                         <div className="text-small font-medium">Warning</div>
+                         <div className="text-caption text-muted-foreground">--warning</div>
                        </div>
                      </div>
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-attention border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Attention</div>
-                         <div className="text-xs text-muted-foreground">--attention</div>
+                         <div className="text-small font-medium">Attention</div>
+                         <div className="text-caption text-muted-foreground">--attention</div>
                        </div>
                      </div>
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-destructive border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Destructive</div>
-                         <div className="text-xs text-muted-foreground">--destructive</div>
+                         <div className="text-small font-medium">Destructive</div>
+                         <div className="text-caption text-muted-foreground">--destructive</div>
                        </div>
                      </div>
                   </div>
@@ -363,48 +363,48 @@ export const ComponentsGallery = ({
 
                 {/* UI Colors */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase text-secondary">UI Colors</h4>
+                  <h4 className="text-small font-bold uppercase text-secondary">UI Colors</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-background-main border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Background Main</div>
-                        <div className="text-xs text-muted-foreground">--background-main</div>
+                        <div className="text-small font-medium">Background Main</div>
+                        <div className="text-caption text-muted-foreground">--background-main</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-background-header border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Background Header</div>
-                        <div className="text-xs text-muted-foreground">--background-header</div>
+                        <div className="text-small font-medium">Background Header</div>
+                        <div className="text-caption text-muted-foreground">--background-header</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-background-primary border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Background Primary</div>
-                        <div className="text-xs text-muted-foreground">--background-primary</div>
+                        <div className="text-small font-medium">Background Primary</div>
+                        <div className="text-caption text-muted-foreground">--background-primary</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-background-muted border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Background Muted</div>
-                        <div className="text-xs text-muted-foreground">--background-muted</div>
+                        <div className="text-small font-medium">Background Muted</div>
+                        <div className="text-caption text-muted-foreground">--background-muted</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-card border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Card</div>
-                        <div className="text-xs text-muted-foreground">--card</div>
+                        <div className="text-small font-medium">Card</div>
+                        <div className="text-caption text-muted-foreground">--card</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-muted border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Muted</div>
-                        <div className="text-xs text-muted-foreground">--muted</div>
+                        <div className="text-small font-medium">Muted</div>
+                        <div className="text-caption text-muted-foreground">--muted</div>
                       </div>
                     </div>
                   </div>
@@ -412,15 +412,15 @@ export const ComponentsGallery = ({
 
                 {/* Text Colors */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase text-secondary">Text Colors</h4>
+                  <h4 className="text-small font-bold uppercase text-secondary">Text Colors</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-background border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 flex items-center justify-center">
                         <div className="w-6 h-6 bg-foreground rounded-sm shadow-sm"></div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium">Foreground</div>
-                        <div className="text-xs text-muted-foreground">--foreground</div>
+                        <div className="text-small font-medium">Foreground</div>
+                        <div className="text-caption text-muted-foreground">--foreground</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -428,8 +428,8 @@ export const ComponentsGallery = ({
                         <div className="w-6 h-6 bg-muted-foreground rounded-sm shadow-sm"></div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium">Muted Foreground</div>
-                        <div className="text-xs text-muted-foreground">--muted-foreground</div>
+                        <div className="text-small font-medium">Muted Foreground</div>
+                        <div className="text-caption text-muted-foreground">--muted-foreground</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -437,8 +437,8 @@ export const ComponentsGallery = ({
                         <div className="w-6 h-6 bg-primary-foreground rounded-sm shadow-sm"></div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium">Primary Foreground</div>
-                        <div className="text-xs text-muted-foreground">--primary-foreground</div>
+                        <div className="text-small font-medium">Primary Foreground</div>
+                        <div className="text-caption text-muted-foreground">--primary-foreground</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -446,8 +446,8 @@ export const ComponentsGallery = ({
                         <div className="w-6 h-6 bg-secondary-foreground rounded-sm shadow-sm"></div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium">Secondary Foreground</div>
-                        <div className="text-xs text-muted-foreground">--secondary-foreground</div>
+                        <div className="text-small font-medium">Secondary Foreground</div>
+                        <div className="text-caption text-muted-foreground">--secondary-foreground</div>
                       </div>
                     </div>
                   </div>
@@ -455,41 +455,41 @@ export const ComponentsGallery = ({
 
                 {/* Border & Input Colors */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase text-secondary">Border & Input</h4>
+                  <h4 className="text-small font-bold uppercase text-secondary">Border & Input</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-border-primary border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Border Primary</div>
-                        <div className="text-xs text-muted-foreground">--border-primary</div>
+                        <div className="text-small font-medium">Border Primary</div>
+                        <div className="text-caption text-muted-foreground">--border-primary</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-border-secondary border border-border-secondary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Border Secondary</div>
-                        <div className="text-xs text-muted-foreground">--border-secondary</div>
+                        <div className="text-small font-medium">Border Secondary</div>
+                        <div className="text-caption text-muted-foreground">--border-secondary</div>
                       </div>
                     </div>
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-input border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Input</div>
-                         <div className="text-xs text-muted-foreground">--input</div>
+                         <div className="text-small font-medium">Input</div>
+                         <div className="text-caption text-muted-foreground">--input</div>
                        </div>
                      </div>
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-accent border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Accent</div>
-                         <div className="text-xs text-muted-foreground">--accent</div>
+                         <div className="text-small font-medium">Accent</div>
+                         <div className="text-caption text-muted-foreground">--accent</div>
                        </div>
                      </div>
                      <div className="flex items-center gap-3">
                        <div className="w-12 h-12 rounded-lg bg-ring border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                        <div>
-                         <div className="text-sm font-medium">Ring</div>
-                         <div className="text-xs text-muted-foreground">--ring</div>
+                         <div className="text-small font-medium">Ring</div>
+                         <div className="text-caption text-muted-foreground">--ring</div>
                        </div>
                      </div>
                   </div>
@@ -497,27 +497,27 @@ export const ComponentsGallery = ({
 
                 {/* Gradient Examples */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase text-secondary">Gradients</h4>
+                  <h4 className="text-small font-bold uppercase text-secondary">Gradients</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-gradient-primary border border-border-primary shadow-lg hover:shadow-card transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Primary Gradient</div>
-                        <div className="text-xs text-muted-foreground">--gradient-primary</div>
+                        <div className="text-small font-medium">Primary Gradient</div>
+                        <div className="text-caption text-muted-foreground">--gradient-primary</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-gradient-hero border border-border-primary shadow-lg hover:shadow-card transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Hero Gradient</div>
-                        <div className="text-xs text-muted-foreground">--gradient-hero</div>
+                        <div className="text-small font-medium">Hero Gradient</div>
+                        <div className="text-caption text-muted-foreground">--gradient-hero</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-gradient-card border border-border-primary shadow-lg hover:shadow-card transition-all duration-200 hover:scale-105"></div>
                       <div>
-                        <div className="text-sm font-medium">Card Gradient</div>
-                        <div className="text-xs text-muted-foreground">--gradient-card</div>
+                        <div className="text-small font-medium">Card Gradient</div>
+                        <div className="text-caption text-muted-foreground">--gradient-card</div>
                       </div>
                     </div>
                   </div>
@@ -751,7 +751,7 @@ export const ComponentsGallery = ({
                   <div className="rounded-lg p-6 border border-border-primary/50 shadow-md">
                     <div className="space-y-4">
                       <div>
-                        <h4 className="text-sm font-medium mb-2">With Text and Icons</h4>
+                        <h4 className="text-small font-medium mb-2">With Text and Icons</h4>
                         <div className="flex flex-wrap gap-3">
                           <Button className="shadow-md hover:shadow-lg transition-shadow"><Plus className="w-4 h-4 mr-2" />Add New</Button>
                           <Button variant="outline" className="shadow-md hover:shadow-lg transition-shadow"><Edit className="w-4 h-4 mr-2" />Edit</Button>
@@ -763,7 +763,7 @@ export const ComponentsGallery = ({
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium mb-2">Icon Only (Click to cycle icons)</h4>
+                        <h4 className="text-small font-medium mb-2">Icon Only (Click to cycle icons)</h4>
                         <div className="grid grid-cols-5 gap-4">
                           <div className="flex flex-col items-center gap-1">
                             <Button size="icon" onClick={() => cycleIcon('default')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
@@ -772,7 +772,7 @@ export const ComponentsGallery = ({
                             return <IconComponent className="w-4 h-4" />;
                           })()}
                             </Button>
-                            <span className="text-xs text-muted-foreground">default</span>
+                            <span className="text-caption text-muted-foreground">default</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
                             <Button size="icon" variant="outline" onClick={() => cycleIcon('outline')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
@@ -781,7 +781,7 @@ export const ComponentsGallery = ({
                             return <IconComponent className="w-4 h-4" />;
                           })()}
                             </Button>
-                            <span className="text-xs text-muted-foreground">outline</span>
+                            <span className="text-caption text-muted-foreground">outline</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
                             <Button size="icon" variant="destructive" onClick={() => cycleIcon('destructive')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
@@ -790,7 +790,7 @@ export const ComponentsGallery = ({
                             return <IconComponent className="w-4 h-4" />;
                           })()}
                             </Button>
-                            <span className="text-xs text-muted-foreground">destructive</span>
+                            <span className="text-caption text-muted-foreground">destructive</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
                             <Button size="icon" variant="ghost" onClick={() => cycleIcon('ghost')} className="cursor-pointer hover:shadow-md transition-all hover:scale-105">
@@ -799,7 +799,7 @@ export const ComponentsGallery = ({
                             return <IconComponent className="w-4 h-4" />;
                           })()}
                             </Button>
-                            <span className="text-xs text-muted-foreground">ghost</span>
+                            <span className="text-caption text-muted-foreground">ghost</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
                             <Button size="icon" variant="secondary" onClick={() => cycleIcon('secondary')} className="cursor-pointer shadow-md hover:shadow-lg transition-all hover:scale-105">
@@ -808,7 +808,7 @@ export const ComponentsGallery = ({
                             return <IconComponent className="w-4 h-4" />;
                           })()}
                             </Button>
-                            <span className="text-xs text-muted-foreground">secondary</span>
+                            <span className="text-caption text-muted-foreground">secondary</span>
                           </div>
                         </div>
                       </div>
@@ -874,7 +874,7 @@ export const ComponentsGallery = ({
                   <div className="space-y-4">
                     <div className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
                       <div>
-                        <Label className="text-sm font-medium mb-2 block">Binary Switch (On/Off)</Label>
+                        <Label className="text-small font-medium mb-2 block">Binary Switch (On/Off)</Label>
                         <div className="flex items-center space-x-2">
                           <Switch id="switch" checked={switchValue} onCheckedChange={setSwitchValue} />
                           <Label htmlFor="switch">Enable notifications</Label>
@@ -884,7 +884,7 @@ export const ComponentsGallery = ({
                       <Separator />
                       
                       <div>
-                        <Label className="text-sm font-medium mb-2 block">Two-Option Toggle</Label>
+                        <Label className="text-small font-medium mb-2 block">Two-Option Toggle</Label>
                         <ToggleGroup type="single" value={twoOptionToggle} onValueChange={value => value && setTwoOptionToggle(value)} variant="pill" size="pill" className="justify-start">
                           <ToggleGroupItem value="light" aria-label="Light mode">
                             Light
@@ -898,7 +898,7 @@ export const ComponentsGallery = ({
                       <Separator />
                       
                       <div>
-                        <Label className="text-sm font-medium mb-2 block">Multi-Option Toggle</Label>
+                        <Label className="text-small font-medium mb-2 block">Multi-Option Toggle</Label>
                         <ToggleGroup type="single" value={multiOptionToggle} onValueChange={value => value && setMultiOptionToggle(value)} variant="pill" size="pill" className="justify-start">
                           <ToggleGroupItem value="small" aria-label="Small size">
                             Small
@@ -922,7 +922,7 @@ export const ComponentsGallery = ({
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium mb-2 block">Radio Button Group</Label>
+                      <Label className="text-small font-medium mb-2 block">Radio Button Group</Label>
                       <RadioGroup value={radioValue} onValueChange={setRadioValue} className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="small" id="size-small" />
@@ -944,7 +944,7 @@ export const ComponentsGallery = ({
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium mb-2 block">Checkbox Group</Label>
+                      <Label className="text-small font-medium mb-2 block">Checkbox Group</Label>
                       <div className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
                         {["Newsletter", "Marketing", "Updates", "Security Alerts"].map(option => <div key={option} className="flex items-center space-x-2">
                             <Checkbox id={`checkbox-${option.toLowerCase().replace(" ", "-")}`} checked={checkboxGroupValue.includes(option.toLowerCase().replace(" ", "-"))} onCheckedChange={checked => {
@@ -992,7 +992,7 @@ export const ComponentsGallery = ({
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Default Banner - All Variant Options</h4>
+                <h4 className="text-small font-medium text-muted-foreground">Default Banner - All Variant Options</h4>
                 
                 {/* Default Banner - Basic */}
                 <Banner title="Default Banner" description="Basic banner with icon and no actions." />
@@ -1011,7 +1011,7 @@ export const ComponentsGallery = ({
 
                 <Separator className="my-6" />
 
-                <h4 className="text-sm font-medium text-muted-foreground">Other Banner Types</h4>
+                <h4 className="text-small font-medium text-muted-foreground">Other Banner Types</h4>
 
                 {/* Info Banner */}
                 <Banner variant="info" title="Information" description="Informational banner for updates or announcements." />
@@ -1030,7 +1030,7 @@ export const ComponentsGallery = ({
 
                 <Separator className="my-6" />
 
-                <h4 className="text-sm font-medium text-muted-foreground">Inline Banners (Compact)</h4>
+                <h4 className="text-small font-medium text-muted-foreground">Inline Banners (Compact)</h4>
 
                 {/* Compact Info */}
                 <Banner variant="info" size="compact" description="This field is optional." />
@@ -1060,7 +1060,7 @@ export const ComponentsGallery = ({
               <div className="space-y-4">
                 <div className="space-y-3">
                   <div>
-                    <h4 className="text-sm font-bold uppercase text-secondary mb-3">Solid Variants</h4>
+                    <h4 className="text-small font-bold uppercase text-secondary mb-3">Solid Variants</h4>
                       <div className="flex flex-wrap gap-2">
                         <Badge>Primary</Badge>
                         <Badge showIcon>Primary with Icon</Badge>
@@ -1079,7 +1079,7 @@ export const ComponentsGallery = ({
                       </div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold uppercase text-secondary mb-3">Hollow Variants</h4>
+                    <h4 className="text-small font-bold uppercase text-secondary mb-3">Hollow Variants</h4>
                      <div className="flex flex-wrap gap-2">
                         <Badge variant="hollow-primary">Primary</Badge>
                         <Badge variant="hollow-primary" showIcon>Primary with Icon</Badge>
@@ -1098,7 +1098,7 @@ export const ComponentsGallery = ({
                       </div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold uppercase text-secondary mb-3">Soft Variants</h4>
+                    <h4 className="text-small font-bold uppercase text-secondary mb-3">Soft Variants</h4>
                    <div className="flex flex-wrap gap-2">
                         <Badge variant="soft-primary">Primary</Badge>
                         <Badge variant="soft-primary" showIcon>Primary with Icon</Badge>
@@ -1117,7 +1117,7 @@ export const ComponentsGallery = ({
                       </div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold uppercase text-secondary mb-3">Ghost Variants</h4>
+                    <h4 className="text-small font-bold uppercase text-secondary mb-3">Ghost Variants</h4>
                      <div className="flex flex-wrap gap-2">
                         <Badge variant="ghost-primary">Primary</Badge>
                         <Badge variant="ghost-primary" showIcon>Primary with Icon</Badge>
@@ -1152,7 +1152,7 @@ export const ComponentsGallery = ({
                 <div className="flex gap-2">
                   <Button size="sm" onClick={() => setProgress(Math.max(0, progress - 10))}>-10</Button>
                   <Button size="sm" onClick={() => setProgress(Math.min(100, progress + 10))}>+10</Button>
-                  <span className="text-sm text-muted-foreground">{progress}%</span>
+                  <span className="text-small text-muted-foreground">{progress}%</span>
                 </div>
               </div>
             </CardContent>
@@ -1183,7 +1183,7 @@ export const ComponentsGallery = ({
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Avatars</h3>
+                <h3 className="font-medium">Avatars</h3>
                 <div className="flex gap-4">
                   <Avatar>
                     <AvatarImage src="https://github.com/shadcn.png" />
@@ -1199,7 +1199,7 @@ export const ComponentsGallery = ({
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Tables</h3>
+                <h3 className="font-medium">Tables</h3>
                 
                 <Tabs defaultValue="basic">
                   <TabsList>
@@ -1215,10 +1215,10 @@ export const ComponentsGallery = ({
                       <TableCaption>A simple data table</TableCaption>
                       <TableHeader>
                         <TableRow>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Name</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Email</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Role</TableHead>
-                            <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Name</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Email</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Role</TableHead>
+                            <TableHead className="text-right text-caption font-medium uppercase text-muted-foreground">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1289,7 +1289,7 @@ export const ComponentsGallery = ({
                           >
                             Department
                           </SortableTableHead>
-                           <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                           <TableHead className="text-right text-caption font-medium uppercase text-muted-foreground">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                        <TableBody>
@@ -1348,11 +1348,11 @@ export const ComponentsGallery = ({
                       <TableCaption>Filtered table with search and dropdown filters</TableCaption>
                       <TableHeader>
                         <TableRow>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">User</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Status</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Role</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Last Activity</TableHead>
-                            <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">User</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Status</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Role</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Last Activity</TableHead>
+                            <TableHead className="text-right text-caption font-medium uppercase text-muted-foreground">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                        <TableBody>
@@ -1364,7 +1364,7 @@ export const ComponentsGallery = ({
                                </Avatar>
                                <div>
                                  <div className="font-medium">Charlie Jones</div>
-                                 <div className="text-sm text-muted-foreground">charlie@example.com</div>
+                                 <div className="text-small text-muted-foreground">charlie@example.com</div>
                                </div>
                              </div>
                            </TableCell>
@@ -1396,7 +1396,7 @@ export const ComponentsGallery = ({
                                </Avatar>
                                <div>
                                  <div className="font-medium">Diana Miller</div>
-                                 <div className="text-sm text-muted-foreground">diana@example.com</div>
+                                 <div className="text-small text-muted-foreground">diana@example.com</div>
                                </div>
                              </div>
                            </TableCell>
@@ -1429,11 +1429,11 @@ export const ComponentsGallery = ({
                       <TableCaption>Table with various status badges and progress indicators</TableCaption>
                       <TableHeader>
                         <TableRow>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Project</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Progress</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Status</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Priority</TableHead>
-                            <TableHead className="text-xs font-medium uppercase text-muted-foreground">Assignee</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Project</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Progress</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Status</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Priority</TableHead>
+                            <TableHead className="text-caption font-medium uppercase text-muted-foreground">Assignee</TableHead>
                         </TableRow>
                       </TableHeader>
                        <TableBody>
@@ -1441,20 +1441,20 @@ export const ComponentsGallery = ({
                            <TableCell>
                              <div>
                                <div className="font-medium">Website Redesign</div>
-                               <div className="text-sm text-muted-foreground">Frontend improvements</div>
+                               <div className="text-small text-muted-foreground">Frontend improvements</div>
                              </div>
                            </TableCell>
                            <TableCell>
                              <div className="space-y-1">
                                <Progress value={75} className="w-[60px]" />
-                               <div className="text-xs text-muted-foreground">75%</div>
+                               <div className="text-caption text-muted-foreground">75%</div>
                              </div>
                            </TableCell>
                            <TableCell><Badge variant="success" showIcon>Complete</Badge></TableCell>
                            <TableCell><Badge variant="destructive">High</Badge></TableCell>
                            <TableCell>
                              <Avatar className="w-6 h-6">
-                               <AvatarFallback className="text-xs">JS</AvatarFallback>
+                               <AvatarFallback className="text-caption">JS</AvatarFallback>
                              </Avatar>
                            </TableCell>
                          </TableRow>
@@ -1462,20 +1462,20 @@ export const ComponentsGallery = ({
                            <TableCell>
                              <div>
                                <div className="font-medium">Mobile App</div>
-                               <div className="text-sm text-muted-foreground">iOS & Android development</div>
+                               <div className="text-small text-muted-foreground">iOS & Android development</div>
                              </div>
                            </TableCell>
                            <TableCell>
                              <div className="space-y-1">
                                <Progress value={45} className="w-[60px]" />
-                               <div className="text-xs text-muted-foreground">45%</div>
+                               <div className="text-caption text-muted-foreground">45%</div>
                              </div>
                            </TableCell>
                            <TableCell><Badge variant="warning" showIcon>In Progress</Badge></TableCell>
                            <TableCell><Badge variant="secondary">Medium</Badge></TableCell>
                            <TableCell>
                              <Avatar className="w-6 h-6">
-                               <AvatarFallback className="text-xs">AM</AvatarFallback>
+                               <AvatarFallback className="text-caption">AM</AvatarFallback>
                              </Avatar>
                            </TableCell>
                          </TableRow>
@@ -1483,20 +1483,20 @@ export const ComponentsGallery = ({
                            <TableCell>
                              <div>
                                <div className="font-medium">API Integration</div>
-                               <div className="text-sm text-muted-foreground">Backend services</div>
+                               <div className="text-small text-muted-foreground">Backend services</div>
                              </div>
                            </TableCell>
                            <TableCell>
                              <div className="space-y-1">
                                <Progress value={20} className="w-[60px]" />
-                               <div className="text-xs text-muted-foreground">20%</div>
+                               <div className="text-caption text-muted-foreground">20%</div>
                              </div>
                            </TableCell>
                            <TableCell><Badge variant="hollow-destructive" showIcon>Blocked</Badge></TableCell>
                            <TableCell><Badge variant="hollow-warning">Low</Badge></TableCell>
                            <TableCell>
                              <Avatar className="w-6 h-6">
-                               <AvatarFallback className="text-xs">RK</AvatarFallback>
+                               <AvatarFallback className="text-caption">RK</AvatarFallback>
                              </Avatar>
                            </TableCell>
                          </TableRow>
@@ -1506,15 +1506,15 @@ export const ComponentsGallery = ({
                    
                    <TabsContent value="accordion" className="space-y-4">
                      <div className="rounded-lg p-6 border border-border-primary/50 shadow-md">
-                       <h4 className="text-sm font-medium mb-4">Collapsible Table Rows (Admin Pattern)</h4>
+                       <h4 className="text-small font-medium mb-4">Collapsible Table Rows (Admin Pattern)</h4>
                        <Table>
                          <TableCaption>Employee table with expandable rows matching admin area pattern</TableCaption>
                          <TableHeader>
                            <TableRow>
-                              <TableHead className="text-xs font-medium uppercase text-muted-foreground">Employee</TableHead>
-                              <TableHead className="text-xs font-medium uppercase text-muted-foreground">Department</TableHead>
-                              <TableHead className="text-xs font-medium uppercase text-muted-foreground">Status</TableHead>
-                              <TableHead className="text-right text-xs font-medium uppercase text-muted-foreground">Actions</TableHead>
+                               <TableHead className="text-caption font-medium uppercase text-muted-foreground">Employee</TableHead>
+                               <TableHead className="text-caption font-medium uppercase text-muted-foreground">Department</TableHead>
+                               <TableHead className="text-caption font-medium uppercase text-muted-foreground">Status</TableHead>
+                               <TableHead className="text-right text-caption font-medium uppercase text-muted-foreground">Actions</TableHead>
                            </TableRow>
                          </TableHeader>
                          <TableBody>
@@ -1560,7 +1560,7 @@ export const ComponentsGallery = ({
                                              {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                                              <div>
                                                <div className="font-medium">{employee.name}</div>
-                                               <div className="text-sm text-muted-foreground">{employee.email}</div>
+                                               <div className="text-small text-muted-foreground">{employee.email}</div>
                                              </div>
                                            </div>
                                          </div>
@@ -1597,7 +1597,7 @@ export const ComponentsGallery = ({
                                        <Collapsible open={isExpanded}>
                                          <CollapsibleContent>
                                            <div className="px-4 pb-4 ml-6">
-                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm border-l-2 border-muted pl-4">
+                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-small border-l-2 border-muted pl-4">
                                                <div className="space-y-2">
                                                  <p><strong>Role:</strong> {employee.role}</p>
                                                  <p><strong>Location:</strong> {employee.location}</p>
@@ -1624,7 +1624,7 @@ export const ComponentsGallery = ({
                </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Loading States</h3>
+                <h3 className="font-medium">Loading States</h3>
                 <LoadingSkeleton />
               </div>
             </CardContent>
@@ -1885,12 +1885,12 @@ export const ComponentsGallery = ({
 
               {/* Badge Rules Reference */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Badge Rules Reference</h3>
+                <h3 className="font-semibold">Badge Rules Reference</h3>
 
                 {/* Status Badges */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Status Badges</h4>
-                  <p className="text-sm text-muted-foreground">Displayed above the title, based on completion status and due date.</p>
+                  <h4 className="text-small font-semibold text-muted-foreground uppercase tracking-wider">Status Badges</h4>
+                  <p className="text-small text-muted-foreground">Displayed above the title, based on completion status and due date.</p>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1901,27 +1901,27 @@ export const ComponentsGallery = ({
                     <TableBody>
                       <TableRow>
                         <TableCell><Badge variant="soft-success" className="gap-1"><CheckCircle className="w-3 h-3" />Completed</Badge></TableCell>
-                        <TableCell className="text-sm">Training is 100% complete</TableCell>
+                        <TableCell className="text-small">Training is 100% complete</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell><Badge variant="soft-destructive" className="gap-1"><AlertCircle className="w-3 h-3" />Overdue</Badge></TableCell>
-                        <TableCell className="text-sm">Due date has passed and training is not 100% done</TableCell>
+                        <TableCell className="text-small">Due date has passed and training is not 100% done</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell><Badge variant="soft-warning">Due Today</Badge></TableCell>
-                        <TableCell className="text-sm">Due date is today and training is not 100% done</TableCell>
+                        <TableCell className="text-small">Due date is today and training is not 100% done</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell><Badge variant="soft-primary">Due in X days</Badge></TableCell>
-                        <TableCell className="text-sm">Due within 30 days, training not done</TableCell>
+                        <TableCell className="text-small">Due within 30 days, training not done</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell><Badge variant="soft-primary">Due MMM d</Badge></TableCell>
-                        <TableCell className="text-sm">Due date is 30+ days away, training not done</TableCell>
+                        <TableCell className="text-small">Due date is 30+ days away, training not done</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell><span className="text-sm text-muted-foreground italic">No badge</span></TableCell>
-                        <TableCell className="text-sm">No due date set and not completed</TableCell>
+                        <TableCell><span className="text-small text-muted-foreground italic">No badge</span></TableCell>
+                        <TableCell className="text-small">No due date set and not completed</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -1929,8 +1929,8 @@ export const ComponentsGallery = ({
 
                 {/* Quiz Score Badges */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Quiz Score Badges</h4>
-                  <p className="text-sm text-muted-foreground">Displayed below the description when training is completed and quiz data is available.</p>
+                  <h4 className="text-small font-semibold text-muted-foreground uppercase tracking-wider">Quiz Score Badges</h4>
+                  <p className="text-small text-muted-foreground">Displayed below the description when training is completed and quiz data is available.</p>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1941,15 +1941,15 @@ export const ComponentsGallery = ({
                     <TableBody>
                       <TableRow>
                         <TableCell><Badge variant="soft-success">Quiz: 90% (9/10)</Badge></TableCell>
-                        <TableCell className="text-sm">Score is 80% or above</TableCell>
+                        <TableCell className="text-small">Score is 80% or above</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell><Badge variant="soft-warning">Quiz: 70% (7/10)</Badge></TableCell>
-                        <TableCell className="text-sm">Score is 60–79%</TableCell>
+                        <TableCell className="text-small">Score is 60–79%</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell><Badge variant="soft-destructive">Quiz: 40% (4/10)</Badge></TableCell>
-                        <TableCell className="text-sm">Score is below 60%</TableCell>
+                        <TableCell className="text-small">Score is below 60%</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -1957,7 +1957,7 @@ export const ComponentsGallery = ({
 
                 {/* Other Indicators */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Other Indicators</h4>
+                  <h4 className="text-small font-semibold text-muted-foreground uppercase tracking-wider">Other Indicators</h4>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1968,11 +1968,11 @@ export const ComponentsGallery = ({
                     <TableBody>
                       <TableRow>
                         <TableCell><Badge variant="ghost-attention">Quiz Pending</Badge></TableCell>
-                        <TableCell className="text-sm">Video watched but quiz not yet taken (<code className="text-xs bg-muted px-1 py-0.5 rounded">quizPending: true</code>)</TableCell>
+                        <TableCell className="text-small">Video watched but quiz not yet taken (<code className="text-caption bg-muted px-1 py-0.5 rounded">quizPending: true</code>)</TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell><span className="text-sm font-medium">Progress bar</span></TableCell>
-                        <TableCell className="text-sm">Always shown; color shifts based on completion percentage</TableCell>
+                        <TableCell><span className="text-small font-medium">Progress bar</span></TableCell>
+                        <TableCell className="text-small">Always shown; color shifts based on completion percentage</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -2010,7 +2010,7 @@ export const ComponentsGallery = ({
                       Arrow is centered
                     </TooltipContent>
                   </Tooltip>
-                  <span className="text-xs text-muted-foreground">align="center"</span>
+                  <span className="text-caption text-muted-foreground">align="center"</span>
                 </div>
 
                 {/* Start-aligned */}
@@ -2023,7 +2023,7 @@ export const ComponentsGallery = ({
                       Arrow on the left
                     </TooltipContent>
                   </Tooltip>
-                  <span className="text-xs text-muted-foreground">align="start"</span>
+                  <span className="text-caption text-muted-foreground">align="start"</span>
                 </div>
 
                 {/* End-aligned */}
@@ -2036,7 +2036,7 @@ export const ComponentsGallery = ({
                       Arrow on the right
                     </TooltipContent>
                   </Tooltip>
-                  <span className="text-xs text-muted-foreground">align="end"</span>
+                  <span className="text-caption text-muted-foreground">align="end"</span>
                 </div>
               </div>
             </CardContent>
@@ -2045,7 +2045,7 @@ export const ComponentsGallery = ({
           {/* Footer */}
           <Card>
             <CardContent className="pt-6">
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-small text-muted-foreground">
                 <p>Components Gallery • Built with shadcn/ui and Radix UI</p>
                 <p className="mt-2">Toggle between light and dark themes to see all variants</p>
               </div>

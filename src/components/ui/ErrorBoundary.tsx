@@ -118,7 +118,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   />
                 </div>
               </div>
-              <CardTitle id="error-title" className="text-2xl text-foreground">
+              <CardTitle id="error-title" className="text-h2 text-foreground">
                 Something went wrong
               </CardTitle>
               <CardDescription id="error-description">
@@ -130,14 +130,14 @@ export class ErrorBoundary extends Component<Props, State> {
             <CardContent className="space-y-4">
               {/* Error ID for support reference */}
               <div className="bg-muted p-3 rounded-md">
-                <p className="text-sm text-muted-foreground mb-1">Error ID:</p>
-                <p className="text-sm font-mono text-foreground">{this.state.errorId}</p>
+                <p className="text-small text-muted-foreground mb-1">Error ID:</p>
+                <p className="text-small font-mono text-foreground">{this.state.errorId}</p>
               </div>
 
               {/* Development error details */}
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="bg-muted p-3 rounded-md">
-                  <summary className="text-sm font-medium cursor-pointer text-foreground mb-2">
+                  <summary className="text-small font-medium cursor-pointer text-foreground mb-2">
                     Technical Details (Development)
                   </summary>
                   <pre className="text-xs text-muted-foreground overflow-auto whitespace-pre-wrap">
