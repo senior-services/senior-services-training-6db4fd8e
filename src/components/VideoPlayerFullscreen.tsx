@@ -530,7 +530,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           </div>
 
           {/* Compliance Checkbox - Only for Presentations */}
-          {video && video.content_type === 'presentation' && !wasEverCompleted && (
+          {video && video.content_type === 'presentation' && !wasEverCompleted && !quiz && (
             <div className="mt-4">
               <TrainingAttestation
                 enabled={checkboxEnabled}
