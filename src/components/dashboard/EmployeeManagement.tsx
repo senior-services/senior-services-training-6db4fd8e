@@ -584,7 +584,7 @@ export const EmployeeManagement: React.FC<{
   return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-semibold">Employee Assignments</h3>
+          <h3 className="font-semibold">Employee Assignments</h3>
           <p className="text-muted-foreground">Manage employees and track their training progress</p>
         </div>
         <div className="flex gap-2">
@@ -667,7 +667,7 @@ export const EmployeeManagement: React.FC<{
               <div className="flex items-center gap-3 w-full">
                 <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
                 <EyeOff className="w-5 h-5 text-muted-foreground" />
-                <span className="text-lg font-semibold">Hidden Employees</span>
+                <span className="text-h4 font-semibold">Hidden Employees</span>
                 <Badge variant="soft-destructive" className="ml-2">
                   {hiddenEmployees.length}
                 </Badge>

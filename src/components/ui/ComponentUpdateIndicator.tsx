@@ -86,8 +86,8 @@ export const ComponentUpdateIndicator: React.FC<ComponentUpdateIndicatorProps> =
         <div className="grid grid-cols-2 gap-2">
           {Object.entries(COMPONENT_USAGE_MAP).slice(0, 6).map(([component, areas]) => (
             <div key={component} className="flex items-center justify-between p-2 border rounded">
-              <span className="text-sm font-medium">{component}</span>
-              <Badge variant="secondary" className="text-xs">
+              <span className="text-small font-medium">{component}</span>
+              <Badge variant="secondary" className="text-caption">
                 {Array.isArray(areas) ? areas.length : 1} areas
               </Badge>
             </div>
@@ -97,14 +97,14 @@ export const ComponentUpdateIndicator: React.FC<ComponentUpdateIndicatorProps> =
         {/* Recent Updates */}
         {showHistory && recentUpdates.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold flex items-center gap-2">
+            <h4 className="text-small font-semibold flex items-center gap-2">
               <Info className="w-4 h-4" />
               Recent Updates
             </h4>
             {recentUpdates.map((update, index) => (
-              <div key={index} className="p-2 bg-muted rounded text-xs space-y-1">
+              <div key={index} className="p-2 bg-muted rounded text-caption space-y-1">
                 <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-caption">
                     {update.component}
                   </Badge>
                   <span className="text-muted-foreground">
@@ -127,7 +127,7 @@ export const ComponentUpdateIndicator: React.FC<ComponentUpdateIndicatorProps> =
         )}
 
         {/* How It Works */}
-        <div className="p-3 bg-muted/50 rounded text-xs space-y-1">
+        <div className="p-3 bg-muted/50 rounded text-caption space-y-1">
           <h5 className="font-semibold">🔄 How Component Updates Work:</h5>
           <ul className="space-y-1 text-muted-foreground">
             <li>• Updates to <code>src/components/ui/*</code> automatically propagate</li>
