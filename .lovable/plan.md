@@ -1,76 +1,73 @@
 
 
-## Finalize Spacing and Conditional Logic for Training Dialog
+## Final Layout and Compliance Correction
 
-### Changes across 2 files
+### Changes (single file: `src/components/VideoPlayerFullscreen.tsx`)
 
 ---
 
-### File 1: `src/components/VideoPlayerFullscreen.tsx`
+### Change A -- Restore top padding on scrollable div (line 435)
 
-**Change A -- Fix scrollable div padding (line 435)**
-
-Update the className from `p-6` to `px-6 pb-6 pt-0`:
+Revert `px-6 pb-6 pt-0` back to `p-6`:
 
 ```tsx
 // Before
-className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6"
+className="flex-1 overflow-y-auto min-h-0 w-full px-6 pb-6 pt-0 flex flex-col gap-6"
 
 // After
-className="flex-1 overflow-y-auto min-h-0 w-full px-6 pb-6 pt-0 flex flex-col gap-6"
+className="flex-1 overflow-y-auto min-h-0 w-full p-6 flex flex-col gap-6"
 ```
 
-This removes the 24px top gap so the first content element sits exactly 16px below the header border (the header's `py-4` provides 16px bottom padding, and `pt-0` on the scroll area adds nothing extra).
+This restores the 24px top gap between the header border and the first content element (description or video).
 
-**Change B -- Conditional description block (lines 436-444)**
+---
 
-The description wrapper currently renders a flex container with `pb-4` even when description is empty. Tighten the conditional and remove the outer wrapper so it only renders when content exists:
+### Change B -- Wrap both existing footers in `!wasEverCompleted` guard (lines 488-649)
+
+Both `DialogFooter` blocks should only render when the training is not already completed. The presentation footer (line 547) already has `!wasEverCompleted`. The quiz footer (line 489) partially handles it internally but still renders a "Close" button when `wasEverCompleted`. Wrap the entire quiz footer in the same guard:
 
 ```tsx
-// Before
-<div className="flex items-start justify-between gap-4 pb-4">
-  {video?.description && video.description.trim() && (
-    <div className="flex-1" id="video-description">
-      <p className="text-body text-foreground">
-        {video.description}
-      </p>
-    </div>
-  )}
-</div>
+// Before (line 489)
+{quiz && !isPresentation && (quizStarted || quizSubmitted || wasEverCompleted) && <DialogFooter>
 
 // After
-{video?.description && video.description.trim() !== '' && (
-  <div id="video-description">
-    <p className="text-body text-foreground">
-      {video.description}
-    </p>
-  </div>
+{quiz && !isPresentation && !wasEverCompleted && (quizStarted || quizSubmitted) && <DialogFooter>
+```
+
+This removes the footer entirely once training is marked complete -- no "Close" button lingers. Users close via the dialog's X button.
+
+---
+
+### Change C -- Add a universal "Close" footer for completed trainings (after line 649)
+
+Add a simple footer that renders for any completed training (video, presentation, or quiz) so there is always a visible close action:
+
+```tsx
+{wasEverCompleted && (
+  <DialogFooter>
+    <div className="flex w-full items-center justify-end">
+      <DialogClose asChild>
+        <Button>Close</Button>
+      </DialogClose>
+    </div>
+  </DialogFooter>
 )}
 ```
 
-The outer flex wrapper is removed entirely. When description is absent, nothing renders and the `gap-6` on the parent handles spacing naturally.
+Wait -- the user said: "If the training is already marked as Completed, the footer should be completely removed from the DOM." This means no footer at all for completed trainings. So Change C is **not needed**. The user explicitly wants the footer gone when completed.
 
-**Change C -- Footer verification (no change needed)**
+Let me revise: For **non-completed** trainings, we need footers for all types. Currently missing is a footer for plain videos without quizzes. Let me check -- plain videos use the `CompletionOverlay` which has its own "Complete Training" button inline. So the footer gap is intentional for plain videos mid-watch. Once the overlay appears, it handles completion. No separate footer needed.
 
-Both `DialogFooter` blocks (lines 490-546 for quiz, lines 548-651 for presentation) are already direct children of `FullscreenDialogContent`, outside the scrollable div. No structural change required.
+**Revised Change C**: No new footer block. The two existing footers cover all active (non-completed) scenarios:
+- Quiz footer: handles video+quiz and presentation+quiz (when quiz is started)
+- Presentation footer: handles presentation-only and presentation+quiz (pre-quiz phase)
+- Plain video: uses `CompletionOverlay` inline, no footer needed
 
 ---
 
-### File 2: `src/components/ui/dialog.tsx`
+### Change D -- DialogHeader border verification (line 428)
 
-**Change D -- DialogTitle scale step (line 133)**
-
-Update from `text-h3` to `text-h4` globally:
-
-```tsx
-// Before
-className={cn("text-h3", className)}
-
-// After
-className={cn("text-h4", className)}
-```
-
-This changes all dialog titles from 25px/600 weight to 20px/600 weight, matching the user's senior-first compliance requirement.
+The `DialogHeader` currently has no className override, inheriting the primitive defaults which include `border-b`. Confirm this is already present in the primitive. No code change needed -- the primitive in `dialog.tsx` defines `border-b` in the base class.
 
 ---
 
@@ -78,15 +75,15 @@ This changes all dialog titles from 25px/600 weight to 20px/600 weight, matching
 
 | Area | Change |
 |------|--------|
-| Scrollable div | `p-6` changed to `px-6 pb-6 pt-0` to eliminate top spacing gap |
-| Description block | Outer wrapper removed; conditional tightened to `!== ''`; no residual spacing when empty |
-| DialogHeader | No change -- primitive defaults (`px-6 py-4 border-b flex-shrink-0`) are correct |
-| DialogFooter | No change -- already outside scrollable div, inherits primitive defaults |
-| DialogTitle (primitive) | `text-h3` changed to `text-h4` globally |
+| Scrollable div | `pt-0` restored to `p-6` for uniform 24px gutters |
+| Quiz footer (line 489) | Guard tightened: add `!wasEverCompleted`, remove `wasEverCompleted` from condition |
+| Presentation footer (line 547) | Already has `!wasEverCompleted` -- no change |
+| Plain video footer | Not needed -- `CompletionOverlay` handles it inline |
+| DialogHeader | No change -- primitive defaults include `border-b` |
 
 ### Review
 
-1. **Top 3 Risks:** (a) Changing DialogTitle to `text-h4` globally affects every dialog in the app (AlertDialogs, modals, etc.) -- this is likely the desired outcome for consistency. (b) Removing the description wrapper changes the `id="video-description"` anchor from a flex container to a plain div -- `aria-describedby` still works. (c) `pt-0` means the first child in the scroll area has no top padding, relying entirely on the header's bottom padding for separation.
-2. **Top 3 Fixes:** (a) No extra whitespace above video/slides. (b) Empty descriptions no longer leave phantom spacing. (c) Dialog titles standardized to `text-h4` (20px).
+1. **Top 3 Risks:** (a) Completed trainings will have no footer at all -- users must use the X button to close. This matches the user's explicit request. (b) Restoring `p-6` adds 24px above the first content element; if the header already provides 16px bottom padding, total gap is 40px. This is the user's stated preference. (c) Plain videos without quizzes still rely on the CompletionOverlay for the "Complete" action -- no fixed footer button.
+2. **Top 3 Fixes:** (a) Uniform 24px content gutters restored. (b) Completed trainings have a clean, footer-free view. (c) No styling overrides on primitives.
 3. **Database Change:** No.
 4. **Verdict:** Go.
