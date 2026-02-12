@@ -146,8 +146,8 @@ export const Auth = () => {
             {/* Development Testing Section */}
             <div className="mb-6 p-4 bg-attention/10 border border-attention/20 rounded-lg">
               <div className="text-center mb-3">
-                <h3 className="font-semibold text-attention text-sm">Development Testing</h3>
-                <p className="text-sm text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
+                <h3 className="font-semibold text-attention text-small">Development Testing</h3>
+                <p className="text-small text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
               </div>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2">

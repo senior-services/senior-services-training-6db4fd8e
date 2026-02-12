@@ -84,14 +84,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       >
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-small text-muted-foreground">
               <p>
                 Senior Services Training Portal &copy; {new Date().getFullYear()}
               </p>
             </div>
             
             <nav aria-label="Footer navigation">
-              <div className="flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-4 text-small">
                 <a
                   href="mailto:support@southsoundseniors.org"
                   className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
@@ -152,7 +152,7 @@ export const AdminDashboardLayout: React.FC<AdminLayoutProps> = ({
         <div className="space-y-2">
           <h1 
             id="admin-dashboard-title" 
-            className="text-3xl font-bold tracking-tight"
+            className="font-bold tracking-tight"
           >
             Administrator Dashboard
           </h1>
@@ -191,7 +191,7 @@ export const EmployeeDashboardLayout: React.FC<EmployeeLayoutProps> = ({
         <div className="space-y-2">
           <h1 
             id="employee-dashboard-title" 
-            className="text-3xl font-bold tracking-tight"
+            className="font-bold tracking-tight"
           >
             Welcome to Your Training Portal
           </h1>
@@ -244,12 +244,12 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
       >
       {/* Modal header */}
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold" id={ariaProps['aria-labelledby']}>
+        <h2 className="font-semibold" id={ariaProps['aria-labelledby']}>
           {title}
         </h2>
         {description && (
           <p 
-            className="text-sm text-muted-foreground"
+            className="text-small text-muted-foreground"
             id={ariaProps['aria-describedby']}
           >
             {description}

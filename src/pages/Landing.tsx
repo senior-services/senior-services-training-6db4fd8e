@@ -16,8 +16,8 @@ export const Landing = ({
         {/* Header */}
         <div className="text-center mb-12">
           <img src="/lovable-uploads/SS_2019_logo_Reversed.png" alt="Senior Services for South Sound" className="mx-auto h-32 w-auto mb-6" />
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Senior Services Training Portal</h1>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto">
+          <h1 className="font-bold text-white mb-4">Senior Services Training Portal</h1>
+          <p className="text-h4 text-white/90 max-w-2xl mx-auto">
             Streamlined onboarding and continuous training for nonprofit employees
           </p>
         </div>
@@ -26,7 +26,7 @@ export const Landing = ({
         <div className="max-w-md mx-auto mb-12">
           <Card className="shadow-xl">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Welcome Back</CardTitle>
+              <CardTitle>Welcome Back</CardTitle>
               <CardDescription>
                 Sign in with your Google account to access your training portal
               </CardDescription>
@@ -38,7 +38,7 @@ export const Landing = ({
               </Button>
               
               <div className="text-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-small text-muted-foreground">
                   New employees will be automatically registered upon first login
                 </p>
               </div>
@@ -48,7 +48,7 @@ export const Landing = ({
         
         {/* Bottom Section */}
         <div className="text-center text-white/80">
-          <p className="text-sm">
+          <p className="text-small">
             For technical support, please contact your administrator or IT department
           </p>
         </div>

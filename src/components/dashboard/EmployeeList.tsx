@@ -169,22 +169,22 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
           </h4>
           
           <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+            <div className="text-h2 font-bold text-foreground">{stats.total}</div>
             <div className="text-small text-muted-foreground">Total Employees</div>
           </div>
           
           <div className="text-center p-4 bg-success/10 rounded-lg">
-            <div className="text-2xl font-bold text-success">{stats.completed}</div>
+            <div className="text-h2 font-bold text-success">{stats.completed}</div>
             <div className="text-small text-muted-foreground">Completed</div>
           </div>
           
           <div className="text-center p-4 bg-secondary/10 rounded-lg">
-            <div className="text-2xl font-bold text-secondary-foreground">{stats.onTrack}</div>
+            <div className="text-h2 font-bold text-secondary-foreground">{stats.onTrack}</div>
             <div className="text-small text-muted-foreground">On Track</div>
           </div>
           
           <div className="text-center p-4 bg-destructive/10 rounded-lg">
-            <div className="text-2xl font-bold text-destructive">{stats.behind}</div>
+            <div className="text-h2 font-bold text-destructive">{stats.behind}</div>
             <div className="text-small text-muted-foreground">Behind Schedule</div>
           </div>
         </div>

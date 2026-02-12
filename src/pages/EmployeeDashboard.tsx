@@ -498,7 +498,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="error-heading">
           <div className="text-center py-12">
             <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" aria-hidden="true" />
-            <h2 id="error-heading" className="text-xl sm:text-2xl font-semibold mb-2">
+            <h2 id="error-heading" className="font-semibold mb-2">
               Unable to Load Training Data
             </h2>
             <p className="text-muted-foreground mb-4">{error}</p>
@@ -546,7 +546,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
               </h1>
             </div>
 
-            <p className="text-muted-foreground text-body sm:text-lg">
+            <p className="text-muted-foreground">
               Training that turns our mission into daily practice.
             </p>
 
@@ -587,7 +587,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             ) : trainingData.required.length === 0 ? (
               <div className="text-center py-12" role="status" aria-live="polite">
                 <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
-                <h3 className="text-lg sm:text-xl font-medium mb-2">No Required Trainings Assigned</h3>
+                <h3 className="font-medium mb-2">No Required Trainings Assigned</h3>
                 <p className="text-muted-foreground">
                   You don't have any required trainings assigned at this time.
                 </p>

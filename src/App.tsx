@@ -77,7 +77,7 @@ const AppContent = () => {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
-            <div className="text-white text-lg">Loading...</div>
+            <div className="text-white text-h4">Loading...</div>
           </div>
           <Toaster />
           <Sonner />

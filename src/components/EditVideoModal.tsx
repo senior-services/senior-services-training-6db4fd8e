@@ -1244,7 +1244,7 @@ export const EditVideoModal = ({
                             <FileQuestion className="w-8 h-8 text-muted-foreground" />
                           </div>
                           <div className="space-y-2">
-                            <p className="text-lg font-medium">No quiz questions yet</p>
+                            <p className="text-h4 font-medium">No quiz questions yet</p>
                             <p className="text-muted-foreground">
                               Create questions to test understanding of this training video
                             </p>

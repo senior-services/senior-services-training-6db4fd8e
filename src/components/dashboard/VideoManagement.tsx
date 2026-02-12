@@ -537,7 +537,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
               <span className="block">
                 This will create "{pendingAssignment?.contentData.title}" and assign it to all active employees.
               </span>
-              <span className="block text-sm">
+              <span className="block text-small">
                 <strong>Due date:</strong> {formatConfirmationDueDate()}
               </span>
             </AlertDialogDescription>

@@ -224,7 +224,7 @@ const AuthCallbackContent = () => {
         >
           <AlertTriangle className="w-12 h-12 text-attention mx-auto" />
           <div>
-            <h2 className="text-xl font-semibold text-white mb-2">
+            <h2 className="font-semibold text-white mb-2">
               Authentication Taking Longer Than Expected
             </h2>
             <p className="text-white/80 mb-4">
@@ -255,7 +255,7 @@ const AuthCallbackContent = () => {
           aria-hidden="true"
         />
         <div>
-          <span className="text-lg">Completing authentication...</span>
+          <span className="text-h4">Completing authentication...</span>
           <div className="text-small text-white/70 mt-1">
             Please wait while we verify your credentials
           </div>

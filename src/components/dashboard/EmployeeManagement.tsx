@@ -621,8 +621,8 @@ export const EmployeeManagement: React.FC<{
                     Name
                   </SortableTableHead>
                   
-                  <TableHead className="px-4 py-3 text-sm font-medium uppercase text-muted-foreground">STATUS</TableHead>
-                  <TableHead className="px-4 py-3 text-right text-sm font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
+                  <TableHead className="px-4 py-3 text-small font-medium uppercase text-muted-foreground">STATUS</TableHead>
+                  <TableHead className="px-4 py-3 text-right text-small font-medium uppercase text-muted-foreground">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
