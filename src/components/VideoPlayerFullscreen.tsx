@@ -16,7 +16,6 @@ import type { Video, TrainingContent } from "@/types";
 import { logger } from "@/utils/logger";
 import { QuizModal } from "@/components/quiz/QuizModal";
 import { ContentPlayer } from "@/components/content/ContentPlayer";
-import { CompletionOverlay } from "@/components/video/CompletionOverlay";
 import { useVideoData } from "@/hooks/useVideoData";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
 
@@ -68,8 +67,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   initialVideo
 }) => {
   // State management
-  const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
-  const [overlayDismissed, setOverlayDismissed] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizResults, setQuizResults] = useState<QuizResponse[]>([]);
@@ -83,6 +80,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [storedAttemptScore, setStoredAttemptScore] = useState<number | undefined>(undefined);
   const [storedAttemptTotal, setStoredAttemptTotal] = useState<number | undefined>(undefined);
+  const [videoAttestationChecked, setVideoAttestationChecked] = useState(false);
 
   // Scroll reset ref
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -94,12 +92,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [a11yAnnouncement, setA11yAnnouncement] = useState('');
 
   // Hooks for authentication and user feedback
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   // Custom hooks for data management
   const {
@@ -134,19 +128,21 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const timerActive = remainingSeconds > 0;
   const formattedTime = `${Math.floor(remainingSeconds / 60)}:${(remainingSeconds % 60).toString().padStart(2, '0')}`;
 
+  // Derived: video is ready for completion actions
+  const videoReady = !isPresentation && progress >= 99;
+
   // Effect to load video data and existing progress when modal opens
   useEffect(() => {
     const initializeVideo = async () => {
       if (!open || !videoId) {
         resetVideoData();
         resetProgress();
-        setShowCompletionOverlay(false);
-        setOverlayDismissed(false);
         setQuizStarted(false);
         setQuizSubmitted(false);
         setQuizResults([]);
         setCompletedQuizResults([]);
         setCompletedQuiz(null);
+        setVideoAttestationChecked(false);
         return;
       }
       const loadResult = await loadVideoData(videoId, initialVideo);
@@ -160,10 +156,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       }
 
       if (user?.email) {
-        const result = await loadExistingProgress();
-        if (result && !result.completedAt && result.progressPercent >= 99) {
-          setOverlayDismissed(true);
-        }
+        await loadExistingProgress();
       }
     };
     initializeVideo();
@@ -241,45 +234,21 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     loadCompletedQuizResults();
   }, [wasEverCompleted, user?.email, videoId]);
 
-  // Show overlay when video ends
+  // Auto-start quiz when reopening at 99%+ with quiz
   useEffect(() => {
-    if (overlayDismissed || quizStarted || wasEverCompleted) {
-      setShowCompletionOverlay(false);
-      return;
-    }
-    if (progress >= 99) {
-      setShowCompletionOverlay(true);
-    }
-  }, [progress, overlayDismissed, quizStarted, wasEverCompleted]);
-
-  // Auto-start quiz when reopening
-  useEffect(() => {
-    if (!open || quizStarted || wasEverCompleted || !overlayDismissed) return;
+    if (!open || quizStarted || wasEverCompleted) return;
     if (progress >= 99 && quiz && !quizLoading) {
       setQuizStarted(true);
-      setOverlayDismissed(true);
-      setShowCompletionOverlay(false);
       setTimeout(() => {
         document.getElementById('quiz-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-  }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted, overlayDismissed]);
-
-  // Re-show completion overlay for non-quiz videos reopened at 99%+
-  useEffect(() => {
-    if (!open || wasEverCompleted || quizLoading) return;
-    if (!quiz && !quizStarted && progress >= 99 && overlayDismissed) {
-      setShowCompletionOverlay(true);
-    }
-  }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted, overlayDismissed]);
+  }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted]);
 
   const handleVideoEnded = useCallback(() => {
     const finalProgress = quiz ? 99 : 100;
     updateProgress(finalProgress);
-    if (!wasEverCompleted) {
-      setShowCompletionOverlay(true);
-    }
-  }, [updateProgress, wasEverCompleted, quiz]);
+  }, [updateProgress, quiz]);
 
   const handleCompleteTraining = useCallback(async () => {
     if (video?.content_type === 'presentation' && !presentationAcknowledged) {
@@ -296,7 +265,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         user.email, videoId, 100, new Date(), new Date(), viewingSeconds
       );
     }
-    setShowCompletionOverlay(false);
+    setVideoAttestationChecked(false);
     toast({
       title: "Training Completed! 🎉",
       description: "You've successfully completed this training."
@@ -339,8 +308,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const handleStartQuiz = useCallback(() => {
     if (wasEverCompleted) return;
     setQuizStarted(true);
-    setShowCompletionOverlay(false);
-    setOverlayDismissed(true);
     setQuizResponses([]);
     setAllQuestionsAnswered(false);
     setHasQuizChanges(false);
@@ -353,11 +320,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }, 100);
   }, [wasEverCompleted]);
 
-  const handleCloseOverlay = useCallback(() => {
-    setShowCompletionOverlay(false);
-    setOverlayDismissed(true);
-  }, []);
-
   const handleQuizResponsesChange = useCallback((responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => {
     setQuizResponses(responses);
     setAllQuestionsAnswered(allAnswered);
@@ -369,7 +331,6 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const handleCancelClick = useCallback(() => {
     if (quizSubmitted) {
       setQuizStarted(false);
-      setShowCompletionOverlay(true);
       return;
     }
     setShowCancelConfirmation(true);
@@ -449,18 +410,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               </div>
             )}
 
-            {/* Persistent Quiz CTA Button - only for non-presentation content */}
-            {quiz && !isPresentation && !wasEverCompleted && overlayDismissed && !quizStarted && progress >= 99 && <div className="pb-4">
-                <Button onClick={handleStartQuiz} className="w-full" size="lg">
-                  Start Quiz to Complete Training
-                </Button>
-              </div>}
-
             <div className="w-full aspect-video bg-black rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative" data-video-container tabIndex={0} aria-label="Video player. Press spacebar to play or pause." role="application">
               {trainingContent && <ContentPlayer content={trainingContent} loading={vLoading} progress={progress} onProgressUpdate={updateProgress} onComplete={handleVideoEnded} />}
-              
-              {/* Completion Overlay */}
-              {showCompletionOverlay && !wasEverCompleted && <CompletionOverlay video={video} quiz={quiz} onStartQuiz={handleStartQuiz} onCompleteTraining={handleCompleteTraining} onClose={quiz ? handleCloseOverlay : undefined} />}
             </div>
 
             {/* Compliance Checkbox - Only for Presentations */}
@@ -473,6 +424,16 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   disabledTooltip="Please wait for the viewing timer to complete."
                 />
               </div>
+            )}
+
+            {/* Attestation for non-quiz video trainings */}
+            {videoReady && !wasEverCompleted && !quiz && !quizLoading && (
+              <TrainingAttestation
+                enabled={true}
+                checked={videoAttestationChecked}
+                onCheckedChange={setVideoAttestationChecked}
+                disabledTooltip=""
+              />
             )}
 
             {/* Quiz Section */}
@@ -493,12 +454,38 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             )}
         </div>
 
+        {/* Fixed Footer - Video trainings (non-presentation, non-quiz-started) */}
+        {!isPresentation && !wasEverCompleted && videoReady && !quizStarted && (
+          <DialogFooter>
+            <div className="flex w-full items-center justify-end gap-4">
+              {quizLoading ? null : quiz ? (
+                <Button onClick={handleStartQuiz}>
+                  Start Quiz to Complete Training
+                </Button>
+              ) : (
+                videoAttestationChecked ? (
+                  <Button onClick={handleCompleteTraining}>
+                    Complete Training
+                  </Button>
+                ) : (
+                  <ButtonWithTooltip
+                    tooltip="Please check the acknowledgment checkbox above to proceed."
+                    disabled
+                  >
+                    Complete Training
+                  </ButtonWithTooltip>
+                )
+              )}
+            </div>
+          </DialogFooter>
+        )}
+
         {/* Fixed Footer - Quiz interactions (non-presentation only) */}
         {quiz && !isPresentation && !wasEverCompleted && (quizStarted || quizSubmitted) && <DialogFooter>
             {!quizSubmitted && !wasEverCompleted ? <div className="flex w-full items-center justify-end gap-4">
                 <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                   <AlertDialogTrigger asChild>
-                    <Button variant="outline" onClick={handleCancelClick} className="shadow-md hover:shadow-lg transition-shadow">
+                    <Button variant="outline" onClick={handleCancelClick}>
                       Cancel
                     </Button>
                   </AlertDialogTrigger>
@@ -530,21 +517,17 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   <ButtonWithTooltip
                     tooltip="Complete the questions above and the final confirmation to submit."
                     disabled
-                    className="shadow-md hover:shadow-lg transition-shadow"
                   >
                     Submit Quiz
                   </ButtonWithTooltip>
                 ) : (
-                  <Button
-                    onClick={handleQuizSubmit}
-                    className="shadow-md hover:shadow-lg transition-shadow"
-                  >
+                  <Button onClick={handleQuizSubmit}>
                     Submit Quiz
                   </Button>
                 )}
               </div> : <div className="flex w-full items-center justify-end gap-4">
                 <DialogClose asChild>
-                  <Button className="shadow-md hover:shadow-lg transition-shadow">
+                  <Button>
                     Close
                   </Button>
                 </DialogClose>
