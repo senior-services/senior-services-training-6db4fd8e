@@ -60,7 +60,7 @@ const SortableTableHead = React.forwardRef<
           variant="ghost"
           onClick={handleClick}
           className={cn(
-            "text-xs uppercase text-muted-foreground p-0 h-auto",
+            "text-sm uppercase text-muted-foreground p-0 h-auto",
             "hover:bg-transparent hover:text-primary hover:shadow-none group",
             isActive ? "font-bold" : "font-medium"
           )}

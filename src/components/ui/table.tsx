@@ -15,7 +15,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
     )}>
       <table
         ref={ref}
-        className={cn("w-full caption-bottom text-sm", className)}
+        className={cn("w-full caption-bottom text-base", className)}
         {...props}
       />
     </div>
@@ -80,7 +80,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-auto px-4 py-3 text-left align-middle text-xs font-medium uppercase text-muted-foreground [&:has([role=checkbox])]:pr-0 [&:has(button)]:py-0",
+      "h-auto px-4 py-3 text-left align-middle text-sm font-medium uppercase text-muted-foreground [&:has([role=checkbox])]:pr-0 [&:has(button)]:py-0",
       className
     )}
     {...props}

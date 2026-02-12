@@ -89,10 +89,10 @@ const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
                 <h5 className="mb-1 font-medium leading-none tracking-tight">{title}</h5>
               )}
               {description && (
-                <div className="text-sm [&_p]:leading-relaxed opacity-90">{description}</div>
+                <div className="text-base [&_p]:leading-relaxed opacity-90">{description}</div>
               )}
               {children && (
-                <div className="text-sm [&_p]:leading-relaxed">{children}</div>
+                <div className="text-base [&_p]:leading-relaxed">{children}</div>
               )}
               {actions && (
                 <div className="mt-3 flex items-center space-x-2">
