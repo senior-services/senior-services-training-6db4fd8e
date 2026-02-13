@@ -607,7 +607,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                  {quizLoading ? null : primaryDisabled ? (
+                  {/* If quiz auto-start is imminent, suppress the "Start Quiz" button to prevent flash */}
+                  {quizLoading || (!isPresentation && progress >= 99 && quiz && !quizLoading && !quizStarted) ? null : primaryDisabled ? (
                     <ButtonWithTooltip tooltip={primaryTooltip} disabled className="transition-all duration-500">
                       {primaryLabel}
                     </ButtonWithTooltip>
