@@ -170,28 +170,28 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
           
           <div className="text-center p-4 bg-muted/30 rounded-lg">
             <div className="text-h2 font-bold text-foreground">{stats.total}</div>
-            <div className="text-small text-muted-foreground">Total Employees</div>
+            <div className="text-body-sm text-muted-foreground">Total Employees</div>
           </div>
           
           <div className="text-center p-4 bg-success/10 rounded-lg">
             <div className="text-h2 font-bold text-success">{stats.completed}</div>
-            <div className="text-small text-muted-foreground">Completed</div>
+            <div className="text-body-sm text-muted-foreground">Completed</div>
           </div>
           
           <div className="text-center p-4 bg-secondary/10 rounded-lg">
             <div className="text-h2 font-bold text-secondary-foreground">{stats.onTrack}</div>
-            <div className="text-small text-muted-foreground">On Track</div>
+            <div className="text-body-sm text-muted-foreground">On Track</div>
           </div>
           
           <div className="text-center p-4 bg-destructive/10 rounded-lg">
             <div className="text-h2 font-bold text-destructive">{stats.behind}</div>
-            <div className="text-small text-muted-foreground">Behind Schedule</div>
+            <div className="text-body-sm text-muted-foreground">Behind Schedule</div>
           </div>
         </div>
 
         {/* Sorting controls */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-small font-medium text-muted-foreground">Sort by:</span>
+          <span className="text-body-sm font-medium text-muted-foreground">Sort by:</span>
           
           <Button
             variant={sortBy === 'name' ? 'default' : 'ghost'}
@@ -244,7 +244,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
         <div className="text-center py-12">
           <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
           <h4 className="font-medium text-foreground mb-2">No employees found</h4>
-          <p className="text-small text-muted-foreground">
+          <p className="text-body-sm text-muted-foreground">
             Employee data will appear here when available.
           </p>
         </div>
@@ -272,7 +272,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                          </div>
                          <span>{employee.name}</span>
                          <span className="text-muted-foreground">|</span>
-                         <span className="text-small text-muted-foreground font-normal">{employee.email}</span>
+                         <span className="text-body-sm text-muted-foreground font-normal">{employee.email}</span>
                        </div>
                     </div>
                     
@@ -309,7 +309,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                 id={`employee-${employee.id}-progress`}
                 className="space-y-2"
               >
-                <div className="flex justify-between text-small">
+                <div className="flex justify-between text-body-sm">
                   <span>Training Progress</span>
                   <span className="font-medium">{employee.requiredProgress}%</span>
                 </div>
@@ -318,7 +318,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                   className="h-2"
                   aria-label={`Training progress: ${employee.requiredProgress} percent complete`}
                 />
-                <div className="text-small text-muted-foreground">
+                <div className="text-body-sm text-muted-foreground">
                   {employee.completedVideos} of {employee.totalVideos} videos completed
                 </div>
               </div>
@@ -331,7 +331,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                   role="region"
                   aria-label={`Detailed information for ${employee.name}`}
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-small">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-body-sm">
                     <div>
                       <span className="font-medium text-muted-foreground">Email:</span>
                       <p className="text-foreground">{employee.email}</p>

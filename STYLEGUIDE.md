@@ -1,39 +1,47 @@
 # UI Components Style Guide
 
-## Typography Scale — Major Second (1.125)
+## Typography Scale — Major Second (1.125) Composite Tokens
 
-All text sizing follows a **Major Second** modular scale with a 16px (1rem) base. Components must use global CSS tags (`h1`–`h6`, `p`) or the semantic classes below — never raw Tailwind `text-*` utilities for font sizing.
+All text sizing uses **composite Tailwind tokens** defined in `tailwind.config.ts`. Each token carries size, line-height, weight, and letter-spacing — eliminating the need for stacking utility classes.
 
-| Step | Rem | Pixels | Semantic Class | Usage |
-|------|-----|--------|---------------|-------|
-| h1 | 2.027rem | ~32px | `<h1>` | Page titles |
-| h2 | 1.802rem | ~29px | `<h2>` | Section headings |
-| h3 | 1.602rem | ~26px | `<h3>` | Subsection headings |
-| h4 | 1.424rem | ~23px | `<h4>` | Minor headings / labels |
-| h5 | 1.266rem | ~20px | `<h5>` | Sub-labels |
-| h6 | 1.125rem | 18px | `<h6>` | Smallest heading |
-| body | 1rem | 16px | `.text-body` | Body text (Regular/Medium/Bold) |
-| small | 0.889rem | ~14px | `.text-small` | Secondary info, helper text |
-| caption | 0.79rem | ~13px | `.text-caption` | Captions, metadata |
-| code | 0.9375rem | 15px | `.text-code` | Monospace code snippets |
+| Token | Size | Weight | Leading | Tracking | Usage |
+|-------|------|--------|---------|----------|-------|
+| `text-h1` | 1.802rem (~29px) | 700 | 1.1 | -0.02em | Page titles |
+| `text-h2` | 1.602rem (~26px) | 700 | 1.2 | -0.01em | Section headings |
+| `text-h3` | 1.424rem (~23px) | 600 | 1.2 | 0 | Subsection headings |
+| `text-h4` | 1.266rem (~20px) | 600 | 1.3 | 0 | Minor headings, card titles |
+| `text-body-lg` | 1.125rem (18px) | 400 | 1.5 | 0 | Large body text, h5/h6 |
+| `text-body` | 1rem (16px) | 400 | 1.6 | 0 | Body text, labels, inputs |
+| `text-body-sm` | 0.889rem (~14px) | 400 | 1.5 | 0 | Secondary info, helper text |
+| `text-caption` | 0.79rem (~13px) | 400 | 1.4 | 0 | Captions, metadata |
+| `text-code` | 0.9375rem (15px) | 400 | 1.5 | 0 | Monospace code snippets |
 
-### Tailwind Token Mapping
+### Base Tag Reset
 
-The Tailwind `fontSize` tokens are remapped to align with this scale:
+HTML tags `h1`–`h4` and `body` automatically inherit their token via `@apply` in `index.css`. `h5`/`h6` map to `text-body-lg` with `font-weight: 600`.
 
-| Token | Value | Scale Step |
-|-------|-------|-----------|
-| `text-xs` | 0.79rem | caption |
-| `text-sm` | 0.889rem | small |
-| `text-base` | 1rem | body |
-| `text-lg` | 1.424rem | h4 |
-| `text-xl` | 1.602rem | h3 |
-| `text-2xl` | 1.802rem | h2 |
-| `text-3xl` | 2.027rem | h1 |
-| `text-4xl` | 2.281rem | display |
-| `text-code` | 0.9375rem | code |
+### The Override Clause (80/20 Rule)
 
-### RadioGroup Components
+**80%** of the app should use naked tokens (e.g., `text-body`, `text-body-sm`). **20%** (Forms, Tables, Banners) may use utility overrides when specific layout constraints require them.
+
+**Acceptable overrides:**
+- `leading-none` on form Labels (alignment correction)
+- `font-medium` on table cells and error messages (emphasis)
+- `leading-relaxed` on prose/attestation blocks (readability)
+- `font-semibold` on drawer/banner titles (component-specific weight)
+
+**Document the reason in a code comment when adding an override.**
+
+### Prohibited Patterns
+
+- ❌ Raw Tailwind sizing: `text-xs`, `text-sm`, `text-base`, `text-lg`, `text-xl`, etc.
+- ❌ Manual `font-bold` / `font-semibold` on heading tags (baked into tokens)
+- ❌ Manual `tracking-tight` on headings (baked into tokens)
+- ❌ `text-small` (renamed to `text-body-sm`)
+
+---
+
+## RadioGroup Components
 
 RadioGroup components should use the default spacing provided by the component. Do not override with custom `className` attributes for spacing.
 
@@ -61,7 +69,7 @@ RadioGroup components should use the default spacing provided by the component. 
 </RadioGroup>
 ```
 
-### Checkbox Groups
+## Checkbox Groups
 
 Use the `OptionList` wrapper for consistent spacing between checkbox groups.
 
@@ -89,7 +97,7 @@ Use the `OptionList` wrapper for consistent spacing between checkbox groups.
 </div>
 ```
 
-### Helper Text
+## Helper Text
 
 Use optional helper text between a `Label` and its input to provide brief, contextual instructions.
 
@@ -97,7 +105,7 @@ Use optional helper text between a `Label` and its input to provide brief, conte
 ```tsx
 <div>
   <Label htmlFor="email">Email Address</Label>
-  <p className="text-xs text-muted-foreground mt-0 mb-1.5">
+  <p className="text-body-sm text-muted-foreground mt-0 mb-1.5">
     We'll use this to send you login instructions.
   </p>
   <Input id="email" placeholder="you@example.com" />
@@ -105,12 +113,12 @@ Use optional helper text between a `Label` and its input to provide brief, conte
 ```
 
 **Guidelines:**
-- Uses `text-xs` size and `text-muted-foreground` color
+- Uses `text-body-sm` size and `text-muted-foreground` color
 - Spacing: `mt-0` resets browser default paragraph margin; `mb-1.5` above input
 - Keep text to one short sentence
 - Most fields won't need helper text — use only when clarification adds value
 
-### OptionList and OptionRow Components
+## OptionList and OptionRow Components
 
 Use these wrapper components to maintain consistent spacing:
 
@@ -119,7 +127,7 @@ Use these wrapper components to maintain consistent spacing:
 
 These components ensure consistent spacing across all form controls throughout the application and align with the Component Gallery design standards.
 
-### Banner Component Usage
+## Banner Component Usage
 
 Use the `Banner` component as the unified solution for all notifications, alerts, and status messages. The deprecated `Alert` component should not be used.
 
@@ -203,7 +211,7 @@ Use `size="compact"` with `description` only (no `title`) for brief, contextual 
 - **Toast**: Temporary feedback, success/error confirmations
 - **AlertDialog**: Modal confirmations, destructive action warnings
 
-### ESLint Rules
+## ESLint Rules
 
 The following ESLint rules are enforced to maintain consistency:
 
@@ -213,15 +221,15 @@ The following ESLint rules are enforced to maintain consistency:
 
 Use the wrapper components instead to achieve proper spacing and styling.
 
-### Toggle Components
+## Toggle Components
 
-All Toggle and ToggleGroup items use `text-xs` (14px) for consistency with Labels, Badge, and Tooltip typography standards. This is set globally in the `toggleVariants` CVA definition in `src/components/ui/toggle.tsx`.
+All Toggle and ToggleGroup items use `text-body-sm` for consistency with Labels, Badge, and Tooltip typography standards. This is set globally in the `toggleVariants` CVA definition in `src/components/ui/toggle.tsx`.
 
-### Tooltip Styling
+## Tooltip Styling
 
-All tooltips use a high-contrast dark background (`bg-foreground`) with white text (`text-background`), extra-small text (`text-xs`), a max width of `300px`, and include a directional arrow by default. Meets WCAG AA contrast in both light and dark modes.
+All tooltips use a high-contrast dark background (`bg-foreground`) with white text (`text-background`), `text-body-sm`, a max width of `300px`, and include a directional arrow by default. Meets WCAG AA contrast in both light and dark modes.
 
-#### Arrow Alignment
+### Arrow Alignment
 
 The `align` prop controls where the arrow sits relative to the trigger element:
 
@@ -231,12 +239,12 @@ The `align` prop controls where the arrow sits relative to the trigger element:
 | `"start"` | Far left (top/bottom) or top (left/right) | Tooltip trigger is at a left edge |
 | `"end"` | Far right (top/bottom) or bottom (left/right) | Tooltip trigger is at a right edge |
 
-#### Side & Spacing
+### Side & Spacing
 
 - `side`: `"top"` | `"bottom"` | `"left"` | `"right"` (default: `"top"`)
 - `sideOffset`: Gap in px between trigger and tooltip (default: `4`, use `6` for more breathing room)
 
-#### Examples
+### Examples
 
 **Default (centered arrow):**
 ```tsx
