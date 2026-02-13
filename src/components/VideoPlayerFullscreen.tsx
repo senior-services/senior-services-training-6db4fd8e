@@ -484,16 +484,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           {(() => {
             // State: completed
             if (wasEverCompleted) {
-              return (
-                <div className="flex w-full items-center justify-between gap-4">
-                  <Banner variant="success" size="compact" className="w-fit shrink-0">
-                    Training Completed
-                  </Banner>
-                  <DialogClose asChild>
-                    <Button>Close</Button>
-                  </DialogClose>
-                </div>
-              );
+              return null;
             }
 
             // State: quiz-done
