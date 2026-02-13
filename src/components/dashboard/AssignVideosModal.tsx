@@ -236,6 +236,16 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
       if (assignmentsResult.success && assignmentsResult.data) {
         const currentlyAssigned = new Set(assignmentsResult.data.map((a) => a.video_id));
+
+        // Add progress-only videos (no formal assignment but have progress) to assigned set
+        if (progressResult.success && progressResult.data) {
+          progressResult.data.forEach((progress) => {
+            if (!currentlyAssigned.has(progress.video_id)) {
+              currentlyAssigned.add(progress.video_id);
+            }
+          });
+        }
+
         setAssignedVideoIds(currentlyAssigned);
         setSelectedVideoIds(new Set());
 
