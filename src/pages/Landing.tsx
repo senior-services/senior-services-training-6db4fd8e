@@ -38,7 +38,7 @@ export const Landing = ({
               </Button>
               
               <div className="text-center">
-                <p className="text-small text-muted-foreground">
+                <p className="text-body-sm text-muted-foreground">
                   New employees will be automatically registered upon first login
                 </p>
               </div>
@@ -48,7 +48,7 @@ export const Landing = ({
         
         {/* Bottom Section */}
         <div className="text-center text-white/80">
-          <p className="text-small">
+          <p className="text-body-sm">
             For technical support, please contact your administrator or IT department
           </p>
         </div>

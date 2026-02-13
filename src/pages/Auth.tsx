@@ -146,8 +146,8 @@ export const Auth = () => {
             {/* Development Testing Section */}
             <div className="mb-6 banner-base banner-attention banner-size-default">
               <div className="text-center mb-3">
-                <h3 className="text-attention text-small">Development Testing</h3>
-                <p className="text-small text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
+                <h3 className="text-attention text-body-sm">Development Testing</h3>
+                <p className="text-body-sm text-attention/80">Quick login for testing (@southsoundseniors.org only)</p>
               </div>
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2">
@@ -165,7 +165,7 @@ export const Auth = () => {
                   </Button>
                 </div>
               </div>
-              <div className="mt-2 text-small text-attention/80 text-center">
+              <div className="mt-2 text-body-sm text-attention/80 text-center">
                 Employee 1: jane.doe | Employee 2: john.doe | Admin: admin@southsoundseniors.org
               </div>
             </div>
@@ -180,7 +180,7 @@ export const Auth = () => {
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
-              <div className="relative flex justify-center text-small uppercase">
+              <div className="relative flex justify-center text-body-sm uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
                   Or continue with email
                 </span>
@@ -199,7 +199,7 @@ export const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">
                       Email
-                      <span className="text-small text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
+                      <span className="text-body-sm text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
                     </Label>
                     <Input 
                       id="signin-email" 
@@ -214,7 +214,7 @@ export const Auth = () => {
                     {emailError && (
                       <div 
                         id="email-error" 
-                        className="text-small text-destructive"
+                        className="text-body-sm text-destructive"
                         role="alert"
                         aria-live="polite"
                       >
@@ -250,7 +250,7 @@ export const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">
                       Email
-                      <span className="text-small text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
+                      <span className="text-body-sm text-muted-foreground ml-2">(@southsoundseniors.org required)</span>
                     </Label>
                     <Input 
                       id="signup-email" 
@@ -265,7 +265,7 @@ export const Auth = () => {
                     {emailError && (
                       <div 
                         id="signup-email-error" 
-                        className="text-small text-destructive" 
+                        className="text-body-sm text-destructive" 
                         role="alert"
                         aria-live="polite"
                       >
@@ -293,7 +293,7 @@ export const Auth = () => {
               </TabsContent>
             </Tabs>
             
-            <div className="mt-4 text-center text-small text-muted-foreground">
+            <div className="mt-4 text-center text-body-sm text-muted-foreground">
               New employees will be automatically registered with employee access upon first login
             </div>
           </CardContent>

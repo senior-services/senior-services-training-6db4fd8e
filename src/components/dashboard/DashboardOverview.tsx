@@ -104,8 +104,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-small font-medium">Overall Progress</span>
-              <span className="text-small text-muted-foreground">
+              <span className="text-body-sm font-medium">Overall Progress</span>
+              <span className="text-body-sm text-muted-foreground">
                 {mockOverviewData.averageProgress}%
               </span>
             </div>
@@ -115,15 +115,15 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div className="flex gap-4 pt-4">
             <div className="flex items-center gap-2">
               <Badge variant="default" className="w-3 h-3 p-0 rounded-full" />
-              <span className="text-small">Completed</span>
+              <span className="text-body-sm">Completed</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="w-3 h-3 p-0 rounded-full" />
-              <span className="text-small">In Progress</span>
+              <span className="text-body-sm">In Progress</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="hollow-primary" className="w-3 h-3 p-0 rounded-full" />
-              <span className="text-small">Not Started</span>
+              <span className="text-body-sm">Not Started</span>
             </div>
           </div>
         </CardContent>
