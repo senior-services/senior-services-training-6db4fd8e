@@ -82,6 +82,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [storedAttemptTotal, setStoredAttemptTotal] = useState<number | undefined>(undefined);
   const [videoAttestationChecked, setVideoAttestationChecked] = useState(false);
   const [showVideoCompletedBadge, setShowVideoCompletedBadge] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   // Refs
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -145,20 +146,26 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         setCompletedQuizResults([]);
         setCompletedQuiz(null);
         setVideoAttestationChecked(false);
+        setIsInitializing(false);
         return;
       }
-      const loadResult = await loadVideoData(videoId, initialVideo);
-      if (!loadResult.success) {
-        toast({
-          title: "Video Loading Error",
-          description: "Unable to load video details. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
+      setIsInitializing(true);
+      try {
+        const loadResult = await loadVideoData(videoId, initialVideo);
+        if (!loadResult.success) {
+          toast({
+            title: "Video Loading Error",
+            description: "Unable to load video details. Please try again.",
+            variant: "destructive"
+          });
+          return;
+        }
 
-      if (user?.email) {
-        await loadExistingProgress();
+        if (user?.email) {
+          await loadExistingProgress();
+        }
+      } finally {
+        setIsInitializing(false);
       }
     };
     initializeVideo();
@@ -608,7 +615,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     </AlertDialogContent>
                   </AlertDialog>
                   {/* If quiz auto-start is imminent, suppress the "Start Quiz" button to prevent flash */}
-                  {quizLoading || (!isPresentation && progress >= 99 && quiz && !quizLoading && !quizStarted) ? null : primaryDisabled ? (
+                  {quizLoading || isInitializing || (!isPresentation && progress >= 99 && quiz && !quizLoading && !quizStarted) ? null : primaryDisabled ? (
                     <ButtonWithTooltip tooltip={primaryTooltip} disabled className="transition-all duration-500">
                       {primaryLabel}
                     </ButtonWithTooltip>
