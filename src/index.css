@@ -182,30 +182,30 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
   h1 {
     @apply tracking-tight;
-    font-size: 3.052rem;
+    font-size: 2.027rem;
     font-weight: 700;
-  } /* ~49px - Major Third scale */
+  } /* ~32px - Major Second scale */
   h2 {
     @apply tracking-tight;
-    font-size: 1.953rem;
+    font-size: 1.802rem;
     font-weight: 700;
-  } /* ~31px */
+  } /* ~29px */
   h3 {
-    font-size: 1.563rem;
+    font-size: 1.602rem;
     font-weight: 600;
-  } /* ~25px */
+  } /* ~26px */
   h4 {
-    font-size: 1.25rem;
+    font-size: 1.424rem;
     font-weight: 600;
-  } /* 20px */
+  } /* ~23px */
   h5 {
-    font-size: 1rem;
+    font-size: 1.266rem;
     font-weight: 600;
-  } /* 16px */
+  } /* ~20px */
   h6 {
-    font-size: 0.8rem;
+    font-size: 1.125rem;
     font-weight: 600;
-  } /* ~13px */
+  } /* 18px */
 
   /* Enhanced input sizing */
   input,
@@ -509,25 +509,25 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     @apply bg-deadline-completed text-white;
   }
 
-  /* Semantic typography classes — Major Third (1.250) scale */
+  /* Semantic typography classes — Major Second (1.125) scale */
   /* Heading utility classes — for visual overrides on non-heading tags */
   .text-h1 {
-    font-size: 3.052rem;
+    font-size: 2.027rem;
     line-height: 1.2;
     font-weight: 700;
   }
   .text-h2 {
-    font-size: 1.953rem;
+    font-size: 1.802rem;
     line-height: 1.3;
     font-weight: 700;
   }
   .text-h3 {
-    font-size: 1.563rem;
+    font-size: 1.602rem;
     line-height: 1.4;
     font-weight: 600;
   }
   .text-h4 {
-    font-size: 1.25rem;
+    font-size: 1.424rem;
     line-height: 1.5;
     font-weight: 600;
   }
@@ -537,15 +537,15 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     line-height: 1.6;
   }
   .text-small {
-    font-size: 0.8rem;
+    font-size: 0.889rem;
     line-height: 1.5;
   }
   .tooltip-content {
-    font-size: 0.8rem;
+    font-size: 0.889rem;
     line-height: 1.5;
   }
   .text-caption {
-    font-size: 0.64rem;
+    font-size: 0.79rem;
     line-height: 1.4;
   }
   .text-code {
@@ -556,13 +556,13 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
   /* Form Helper Text - between label and input */
   .form-helper-text {
-    font-size: 0.8rem;
+    font-size: 0.889rem;
     @apply text-foreground mt-0 mb-1.5;
   }
 
   /* Form Additional Text - below input/control */
   .form-additional-text {
-    font-size: 0.8rem;
+    font-size: 0.889rem;
     @apply text-muted-foreground italic mt-1.5;
   }
 

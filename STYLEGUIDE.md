@@ -1,18 +1,20 @@
 # UI Components Style Guide
 
-## Typography Scale — Major Third (1.250)
+## Typography Scale — Major Second (1.125)
 
-All text sizing follows a **Major Third** modular scale with a 16px (1rem) base. Components must use global CSS tags (`h1`–`h6`, `p`) or the semantic classes below — never raw Tailwind `text-*` utilities for font sizing.
+All text sizing follows a **Major Second** modular scale with a 16px (1rem) base. Components must use global CSS tags (`h1`–`h6`, `p`) or the semantic classes below — never raw Tailwind `text-*` utilities for font sizing.
 
 | Step | Rem | Pixels | Semantic Class | Usage |
 |------|-----|--------|---------------|-------|
-| h1 | 3.052rem | ~49px | `<h1>` | Page titles |
-| h2 | 1.953rem | ~31px | `<h2>` | Section headings |
-| h3 | 1.563rem | ~25px | `<h3>` | Subsection headings |
-| h4 | 1.25rem | 20px | `<h4>` | Minor headings / labels |
+| h1 | 2.027rem | ~32px | `<h1>` | Page titles |
+| h2 | 1.802rem | ~29px | `<h2>` | Section headings |
+| h3 | 1.602rem | ~26px | `<h3>` | Subsection headings |
+| h4 | 1.424rem | ~23px | `<h4>` | Minor headings / labels |
+| h5 | 1.266rem | ~20px | `<h5>` | Sub-labels |
+| h6 | 1.125rem | 18px | `<h6>` | Smallest heading |
 | body | 1rem | 16px | `.text-body` | Body text (Regular/Medium/Bold) |
-| small | 0.8rem | ~13px | `.text-small` | Secondary info, helper text |
-| caption | 0.64rem | ~10px | `.text-caption` | Captions, metadata |
+| small | 0.889rem | ~14px | `.text-small` | Secondary info, helper text |
+| caption | 0.79rem | ~13px | `.text-caption` | Captions, metadata |
 | code | 0.9375rem | 15px | `.text-code` | Monospace code snippets |
 
 ### Tailwind Token Mapping
@@ -21,13 +23,14 @@ The Tailwind `fontSize` tokens are remapped to align with this scale:
 
 | Token | Value | Scale Step |
 |-------|-------|-----------|
-| `text-xs` | 0.64rem | caption |
-| `text-sm` | 0.8rem | small |
+| `text-xs` | 0.79rem | caption |
+| `text-sm` | 0.889rem | small |
 | `text-base` | 1rem | body |
-| `text-lg` | 1.25rem | h4 |
-| `text-xl` | 1.563rem | h3 |
-| `text-2xl` | 1.953rem | h2 |
-| `text-3xl` | 3.052rem | h1 |
+| `text-lg` | 1.424rem | h4 |
+| `text-xl` | 1.602rem | h3 |
+| `text-2xl` | 1.802rem | h2 |
+| `text-3xl` | 2.027rem | h1 |
+| `text-4xl` | 2.281rem | display |
 | `text-code` | 0.9375rem | code |
 
 ### RadioGroup Components

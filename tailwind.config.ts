@@ -19,15 +19,15 @@ export default {
 		},
 		extend: {
 		fontSize: {
-			/* Major Third (1.250) type scale */
-			'xs': ['0.64rem', { lineHeight: '1.4' }],      /* ~10px - caption */
-			'sm': ['0.8rem', { lineHeight: '1.5' }],       /* ~13px - small */
+			/* Major Second (1.125) type scale */
+			'xs': ['0.79rem', { lineHeight: '1.4' }],      /* ~13px - caption */
+			'sm': ['0.889rem', { lineHeight: '1.5' }],     /* ~14px - small */
 			'base': ['1rem', { lineHeight: '1.6' }],       /* 16px  - body */
-			'lg': ['1.25rem', { lineHeight: '1.5' }],      /* 20px  - h4 */
-			'xl': ['1.563rem', { lineHeight: '1.4' }],     /* ~25px - h3 */
-			'2xl': ['1.953rem', { lineHeight: '1.3' }],    /* ~31px - h2 */
-			'3xl': ['3.052rem', { lineHeight: '1.2' }],    /* ~49px - h1 */
-			'4xl': ['3.815rem', { lineHeight: '1.1' }],    /* ~61px - display */
+			'lg': ['1.424rem', { lineHeight: '1.5' }],     /* ~23px - h4 */
+			'xl': ['1.602rem', { lineHeight: '1.4' }],     /* ~26px - h3 */
+			'2xl': ['1.802rem', { lineHeight: '1.3' }],    /* ~29px - h2 */
+			'3xl': ['2.027rem', { lineHeight: '1.2' }],    /* ~32px - h1 */
+			'4xl': ['2.281rem', { lineHeight: '1.1' }],    /* ~37px - display */
 			'code': ['0.9375rem', { lineHeight: '1.5' }],  /* 15px  - monospace */
 		},
 			spacing: {
