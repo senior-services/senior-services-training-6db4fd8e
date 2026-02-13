@@ -455,26 +455,59 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         </div>
 
         {/* Fixed Footer - Video trainings (non-presentation, non-quiz-started) */}
-        {!isPresentation && !wasEverCompleted && videoReady && !quizStarted && (
+{!isPresentation && !wasEverCompleted && !quizStarted && (
           <DialogFooter>
-            <div className="flex w-full items-center justify-end gap-4">
-              {quizLoading ? null : quiz ? (
+            <div className="flex w-full items-center justify-between gap-4">
+              {/* Left: Cancel */}
+              <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" onClick={() => setCancelDialogOpen(true)}>
+                    Cancel
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Exit training?</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <div>
+                    <AlertDialogDescription>
+                      {quiz
+                        ? "You haven't finished the quiz yet. You'll need to submit it to mark this training as complete."
+                        : "Your training progress will be saved, but the training will remain incomplete."}
+                    </AlertDialogDescription>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Return to Training</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => { setCancelDialogOpen(false); onOpenChange(false); }}>
+                      Exit Training
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              {/* Right: Action button */}
+              {quizLoading ? null : !videoReady ? (
+                <ButtonWithTooltip
+                  tooltip="Please watch the video to continue."
+                  disabled
+                >
+                  {quiz ? 'Start Quiz to Complete Training' : 'Complete Training'}
+                </ButtonWithTooltip>
+              ) : quiz ? (
                 <Button onClick={handleStartQuiz}>
                   Start Quiz to Complete Training
                 </Button>
+              ) : videoAttestationChecked ? (
+                <Button onClick={handleCompleteTraining}>
+                  Complete Training
+                </Button>
               ) : (
-                videoAttestationChecked ? (
-                  <Button onClick={handleCompleteTraining}>
-                    Complete Training
-                  </Button>
-                ) : (
-                  <ButtonWithTooltip
-                    tooltip="Please check the acknowledgment checkbox above to proceed."
-                    disabled
-                  >
-                    Complete Training
-                  </ButtonWithTooltip>
-                )
+                <ButtonWithTooltip
+                  tooltip="Please check the acknowledgment checkbox above to proceed."
+                  disabled
+                >
+                  Complete Training
+                </ButtonWithTooltip>
               )}
             </div>
           </DialogFooter>
@@ -636,6 +669,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                   </div>
                 </div>
               )}
+          </DialogFooter>
+        )}
+
+        {/* Fixed Footer - Completed trainings */}
+        {wasEverCompleted && (
+          <DialogFooter>
+            <div className="flex w-full items-center justify-between gap-4">
+              <Banner variant="success" size="compact" className="w-fit shrink-0">
+                Training Completed
+              </Banner>
+              <DialogClose asChild>
+                <Button>Close</Button>
+              </DialogClose>
+            </div>
           </DialogFooter>
         )}
 
