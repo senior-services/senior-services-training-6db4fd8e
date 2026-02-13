@@ -900,7 +900,7 @@ export const ComponentsGallery = ({
                     </div>
                     
                     <div>
-                      <Label className="text-small font-medium mb-2 block">Radio Button Group</Label>
+                      <Label className="font-medium mb-2 block">Radio Button Group</Label>
                       <RadioGroup value={radioValue} onValueChange={setRadioValue} className="p-3 rounded-md bg-card/50 shadow-sm space-y-3">
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="small" id="size-small" />

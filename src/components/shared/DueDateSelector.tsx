@@ -82,25 +82,25 @@ export const DueDateSelector: React.FC<DueDateSelectorProps> = ({
       >
         <div className="flex items-center space-x-3">
           <RadioGroupItem value="1week" id="due-1week" />
-          <Label htmlFor="due-1week" className="text-small font-normal cursor-pointer">
+          <Label htmlFor="due-1week" className="font-normal cursor-pointer">
             1 week
           </Label>
         </div>
         <div className="flex items-center space-x-3">
           <RadioGroupItem value="2weeks" id="due-2weeks" />
-          <Label htmlFor="due-2weeks" className="text-small font-normal cursor-pointer">
+          <Label htmlFor="due-2weeks" className="font-normal cursor-pointer">
             2 weeks
           </Label>
         </div>
         <div className="flex items-center space-x-3">
           <RadioGroupItem value="1month" id="due-1month" />
-          <Label htmlFor="due-1month" className="text-small font-normal cursor-pointer">
+          <Label htmlFor="due-1month" className="font-normal cursor-pointer">
             1 month
           </Label>
         </div>
         <div className="flex items-center space-x-3">
           <RadioGroupItem value="none" id="due-none" />
-          <Label htmlFor="due-none" className="text-small font-normal cursor-pointer">
+          <Label htmlFor="due-none" className="font-normal cursor-pointer">
             No due date required
           </Label>
         </div>
