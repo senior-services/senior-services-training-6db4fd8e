@@ -44,6 +44,7 @@ export function TrainingAttestation({
 
   const content = (
     <div
+      id="attestation-section"
       className={cn(
         "border border-border rounded-lg p-6 transition-colors",
         enabled ? "bg-background" : "bg-transparent"
