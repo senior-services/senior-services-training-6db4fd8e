@@ -1,38 +1,34 @@
 
 
-## Fix: Radio Group Label Typography Mismatch
+## Fix: AlertDialogTitle Typography Scale (text-h3 to text-h4)
 
 ### Problem
-Two typography violations against the design system's senior-legibility rule (16px minimum for labels):
-
-1. **`src/components/shared/DueDateSelector.tsx`** -- The four radio option labels (lines 85, 91, 97, 103) use `text-small font-normal`, rendering at 13px instead of the required 16px.
-2. **`src/pages/ComponentsGallery.tsx`** -- The "Radio Button Group" heading label (line 903) uses `text-small font-medium`, also rendering at 13px instead of 16px.
+The `AlertDialogTitle` primitive renders its `h2` element with `text-h3` (25px), which is oversized for dialog context. It should use `text-h4` (20px) to match the `DialogTitle` standard established for senior-first dialog typography.
 
 ### Fix
 
-**File 1: `src/components/shared/DueDateSelector.tsx`**
+**File: `src/components/ui/alert-dialog.tsx` (line 94)**
 
-Remove `text-small font-normal` from all four radio option Labels. The `Label` primitive already defaults to `text-body font-medium`, so only `cursor-pointer` needs to remain:
+Change the base class from `text-h3` to `text-h4`:
 
-- Line 85: `className="text-small font-normal cursor-pointer"` becomes `className="font-normal cursor-pointer"`
-- Line 91: same change
-- Line 97: same change
-- Line 103: same change
+```tsx
+// Before
+className={cn("text-h3", className)}
 
-The labels will inherit `text-body` (16px) from the Label primitive's base class.
+// After
+className={cn("text-h4", className)}
+```
 
-**File 2: `src/pages/ComponentsGallery.tsx`**
+This single change propagates to every `AlertDialogTitle` instance across the app, including:
+- Components Gallery ("Important Information", "Are you sure?")
+- Cancel confirmation dialogs in `VideoPlayerFullscreen.tsx`
+- Any other alert dialogs using the primitive
 
-Remove `text-small` from the group heading Label on line 903:
-
-- `className="text-small font-medium mb-2 block"` becomes `className="font-medium mb-2 block"`
-
-The label will inherit `text-body` (16px) from the Label primitive.
+No other files need editing -- the primitive is the single source of truth.
 
 ### Review
 
-1. **Top 3 Risks:** (a) None -- restoring the primitive's default is the correct behavior. (b) Visual shift from 13px to 16px in the due date selector dialog -- this is the intended senior-legibility standard. (c) No downstream components affected.
-2. **Top 3 Fixes:** (a) Radio labels meet 16px senior-legibility minimum. (b) Gallery reference matches production usage. (c) Label primitive's locked typography is no longer overridden.
+1. **Top 3 Risks:** (a) None -- this aligns alert dialogs with the already-established `DialogTitle` standard. (b) All existing alert dialogs benefit automatically. (c) No downstream overrides detected.
+2. **Top 3 Fixes:** (a) Alert dialog titles match the 20px dialog typography standard. (b) Consistent with `DialogTitle` sizing. (c) Style guide demos update automatically.
 3. **Database Change:** No.
 4. **Verdict:** Go.
-
