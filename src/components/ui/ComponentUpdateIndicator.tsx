@@ -86,7 +86,7 @@ export const ComponentUpdateIndicator: React.FC<ComponentUpdateIndicatorProps> =
         <div className="grid grid-cols-2 gap-2">
           {Object.entries(COMPONENT_USAGE_MAP).slice(0, 6).map(([component, areas]) => (
             <div key={component} className="flex items-center justify-between p-2 border rounded">
-              <span className="text-small font-medium">{component}</span>
+              <span className="text-body-sm font-medium">{component}</span>
               <Badge variant="secondary">
                 {Array.isArray(areas) ? areas.length : 1} areas
               </Badge>
@@ -97,7 +97,7 @@ export const ComponentUpdateIndicator: React.FC<ComponentUpdateIndicatorProps> =
         {/* Recent Updates */}
         {showHistory && recentUpdates.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-small font-semibold flex items-center gap-2">
+            <h4 className="text-body-sm font-semibold flex items-center gap-2">
               <Info className="w-4 h-4" />
               Recent Updates
             </h4>

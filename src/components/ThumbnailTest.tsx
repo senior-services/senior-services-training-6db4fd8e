@@ -34,7 +34,7 @@ export const ThumbnailTest = () => {
             onLoad={() => console.log(`✅ Loaded: ${test.title}`)}
             onError={() => console.log(`❌ Failed: ${test.title}`)}
           />
-          <p className="text-small text-muted-foreground mt-2">{test.url}</p>
+          <p className="text-body-sm text-muted-foreground mt-2">{test.url}</p>
         </div>
       ))}
     </div>

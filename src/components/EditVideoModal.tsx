@@ -1115,7 +1115,7 @@ export const EditVideoModal = ({
                               <Textarea value={question.question_text} onChange={e => updateQuestion(questionIndex, {
                           question_text: e.target.value
                         })} placeholder="Enter your question" className={cn(questionValidationErrors[questionIndex]?.includes('Question text is required') ? "border-destructive focus-visible:ring-destructive" : "")} />
-                              {questionValidationErrors[questionIndex]?.includes('Question text is required') && <div className="text-small text-destructive mt-1">
+                              {questionValidationErrors[questionIndex]?.includes('Question text is required') && <div className="text-body-sm text-destructive mt-1">
                                   Question text is required.
                                 </div>}
                             </div>
@@ -1159,7 +1159,7 @@ export const EditVideoModal = ({
                                        </div>)}
                                      </RadioGroup>
                                      
-                                      {showQuizValidation && questionValidationErrors[questionIndex] && <div className="text-small text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                      {showQuizValidation && questionValidationErrors[questionIndex] && <div className="text-body-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                                           {questionValidationErrors[questionIndex]}
                                         </div>}
                                       
@@ -1185,7 +1185,7 @@ export const EditVideoModal = ({
                             </Button>}
                                        </div>)}
                                      
-                                      {showQuizValidation && questionValidationErrors[questionIndex] && <div className="text-small text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                      {showQuizValidation && questionValidationErrors[questionIndex] && <div className="text-body-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                                           {questionValidationErrors[questionIndex]}
                                         </div>}
                                       
@@ -1200,7 +1200,7 @@ export const EditVideoModal = ({
                             {question.question_type === 'true_false' && <div className="space-y-3">
                                 <Label>Select Correct Answer</Label>
                                 <div className="space-y-3">
-                                  <div className="text-small text-muted-foreground mb-2">
+                                  <div className="text-body-sm text-muted-foreground mb-2">
                                     Choose which option is correct:
                                   </div>
                                   <RadioGroup value={question.options.find(opt => opt.is_correct)?.option_text || ""} onValueChange={value => {
@@ -1226,7 +1226,7 @@ export const EditVideoModal = ({
                                     </div>
                                   </RadioGroup>
                                   
-                                  {showQuizValidation && questionValidationErrors[questionIndex] && <div className="text-small text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
+                                  {showQuizValidation && questionValidationErrors[questionIndex] && <div className="text-body-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                                       {questionValidationErrors[questionIndex]}
                                     </div>}
                                 </div>

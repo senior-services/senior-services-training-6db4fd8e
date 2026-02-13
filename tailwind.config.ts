@@ -18,17 +18,17 @@ export default {
 			}
 		},
 		extend: {
-		fontSize: {
-			/* Major Second (1.125) type scale */
-			'xs': ['0.79rem', { lineHeight: '1.4' }],      /* ~13px - caption */
-			'sm': ['0.889rem', { lineHeight: '1.5' }],     /* ~14px - small */
-			'base': ['1rem', { lineHeight: '1.6' }],       /* 16px  - body */
-			'lg': ['1.424rem', { lineHeight: '1.5' }],     /* ~23px - h4 */
-			'xl': ['1.602rem', { lineHeight: '1.4' }],     /* ~26px - h3 */
-			'2xl': ['1.802rem', { lineHeight: '1.3' }],    /* ~29px - h2 */
-			'3xl': ['2.027rem', { lineHeight: '1.2' }],    /* ~32px - h1 */
-			'4xl': ['2.281rem', { lineHeight: '1.1' }],    /* ~37px - display */
-			'code': ['0.9375rem', { lineHeight: '1.5' }],  /* 15px  - monospace */
+	fontSize: {
+			/* Composite Tokens — Major Second (1.125) scale */
+			'h1':      ['1.802rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.02em' }],
+			'h2':      ['1.602rem', { lineHeight: '1.2', fontWeight: '700', letterSpacing: '-0.01em' }],
+			'h3':      ['1.424rem', { lineHeight: '1.2', fontWeight: '600', letterSpacing: '0' }],
+			'h4':      ['1.266rem', { lineHeight: '1.3', fontWeight: '600', letterSpacing: '0' }],
+			'body-lg': ['1.125rem', { lineHeight: '1.5', fontWeight: '400', letterSpacing: '0' }],
+			'body':    ['1rem',     { lineHeight: '1.6', fontWeight: '400', letterSpacing: '0' }],
+			'body-sm': ['0.889rem', { lineHeight: '1.5', fontWeight: '400', letterSpacing: '0' }],
+			'caption': ['0.79rem',  { lineHeight: '1.4', fontWeight: '400', letterSpacing: '0' }],
+			'code':    ['0.9375rem', { lineHeight: '1.5', fontWeight: '400', letterSpacing: '0' }],
 		},
 			spacing: {
 				/* Enhanced spacing for better touch targets */

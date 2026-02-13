@@ -84,14 +84,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       >
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <div className="text-small text-muted-foreground">
+            <div className="text-body-sm text-muted-foreground">
               <p>
                 Senior Services Training Portal &copy; {new Date().getFullYear()}
               </p>
             </div>
             
             <nav aria-label="Footer navigation">
-              <div className="flex items-center space-x-4 text-small">
+              <div className="flex items-center space-x-4 text-body-sm">
                 <a
                   href="mailto:support@southsoundseniors.org"
                   className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
@@ -249,7 +249,7 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
         </h2>
         {description && (
           <p 
-            className="text-small text-muted-foreground"
+            className="text-body-sm text-muted-foreground"
             id={ariaProps['aria-describedby']}
           >
             {description}

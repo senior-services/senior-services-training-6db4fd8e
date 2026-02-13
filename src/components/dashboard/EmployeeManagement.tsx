@@ -630,7 +630,7 @@ export const EmployeeManagement: React.FC<{
                     <TableCell className="table-body-cell font-medium">
                       <div className="flex flex-col">
                         <span>{sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}</span>
-                        {employee.email && <span className="text-small text-muted-foreground font-normal truncate max-w-[400px]" title={employee.email}>
+                        {employee.email && <span className="text-body-sm text-muted-foreground font-normal truncate max-w-[400px]" title={employee.email}>
                             {sanitizeText(employee.email)}
                           </span>}
                       </div>
@@ -672,7 +672,7 @@ export const EmployeeManagement: React.FC<{
                   {hiddenEmployees.length}
                 </Badge>
                 <div className="ml-auto">
-                  <span className="text-small text-muted-foreground bg-muted px-2 py-1 rounded">
+                  <span className="text-body-sm text-muted-foreground bg-muted px-2 py-1 rounded">
                     Hidden employees remain functional with active assignments
                   </span>
                 </div>
@@ -698,7 +698,7 @@ export const EmployeeManagement: React.FC<{
                                   {sanitizeText(employee.full_name || employee.email?.split('@')[0] || 'Unknown')}
                                 </div>
                                 {employee.email && (
-                                  <div className="text-small text-muted-foreground">
+                                  <div className="text-body-sm text-muted-foreground">
                                     {sanitizeText(employee.email)}
                                   </div>
                                 )}

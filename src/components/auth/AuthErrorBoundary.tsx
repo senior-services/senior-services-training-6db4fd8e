@@ -111,7 +111,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
                     <p className="mb-2">
                       Only @southsoundseniors.org email addresses are allowed to access this training portal.
                     </p>
-                    <p className="text-small">
+                    <p className="text-body-sm">
                       Need access? Contact {APP_CONFIG.supportEmail}
                     </p>
                   </>
@@ -120,7 +120,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
                     <p className="mb-2">
                       Something went wrong during the authentication process.
                     </p>
-                    <p className="text-small text-muted-foreground">
+                    <p className="text-body-sm text-muted-foreground">
                       Error ID: {this.state.errorId}
                     </p>
                   </>

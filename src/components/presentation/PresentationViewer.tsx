@@ -84,7 +84,7 @@ export const PresentationViewer: React.FC<PresentationViewerProps> = ({
           <p className="text-muted-foreground" id="presentation-error">
             Unable to load presentation
           </p>
-          <p className="text-small text-muted-foreground mt-1">
+          <p className="text-body-sm text-muted-foreground mt-1">
             {errorMessage}
           </p>
         </div>
@@ -106,7 +106,7 @@ export const PresentationViewer: React.FC<PresentationViewerProps> = ({
           <p className="text-muted-foreground" id="presentation-load-error">
             {PRESENTATION_CONFIG.ERROR_MESSAGES.LOAD_FAILED}
           </p>
-          <p className="text-small text-muted-foreground mt-1">
+          <p className="text-body-sm text-muted-foreground mt-1">
             {PRESENTATION_CONFIG.ERROR_MESSAGES.PERMISSION_REQUIRED}
           </p>
           <Button 
@@ -129,7 +129,7 @@ export const PresentationViewer: React.FC<PresentationViewerProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-muted">
           <div className="flex flex-col items-center gap-2">
             <Presentation className="h-8 w-8 text-muted-foreground animate-pulse" aria-hidden="true" />
-            <p className="text-small text-muted-foreground">Loading presentation...</p>
+            <p className="text-body-sm text-muted-foreground">Loading presentation...</p>
           </div>
         </div>
       )}

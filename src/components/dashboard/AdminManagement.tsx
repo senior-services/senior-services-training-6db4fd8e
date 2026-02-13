@@ -215,7 +215,7 @@ export const AdminManagement: React.FC = () => {
                   <h4 className="font-medium text-foreground">
                     No admins found
                   </h4>
-                  <p className="text-small text-muted-foreground">
+                  <p className="text-body-sm text-muted-foreground">
                     Add administrators to manage the system.
                   </p>
                 </div>

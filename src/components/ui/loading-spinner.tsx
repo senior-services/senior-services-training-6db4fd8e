@@ -78,7 +78,7 @@ export const LoadingOverlay = ({
     >
       <div className="text-center space-y-4">
         <LoadingSpinner size="lg" />
-        <p className="text-small text-muted-foreground font-medium">
+        <p className="text-body-sm text-muted-foreground font-medium">
           {message}
         </p>
       </div>

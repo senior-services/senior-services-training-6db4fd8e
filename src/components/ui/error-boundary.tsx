@@ -121,7 +121,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <CardContent className="space-y-4">
               {/* Error details (only in development) */}
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="bg-muted p-4 rounded-lg text-small">
+                <details className="bg-muted p-4 rounded-lg text-body-sm">
                   <summary className="cursor-pointer font-medium mb-2">
                     Technical Details (Development Only)
                   </summary>
@@ -181,7 +181,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
 
               {/* Support information */}
-              <div className="text-center text-small text-muted-foreground border-t pt-4">
+              <div className="text-center text-body-sm text-muted-foreground border-t pt-4">
                 <p>
                   If this problem persists, please contact support at{' '}
                   <a 
@@ -223,10 +223,10 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError 
           aria-hidden="true"
         />
         <div className="flex-1 min-w-0">
-          <h3 id="fallback-title" className="text-small font-medium text-destructive">
+          <h3 id="fallback-title" className="text-body-sm font-medium text-destructive">
             Component Error
           </h3>
-          <p className="mt-1 text-small text-destructive/80">
+          <p className="mt-1 text-body-sm text-destructive/80">
             This component encountered an error and cannot be displayed.
           </p>
           {process.env.NODE_ENV === 'development' && (
@@ -303,7 +303,7 @@ export class AsyncErrorBoundary extends Component<Props, AsyncErrorBoundaryState
     if (this.state.error) {
       return (
         <div className="p-4 text-center">
-          <p className="text-small text-muted-foreground mb-2">
+          <p className="text-body-sm text-muted-foreground mb-2">
             Failed to load content
           </p>
           <Button 

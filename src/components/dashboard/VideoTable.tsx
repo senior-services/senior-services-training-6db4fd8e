@@ -182,7 +182,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                           <h4 className="font-medium text-foreground">
                             No videos found
                           </h4>
-                          <p className="text-small text-muted-foreground">
+                          <p className="text-body-sm text-muted-foreground">
                             Add your first video to get started with training content.
                           </p>
                         </div>
