@@ -1,30 +1,49 @@
 
-## Add Admin Header Background Color Token
+
+## Add Dropdown Ghost Variant to Style Guide and Header
 
 ### Changes
 
-**1. `src/index.css` -- Add CSS variable (2 locations)**
+**1. `src/pages/ComponentsGallery.tsx` -- Add ghost dropdown example (after line 1730)**
 
-- Light mode (line 14, after `--background-header`): Add `--background-header-admin: 261 33% 48%;` with comment `/* #6d53a3 - Purple admin */`
-- Dark mode (line 98, after `--background-header`): Add `--background-header-admin: 261 33% 38%;` (slightly darker for dark mode consistency)
+Insert a new dropdown example next to the existing "Dropdown Menu" that uses `Button variant="ghost"` as trigger with a `ChevronDown` icon. This demonstrates the ghost dropdown pattern -- text label with a down caret, no border or background until hovered.
 
-**2. `tailwind.config.ts` -- Register Tailwind color (line 55)**
+```tsx
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="ghost">
+      Options <ChevronDown className="w-4 h-4 ml-2" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem><User className="w-4 h-4 mr-2" />Profile</DropdownMenuItem>
+    <DropdownMenuItem><Settings className="w-4 h-4 mr-2" />Settings</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+```
 
-- Add `'background-header-admin': 'hsl(var(--background-header-admin))'` after the `background-header` entry.
+**2. `src/components/Header.tsx` -- Update user dropdown trigger (lines 69-75)**
 
-**3. `src/components/Header.tsx` -- Use new token (line 31)**
+- Remove the user icon circle (the `div` with the `User` icon on lines 71-73).
+- Replace the custom `<button>` with `<Button variant="ghost">` using the `ChevronDown` icon after the user name.
+- Add header-appropriate text color classes so the ghost button text is white on both navy and purple backgrounds.
 
-- Change: `const headerBg = isAdminView ? "bg-attention" : "bg-background-header";`
-- To: `const headerBg = isAdminView ? "bg-background-header-admin" : "bg-background-header";`
-- Update the user avatar circle background on line 71 from `bg-attention-foreground` to `bg-primary-foreground` (white circle works on both purple and navy).
-- Update the user avatar icon color on line 72 from `text-attention` to `text-background-header-admin`.
+Updated trigger:
+```tsx
+<Button variant="ghost" className={`${headerTextColor} hover:bg-white/10`}>
+  {userName} <ChevronDown className="w-4 h-4 ml-2" />
+</Button>
+```
 
-**4. `src/pages/ComponentsGallery.tsx` -- Add swatch (after line 381)**
+### Technical Details
 
-- Insert a new color swatch block for "Background Header Admin" / `--background-header-admin` using `bg-background-header-admin`, positioned directly below the "Background Header" swatch.
+- `ChevronDown` is already imported in `ComponentsGallery.tsx` (line 34). It needs to be added to the import in `Header.tsx` (replacing `User` which is no longer needed).
+- The ghost variant already exists in the button system (`button-ghost` class in `index.css`). No new CSS tokens needed.
+- The `hover:bg-white/10` override on the header button provides a subtle hover effect appropriate for dark header backgrounds, without conflicting with the standard ghost hover style.
 
 ### Review
-1. **Top 3 Risks:** (a) HSL conversion accuracy -- verified #6d53a3 = 261 33% 48%. (b) Contrast with white text -- 4.5:1 ratio met (purple at 48% lightness). (c) None other.
-2. **Top 3 Fixes:** (a) Distinct admin vs employee header identity. (b) Replaces orange attention color with purposeful purple. (c) Style guide kept in sync.
+1. **Top 3 Risks:** (a) Ghost hover on dark background needs white/10 overlay instead of default muted -- handled via className override. (b) `User` icon removal is intentional per request. (c) No accessibility regression -- button still has visible text and focus ring.
+2. **Top 3 Fixes:** (a) Cleaner header with less visual clutter. (b) Style guide documents the ghost dropdown pattern. (c) Consistent use of Button component instead of raw `<button>`.
 3. **Database Change:** No.
-4. **Verdict:** Go -- clean token addition following existing patterns.
+4. **Verdict:** Go -- uses existing ghost variant, minimal changes.
+
