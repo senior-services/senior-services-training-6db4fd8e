@@ -869,7 +869,7 @@ export const ComponentsGallery = ({
                       <Separator />
                       
                       <div>
-                        <Label className="text-body-sm font-medium mb-2 block">Two-Option Toggle</Label>
+                        <Label className="mb-2 block">Two-Option Toggle</Label>
                         <ToggleGroup type="single" value={twoOptionToggle} onValueChange={value => value && setTwoOptionToggle(value)} variant="pill" size="pill" className="justify-start">
                           <ToggleGroupItem value="light" aria-label="Light mode">
                             Light
@@ -883,7 +883,7 @@ export const ComponentsGallery = ({
                       <Separator />
                       
                       <div>
-                        <Label className="text-body-sm font-medium mb-2 block">Multi-Option Toggle</Label>
+                        <Label className="mb-2 block">Multi-Option Toggle</Label>
                         <ToggleGroup type="single" value={multiOptionToggle} onValueChange={value => value && setMultiOptionToggle(value)} variant="pill" size="pill" className="justify-start">
                           <ToggleGroupItem value="small" aria-label="Small size">
                             Small
