@@ -47,7 +47,7 @@ export const Header = ({ userRole, userName, userEmail, onLogout, currentView }:
                 }}
               />
               <div>
-                <h1 className={`text-h4 ${headerTextColor}`}>
+                <h1 className={`text-body ${headerTextColor}`}>
                   <span className="font-bold">Training Portal</span>{" "}
                   <span className="font-normal">/ {subtitle}</span>
                 </h1>
