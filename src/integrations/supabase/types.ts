@@ -21,6 +21,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_admin: boolean
           updated_at: string
         }
         Insert: {
@@ -29,6 +30,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_admin?: boolean
           updated_at?: string
         }
         Update: {
@@ -37,6 +39,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_admin?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -513,6 +516,7 @@ export type Database = {
           employee_email: string
           employee_full_name: string
           employee_id: string
+          is_admin: boolean
         }[]
       }
       get_all_quiz_versions: {
@@ -552,6 +556,7 @@ export type Database = {
           employee_email: string
           employee_full_name: string
           employee_id: string
+          is_admin: boolean
         }[]
       }
       get_safe_quiz_options: {

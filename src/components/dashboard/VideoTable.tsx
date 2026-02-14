@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
-import { Edit, Video as VideoIcon, Plus, Play, EyeOff, MessageSquare } from 'lucide-react';
+import { Edit, Video as VideoIcon, Plus, Play, Settings, MessageSquare } from 'lucide-react';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
 import { format } from 'date-fns';
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveFileId } from '@/utils/videoUtils';
@@ -26,7 +26,7 @@ interface VideoTableProps {
   onEdit: (video: Video) => void;
   onPlay: (video: Video) => void;
   onAddVideo: () => void;
-  onHide?: (video: Video) => void;
+  onSettings?: (video: Video) => void;
   className?: string;
 }
 
@@ -50,7 +50,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
   onEdit,
   onPlay,
   onAddVideo,
-  onHide,
+  onSettings,
   className
 }) => {
   const [sortColumn, setSortColumn] = useState<'title' | 'created_at'>('title');
@@ -282,7 +282,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                             <Edit className="w-4 h-4 mr-2" aria-hidden="true" />
                             Edit
                           </Button>
-                          {onHide && <IconButtonWithTooltip icon={EyeOff} tooltip="Hide video from list" onClick={() => handleVideoAction('Hide video', video, () => onHide(video))} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" ariaLabel={`Hide ${video.title} from video list`} />}
+                          {onSettings && <IconButtonWithTooltip icon={Settings} tooltip="Training settings" onClick={() => handleVideoAction('Open settings', video, () => onSettings(video))} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" ariaLabel={`Settings for ${video.title}`} />}
                         </div>
                       </TableCell>
                     </TableRow>)}

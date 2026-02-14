@@ -32,6 +32,7 @@ const AppContent = () => {
   const navigate = useNavigate();
   
   const isAuthenticated = !!user;
+  const isAdmin = role === 'admin';
   const loading = authLoading || (isAuthenticated && roleLoading);
 
   // Enhanced debug logging for application state monitoring
@@ -64,11 +65,10 @@ const AppContent = () => {
   const handleVideoClose = (open: boolean) => {
     setIsVideoOpen(open);
     if (!open) {
-      // Add delay to ensure database update completes before refreshing dashboard
       setTimeout(() => {
         logger.info('Triggering dashboard refresh after video modal close');
         setRefreshDashboard(prev => prev + 1);
-      }, 500); // 500ms delay
+      }, 500);
     }
   };
 
@@ -86,15 +86,19 @@ const AppContent = () => {
     );
   }
 
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  const userEmail = user?.email || '';
+
   return (
     <>
       <Routes>
+        {/* Auth routes - redirect to appropriate dashboard if already authenticated */}
         <Route 
           path="/" 
           element={
             !isAuthenticated ? 
               <Auth /> : 
-              <Navigate to="/dashboard" replace />
+              <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />
           } 
         />
         <Route 
@@ -102,34 +106,49 @@ const AppContent = () => {
           element={
             !isAuthenticated ? 
               <Auth /> : 
-              <Navigate to="/dashboard" replace />
+              <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />
           } 
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
+
+        {/* Personal training dashboard - accessible to ALL authenticated users */}
         <Route 
           path="/dashboard" 
           element={
             isAuthenticated ? (
-              role === 'admin' ? (
+              <EmployeeDashboard 
+                userName={userName}
+                userEmail={userEmail}
+                onLogout={handleLogout}
+                onPlayVideo={handlePlayVideo}
+                refreshTrigger={refreshDashboard}
+              />
+            ) : (
+              <Navigate to="/auth" replace />
+            )
+          } 
+        />
+
+        {/* Admin management dashboard - admin only */}
+        <Route 
+          path="/admin" 
+          element={
+            isAuthenticated ? (
+              isAdmin ? (
                 <AdminDashboard 
-                  userName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                  userEmail={user?.email || ''}
+                  userName={userName}
+                  userEmail={userEmail}
                   onLogout={handleLogout}
                 />
               ) : (
-                <EmployeeDashboard 
-                  userName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                  userEmail={user?.email || ''}
-                  onLogout={handleLogout}
-                  onPlayVideo={handlePlayVideo}
-                  refreshTrigger={refreshDashboard}
-                />
+                <Navigate to="/dashboard" replace />
               )
             ) : (
               <Navigate to="/auth" replace />
             )
           } 
         />
+
         <Route 
           path="/video/:videoId" 
           element={<VideoPage />} 
@@ -138,8 +157,8 @@ const AppContent = () => {
           path="/components-gallery" 
           element={
             <ComponentsGallery 
-              userName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-              userEmail={user?.email || ''}
+              userName={userName}
+              userEmail={userEmail}
               onLogout={handleLogout}
             />
           } 
@@ -153,14 +172,11 @@ const AppContent = () => {
         videoId={selectedVideoId}
         initialVideo={selectedVideoData || undefined}
         onProgressUpdate={(progress) => {
-        // Update progress with comprehensive logging
         logger.videoEvent('progress_update_callback', selectedVideoId || 'unknown', {
           progress,
           timestamp: new Date().toISOString(),
           source: 'AppContent_callback'
         });
-        // Progress is automatically saved to database by VideoPlayerFullscreen
-        // Dashboard updates via real-time subscriptions
         }}
       />
     </>
@@ -168,7 +184,6 @@ const AppContent = () => {
 };
 
 const App = () => {
-  // Preload YouTube IFrame API for faster first video load
   useEffect(() => {
     if (!window.YT) {
       const script = document.createElement('script');

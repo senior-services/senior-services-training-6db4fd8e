@@ -191,11 +191,11 @@ export class AdminService {
       .eq('user_id', profile.user_id)
       .eq('role', 'employee');
 
-    // Remove from employees table since they're becoming admin
+    // Mark as admin in employees table (preserve record!)
     if (userProfile?.email) {
       await supabase
         .from('employees')
-        .delete()
+        .update({ is_admin: true } as any)
         .eq('email', userProfile.email);
     }
 
@@ -240,11 +240,11 @@ export class AdminService {
       .eq('user_id', userId)
       .eq('role', 'employee');
 
-    // Remove from employees table since they're becoming admin
+    // Mark as admin in employees table (preserve record!)
     if (userProfile?.email) {
       await supabase
         .from('employees')
-        .delete()
+        .update({ is_admin: true } as any)
         .eq('email', userProfile.email);
     }
 
@@ -307,5 +307,19 @@ export class AdminService {
     await supabase
       .from('user_roles')
       .insert({ user_id: userId, role: 'employee' });
+
+    // Mark as non-admin in employees table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('user_id', userId)
+      .maybeSingle();
+    
+    if (profile?.email) {
+      await supabase
+        .from('employees')
+        .update({ is_admin: false } as any)
+        .eq('email', profile.email);
+    }
   }
 }

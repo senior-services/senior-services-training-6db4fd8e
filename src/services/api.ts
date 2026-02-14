@@ -419,7 +419,7 @@ export const employeeOperations = {
         return { data: null, error: error.message, success: false };
       }
 
-      const result: EmployeeWithAssignments[] = employeeAssignments?.map((emp: any) => {
+      const result: (EmployeeWithAssignments & { is_admin?: boolean })[] = employeeAssignments?.map((emp: any) => {
         const assignments = Array.isArray(emp.assignments) ? emp.assignments : [];
         const completedVideos = assignments.filter((a: any) => a.progress_percent === 100).length;
         const totalVideos = assignments.length;
@@ -428,6 +428,7 @@ export const employeeOperations = {
           id: emp.employee_id,
           name: emp.employee_full_name || emp.employee_email?.split('@')[0] || 'Unknown',
           email: emp.employee_email || '',
+          is_admin: emp.is_admin || false,
           requiredProgress: 0,
           completedVideos,
           totalVideos,
@@ -537,7 +538,7 @@ export const employeeOperations = {
         return { data: null, error: error.message, success: false };
       }
 
-      const result: EmployeeWithAssignments[] = employeeAssignments?.map((emp: any) => {
+      const result: (EmployeeWithAssignments & { is_admin?: boolean })[] = employeeAssignments?.map((emp: any) => {
         const assignments = Array.isArray(emp.assignments) ? emp.assignments : [];
         const completedVideos = assignments.filter((a: any) => a.progress_percent === 100).length;
         const totalVideos = assignments.length;
@@ -546,6 +547,7 @@ export const employeeOperations = {
           id: emp.employee_id,
           name: emp.employee_full_name || emp.employee_email?.split('@')[0] || 'Unknown',
           email: emp.employee_email || '',
+          is_admin: emp.is_admin || false,
           requiredProgress: 0,
           completedVideos,
           totalVideos,

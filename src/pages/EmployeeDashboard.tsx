@@ -492,7 +492,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           userRole="employee"
           userName={sanitizedUserData.displayName}
           userEmail={userEmail}
-          onLogout={onLogout} />
+          onLogout={onLogout}
+          currentView="dashboard" />
 
 
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="error-heading">
@@ -524,7 +525,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
           userRole="employee"
           userName={sanitizedUserData.displayName}
           userEmail={userEmail}
-          onLogout={onLogout} />
+          onLogout={onLogout}
+          currentView="dashboard" />
 
 
         <main className="container mx-auto px-4 py-8" role="main" aria-labelledby="dashboard-heading">

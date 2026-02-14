@@ -1,24 +1,43 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User } from "lucide-react";
-import { Link } from "react-router-dom";
-// Using uploaded logo image
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, LayoutDashboard, BookOpen, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   userRole: "admin" | "employee";
   userName: string;
   userEmail: string;
   onLogout: () => void;
+  /** Which view is currently active — controls header background color */
+  currentView?: "admin" | "dashboard";
 }
-export const Header = ({ userRole, userName, userEmail, onLogout }: HeaderProps) => {
-  const subtitle = userRole === "admin" ? "Administrator Dashboard" : "Employee Portal";
+
+export const Header = ({ userRole, userName, userEmail, onLogout, currentView }: HeaderProps) => {
+  const navigate = useNavigate();
+  const isAdmin = userRole === "admin";
+  const isAdminView = currentView === "admin";
+
+  // Dynamic subtitle based on current view
+  const subtitle = isAdminView ? "Admin Dashboard" : "Employee Dashboard";
+
+  // Dynamic background: orange for admin view, navy for employee/dashboard view
+  const headerBg = isAdminView ? "bg-attention" : "bg-background-header";
+  const headerTextColor = isAdminView ? "text-attention-foreground" : "text-primary-foreground";
+
   return (
-    <header className="bg-background-header border-b border-border-primary shadow-card">
+    <header className={`${headerBg} border-b border-border-primary shadow-card`}>
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between">
           {/* Left Side - Logo and Title */}
           <div className="flex items-center space-x-4">
-            <Link to="/dashboard" className="flex items-center space-x-6 hover:opacity-80 transition-all duration-200">
+            <Link to={isAdmin ? "/admin" : "/dashboard"} className="flex items-center space-x-6 hover:opacity-80 transition-all duration-200">
               <img
                 src="/lovable-uploads/SS_logo_reversed_cropped.png"
                 alt="Senior Services for South Sound"
@@ -28,31 +47,54 @@ export const Header = ({ userRole, userName, userEmail, onLogout }: HeaderProps)
                 }}
               />
               <div>
-                <h1 className="text-h4 text-primary-foreground">
+                <h1 className={`text-h4 ${headerTextColor}`}>
                   <span className="font-bold">Training Portal</span>{" "}
-                  <span className="font-normal">/ {userRole === "admin" ? "Admin" : "Employee"} Dashboard</span>
-                  {userRole === "admin" && (
-                    <Badge variant="attention" showIcon className="ml-2 align-middle">
-                      Admin
-                    </Badge>
-                  )}
+                  <span className="font-normal">/ {subtitle}</span>
                 </h1>
               </div>
             </Link>
           </div>
 
-          {/* Right Side - User Info and Logout */}
+          {/* Right Side - Admin Badge + User Dropdown */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-primary-foreground flex items-center justify-center">
-              <User className="w-4 h-4 text-primary" />
-            </div>
-            <span className="hidden sm:inline text-body font-medium text-primary-foreground">{userName}</span>
-            <span className="text-primary-foreground/40" aria-hidden="true">
-              |
-            </span>
-            <Button variant="link" size="sm" onClick={onLogout} className="button-header-link">
-              Logout
-            </Button>
+            {/* Admin Badge - shown when user is admin, regardless of current view */}
+            {isAdmin && (
+              <Badge variant="attention" showIcon>
+                Admin
+              </Badge>
+            )}
+
+            {/* User Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center space-x-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1">
+                  <div className={`w-8 h-8 rounded-full ${isAdminView ? 'bg-attention-foreground' : 'bg-primary-foreground'} flex items-center justify-center`}>
+                    <User className={`w-4 h-4 ${isAdminView ? 'text-attention' : 'text-primary'}`} />
+                  </div>
+                  <span className={`hidden sm:inline text-body font-medium ${headerTextColor}`}>{userName}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {/* Show navigation options for admins */}
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      My Personal Trainings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem onClick={onLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

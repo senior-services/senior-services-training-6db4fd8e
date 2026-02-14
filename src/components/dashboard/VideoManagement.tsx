@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { EyeOff, ChevronDown, Eye } from 'lucide-react';
+import { EyeOff, ChevronDown, Eye, Settings } from 'lucide-react';
+import { TrainingSettingsModal } from './TrainingSettingsModal';
 import { VideoTable } from './VideoTable';
 import { AddContentModal, ContentFormData } from '../content/AddContentModal';
 import { EditVideoModal } from '../EditVideoModal';
@@ -63,8 +64,8 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   const [pendingAssignment, setPendingAssignment] = useState<PendingAssignment | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Hide confirmation state
-  const [pendingHideVideo, setPendingHideVideo] = useState<Video | null>(null);
+  // Settings modal state
+  const [settingsVideo, setSettingsVideo] = useState<Video | null>(null);
   const [pendingShowVideo, setPendingShowVideo] = useState<Video | null>(null);
 
   // Load videos on mount
@@ -416,7 +417,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
   };
 
   return <div className="space-y-6">
-      <VideoTable videos={videos} loading={loading} onEdit={handleEditVideo} onPlay={handlePlayVideo} onAddVideo={() => setIsAddVideoModalOpen(true)} onHide={(video) => setPendingHideVideo(video)} />
+      <VideoTable videos={videos} loading={loading} onEdit={handleEditVideo} onPlay={handlePlayVideo} onAddVideo={() => setIsAddVideoModalOpen(true)} onSettings={(video) => setSettingsVideo(video)} />
 
       {/* Hidden Videos Section */}
       {hiddenVideos.length > 0 && <Accordion type="single" collapsible className="w-full">
@@ -461,7 +462,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
                             </TableCell>
                             <TableCell>
                               <div className="flex justify-center">
-                                <IconButtonWithTooltip icon={Eye} tooltip="Show video in main list" onClick={() => setPendingShowVideo(video)} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" ariaLabel={`Show ${video.title} in video list`} />
+                              <IconButtonWithTooltip icon={Eye} tooltip="Show video in main list" onClick={() => setPendingShowVideo(video)} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" ariaLabel={`Show ${video.title} in video list`} />
                               </div>
                             </TableCell>
                           </TableRow>)}
@@ -483,28 +484,13 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
       {/* Video Player Modal */}
       <VideoPlayerModal open={isVideoPlayerOpen} onOpenChange={setIsVideoPlayerOpen} video={selectedVideo} />
 
-      {/* Confirmation Dialog for Hide Training */}
-      <AlertDialog open={!!pendingHideVideo} onOpenChange={(open) => !open && setPendingHideVideo(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Hide this training?</AlertDialogTitle>
-            <AlertDialogDescription>
-              "{pendingHideVideo?.title}" will move to the Hidden section. It will remain active for existing assignments and can be unhidden at any time.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPendingHideVideo(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              if (pendingHideVideo) {
-                handleHideVideo(pendingHideVideo);
-                setPendingHideVideo(null);
-              }
-            }}>
-              Hide Training
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Training Settings Modal */}
+      <TrainingSettingsModal
+        open={!!settingsVideo}
+        onOpenChange={(open) => { if (!open) setSettingsVideo(null); }}
+        video={settingsVideo}
+        onHide={(video) => handleHideVideo(video)}
+      />
 
       {/* Confirmation Dialog for Show Training */}
       <AlertDialog open={!!pendingShowVideo} onOpenChange={(open) => !open && setPendingShowVideo(null)}>
