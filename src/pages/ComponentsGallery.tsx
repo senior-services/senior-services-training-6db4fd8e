@@ -380,6 +380,13 @@ export const ComponentsGallery = ({
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-background-header-admin border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
+                      <div>
+                        <div className="text-body-sm font-medium">Background Header Admin</div>
+                        <div className="text-caption text-muted-foreground">--background-header-admin</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-background-primary border border-border-primary shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"></div>
                       <div>
                         <div className="text-body-sm font-medium">Background Primary</div>

@@ -11,6 +11,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     /* Enhanced Accessibility Colors for Senior Users - Higher Contrast */
     --background-main: 0 0% 100%;
     --background-header: 207 55% 25%; /* rgb(29, 69, 100) - Deep navy */
+    --background-header-admin: 261 33% 48%; /* #6d53a3 - Purple admin */
     --background-primary: 206 75% 36%; /* rgb(23, 101, 161) - Deep blue */
     --background-muted: 207 52% 91%; /* rgb(218, 233, 245) - Light blue tint */
     --foreground: 215 25% 15%; /* Darker for better contrast */
@@ -95,6 +96,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     /* Enhanced Dark Mode for Senior Accessibility - Higher Contrast */
     --background-main: 219 79% 6%; /* Darker background for better contrast */
     --background-header: 207 55% 18%; /* Dark mode deep navy */
+    --background-header-admin: 261 33% 38%; /* Dark mode purple admin */
     --background-primary: 206 75% 28%; /* Dark mode deep blue */
     --background-muted: 207 52% 15%; /* Dark mode muted blue */
     --foreground: 210 20% 98%; /* Brighter text for better readability */

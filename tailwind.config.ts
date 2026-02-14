@@ -52,6 +52,7 @@ export default {
 				background: 'hsl(var(--background-main))',
 				'background-main': 'hsl(var(--background-main))',
 				'background-header': 'hsl(var(--background-header))',
+				'background-header-admin': 'hsl(var(--background-header-admin))',
 				'background-primary': 'hsl(var(--background-primary))',
 				'background-muted': 'hsl(var(--background-muted))',
 				foreground: 'hsl(var(--foreground))',

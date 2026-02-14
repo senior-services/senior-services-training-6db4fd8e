@@ -27,8 +27,8 @@ export const Header = ({ userRole, userName, userEmail, onLogout, currentView }:
   // Dynamic subtitle based on current view
   const subtitle = isAdminView ? "Admin Dashboard" : "Employee Dashboard";
 
-  // Dynamic background: orange for admin view, navy for employee/dashboard view
-  const headerBg = isAdminView ? "bg-attention" : "bg-background-header";
+  // Dynamic background: purple for admin view, navy for employee/dashboard view
+  const headerBg = isAdminView ? "bg-background-header-admin" : "bg-background-header";
   const headerTextColor = isAdminView ? "text-attention-foreground" : "text-primary-foreground";
 
   return (
@@ -68,8 +68,8 @@ export const Header = ({ userRole, userName, userEmail, onLogout, currentView }:
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center space-x-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1">
-                  <div className={`w-8 h-8 rounded-full ${isAdminView ? 'bg-attention-foreground' : 'bg-primary-foreground'} flex items-center justify-center`}>
-                    <User className={`w-4 h-4 ${isAdminView ? 'text-attention' : 'text-primary'}`} />
+                  <div className={`w-8 h-8 rounded-full bg-primary-foreground flex items-center justify-center`}>
+                    <User className={`w-4 h-4 ${isAdminView ? 'text-background-header-admin' : 'text-primary'}`} />
                   </div>
                   <span className={`hidden sm:inline text-body font-medium ${headerTextColor}`}>{userName}</span>
                 </button>
