@@ -420,7 +420,7 @@ export const employeeOperations = {
       }
 
       const result: (EmployeeWithAssignments & { is_admin?: boolean })[] = employeeAssignments?.map((emp: any) => {
-        const assignments = Array.isArray(emp.assignments) ? emp.assignments : [];
+        const assignments = Array.isArray(emp.assignments) ? emp.assignments.filter((a: any) => a != null) : [];
         const completedVideos = assignments.filter((a: any) => a.progress_percent === 100).length;
         const totalVideos = assignments.length;
         
@@ -539,7 +539,7 @@ export const employeeOperations = {
       }
 
       const result: (EmployeeWithAssignments & { is_admin?: boolean })[] = employeeAssignments?.map((emp: any) => {
-        const assignments = Array.isArray(emp.assignments) ? emp.assignments : [];
+        const assignments = Array.isArray(emp.assignments) ? emp.assignments.filter((a: any) => a != null) : [];
         const completedVideos = assignments.filter((a: any) => a.progress_percent === 100).length;
         const totalVideos = assignments.length;
         
