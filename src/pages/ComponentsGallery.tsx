@@ -1746,7 +1746,7 @@ export const ComponentsGallery = ({
                 <div className="bg-background-header rounded-lg p-4 inline-block">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="button-ghost-dark text-primary-foreground">
+                      <Button variant="ghost" className="button-ghost-dark hover:text-inherit text-primary-foreground">
                         Options <ChevronDown className="w-4 h-4 ml-2" />
                       </Button>
                     </DropdownMenuTrigger>

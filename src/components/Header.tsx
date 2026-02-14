@@ -47,7 +47,7 @@ export const Header = ({ userRole, userName, userEmail, onLogout, currentView }:
                 }}
               />
               <div>
-                <h1 className={`text-body ${headerTextColor}`}>
+                <h1 className={`text-h4 ${headerTextColor}`}>
                   <span className="font-bold">Training Portal</span>{" "}
                   <span className="font-normal">/ {subtitle}</span>
                 </h1>
@@ -67,7 +67,7 @@ export const Header = ({ userRole, userName, userEmail, onLogout, currentView }:
             {/* User Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className={`button-ghost-dark ${headerTextColor}`}>
+                <Button variant="ghost" className={`button-ghost-dark hover:text-inherit ${headerTextColor}`}>
                   {userName} <ChevronDown className="w-4 h-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
