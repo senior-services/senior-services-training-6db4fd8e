@@ -1,49 +1,68 @@
 
 
-## Add Dropdown Ghost Variant to Style Guide and Header
+## Fix Ghost Dropdown Hover on Dark Backgrounds
+
+### Problem
+The `.button-ghost` CSS rule applies `hover:bg-muted hover:text-primary` (line 263 of `index.css`). On dark header backgrounds, this causes:
+1. The hover background to become the light muted color instead of the intended `white/10` overlay.
+2. The text to turn dark (`text-primary`), making it invisible against the dark header.
+
+The `className` overrides on the `Button` in `Header.tsx` (`hover:bg-white/10`) lose the specificity battle against the base `.button-ghost` `@apply` directives.
 
 ### Changes
 
-**1. `src/pages/ComponentsGallery.tsx` -- Add ghost dropdown example (after line 1730)**
+**1. `src/index.css` (line 263) -- Add dark-surface ghost modifier**
 
-Insert a new dropdown example next to the existing "Dropdown Menu" that uses `Button variant="ghost"` as trigger with a `ChevronDown` icon. This demonstrates the ghost dropdown pattern -- text label with a down caret, no border or background until hovered.
+Add a new utility class `.button-ghost-dark` that overrides hover behavior for ghost buttons on dark backgrounds:
 
-```tsx
-<DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button variant="ghost">
-      Options <ChevronDown className="w-4 h-4 ml-2" />
-    </Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent>
-    <DropdownMenuItem><User className="w-4 h-4 mr-2" />Profile</DropdownMenuItem>
-    <DropdownMenuItem><Settings className="w-4 h-4 mr-2" />Settings</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
+```css
+.button-ghost-dark {
+  @apply shadow-none hover:shadow-md hover:bg-white/10 hover:text-current;
+}
 ```
 
-**2. `src/components/Header.tsx` -- Update user dropdown trigger (lines 69-75)**
+This keeps the text color as-is (white, inherited from parent) and uses a subtle white overlay for the hover background.
 
-- Remove the user icon circle (the `div` with the `User` icon on lines 71-73).
-- Replace the custom `<button>` with `<Button variant="ghost">` using the `ChevronDown` icon after the user name.
-- Add header-appropriate text color classes so the ghost button text is white on both navy and purple backgrounds.
+**2. `src/components/Header.tsx` (line 70) -- Use new class**
 
-Updated trigger:
+Replace the inline hover overrides with the semantic class. Remove `hover:bg-white/10` from className since it is now baked into `.button-ghost-dark`. Keep `headerTextColor` for the base text color.
+
 ```tsx
-<Button variant="ghost" className={`${headerTextColor} hover:bg-white/10`}>
+<Button variant="ghost" className={`button-ghost-dark ${headerTextColor}`}>
   {userName} <ChevronDown className="w-4 h-4 ml-2" />
 </Button>
 ```
 
+**3. `src/pages/ComponentsGallery.tsx` -- Add ghost dropdown on dark background example**
+
+Add a new example card in the Dropdowns section showing the ghost dropdown on a dark background swatch. This demonstrates the `.button-ghost-dark` pattern:
+
+```tsx
+{/* Ghost Dropdown on Dark Background */}
+<div className="bg-background-header rounded-lg p-4 inline-block">
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button variant="ghost" className="button-ghost-dark text-primary-foreground">
+        Options <ChevronDown className="w-4 h-4 ml-2" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
+      <DropdownMenuItem>Profile</DropdownMenuItem>
+      <DropdownMenuItem>Settings</DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+</div>
+```
+
 ### Technical Details
 
-- `ChevronDown` is already imported in `ComponentsGallery.tsx` (line 34). It needs to be added to the import in `Header.tsx` (replacing `User` which is no longer needed).
-- The ghost variant already exists in the button system (`button-ghost` class in `index.css`). No new CSS tokens needed.
-- The `hover:bg-white/10` override on the header button provides a subtle hover effect appropriate for dark header backgrounds, without conflicting with the standard ghost hover style.
+- The `.button-ghost-dark` class must appear after `.button-ghost` in `index.css` so its `@apply` directives take precedence in the cascade.
+- `hover:text-current` ensures the text color remains whatever was set by the parent context (white on navy, white on purple).
+- No changes to the `Button` component variants or `button.tsx` -- this is a CSS-only addition.
 
 ### Review
-1. **Top 3 Risks:** (a) Ghost hover on dark background needs white/10 overlay instead of default muted -- handled via className override. (b) `User` icon removal is intentional per request. (c) No accessibility regression -- button still has visible text and focus ring.
-2. **Top 3 Fixes:** (a) Cleaner header with less visual clutter. (b) Style guide documents the ghost dropdown pattern. (c) Consistent use of Button component instead of raw `<button>`.
+1. **Top 3 Risks:** (a) Cascade order -- `.button-ghost-dark` placed after `.button-ghost` ensures correct override. (b) `text-current` inherits from parent, so it must be set correctly -- already handled by `headerTextColor`. (c) No risk to light-background ghost buttons.
+2. **Top 3 Fixes:** (a) Text stays white/visible on hover over dark backgrounds. (b) Hover background uses subtle white overlay instead of opaque muted. (c) Style guide documents the dark-surface pattern.
 3. **Database Change:** No.
-4. **Verdict:** Go -- uses existing ghost variant, minimal changes.
+4. **Verdict:** Go -- targeted CSS addition, no component API changes.
 
