@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LayoutDashboard, BookOpen, LogOut } from "lucide-react";
+import { ChevronDown, LayoutDashboard, BookOpen, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 interface HeaderProps {
@@ -67,12 +67,9 @@ export const Header = ({ userRole, userName, userEmail, onLogout, currentView }:
             {/* User Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center space-x-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-1">
-                  <div className={`w-8 h-8 rounded-full bg-primary-foreground flex items-center justify-center`}>
-                    <User className={`w-4 h-4 ${isAdminView ? 'text-background-header-admin' : 'text-primary'}`} />
-                  </div>
-                  <span className={`hidden sm:inline text-body font-medium ${headerTextColor}`}>{userName}</span>
-                </button>
+                <Button variant="ghost" className={`${headerTextColor} hover:bg-white/10`}>
+                  {userName} <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 {/* Show navigation options for admins */}
