@@ -119,6 +119,7 @@ const AppContent = () => {
               <EmployeeDashboard 
                 userName={userName}
                 userEmail={userEmail}
+                userRole={isAdmin ? "admin" : "employee"}
                 onLogout={handleLogout}
                 onPlayVideo={handlePlayVideo}
                 refreshTrigger={refreshDashboard}

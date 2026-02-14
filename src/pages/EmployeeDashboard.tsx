@@ -37,6 +37,7 @@ import {
 interface EmployeeDashboardProps {
   userName: string;
   userEmail: string;
+  userRole?: "admin" | "employee";
   onLogout: () => void;
   onPlayVideo: (videoId: string, initialVideo?: Video) => void;
   refreshTrigger?: number;
@@ -60,6 +61,7 @@ interface TrainingStats {
 export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   userName,
   userEmail,
+  userRole = "employee",
   onLogout,
   onPlayVideo,
   refreshTrigger = 0
@@ -489,7 +491,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     return (
       <div className="min-h-screen bg-muted/30">
         <Header
-          userRole="employee"
+          userRole={userRole}
           userName={sanitizedUserData.displayName}
           userEmail={userEmail}
           onLogout={onLogout}
@@ -522,7 +524,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     <ErrorBoundary>
       <div className="min-h-screen bg-muted/30">
         <Header
-          userRole="employee"
+          userRole={userRole}
           userName={sanitizedUserData.displayName}
           userEmail={userEmail}
           onLogout={onLogout}
