@@ -1,26 +1,39 @@
 
 
-## Downsize Header Title from `text-h4` to `text-body`
+## Fix Ghost Button Hover Text on Dark Headers
 
-### Change
+### Problem
+`.button-ghost` and `.button-ghost-dark` sit at the same specificity level in `src/index.css`. The `hover:text-primary` from `.button-ghost` overrides `hover:text-current` from `.button-ghost-dark`, turning text dark on hover -- invisible against navy/purple headers.
 
-**`src/components/Header.tsx` (line 50)**
+### Solution (Option B -- Scoped CSS Cascade)
 
-Replace `text-h4` with `text-body` on the `h1` element:
+**`src/index.css` (line 265-267)** -- Replace the flat `@apply` with a properly scoped rule:
 
-```tsx
-// Before
-<h1 className={`text-h4 ${headerTextColor}`}>
-
-// After
-<h1 className={`text-body ${headerTextColor}`}>
+```css
+.button-ghost-dark {
+  @apply shadow-none;
+}
+.button-ghost-dark:hover {
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  background-color: rgb(255 255 255 / 0.1);
+  color: inherit;
+}
 ```
 
-This is a single-line change. The `font-bold` on the "Training Portal" span and `font-normal` on the "/ Admin Dashboard" suffix remain unchanged -- these are acceptable 20% overrides per the typography rule since they differentiate the two title segments.
+The separate `.button-ghost-dark:hover` selector is more specific than the `@apply hover:text-primary` expansion inside `.button-ghost`, so it naturally wins the cascade without `!important`.
+
+**No changes needed** in `Header.tsx` or `ComponentsGallery.tsx` -- both already apply `button-ghost-dark` correctly.
+
+### Also in this pass
+
+**`src/components/Header.tsx` (line 50)** -- Downsize header title typography per the previously approved but unimplemented change:
+
+```
+text-h4  -->  text-body
+```
 
 ### Review
-1. **Top 3 Risks:** (a) `h1` tag at `text-body` (16px) is smaller than typical heading size -- acceptable here as the logo provides primary visual hierarchy. (b) None other. (c) None other.
-2. **Top 3 Fixes:** (a) Better proportional fit within the ~60px header. (b) Aligns with senior legibility standard (16px minimum met). (c) Reduces visual weight so logo remains dominant.
+1. **Top 3 Risks:** (a) The explicit `:hover` pseudo-class selector has higher specificity than Tailwind's `@apply hover:` expansion -- this is the intended behavior. (b) Shadow value hardcoded to match `shadow-md` -- acceptable since it mirrors the existing token. (c) `color: inherit` keeps text color from parent context (white).
+2. **Top 3 Fixes:** (a) Text stays white on hover. (b) No `!important` used. (c) Uses natural CSS cascade per best practices.
 3. **Database Change:** No.
-4. **Verdict:** Go -- one-line class swap.
-
+4. **Verdict:** Go -- two surgical edits, no component API changes.
