@@ -127,16 +127,16 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
             {/* Person info */}
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-medium">{person.full_name || 'Unknown'}</span>
+                <span className="text-body">{person.full_name || 'Unknown'}</span>
                 {person.is_admin && <Badge variant="soft-attention" showIcon>Admin</Badge>}
               </div>
-              <p className="text-body-sm text-muted-foreground">{person.email}</p>
+              <p className="form-helper-text">{person.email}</p>
             </div>
 
             {/* Admin toggle */}
             <div>
-              <Label className="font-medium">Administrative Privileges</Label>
-              <p className="text-body-sm text-muted-foreground mt-1">
+              <Label>Administrative Privileges</Label>
+              <p className="form-helper-text mt-1">
                 Grant this person full admin access to manage trainings and people.
               </p>
               <div className="flex items-center gap-2 mt-3">
@@ -147,7 +147,7 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
                   disabled={isSaving}
                   aria-label="Toggle administrative privileges"
                 />
-                <Label htmlFor="admin-toggle" className="text-body-sm cursor-pointer">
+                <Label htmlFor="admin-toggle" className="cursor-pointer">
                   Grant admin access
                 </Label>
               </div>
@@ -155,8 +155,8 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
 
             {/* Hide person */}
             <div>
-              <Label className="font-medium">Hide Person From Active List</Label>
-              <p className="text-body-sm text-muted-foreground mt-1">
+              <Label>Hide Person From Active List</Label>
+              <p className="form-helper-text mt-1">
                 Moves to the Hidden section without affecting assignments or progress.
               </p>
               <div className="flex items-center gap-2 mt-3">
@@ -167,7 +167,7 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
                   disabled={isSaving}
                   aria-label="Hide person from active list"
                 />
-                <Label htmlFor="hide-person" className="text-body-sm cursor-pointer">
+                <Label htmlFor="hide-person" className="cursor-pointer">
                   Hide this person
                 </Label>
               </div>

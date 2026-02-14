@@ -60,13 +60,13 @@ export const TrainingSettingsModal: React.FC<TrainingSettingsModalProps> = ({
           <div className="space-y-6">
             {/* Training info */}
             <div>
-              <p className="font-medium">{video.title}</p>
+              <p className="text-body">{video.title}</p>
             </div>
 
             {/* Hide training */}
             <div>
-              <Label className="font-medium">Hide Training From Active List</Label>
-              <p className="text-body-sm text-muted-foreground mt-1">
+              <Label>Hide Training From Active List</Label>
+              <p className="form-helper-text mt-1">
                 Moves to the Hidden section without affecting existing assignments or progress.
               </p>
               <div className="flex items-center gap-2 mt-3">
@@ -76,7 +76,7 @@ export const TrainingSettingsModal: React.FC<TrainingSettingsModalProps> = ({
                   onCheckedChange={(checked) => setStagedHidden(checked === true)}
                   aria-label="Hide training from active list"
                 />
-                <Label htmlFor="hide-training" className="text-body-sm cursor-pointer">
+                <Label htmlFor="hide-training" className="cursor-pointer">
                   Hide this training
                 </Label>
               </div>
