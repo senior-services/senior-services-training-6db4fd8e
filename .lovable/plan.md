@@ -1,46 +1,25 @@
 
-
-## Update Toggle Components to `text-body` Typography
+## Remove `text-caption` Overrides from Toggle Items in AssignVideosModal
 
 ### Problem
-The toggle components use `text-body-sm` (~14px) for both the toggle item text and their labels. This falls below the 16px senior legibility minimum for interactive elements.
+`AssignVideosModal.tsx` applies `text-caption` (13px) directly on each `ToggleGroupItem`, overriding the master template's `text-body` (16px). This violates the 16px senior legibility minimum for interactive elements.
 
-### Changes
+### Change
 
-**1. `src/index.css` (line 214)** -- Update the `.button-toggle` base class:
-
-```css
-/* Before */
-.button-toggle {
-  @apply inline-flex items-center justify-center rounded-md text-body-sm
-
-/* After */
-.button-toggle {
-  @apply inline-flex items-center justify-center rounded-md text-body
-```
-
-This is the master template for all toggle items, so the fix propagates system-wide.
-
-**2. `src/pages/ComponentsGallery.tsx` (lines 872, 886)** -- Update the two toggle section labels:
+**`src/components/dashboard/AssignVideosModal.tsx` (lines 678, 685, 692, 697)** -- Remove `text-caption` from all four toggle items:
 
 ```tsx
-// Before (line 872)
-<Label className="text-body-sm font-medium mb-2 block">Two-Option Toggle</Label>
+// Before (repeated 4x)
+className="text-caption px-3 py-1"
 
 // After
-<Label className="mb-2 block">Two-Option Toggle</Label>
-
-// Before (line 886)
-<Label className="text-body-sm font-medium mb-2 block">Multi-Option Toggle</Label>
-
-// After
-<Label className="mb-2 block">Multi-Option Toggle</Label>
+className="px-3 py-1"
 ```
 
-The `Label` primitive already bakes in `text-body` and `font-medium`, so the overrides are redundant and can be removed.
+The toggle items will inherit `text-body` from the `.button-toggle` master template, meeting the 16px legibility standard.
 
 ### Review
-1. **Top 3 Risks:** (a) Toggle pill items may appear slightly larger -- acceptable, meets legibility standard. (b) System-wide change via master template -- intended. (c) None other.
-2. **Top 3 Fixes:** (a) All toggle text meets 16px minimum. (b) Labels use primitive defaults, removing redundant overrides. (c) Consistent with Label typography memory.
+1. **Top 3 Risks:** (a) Toggle items will be slightly larger -- acceptable and intended. (b) No layout breakage expected since the toggle group uses flex. (c) No other files affected.
+2. **Top 3 Fixes:** (a) All toggle text meets 16px minimum. (b) Removes prohibited raw size overrides on primitives. (c) Master template controls typography as intended.
 3. **Database Change:** No.
-4. **Verdict:** Go -- one CSS line + two label cleanups.
+4. **Verdict:** Go -- four identical one-word deletions in a single file.
