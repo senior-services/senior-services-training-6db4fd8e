@@ -2,7 +2,7 @@
  * PersonSettingsModal - Settings modal for managing a person's admin status and visibility.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,21 +11,10 @@ import {
   DialogScrollArea,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminService } from '@/services/adminService';
 import { useToast } from '@/hooks/use-toast';
@@ -47,17 +36,26 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
   onHide,
   onAdminToggled,
 }) => {
-  const [isToggling, setIsToggling] = useState(false);
-  const [showHideConfirm, setShowHideConfirm] = useState(false);
+  const [stagedAdmin, setStagedAdmin] = useState(false);
+  const [stagedHidden, setStagedHidden] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+
+  // Reset staged state when person changes or modal opens
+  useEffect(() => {
+    if (open && person) {
+      setStagedAdmin(person.is_admin || false);
+      setStagedHidden(false);
+    }
+  }, [open, person]);
 
   if (!person) return null;
 
+  const hasChanges = stagedAdmin !== (person.is_admin || false) || stagedHidden;
+
   const handleToggleAdmin = async (checked: boolean) => {
-    setIsToggling(true);
     try {
       if (checked) {
-        // Promote to admin: find user_id from profiles, then call promote
         const { data: profile } = await supabase
           .from('profiles')
           .select('user_id')
@@ -65,7 +63,6 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
           .maybeSingle();
 
         if (!profile) {
-          // User hasn't signed up yet - add as pending admin
           await AdminService.addPendingAdminByEmail(person.email || '');
           toast({ title: "Success", description: "Admin invitation created. They'll get admin access when they sign in." });
         } else {
@@ -73,7 +70,6 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
           toast({ title: "Success", description: `${person.full_name || person.email} is now an administrator` });
         }
       } else {
-        // Demote from admin: find user_id from profiles
         const { data: profile } = await supabase
           .from('profiles')
           .select('user_id')
@@ -86,13 +82,10 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
         }
       }
 
-      // Update is_admin on employees table for display purposes
       await supabase
         .from('employees')
         .update({ is_admin: checked })
         .eq('id', person.id);
-
-      onAdminToggled();
     } catch (error: any) {
       logger.error('Error toggling admin status', error as Error);
       toast({
@@ -100,95 +93,97 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
         description: error.message || "Failed to update admin status",
         variant: "destructive",
       });
-    } finally {
-      setIsToggling(false);
+      throw error;
     }
   };
 
-  const handleHideConfirmed = () => {
-    setShowHideConfirm(false);
-    onOpenChange(false);
-    onHide(person);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      if (stagedAdmin !== (person.is_admin || false)) {
+        await handleToggleAdmin(stagedAdmin);
+      }
+      if (stagedHidden) {
+        onHide(person);
+      }
+      onAdminToggled();
+      onOpenChange(false);
+    } catch {
+      // Error already toasted in handleToggleAdmin
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Person Settings</DialogTitle>
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Person Settings</DialogTitle>
+        </DialogHeader>
 
-          <DialogScrollArea>
-            <div className="space-y-6">
-              {/* Person info */}
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium">{person.full_name || 'Unknown'}</span>
-                  {person.is_admin && <Badge variant="soft-attention" showIcon>Admin</Badge>}
-                </div>
-                <p className="text-body-sm text-muted-foreground">{person.email}</p>
+        <DialogScrollArea>
+          <div className="space-y-6">
+            {/* Person info */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-medium">{person.full_name || 'Unknown'}</span>
+                {person.is_admin && <Badge variant="soft-attention" showIcon>Admin</Badge>}
               </div>
+              <p className="text-body-sm text-muted-foreground">{person.email}</p>
+            </div>
 
-              {/* Admin toggle */}
-              <div className="flex items-center justify-between gap-4 py-3 border-t border-b border-border-primary">
-                <div>
-                  <Label htmlFor="admin-toggle" className="font-medium">Administrative Privileges</Label>
-                  <p className="text-body-sm text-muted-foreground mt-1">
-                    Grant this person full admin access to manage trainings and people.
-                  </p>
-                </div>
-                <Switch
+            {/* Admin toggle */}
+            <div>
+              <Label className="font-medium">Administrative Privileges</Label>
+              <p className="text-body-sm text-muted-foreground mt-1">
+                Grant this person full admin access to manage trainings and people.
+              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <Checkbox
                   id="admin-toggle"
-                  checked={person.is_admin || false}
-                  onCheckedChange={handleToggleAdmin}
-                  disabled={isToggling}
+                  checked={stagedAdmin}
+                  onCheckedChange={(checked) => setStagedAdmin(checked === true)}
+                  disabled={isSaving}
                   aria-label="Toggle administrative privileges"
                 />
-              </div>
-
-              {/* Hide person */}
-              <div>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-muted-foreground hover:text-destructive"
-                  onClick={() => setShowHideConfirm(true)}
-                >
-                  <EyeOff className="w-4 h-4 mr-2" />
-                  Hide Person
-                </Button>
-                <p className="text-body-sm text-muted-foreground mt-2">
-                  Moves to the Hidden section without affecting assignments or progress.
-                </p>
+                <Label htmlFor="admin-toggle" className="text-body-sm cursor-pointer">
+                  Grant admin access
+                </Label>
               </div>
             </div>
-          </DialogScrollArea>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            {/* Hide person */}
+            <div>
+              <Label className="font-medium">Hide Person From Active List</Label>
+              <p className="text-body-sm text-muted-foreground mt-1">
+                Moves to the Hidden section without affecting assignments or progress.
+              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <Checkbox
+                  id="hide-person"
+                  checked={stagedHidden}
+                  onCheckedChange={(checked) => setStagedHidden(checked === true)}
+                  disabled={isSaving}
+                  aria-label="Hide person from active list"
+                />
+                <Label htmlFor="hide-person" className="text-body-sm cursor-pointer">
+                  Hide this person
+                </Label>
+              </div>
+            </div>
+          </div>
+        </DialogScrollArea>
 
-      {/* Hide Confirmation */}
-      <AlertDialog open={showHideConfirm} onOpenChange={setShowHideConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Hide this person?</AlertDialogTitle>
-            <AlertDialogDescription>
-              "{person.full_name || person.email}" will move to the Hidden section without affecting their assignments or progress.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleHideConfirmed}>
-              Hide Person
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+          <Button onClick={handleSave} disabled={!hasChanges || isSaving}>
+            Save Changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
