@@ -99,7 +99,7 @@ const DialogScrollArea = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex-1 px-6 py-6 overflow-y-auto min-h-0 bg-muted/50",
+      "flex-1 px-6 py-6 overflow-y-auto min-h-0",
       className
     )}
     data-dialog-scroll-area
