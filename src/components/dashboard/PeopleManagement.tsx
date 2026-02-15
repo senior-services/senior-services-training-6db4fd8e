@@ -39,7 +39,13 @@ import { createSafeDisplayName } from '@/utils/security';
 import * as XLSX from 'xlsx';
 import { STATUS_LABELS } from '@/constants';
 import {
+  isLegacyExempt as sharedIsLegacyExempt,
   hasActiveQuizRequirement,
+  getDisplayQuizResults,
+  getDisplayQuizVersion,
+  getCompletionDate as sharedGetCompletionDate,
+  isTrainingCompleted,
+  type QuizAttemptData,
 } from '@/utils/quizHelpers';
 
 interface PeopleManagementProps {
@@ -60,6 +66,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
   const [sortColumn, setSortColumn] = useState<'name' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [pendingShowPerson, setPendingShowPerson] = useState<EmployeeWithAssignments | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   
   const { toast } = useToast();
 
@@ -294,6 +301,198 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
     return <span>{pendingCount} {STATUS_LABELS.pending}</span>;
   };
 
+  // === Export pipeline (ported from EmployeeManagement) ===
+
+  const loadHiddenPeopleQuizData = useCallback(async (): Promise<{
+    videos: Map<string, any[]>;
+    quizzes: Map<string, Map<string, any>>;
+  }> => {
+    const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at, version').is('archived_at', null);
+    const quizCreationDates = new Map<string, string>();
+    quizzesData?.forEach(quiz => { quizCreationDates.set(quiz.video_id, quiz.created_at); });
+
+    const videoMap = new Map<string, any[]>();
+    const quizMap = new Map<string, Map<string, any>>();
+
+    for (const person of hiddenPeople) {
+      if (person.assignments && Array.isArray(person.assignments)) {
+        const assignmentsWithQuizInfo = person.assignments.map((assignment: any) => ({
+          ...assignment,
+          hasQuiz: hasActiveQuizRequirement(quizCreationDates.get(assignment.video_id), assignment.completed_at)
+        }));
+        videoMap.set(person.id, assignmentsWithQuizInfo);
+      } else {
+        videoMap.set(person.id, []);
+      }
+
+      if (person.email) {
+        try {
+          const quizAttempts = await quizOperations.getUserAttempts(person.email);
+          const videoQuizMap = new Map();
+          for (const attempt of quizAttempts) {
+            if (attempt.quiz?.video_id) {
+              const existing = videoQuizMap.get(attempt.quiz.video_id);
+              if (!existing || new Date(existing.completed_at) < new Date(attempt.completed_at)) {
+                videoQuizMap.set(attempt.quiz.video_id, {
+                  score: attempt.score,
+                  total_questions: attempt.total_questions,
+                  completed_at: attempt.completed_at,
+                  quiz_version: attempt.quiz?.version || 1
+                });
+              }
+            }
+          }
+          quizMap.set(person.id, videoQuizMap);
+        } catch (error) {
+          quizMap.set(person.id, new Map());
+        }
+      } else {
+        quizMap.set(person.id, new Map());
+      }
+    }
+
+    return { videos: videoMap, quizzes: quizMap };
+  }, [hiddenPeople]);
+
+  const processEmployeesForExport = useCallback((
+    employeesToExport: (EmployeeWithAssignments & { is_admin?: boolean })[],
+    videosMap: Map<string, any[]>,
+    quizzesMap: Map<string, Map<string, any>>,
+    hiddenEmployeeIds: Set<string>,
+    includeVisibility: boolean,
+    quizCreationDates: Map<string, string>,
+    quizVersions: Map<string, number>
+  ): any[] => {
+    const exportData: any[] = [];
+
+    employeesToExport.forEach(person => {
+      const videos = videosMap.get(person.id) || [];
+      const personName = person.full_name || person.email?.split('@')[0] || 'Unknown';
+      const personEmail = person.email || '';
+
+      if (videos.length === 0) {
+        exportData.push({
+          Name: personName,
+          Email: personEmail,
+          'Training': 'No assignments',
+          'Status': STATUS_LABELS.unassigned,
+          'Due Date': '--',
+          'Completion Date': '--',
+          'Quiz Results': '--',
+          'Quiz Version': '--',
+          ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(person.id) ? 'Hidden' : 'Active' })
+        });
+      } else {
+        videos.forEach(assignment => {
+          const quizData = quizzesMap.get(person.id);
+          const quizAttempt = quizData?.get(assignment.video_id) as QuizAttemptData | undefined;
+          const quizCreatedAt = quizCreationDates.get(assignment.video_id);
+          const exempt = sharedIsLegacyExempt(assignment.completed_at, quizCreatedAt);
+          const videoCompleted = !!(assignment.progress_percent === 100 || assignment.completed_at);
+          const completed = isTrainingCompleted(videoCompleted, assignment.hasQuiz, !!quizAttempt, exempt);
+
+          let status: string = STATUS_LABELS.pending;
+          if (completed) {
+            status = STATUS_LABELS.completed;
+          } else if (assignment.due_date) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const due = new Date(assignment.due_date); due.setHours(0, 0, 0, 0);
+            status = isPast(due) ? STATUS_LABELS.overdue : STATUS_LABELS.pending;
+          }
+
+          const quizResults = getDisplayQuizResults(quizAttempt ?? null, assignment.hasQuiz, exempt);
+          const quizVersion = getDisplayQuizVersion(quizAttempt ?? null, quizVersions.get(assignment.video_id), assignment.hasQuiz, exempt);
+
+          let dueDate = 'N/A';
+          if (assignment.due_date) {
+            dueDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
+          }
+
+          const completionDateStr = completed
+            ? sharedGetCompletionDate(quizAttempt ?? null, assignment.completed_at)
+            : null;
+          const completionDate = completionDateStr
+            ? format(new Date(completionDateStr), 'MMM dd, yyyy')
+            : '--';
+
+          exportData.push({
+            Name: personName,
+            Email: personEmail,
+            'Training': assignment.video_title || '',
+            'Status': status,
+            'Due Date': dueDate,
+            'Completion Date': completionDate,
+            'Quiz Results': quizResults,
+            'Quiz Version': quizVersion,
+            ...(includeVisibility && { 'Visibility': hiddenEmployeeIds.has(person.id) ? 'Hidden' : 'Active' })
+          });
+        });
+      }
+    });
+
+    return exportData;
+  }, []);
+
+  const exportToExcel = useCallback(async (includeHidden: boolean = false) => {
+    setIsExporting(true);
+    try {
+      let allPeople = [...people];
+      let allVideos = new Map(employeeVideos);
+      let allQuizzes = new Map(employeeQuizzes);
+
+      if (includeHidden && hiddenPeople.length > 0) {
+        const hiddenData = await loadHiddenPeopleQuizData();
+        const existingIds = new Set(people.map(p => p.id));
+        const uniqueHidden = hiddenPeople.filter(p => !existingIds.has(p.id));
+        allPeople = [...people, ...uniqueHidden];
+        hiddenData.videos.forEach((value, key) => allVideos.set(key, value));
+        hiddenData.quizzes.forEach((value, key) => allQuizzes.set(key, value));
+      }
+
+      const hiddenIds = new Set(hiddenPeople.map(p => p.id));
+
+      const { data: quizzesData } = await supabase.from('quizzes').select('video_id, created_at, version').is('archived_at', null);
+      const quizCreationDates = new Map<string, string>();
+      const quizVersions = new Map<string, number>();
+      quizzesData?.forEach(quiz => {
+        const existing = quizCreationDates.get(quiz.video_id);
+        if (!existing || new Date(quiz.created_at) < new Date(existing)) {
+          quizCreationDates.set(quiz.video_id, quiz.created_at);
+        }
+        const existingVersion = quizVersions.get(quiz.video_id);
+        if (!existingVersion || quiz.version > existingVersion) {
+          quizVersions.set(quiz.video_id, quiz.version);
+        }
+      });
+
+      const exportData = processEmployeesForExport(allPeople, allVideos, allQuizzes, hiddenIds, includeHidden, quizCreationDates, quizVersions);
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Training Data');
+
+      const now = new Date();
+      const filename = `training_data_${format(now, 'yyyy-MM-dd')}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+
+      toast({ title: "Success", description: "Training data exported successfully" });
+      setShowDownloadModal(false);
+    } catch (error) {
+      logger.error('Error exporting to Excel', error as Error);
+      toast({ title: "Error", description: "Failed to export data", variant: "destructive" });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [people, hiddenPeople, employeeVideos, employeeQuizzes, loadHiddenPeopleQuizData, processEmployeesForExport, toast]);
+
+  const handleDownloadClick = useCallback(() => {
+    if (hiddenPeople.length === 0) {
+      exportToExcel(false);
+    } else {
+      setShowDownloadModal(true);
+    }
+  }, [hiddenPeople.length, exportToExcel]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -303,7 +502,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
           <p className="text-muted-foreground">Manage people, assignments, and administrative privileges</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowDownloadModal(true)}>
+          <Button variant="outline" onClick={handleDownloadClick}>
             <Download className="w-4 h-4 mr-2" />
             Download Data
           </Button>
@@ -471,9 +670,9 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
       <DownloadDataModal
         open={showDownloadModal}
         onOpenChange={setShowDownloadModal}
-        onConfirm={() => { setShowDownloadModal(false); }}
+        onConfirm={exportToExcel}
         hiddenCount={hiddenPeople.length}
-        isLoading={false}
+        isLoading={isExporting}
       />
 
       {/* Person Settings Modal */}
