@@ -65,14 +65,33 @@ export function TrainingAttestation({
         Please review all training content carefully. By acknowledging, you confirm you've read and understood the material — your confirmation will be recorded for compliance.
       </p>
 
-      <div className="mt-4">
-        <Checkbox
-          id={checkboxId}
-          checked={checked}
-          disabled={!enabled}
-          onCheckedChange={handleCheckedChange}
-          aria-describedby="attestation-label"
-        />
+      <div className="mt-4 flex items-start">
+        {!enabled && disabledTooltip ? (
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <span className="inline-flex">
+                <Checkbox
+                  id={checkboxId}
+                  checked={checked}
+                  disabled
+                  onCheckedChange={handleCheckedChange}
+                  aria-describedby="attestation-label"
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" align="start" sideOffset={8}>
+              <p>{disabledTooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Checkbox
+            id={checkboxId}
+            checked={checked}
+            disabled={!enabled}
+            onCheckedChange={handleCheckedChange}
+            aria-describedby="attestation-label"
+          />
+        )}
         <Label
           htmlFor={checkboxId}
           id="attestation-label"
@@ -89,20 +108,6 @@ export function TrainingAttestation({
       </div>
     </div>
   );
-
-  // When disabled with a tooltip message, wrap in Tooltip
-  if (!enabled && disabledTooltip) {
-    return (
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          {content}
-        </TooltipTrigger>
-        <TooltipContent side="top" align="start" sideOffset={6}>
-          <p>{disabledTooltip}</p>
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
 
   return content;
 }
