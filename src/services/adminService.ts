@@ -330,7 +330,7 @@ export class AdminService {
 
       if (empError) throw new Error('Failed to update employee admin status: ' + empError.message);
       if (!updatedRows || updatedRows.length === 0) {
-        throw new Error('Employee admin status update matched zero rows -- possible email mismatch or RLS rejection');
+        throw new Error('Database rejected update: zero rows affected. This is likely an RLS policy issue.');
       }
     } else {
       console.warn(`[AdminService] removeAdminRole: No email found for user ${userId}`);

@@ -91,7 +91,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
     try {
       if (!silentRefresh) setLoading(true);
       const data = await employeeOperations.getAll();
-      console.log('[PeopleManagement] Jane data from DB:', data.data?.find(p => p.email === 'jane.doe@southsoundseniors.org'));
+      console.log('[PeopleManagement] Jane DB is_admin:', (data.data?.find(p => p.email?.toLowerCase() === 'jane.doe@southsoundseniors.org') as any)?.is_admin);
       if (data.success && data.data) {
         const transformed = data.data.map(employee => ({
           id: employee.id,
