@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminService } from '@/services/adminService';
 import { useToast } from '@/hooks/use-toast';
@@ -133,6 +134,8 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
               <p className="form-helper-text">{person.email}</p>
             </div>
 
+            <Separator />
+
             {/* Admin toggle */}
             <div>
               <Label>Administrative Privileges</Label>
@@ -152,6 +155,8 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
                 </Label>
               </div>
             </div>
+
+            <Separator />
 
             {/* Hide person */}
             <div>
