@@ -1,56 +1,33 @@
 
 
-## Fix State Persistence Bug in Admin Self-Revocation
+## Fix Ghost Admin Badge -- Final Cleanup
 
 ### Overview
-Ensure atomic database writes during admin demotion, eliminate redundant DB calls, and guarantee immediate data refresh for all admin viewers after a save.
+Remove the last redundant `employees` table update in the promotion path and streamline the self-demote callback. The real-time subscription already handles cross-admin badge sync.
 
-### Problem Analysis
-1. **Redundant employees update**: `handleToggleAdmin` (line 90-93) updates `employees.is_admin` manually, but `AdminService.removeAdminRole` (line 318-323 in adminService.ts) already does the same update. This creates a race condition where the second write could fail silently.
-2. **No explicit reload after non-self saves**: `onAdminToggled` calls `loadPeople()`, which is correct, but doesn't `await` before closing the modal -- the modal closes optimistically.
-3. **Self-revocation redirect fires before confirming DB write completion**: The `await handleToggleAdmin(stagedAdmin)` does await, but the redundant second write at lines 90-93 could still be in-flight.
+### Root Cause
+The promotion path (lines 93-97 in `PersonSettingsModal.tsx`) still manually updates `employees.is_admin`, but `AdminService.addAdminByEmail` already does this at line 195-199. This creates the same race condition pattern that was fixed for the demotion path.
+
+For cross-admin visibility ("other admins see the badge disappear"), the existing real-time Supabase channel in `PeopleManagement.tsx` (line 74) already subscribes to `employees` table changes and calls `loadPeople()` automatically -- no `queryClient` is needed since this component uses direct state management, not React Query.
 
 ### Changes
 
-**1. `PersonSettingsModal.tsx` -- Remove redundant employees update from `handleToggleAdmin`**
+**1. `PersonSettingsModal.tsx` -- Remove redundant promotion employees update**
 
-In the demotion branch (lines 77-88), `AdminService.removeAdminRole` already:
-- Deletes the `admin` role from `user_roles`
-- Inserts `employee` role back
-- Updates `employees.is_admin = false`
+Remove lines 93-97 (the manual `supabase.from('employees').update(...)` call). Both `addAdminByEmail` and `removeAdminRole` already handle the `employees.is_admin` column internally. This eliminates the last race condition.
 
-Remove the redundant `supabase.from('employees').update(...)` call at lines 90-93 for the demotion case (keep it for the promotion case where `AdminService.addAdminByEmail` handles it similarly).
+The `handleToggleAdmin` function becomes purely a dispatcher to `AdminService` methods with no direct table writes.
 
-Refactor `handleToggleAdmin` so the shared employees update (lines 90-93) only runs for the **promotion** path, since `removeAdminRole` already handles the demotion path's employees update internally.
+**2. `PeopleManagement.tsx` -- Remove wasteful `loadPeople` from self-demote**
 
-**2. `PersonSettingsModal.tsx` -- Ensure self-revocation waits for full completion**
-
-Move the self-revocation check to run only after all DB operations have fully resolved. The current order is correct (await then check), but make it explicit by restructuring:
-
-```text
-handleSave:
-  1. Compute wasDemoted flag
-  2. await handleToggleAdmin(stagedAdmin)  // DB writes complete here
-  3. if (stagedHidden) onHide(person)
-  4. Check self-revocation -> toast + onSelfDemote + return
-  5. Otherwise -> onAdminToggled() + close modal
-```
-
-This is already the current order, so no structural change needed -- just the cleanup in step 1.
-
-**3. `PeopleManagement.tsx` -- Make `onAdminToggled` await `loadPeople`**
-
-Change `onAdminToggled={() => loadPeople()}` to ensure the people list is refreshed before the modal closes. Currently `loadPeople` is called but not awaited before the modal state updates. The real-time subscription provides eventual consistency, but an explicit refresh is more reliable.
-
-Update the `onSelfDemote` callback to also invalidate any cached state before redirecting.
+Remove `await loadPeople()` from the `onSelfDemote` callback. The user is about to be redirected and the page reloaded -- fetching data that will be immediately discarded adds latency to the redirect.
 
 ### Files Modified
-- `src/components/dashboard/PersonSettingsModal.tsx` (refactor `handleToggleAdmin` to remove redundant employees write on demotion)
-- `src/components/dashboard/PeopleManagement.tsx` (ensure `loadPeople` completes on admin toggle callback)
+- `src/components/dashboard/PersonSettingsModal.tsx` (remove lines 93-97)
+- `src/components/dashboard/PeopleManagement.tsx` (remove `await loadPeople()` from `onSelfDemote`)
 
 ### Review
-1. **Top 3 Risks**: (a) Removing the redundant employees write relies on `AdminService.removeAdminRole` always updating `employees.is_admin` -- verified it does at lines 318-323. (b) `loadPeople` is async; if it fails, modal still closes -- acceptable since real-time sub provides backup. (c) No new risk to self-revocation flow.
-2. **Top 3 Fixes**: (a) Eliminates race condition from duplicate DB writes. (b) Explicit data refresh ensures badge sync for other admins. (c) Self-revocation pathway is cleaner with single atomic write path.
+1. **Top 3 Risks**: (a) Relies on `addAdminByEmail` always updating `employees.is_admin` -- verified at lines 195-199 of adminService.ts. (b) Real-time subscription handles cross-admin sync -- verified at line 74 of PeopleManagement.tsx. (c) No risk to self-revocation flow since DB writes complete before redirect.
+2. **Top 3 Fixes**: (a) Eliminates last redundant DB write race condition. (b) Faster self-demote redirect without unnecessary data fetch. (c) Single source of truth for `is_admin` updates (AdminService only).
 3. **Database Change**: No.
-4. **Verdict**: Go -- surgical cleanup in two files.
-
+4. **Verdict**: Go -- two surgical edits.
