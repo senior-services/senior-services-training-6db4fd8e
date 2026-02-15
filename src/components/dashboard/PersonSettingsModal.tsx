@@ -82,11 +82,15 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
           .maybeSingle();
 
         if (profile) {
+          // AdminService.removeAdminRole already updates employees.is_admin = false
           await AdminService.removeAdminRole(profile.user_id, false);
           toast({ title: "Success", description: `${person.full_name || person.email} is no longer an administrator` });
         }
+        // No manual employees update needed — removeAdminRole handles it
+        return;
       }
 
+      // Promotion path only: update employees.is_admin for the promotion case
       await supabase
         .from('employees')
         .update({ is_admin: checked })

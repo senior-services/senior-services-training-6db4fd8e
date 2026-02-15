@@ -473,9 +473,12 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
         onOpenChange={(open) => { if (!open) setSettingsEmployee(null); }}
         person={settingsEmployee}
         onHide={(person) => handleHidePerson(person)}
-        onAdminToggled={() => loadPeople()}
+        onAdminToggled={async () => {
+          await loadPeople();
+        }}
         currentUserEmail={userEmail}
-        onSelfDemote={() => {
+        onSelfDemote={async () => {
+          await loadPeople();
           navigate('/dashboard');
           setTimeout(() => window.location.reload(), 100);
         }}
