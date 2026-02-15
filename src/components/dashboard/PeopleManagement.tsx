@@ -374,6 +374,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
         exportData.push({
           Name: personName,
           Email: personEmail,
+          Admin: person.is_admin ? 'Yes' : 'No',
           'Training': 'No assignments',
           'Status': STATUS_LABELS.unassigned,
           'Due Date': '--',
@@ -418,6 +419,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
           exportData.push({
             Name: personName,
             Email: personEmail,
+            Admin: person.is_admin ? 'Yes' : 'No',
             'Training': assignment.video_title || '',
             'Status': status,
             'Due Date': dueDate,
