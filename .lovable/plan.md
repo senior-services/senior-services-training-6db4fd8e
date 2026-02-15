@@ -1,26 +1,47 @@
 
-
-## Remove `bg-muted/50` from DialogScrollArea
+## Implement Admin Self-Revocation Logout Trigger
 
 ### Overview
-Remove the muted background color from the shared `DialogScrollArea` component, which is used by both standard and fullscreen dialogs.
+When an admin removes their own admin privileges via the Person Settings modal, the app should complete the database update, then redirect them to `/dashboard` (employee view) since they no longer have access to `/admin`.
 
-### Change
+### Approach
+Rather than a full logout (which would force re-authentication), the cleanest approach is to navigate to `/dashboard` and force a role refresh. The existing `useUserRole` hook uses a real-time subscription that will pick up the change, causing the `/admin` route guard to deny access. However, to ensure immediate effect without race conditions, a page reload after navigation is safest.
 
-**`src/components/ui/dialog.tsx` (line 102)**
+### Changes
 
-Remove `bg-muted/50` from the className string:
+**1. `PersonSettingsModal.tsx` -- Accept new props and add self-revocation check**
 
-```diff
-- "flex-1 px-6 py-6 overflow-y-auto min-h-0 bg-muted/50",
-+ "flex-1 px-6 py-6 overflow-y-auto min-h-0",
+- Add two new props: `currentUserEmail: string` and `onSelfDemote: () => void`.
+- In `handleSave`, after the admin toggle API call succeeds and `stagedAdmin` is `false` while `person.is_admin` was `true`, check if `person.email` matches `currentUserEmail` (case-insensitive).
+- If self-revocation detected, call `onSelfDemote()` instead of `onAdminToggled()` / `onOpenChange(false)`.
+
+**2. `PeopleManagement.tsx` -- Pass current user email and handle self-demote**
+
+- Accept a new prop `userEmail: string` (already available -- AdminDashboard passes it).
+- Import `useNavigate` from react-router-dom.
+- Pass `currentUserEmail={userEmail}` and `onSelfDemote` callback to `PersonSettingsModal`.
+- The `onSelfDemote` callback navigates to `/dashboard` then triggers `window.location.reload()` to force a full state refresh (clears role cache, re-fetches role from DB).
+
+**3. `PeopleManagement.tsx` -- Verify `userEmail` prop exists**
+
+- Check if `userEmail` is already a prop. If not, thread it from `AdminDashboard`.
+
+### Resulting Flow
+
+```text
+Admin clicks "Save Changes" with admin unchecked on their own record
+  --> DB update completes (user_roles + employees table)
+  --> Self-revocation detected (person.email === currentUserEmail)
+  --> Toast: "Your admin access has been removed"
+  --> Navigate to /dashboard
+  --> window.location.reload() forces fresh role fetch
+  --> useUserRole returns 'employee'
+  --> /admin route guard redirects away
+  --> Header loses purple background, admin dropdown links gone
 ```
 
-This is a single-line edit in one file. Both dialog variants share this component, so this one change covers both.
-
 ### Review
-1. **Top 3 Risks**: (a) Dialogs with content that relied on the muted background for contrast may look slightly different -- purely cosmetic. (b) No functional impact. (c) No data flow changes.
-2. **Top 3 Fixes**: (a) Scroll area now inherits parent background, giving a cleaner look. (b) Aligns with updated design direction.
+1. **Top 3 Risks**: (a) Brief moment between DB write and reload where stale admin state exists -- mitigated by immediate reload. (b) If DB update fails, self-demote is never triggered (correct behavior). (c) `window.location.reload()` loses in-memory state -- acceptable since user is changing contexts.
+2. **Top 3 Fixes**: (a) Self-revocation safely redirects instead of leaving admin in broken state. (b) Full reload ensures all caches (role, query client) are cleared. (c) Toast feedback before redirect informs user of what happened.
 3. **Database Change**: No.
-4. **Verdict**: Go -- one-line edit.
-
+4. **Verdict**: Go -- two-file change, no new dependencies.
