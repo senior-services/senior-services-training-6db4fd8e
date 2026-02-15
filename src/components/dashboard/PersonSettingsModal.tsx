@@ -83,7 +83,7 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
 
         if (profile) {
           // AdminService.removeAdminRole already updates employees.is_admin = false
-          await AdminService.removeAdminRole(profile.user_id, false);
+          await AdminService.removeAdminRole(profile.user_id, false, person.email);
           toast({ title: "Success", description: `${person.full_name || person.email} is no longer an administrator` });
         }
         // No manual employees update needed — removeAdminRole handles it

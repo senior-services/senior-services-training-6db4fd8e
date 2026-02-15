@@ -261,7 +261,7 @@ export class AdminService {
   /**
    * Remove admin role from a user or delete pending admin
    */
-  static async removeAdminRole(userId: string, isPending: boolean = false): Promise<void> {
+  static async removeAdminRole(userId: string, isPending: boolean = false, email?: string): Promise<void> {
     if (isPending) {
       // Remove from pending admins
       const { error } = await (supabase as any)
@@ -309,17 +309,24 @@ export class AdminService {
       .insert({ user_id: userId, role: 'employee' });
 
     // Mark as non-admin in employees table
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    if (profile?.email) {
-      await supabase
+    let targetEmail = email;
+    if (!targetEmail) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('user_id', userId)
+        .maybeSingle();
+      targetEmail = profile?.email;
+    }
+
+    if (targetEmail) {
+      const { error: empError } = await supabase
         .from('employees')
         .update({ is_admin: false } as any)
-        .eq('email', profile.email);
+        .eq('email', targetEmail);
+      console.log(`[AdminService] removeAdminRole employees update for ${targetEmail}:`, empError ? 'FAILED' : 'SUCCESS');
+    } else {
+      console.warn(`[AdminService] removeAdminRole: No email found for user ${userId}, employees.is_admin NOT updated`);
     }
   }
 }

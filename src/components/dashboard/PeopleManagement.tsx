@@ -86,6 +86,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
     };
   }, []);
 
+
   const loadPeople = useCallback(async (silentRefresh = false) => {
     try {
       if (!silentRefresh) setLoading(true);
@@ -155,6 +156,13 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
       if (!silentRefresh) setLoading(false);
     }
   }, [toast]);
+
+  // Failsafe: refresh data when window regains focus (covers missed real-time events)
+  useEffect(() => {
+    const handleFocus = () => { loadPeople(true); };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [loadPeople]);
 
   const loadHiddenPeople = useCallback(async () => {
     try {
