@@ -1,22 +1,26 @@
 
 
-## Add Horizontal Separators Above "Hide" Sections
+## Remove `bg-muted/50` from DialogScrollArea
 
 ### Overview
-Re-introduce `<Separator />` components above the "Hide Person" and "Hide Training" sections in both modals to provide visual separation between the info block and the action sections.
+Remove the muted background color from the shared `DialogScrollArea` component, which is used by both standard and fullscreen dialogs.
 
-### Changes
+### Change
 
-**1. `src/components/dashboard/PersonSettingsModal.tsx`**
-- Re-add the `Separator` import from `@/components/ui/separator`.
-- Insert `<Separator />` on a new line between the person info block (line 142) and the "Hide person" section (line 144).
+**`src/components/ui/dialog.tsx` (line 102)**
 
-**2. `src/components/dashboard/TrainingSettingsModal.tsx`**
-- Re-add the `Separator` import from `@/components/ui/separator`.
-- Insert `<Separator />` on a new line between the training info block (line 64) and the "Hide training" section (line 66).
+Remove `bg-muted/50` from the className string:
+
+```diff
+- "flex-1 px-6 py-6 overflow-y-auto min-h-0 bg-muted/50",
++ "flex-1 px-6 py-6 overflow-y-auto min-h-0",
+```
+
+This is a single-line edit in one file. Both dialog variants share this component, so this one change covers both.
 
 ### Review
-1. **Top 3 Risks**: None -- additive, visual-only change.
-2. **Top 3 Fixes**: (a) Restores visual hierarchy between info and actions. (b) Consistent separator usage across both modals.
+1. **Top 3 Risks**: (a) Dialogs with content that relied on the muted background for contrast may look slightly different -- purely cosmetic. (b) No functional impact. (c) No data flow changes.
+2. **Top 3 Fixes**: (a) Scroll area now inherits parent background, giving a cleaner look. (b) Aligns with updated design direction.
 3. **Database Change**: No.
-4. **Verdict**: Go -- two-file, two-line addition plus imports.
+4. **Verdict**: Go -- one-line edit.
+
