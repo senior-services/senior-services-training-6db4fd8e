@@ -823,6 +823,21 @@ export const ComponentsGallery = ({
               <CardDescription>Input fields and form elements</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
+              {/* Form Section Header */}
+              <div className="rounded-lg p-6 border border-border-primary/50 shadow-md space-y-1">
+                <h4 className="text-body font-bold text-foreground mb-3">Form Section Header</h4>
+                <p className="text-body-sm text-muted-foreground mb-4">
+                  Use to label groups of related form fields. Apply the single
+                  <code className="text-code bg-muted px-1 py-0.5 rounded">.form-section-header</code> class — no additional utilities needed.
+                </p>
+                <div className="rounded-md bg-card/50 p-4">
+                  <h3 className="form-section-header !mt-0">Contact Information</h3>
+                  <Input placeholder="Enter your email..." className="shadow-sm" />
+
+                  <h3 className="form-section-header">Administrative Settings</h3>
+                  <Input placeholder="Enter department..." className="shadow-sm" />
+                </div>
+              </div>
               <div className="rounded-lg p-6 border border-border-primary/50 shadow-md">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
