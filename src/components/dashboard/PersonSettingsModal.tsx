@@ -90,11 +90,7 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
         return;
       }
 
-      // Promotion path only: update employees.is_admin for the promotion case
-      await supabase
-        .from('employees')
-        .update({ is_admin: checked })
-        .eq('id', person.id);
+      // AdminService.addAdminByEmail already updates employees.is_admin — no manual write needed
     } catch (error: any) {
       logger.error('Error toggling admin status', error as Error);
       toast({

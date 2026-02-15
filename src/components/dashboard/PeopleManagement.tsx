@@ -477,8 +477,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
           await loadPeople();
         }}
         currentUserEmail={userEmail}
-        onSelfDemote={async () => {
-          await loadPeople();
+        onSelfDemote={() => {
           navigate('/dashboard');
           setTimeout(() => window.location.reload(), 100);
         }}
