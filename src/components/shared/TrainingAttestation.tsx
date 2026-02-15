@@ -69,7 +69,7 @@ export function TrainingAttestation({
         {!enabled && disabledTooltip ? (
           <Tooltip delayDuration={300}>
             <TooltipTrigger asChild>
-              <span className="inline-flex">
+              <span className="flex items-center">
                 <Checkbox
                   id={checkboxId}
                   checked={checked}
