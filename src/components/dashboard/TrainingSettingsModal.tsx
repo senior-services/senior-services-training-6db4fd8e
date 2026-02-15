@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 import type { Video } from '@/types';
 
 interface TrainingSettingsModalProps {
@@ -62,6 +63,8 @@ export const TrainingSettingsModal: React.FC<TrainingSettingsModalProps> = ({
             <div>
               <p className="text-body">{video.title}</p>
             </div>
+
+            <Separator />
 
             {/* Hide training */}
             <div>
