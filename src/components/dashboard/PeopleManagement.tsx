@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -60,7 +60,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
   const [sortColumn, setSortColumn] = useState<'name' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [pendingShowPerson, setPendingShowPerson] = useState<EmployeeWithAssignments | null>(null);
-  const navigate = useNavigate();
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
     try {
       if (!silentRefresh) setLoading(true);
       const data = await employeeOperations.getAll();
-      console.log('[PeopleManagement] Jane DB is_admin:', (data.data?.find(p => p.email?.toLowerCase() === 'jane.doe@southsoundseniors.org') as any)?.is_admin);
+      
       if (data.success && data.data) {
         const transformed = data.data.map(employee => ({
           id: employee.id,
@@ -486,10 +486,6 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
           await loadPeople();
         }}
         currentUserEmail={userEmail}
-        onSelfDemote={() => {
-          navigate('/dashboard');
-          setTimeout(() => window.location.reload(), 100);
-        }}
       />
 
       {/* Show Person Confirmation */}

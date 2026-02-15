@@ -29,7 +29,6 @@ interface PersonSettingsModalProps {
   onHide: (person: EmployeeWithAssignments) => void;
   onAdminToggled: () => void;
   currentUserEmail?: string;
-  onSelfDemote?: () => void;
 }
 
 export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
@@ -39,7 +38,6 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
   onHide,
   onAdminToggled,
   currentUserEmail,
-  onSelfDemote,
 }) => {
   const [stagedAdmin, setStagedAdmin] = useState(false);
   const [stagedHidden, setStagedHidden] = useState(false);
@@ -55,6 +53,9 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
   }, [open, person]);
 
   if (!person) return null;
+
+  const isSelf = !!(currentUserEmail && person?.email &&
+    person.email.toLowerCase() === currentUserEmail.toLowerCase());
 
   const hasChanges = stagedAdmin !== (person.is_admin || false) || stagedHidden;
 
@@ -105,23 +106,11 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const wasDemoted = (person.is_admin || false) && !stagedAdmin;
-
       if (stagedAdmin !== (person.is_admin || false)) {
         await handleToggleAdmin(stagedAdmin);
       }
       if (stagedHidden) {
         onHide(person);
-      }
-
-      // Self-revocation: admin removed their own privileges
-      const isSelf = currentUserEmail && person.email &&
-        person.email.toLowerCase() === currentUserEmail.toLowerCase();
-
-      if (wasDemoted && isSelf && onSelfDemote) {
-        toast({ title: "Admin access removed", description: "Your admin access has been removed. Redirecting…" });
-        onSelfDemote();
-        return;
       }
 
       onAdminToggled();
@@ -192,13 +181,18 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
                   id="admin-toggle"
                   checked={stagedAdmin}
                   onCheckedChange={(checked) => setStagedAdmin(checked === true)}
-                  disabled={isSaving}
+                  disabled={isSaving || isSelf}
                   aria-label="Toggle administrative privileges"
                 />
                 <Label htmlFor="admin-toggle" className="cursor-pointer">
                   Grant admin access
                 </Label>
               </div>
+              {isSelf && (
+                <p className="form-additional-text">
+                  Admins cannot remove their own administrative privileges. To change your access level, please contact another administrator.
+                </p>
+              )}
             </div>
           </div>
         </DialogScrollArea>

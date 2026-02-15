@@ -326,14 +326,14 @@ export class AdminService {
         .ilike('email', targetEmail)
         .select('id, email, is_admin');
 
-      console.log(`[AdminService] removeAdminRole employees update for ${targetEmail}:`, empError ? 'FAILED' : 'SUCCESS', 'rows affected:', updatedRows?.length ?? 0);
+      
 
       if (empError) throw new Error('Failed to update employee admin status: ' + empError.message);
       if (!updatedRows || updatedRows.length === 0) {
         throw new Error('Database rejected update: zero rows affected. This is likely an RLS policy issue.');
       }
     } else {
-      console.warn(`[AdminService] removeAdminRole: No email found for user ${userId}`);
+      
       throw new Error('No email found for user, cannot update admin status');
     }
   }
