@@ -325,8 +325,10 @@ export class AdminService {
         .update({ is_admin: false } as any)
         .eq('email', targetEmail);
       console.log(`[AdminService] removeAdminRole employees update for ${targetEmail}:`, empError ? 'FAILED' : 'SUCCESS');
+      if (empError) throw new Error('Failed to update employee admin status: ' + empError.message);
     } else {
       console.warn(`[AdminService] removeAdminRole: No email found for user ${userId}, employees.is_admin NOT updated`);
+      throw new Error('No email found for user, cannot update admin status');
     }
   }
 }
