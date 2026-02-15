@@ -508,6 +508,11 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     @apply text-body-sm text-muted-foreground italic mt-1.5;
   }
 
+  /* Form Section Header - labels groups of related fields */
+  .form-section-header {
+    @apply text-body font-bold text-foreground mt-6 mb-2;
+  }
+
   /* ── Master Template: Banner ── */
   .banner-base {
     @apply relative w-full rounded-lg border transition-shadow duration-300;
