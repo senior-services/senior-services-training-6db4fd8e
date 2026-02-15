@@ -1,64 +1,31 @@
 
 
-## Correct Tooltip Targeting on Training Attestation Checkbox
+## Fix Tooltip Arrow Alignment and Standardize Header
 
-### Problem
-The tooltip currently wraps the **entire attestation card** (`TooltipTrigger asChild` around the whole `content` div). This means hovering anywhere on the card triggers the tooltip, rather than just hovering over the checkbox itself.
+### Changes in `src/components/shared/TrainingAttestation.tsx`
 
-### Changes
+**1. Center the tooltip arrow over the checkbox**
 
-**`src/components/shared/TrainingAttestation.tsx`**
+Change `align="start"` to `align="center"` on `TooltipContent` (line 82). The checkbox is a small square element, so `"center"` will place the arrow at its midpoint rather than the left edge.
 
-Restructure the component so the Tooltip wraps only the Checkbox (not the entire card):
+**2. Verify span wrapper**
 
-1. **Move tooltip inside the card**: Instead of the current pattern where the disabled branch wraps the whole `content` block in a `<Tooltip>`, integrate the tooltip directly around the `<Checkbox>` element within the card's render.
+The `<span className="inline-flex">` wrapping the disabled `Checkbox` inside `TooltipTrigger asChild` is already correctly in place (lines 72-80). No change needed.
 
-2. **Wrap only the Checkbox in TooltipTrigger**: When `!enabled && disabledTooltip`, wrap the `<Checkbox>` in a `<span>` inside `<TooltipTrigger asChild>` (the span is needed because disabled elements don't fire hover events).
+**3. Standardize the section header**
 
-3. **Set TooltipContent props**: `side="top"`, `align="start"`, `sideOffset={8}`. The arrow is already rendered by the shared `TooltipContent` component (line 28 of `tooltip.tsx` -- `<TooltipPrimitive.Arrow className="fill-foreground" />`), so no additional arrow insertion is needed.
-
-4. **Remove the outer wrapping pattern**: Delete the `if (!enabled && disabledTooltip)` branch (lines 93-105) that currently wraps the entire card.
-
-**Before (simplified):**
-```
-if disabled:
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <entire-card />        // tooltip on whole card
-    </TooltipTrigger>
-    <TooltipContent />
-  </Tooltip>
-else:
-  <entire-card />
-```
-
-**After (simplified):**
-```
-<entire-card>
-  ...
-  {disabled && disabledTooltip ? (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span>              // interactive wrapper for disabled checkbox
-          <Checkbox disabled />
-        </span>
-      </TooltipTrigger>
-      <TooltipContent side="top" align="start" sideOffset={8}>
-        <p>{disabledTooltip}</p>
-      </TooltipContent>
-    </Tooltip>
-  ) : (
-    <Checkbox />
-  )}
-  <Label />
-</entire-card>
-```
+Replace the current `<p className="font-bold text-foreground">` (line 58) with `<h3 className="form-section-header !mt-0">`. This:
+- Uses the semantic `h3` tag instead of `p`
+- Applies the centralized `.form-section-header` class (which already includes `font-bold` and `text-foreground`)
+- Adds `!mt-0` to remove the default top margin since it sits at the top of its container (consistent with `PersonSettingsModal` and `TrainingSettingsModal` usage)
+- Removes the manual `font-bold text-foreground` utilities
 
 ### Files Modified
-- `src/components/shared/TrainingAttestation.tsx` (restructure tooltip to target checkbox only, remove outer card wrapping)
+- `src/components/shared/TrainingAttestation.tsx` (two lines changed)
 
 ### Review
-1. **Top 3 Risks**: (a) Disabled checkboxes don't fire pointer events -- the `span` wrapper with `asChild` ensures hover works. (b) The arrow is already baked into `TooltipContent` via the shared primitive -- no duplicate needed. (c) `sideOffset={8}` provides clean spacing above the small checkbox target.
-2. **Top 3 Fixes**: (a) Tooltip trigger scoped to checkbox only. (b) Proper positioning with `side="top"` + `align="start"`. (c) Removes the whole-card tooltip wrapping anti-pattern.
+1. **Top 3 Risks**: None -- purely presentational, no logic changes.
+2. **Top 3 Fixes**: (a) Arrow centers on checkbox. (b) Header uses semantic `h3` with design system class. (c) No utility overrides on the heading.
 3. **Database Change**: No.
-4. **Verdict**: Go -- single file, clean restructure.
+4. **Verdict**: Go.
+
