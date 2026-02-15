@@ -65,11 +65,11 @@ export function TrainingAttestation({
         Please review all training content carefully. By acknowledging, you confirm you've read and understood the material — your confirmation will be recorded for compliance.
       </p>
 
-      <div className="mt-4 flex items-start">
+      <div className="mt-4 flex items-center">
         {!enabled && disabledTooltip ? (
           <Tooltip delayDuration={300}>
             <TooltipTrigger asChild>
-              <span className="flex items-center">
+              <span className="flex items-center justify-center">
                 <Checkbox
                   id={checkboxId}
                   checked={checked}
