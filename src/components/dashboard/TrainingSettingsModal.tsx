@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
 import type { Video } from '@/types';
 
 interface TrainingSettingsModalProps {
@@ -64,12 +63,10 @@ export const TrainingSettingsModal: React.FC<TrainingSettingsModalProps> = ({
               <p className="text-body">{video.title}</p>
             </div>
 
-            <Separator />
-
             {/* Hide training */}
             <div>
-              <Label>Hide Training From Active List</Label>
-              <p className="form-helper-text mt-1">
+              <h3 className="form-section-header !mt-0">Hide Training From Active List</h3>
+              <p className="form-helper-text">
                 Moves to the Hidden section without affecting existing assignments or progress.
               </p>
               <div className="flex items-center gap-2 mt-3">

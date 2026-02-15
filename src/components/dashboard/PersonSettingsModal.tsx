@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminService } from '@/services/adminService';
 import { useToast } from '@/hooks/use-toast';
@@ -129,39 +128,23 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-body">{person.full_name || 'Unknown'}</span>
-                {person.is_admin && <Badge variant="soft-attention" showIcon>Admin</Badge>}
+                {stagedAdmin && !(person.is_admin || false) && (
+                  <Badge variant="attention" showIcon>Admin pending</Badge>
+                )}
+                {!stagedAdmin && (person.is_admin || false) && (
+                  <Badge variant="destructive" showIcon>Admin removal pending</Badge>
+                )}
+                {stagedAdmin === (person.is_admin || false) && person.is_admin && (
+                  <Badge variant="soft-attention" showIcon>Admin</Badge>
+                )}
               </div>
               <p className="form-helper-text">{person.email}</p>
             </div>
 
-            <Separator />
-
-            {/* Admin toggle */}
-            <div>
-              <Label>Administrative Privileges</Label>
-              <p className="form-helper-text mt-1">
-                Grant this person full admin access to manage trainings and people.
-              </p>
-              <div className="flex items-center gap-2 mt-3">
-                <Checkbox
-                  id="admin-toggle"
-                  checked={stagedAdmin}
-                  onCheckedChange={(checked) => setStagedAdmin(checked === true)}
-                  disabled={isSaving}
-                  aria-label="Toggle administrative privileges"
-                />
-                <Label htmlFor="admin-toggle" className="cursor-pointer">
-                  Grant admin access
-                </Label>
-              </div>
-            </div>
-
-            <Separator />
-
             {/* Hide person */}
             <div>
-              <Label>Hide Person From Active List</Label>
-              <p className="form-helper-text mt-1">
+              <h3 className="form-section-header !mt-0">Hide Person From Active List</h3>
+              <p className="form-helper-text">
                 Moves to the Hidden section without affecting assignments or progress.
               </p>
               <div className="flex items-center gap-2 mt-3">
@@ -174,6 +157,26 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
                 />
                 <Label htmlFor="hide-person" className="cursor-pointer">
                   Hide this person
+                </Label>
+              </div>
+            </div>
+
+            {/* Admin toggle - attention container */}
+            <div className="bg-attention/10 border border-attention/20 rounded-lg p-4">
+              <h3 className="form-section-header !mt-0">Administrative Privileges</h3>
+              <p className="form-helper-text">
+                Grant this person full admin access to manage trainings and people.
+              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <Checkbox
+                  id="admin-toggle"
+                  checked={stagedAdmin}
+                  onCheckedChange={(checked) => setStagedAdmin(checked === true)}
+                  disabled={isSaving}
+                  aria-label="Toggle administrative privileges"
+                />
+                <Label htmlFor="admin-toggle" className="cursor-pointer">
+                  Grant admin access
                 </Label>
               </div>
             </div>
