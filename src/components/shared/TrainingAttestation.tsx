@@ -55,9 +55,9 @@ export function TrainingAttestation({
         {a11yAnnouncement}
       </div>
 
-      <p className="font-bold text-foreground">
+      <h3 className="form-section-header !mt-0">
         Training Acknowledgment
-      </p>
+      </h3>
       <p className={cn(
         "mt-1",
         enabled ? "text-foreground" : "text-muted-foreground"
@@ -79,7 +79,7 @@ export function TrainingAttestation({
                 />
               </span>
             </TooltipTrigger>
-            <TooltipContent side="top" align="start" sideOffset={8}>
+            <TooltipContent side="top" align="center" sideOffset={8}>
               <p>{disabledTooltip}</p>
             </TooltipContent>
           </Tooltip>
