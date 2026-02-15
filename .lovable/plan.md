@@ -1,31 +1,24 @@
 
 
-## Fix Tooltip Arrow Alignment and Standardize Header
+## Fix Checkbox Vertical Alignment in TrainingAttestation
 
 ### Changes in `src/components/shared/TrainingAttestation.tsx`
 
-**1. Center the tooltip arrow over the checkbox**
+**1. Fix the span wrapper class (line 72)**
 
-Change `align="start"` to `align="center"` on `TooltipContent` (line 82). The checkbox is a small square element, so `"center"` will place the arrow at its midpoint rather than the left edge.
+Change `className="inline-flex"` to `className="flex items-center"` on the `<span>` inside `TooltipTrigger`. This converts the wrapper to a flex container that vertically centers the checkbox, aligning it with the label text baseline.
 
-**2. Verify span wrapper**
+**2. Standardize label spacing (line 99)**
 
-The `<span className="inline-flex">` wrapping the disabled `Checkbox` inside `TooltipTrigger asChild` is already correctly in place (lines 72-80). No change needed.
+The `<Label>` currently uses `ml-3` for spacing. This is fine and consistent -- no change needed here. The `ml-3` provides clean horizontal separation from both the bare `Checkbox` and the `span`-wrapped `Checkbox`.
 
-**3. Standardize the section header**
-
-Replace the current `<p className="font-bold text-foreground">` (line 58) with `<h3 className="form-section-header !mt-0">`. This:
-- Uses the semantic `h3` tag instead of `p`
-- Applies the centralized `.form-section-header` class (which already includes `font-bold` and `text-foreground`)
-- Adds `!mt-0` to remove the default top margin since it sits at the top of its container (consistent with `PersonSettingsModal` and `TrainingSettingsModal` usage)
-- Removes the manual `font-bold text-foreground` utilities
-
-### Files Modified
-- `src/components/shared/TrainingAttestation.tsx` (two lines changed)
+### Summary
+- One class change on line 72: `"inline-flex"` to `"flex items-center"`
+- Single file, single line edit
 
 ### Review
-1. **Top 3 Risks**: None -- purely presentational, no logic changes.
-2. **Top 3 Fixes**: (a) Arrow centers on checkbox. (b) Header uses semantic `h3` with design system class. (c) No utility overrides on the heading.
+1. **Top 3 Risks**: None -- purely visual fix.
+2. **Top 3 Fixes**: (a) Checkbox aligns vertically with label. (b) Tooltip arrow remains centered via existing `align="center"`. (c) No spacing regressions since `ml-3` on label is unchanged.
 3. **Database Change**: No.
 4. **Verdict**: Go.
 
