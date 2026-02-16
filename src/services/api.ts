@@ -696,6 +696,7 @@ export const assignmentOperations = {
                 // Include progress fields used by the dashboard
                 progress_percent: typeof a.progress_percent === 'number' ? a.progress_percent : 0,
                 completed_at: a.completed_at || null,
+                acknowledgment_viewing_seconds: typeof a.acknowledgment_viewing_seconds === 'number' ? a.acknowledgment_viewing_seconds : null,
               } as any,
             };
           })
