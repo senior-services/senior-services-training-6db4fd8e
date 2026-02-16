@@ -557,7 +557,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           {/* Quiz Section */}
           {((quizStarted && quiz) ||
             (wasEverCompleted && (completedQuiz || quiz) && completedQuizResults.length > 0)) && (
-            <div id="quiz-section" className="mt-8 border-t pt-8">
+            <div id="quiz-section" className="mt-8 border-t pt-8 pb-10">
               <QuizModal
                 quiz={wasEverCompleted && completedQuiz ? completedQuiz : quiz!}
                 onSubmit={handleQuizSubmit}
@@ -592,7 +592,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               // State: quiz-done
               if (quizSubmitted) {
                 return (
-                  <div className="flex w-full items-center justify-end gap-4">
+                  <div className="flex w-full items-center justify-between gap-4">
+                    <div />
                     <DialogClose asChild>
                       <Button>Close</Button>
                     </DialogClose>
@@ -603,7 +604,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               // State: quiz-active
               if (quizStarted) {
                 return (
-                  <div className="flex w-full items-center justify-end gap-4">
+                  <div className="flex w-full items-center justify-between gap-4">
+                    <div />
+                    <div className="flex gap-4">
                     <AlertDialog open={showCancelConfirmation} onOpenChange={setShowCancelConfirmation}>
                       <AlertDialogTrigger asChild>
                         <Button variant="outline" onClick={handleCancelClick}>
@@ -643,6 +646,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                     ) : (
                       <Button onClick={handleQuizSubmit}>Submit Quiz</Button>
                     )}
+                    </div>
                   </div>
                 );
               }

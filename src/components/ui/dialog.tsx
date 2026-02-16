@@ -112,7 +112,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-background px-6 py-4 border-t border-border-secondary flex-shrink-0 sm:rounded-b-lg",
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-background px-6 py-6 border-t border-border-secondary flex-shrink-0 sm:rounded-b-lg",
       className
     )}
     data-dialog-footer
