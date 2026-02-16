@@ -165,13 +165,17 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         if (user?.email) {
           const existingProgress = await loadExistingProgress();
           
-          // Restore timer if presentation time requirement was previously met
+          // Restore timer from persisted viewing seconds
           const loadedVideo = ('data' in loadResult ? loadResult.data : null) || initialVideo;
-          if (loadedVideo?.content_type === 'presentation' && existingProgress?.acknowledgmentViewingSeconds != null) {
+          console.log('[Timer Debug] loadedVideo:', loadedVideo?.content_type, 'duration:', loadedVideo?.duration_seconds);
+          console.log('[Timer Debug] existingProgress:', existingProgress?.acknowledgmentViewingSeconds);
+          if (loadedVideo?.content_type === 'presentation'
+              && existingProgress?.acknowledgmentViewingSeconds != null
+              && existingProgress.acknowledgmentViewingSeconds > 0) {
+            setViewingSeconds(existingProgress.acknowledgmentViewingSeconds);
             const minSeconds = loadedVideo.duration_seconds && loadedVideo.duration_seconds >= 60
               ? loadedVideo.duration_seconds : 60;
             if (existingProgress.acknowledgmentViewingSeconds >= minSeconds) {
-              setViewingSeconds(existingProgress.acknowledgmentViewingSeconds);
               setCheckboxEnabled(true);
             }
           }
@@ -224,6 +228,21 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }, 1000);
     return () => clearInterval(timer);
   }, [open, video, checkboxEnabled, videoId]);
+
+  // Periodic save of viewing seconds for presentations
+  useEffect(() => {
+    if (!open || !video || video.content_type !== 'presentation' || !user?.email || !videoId) return;
+
+    const saveInterval = setInterval(() => {
+      if (viewingSeconds > 0) {
+        progressOperations.updateByEmail(
+          user.email!, videoId, progress, undefined, undefined, viewingSeconds
+        );
+      }
+    }, 10000); // Save every 10 seconds
+
+    return () => clearInterval(saveInterval);
+  }, [open, video, user?.email, videoId, viewingSeconds, progress]);
 
   // Reset presentation states and badge when dialog opens/closes
   useEffect(() => {
