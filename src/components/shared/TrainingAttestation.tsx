@@ -47,7 +47,7 @@ export function TrainingAttestation({
       id="attestation-section"
       className={cn(
         "border border-border rounded-lg p-6 transition-colors",
-        enabled ? "bg-background" : "bg-transparent"
+        enabled ? "bg-background" : "bg-muted"
       )}
     >
       {/* Screen reader live region */}
@@ -55,7 +55,7 @@ export function TrainingAttestation({
         {a11yAnnouncement}
       </div>
 
-      <h3 className="form-section-header !mt-0">
+      <h3 className={cn("form-section-header !mt-0", enabled ? "text-foreground" : "text-muted-foreground")}>
         Training Acknowledgment
       </h3>
       <p className={cn(
