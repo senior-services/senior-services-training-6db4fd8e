@@ -1,71 +1,101 @@
 
 
-## Admin Status Change Email Notification
+## Centralized Date Formatting & Status Utility
 
 ### Overview
 
-Extend the `send-training-notification` Edge Function with a new `admin_status_change` type, add a corresponding API method, and trigger the notification from `PersonSettingsModal` when admin privileges are granted or revoked.
+Create `src/utils/date-formatter.ts` with three format functions and a due-date status calculator, then refactor all components to use them. Database/state values remain raw ISO strings -- this utility is display-layer only.
 
-### 1. Edge Function (`supabase/functions/send-training-notification/index.ts`)
+### 1. New File: `src/utils/date-formatter.ts`
 
-- Parse an optional `type` field from the request body (default: `"training_assignment"`)
-- When `type === "admin_status_change"`, parse a `granted` boolean field
-- Skip training-specific validation (titles, due date) for this type
-- Build a separate HTML template:
-  - Header: "Senior Services of South Sound" / sub-header: "Access Update"
-  - Body (granted): "You have been granted Administrative Privileges for the Senior Services Training Portal."
-  - Body (revoked): "Your Administrative Privileges for the Senior Services Training Portal have been removed."
-  - Button text: granted = "Access Admin Dashboard", revoked = "Go to Training Portal"
-  - Button color: `rgb(23,101,161)` (--primary brand color)
-  - Button link: `${app_url}/auth` (same as training notification)
-  - Subject: "Administrative Privileges Granted" or "Administrative Privileges Removed"
-- Sandbox override remains active
-- Existing training_assignment flow is untouched (backward compatible)
+**Format functions** (all accept `string | Date`):
 
-### 2. API Service (`src/services/api.ts`)
+| Function | Pattern (date-fns) | Example Output |
+|---|---|---|
+| `formatShort(date)` | `MMM dd, ''yy` | `Feb 16, '26` |
+| `formatMedium(date)` | `MMM dd, yyyy` | `Feb 16, 2026` |
+| `formatLong(date)` | `MMMM dd, yyyy` | `February 16, 2026` |
 
-Add a new method `sendAdminStatusNotification` to `assignmentOperations`:
+Each function parses the input via `new Date(input)` and calls `format()` from date-fns.
 
-```typescript
-async sendAdminStatusNotification(params: {
-  employee_email: string;
-  employee_name: string;
-  granted: boolean;
-  app_url: string;
-}): Promise<ApiResult<boolean>>
-```
+**Status calculator** -- `getDueDateStatus(dueDate: string | Date)`:
 
-This invokes `send-training-notification` with `{ type: "admin_status_change", ...params }`.
+Returns `{ text: string; status: 'overdue' | 'today' | 'near' | 'far' }`:
 
-### 3. PersonSettingsModal (`src/components/dashboard/PersonSettingsModal.tsx`)
+| Condition | `text` | `status` |
+|---|---|---|
+| Past due | `'Overdue'` | `'overdue'` |
+| Due today | `'Due Today'` | `'today'` |
+| 1-29 days away | `'Due in X days'` | `'near'` |
+| 30+ days away | `'Due ' + formatShort(date)` | `'far'` |
 
-In `handleSave`, after the successful `handleToggleAdmin` call (line 110), fire-and-forget the notification:
+**Badge variant mapper** -- `dueDateStatusToVariant(status)`:
 
-```typescript
-import { assignmentOperations } from '@/services/api';
+Maps status to badge variant: `overdue` to `soft-destructive`, `today` to `soft-warning`, `near`/`far` to `soft-primary`.
 
-// After successful admin toggle
-assignmentOperations.sendAdminStatusNotification({
-  employee_email: person.email,
-  employee_name: person.full_name || person.email,
-  granted: stagedAdmin,
-  app_url: window.location.origin,
-}).catch(() => {}); // fire-and-forget
-```
+### 2. Refactor: `src/components/TrainingCard.tsx`
 
-Self-demotion is already blocked by `isSelf` disabling the checkbox (line 184).
+- Replace the local `dueDateInfo` calculation (lines 147-215) with calls to `getDueDateStatus()` and `dueDateStatusToVariant()`
+- Completed badge date (line 309): replace `format(..., 'MMM d')` with `formatShort()`
+- Completed tooltip (line 316): replace `format(..., 'MMMM d, yyyy')` with `formatLong()`
+- Due tooltip (line 350): replace `format(..., 'MMMM d, yyyy')` with `formatLong()`
+- ARIA labels derived from the utility `text` field
 
-### Files
+### 3. Refactor: `src/utils/accessibility.ts`
+
+- In `getStatusAnnouncement()` (lines 435-465): replace the local day-math with `getDueDateStatus()` and use its `text` for the announcement string
+- In `getTrainingCardAriaLabel()` (line 410): use `formatLong()` instead of `toLocaleDateString()`
+
+### 4. Refactor: `src/components/dashboard/AssignVideosModal.tsx`
+
+- Line 392 (email due date string): already uses Long format -- keep as `formatLong()`
+- Line 510 (completion date in table): replace `format(..., "MMM dd, yyyy")` with `formatShort()`
+- Lines 525-531 (due date in table): replace `format(..., "MMM dd, yyyy")` with `formatShort()`
+
+### 5. Refactor: `src/components/dashboard/VideoTable.tsx`
+
+- Line 274 ("Date Added" column): replace `format(..., 'MMM dd, yyyy')` with `formatShort()`
+
+### 6. Refactor: `src/components/dashboard/AdminManagement.tsx`
+
+- Line 266: replace `format(..., 'MMM d, yyyy')` with `formatShort()`
+
+### 7. Refactor: `src/components/dashboard/EmployeeManagement.tsx`
+
+- Line 482 (due date): replace with `formatShort()`
+- Line 489 (completion date): replace with `formatShort()`
+
+### 8. Refactor: `src/components/dashboard/PeopleManagement.tsx`
+
+- Line 409 (due date): replace with `formatShort()`
+- Line 416 (completion date): replace with `formatShort()`
+
+### 9. Refactor: `src/components/dashboard/VideoManagement.tsx`
+
+- Line 416 (pending assignment due date): replace `format(..., 'MMMM d, yyyy')` with `formatLong()`
+
+### 10. Edge Function: `supabase/functions/send-training-notification/index.ts`
+
+- The `due_date` field is already formatted on the client side before being sent (line 392 in AssignVideosModal). The client will now use `formatLong()` for this, so no Edge Function changes are needed -- it simply renders the pre-formatted string.
+
+### Files Summary
 
 | File | Action |
-|------|--------|
-| `supabase/functions/send-training-notification/index.ts` | Edit -- add `admin_status_change` branch with dynamic button text |
-| `src/services/api.ts` | Edit -- add `sendAdminStatusNotification` method |
-| `src/components/dashboard/PersonSettingsModal.tsx` | Edit -- trigger notification after admin toggle |
+|---|---|
+| `src/utils/date-formatter.ts` | **Create** -- formatShort, formatMedium, formatLong, getDueDateStatus, dueDateStatusToVariant |
+| `src/components/TrainingCard.tsx` | Edit -- replace local date math and format calls |
+| `src/utils/accessibility.ts` | Edit -- use getDueDateStatus and formatLong |
+| `src/components/dashboard/AssignVideosModal.tsx` | Edit -- use formatShort and formatLong |
+| `src/components/dashboard/VideoTable.tsx` | Edit -- use formatShort |
+| `src/components/dashboard/AdminManagement.tsx` | Edit -- use formatShort |
+| `src/components/dashboard/EmployeeManagement.tsx` | Edit -- use formatShort |
+| `src/components/dashboard/PeopleManagement.tsx` | Edit -- use formatShort |
+| `src/components/dashboard/VideoManagement.tsx` | Edit -- use formatLong |
 
 ### Review
 
-1. **Top 3 Risks:** (a) Existing training flow must not break -- mitigated by defaulting `type` to `"training_assignment"`. (b) Self-demotion -- already blocked by `isSelf` guard. (c) Notification failure must not block save -- fire-and-forget pattern.
-2. **Top 3 Fixes:** (a) Users get immediate email confirmation of privilege changes. (b) Dynamic button text ("Access Admin Dashboard" vs "Go to Training Portal") provides clear next action. (c) Single Edge Function handles both types, reducing maintenance.
+1. **Top 3 Risks:** (a) Short format uses two-digit year with apostrophe (`'26`) -- verify date-fns escape syntax. (b) TrainingCard refactor touches a complex memo -- must preserve existing variant/priority/aria logic. (c) Multiple files edited -- need to verify no stale `format` imports remain.
+2. **Top 3 Fixes:** (a) Eliminates 7 inconsistent format strings across the codebase. (b) Single source of truth for due-date status thresholds. (c) Accessibility announcements stay in sync with visual badges.
 3. **Database Change:** No.
 4. **Verdict:** Go.
+
