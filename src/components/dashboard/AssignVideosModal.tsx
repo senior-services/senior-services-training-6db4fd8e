@@ -385,7 +385,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
 
       toast({
         title: "Success",
-        description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? "s" : ""} assigned to ${employee.full_name || employee.email}`,
+        description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? "s" : ""} assigned to ${employee.full_name || employee.email} and an email notification has been sent.`,
       });
 
       // Fire-and-forget: single batched email notification
