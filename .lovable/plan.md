@@ -1,75 +1,66 @@
 
 
-## Fix Footer Height Jump Between Content and Quiz States
+## Fix: Header Disappears and Footer Breaks When Quiz Loads
 
-### Problem
-The `DialogFooter` has `py-4` padding that feels cramped when the quiz appears. The three footer states (content, quiz-active, quiz-done) use slightly different inner layout structures, causing a visible height jump during transitions.
+### Root Cause
 
-### Changes
+The `scrollIntoView({ behavior: "smooth" })` calls on lines 276, 319, and 414 are the culprit. Despite the `FullscreenDialogContent` having `overflow-hidden`, `scrollIntoView` can still programmatically scroll **all ancestor scroll containers**. This pushes the fixed header off-screen and disrupts the footer layout.
 
-**File 1: `src/components/ui/dialog.tsx` (line 115)**
-Increase vertical padding from `py-4` to `py-6` for a more spacious, consistent footer:
+The flex structure (header/scroll-body/footer) is already correct. The issue is not CSS -- it is the scroll method.
 
-```
+### Fix (1 file: `src/components/VideoPlayerFullscreen.tsx`)
+
+Replace all three `scrollIntoView` calls with scoped scrolling that only adjusts `scrollRef.current.scrollTop`.
+
+**Change 1 -- Line 276 (attestation auto-scroll after video completion):**
+
+```typescript
 // Before
-"flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-background px-6 py-4 border-t border-border-secondary flex-shrink-0 sm:rounded-b-lg"
+document.getElementById("attestation-section")?.scrollIntoView({ behavior: "smooth" });
 
 // After
-"flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 bg-background px-6 py-6 border-t border-border-secondary flex-shrink-0 sm:rounded-b-lg"
+const el = document.getElementById("attestation-section");
+if (el && scrollRef.current) {
+  scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+}
 ```
 
-**File 2: `src/components/VideoPlayerFullscreen.tsx`**
+**Change 2 -- Line 319 (quiz auto-scroll after "Start Quiz" click):**
 
-Two changes:
-
-1. **Quiz container padding (line 560)** -- Add `pb-10` so the attestation checkbox doesn't sit flush against the footer border when scrolled to bottom:
-
-```
+```typescript
 // Before
-<div id="quiz-section" className="mt-8 border-t pt-8">
+document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
 
 // After
-<div id="quiz-section" className="mt-8 border-t pt-8 pb-10">
+const el = document.getElementById("quiz-section");
+if (el && scrollRef.current) {
+  scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+}
 ```
 
-2. **Sync all three footer inner wrappers to identical layout structure** -- Currently the quiz-done and quiz-active states use `justify-end` while the content state uses `justify-between`. Normalize all three to `justify-between` with a left zone (even if empty) so the container height stays constant:
+**Change 3 -- Line 414 (quiz scroll on review mode):**
 
-- **Quiz-done (line 595)**: Change from `justify-end` to `justify-between`, add an empty left `<div>` spacer.
-- **Quiz-active (line 606)**: Change from `justify-end` to `justify-between`, add an empty left `<div>` spacer.
-- **Content state (line 674)**: Already uses `justify-between` -- no change needed.
+```typescript
+// Before
+document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
 
-### Technical Detail
-
-```
-// Quiz-done (lines 594-600) -- Before
-<div className="flex w-full items-center justify-end gap-4">
-  <DialogClose asChild><Button>Close</Button></DialogClose>
-</div>
-
-// Quiz-done -- After
-<div className="flex w-full items-center justify-between gap-4">
-  <div />
-  <DialogClose asChild><Button>Close</Button></DialogClose>
-</div>
+// After
+const el = document.getElementById("quiz-section");
+if (el && scrollRef.current) {
+  scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+}
 ```
 
-```
-// Quiz-active (lines 605-647) -- Before
-<div className="flex w-full items-center justify-end gap-4">
-  ...cancel + submit buttons...
-</div>
+### Why This Works
 
-// Quiz-active -- After
-<div className="flex w-full items-center justify-between gap-4">
-  <div />
-  <div className="flex gap-4">
-    ...cancel + submit buttons...
-  </div>
-</div>
-```
+- `scrollRef.current.scrollTo()` only scrolls the inner scrollable div (the "bread" middle of the sandwich layout)
+- The header and footer remain fixed because only the scroll container's `scrollTop` changes -- no ancestor containers are affected
+- The `offsetTop` math ensures the target element scrolls to the top of the visible scroll area
 
 ### Review
-1. **Top 3 Risks**: (a) `py-6` increases all dialog footers globally -- acceptable since only fullscreen dialog uses this footer currently. (b) Empty `<div />` spacers are semantically harmless. (c) No logic changes.
-2. **Top 3 Fixes**: (a) Consistent `py-6` eliminates cramped feel. (b) `pb-10` gives scroll breathing room for attestation. (c) Identical `justify-between` structure across all states prevents height jumps.
+
+1. **Top 3 Risks**: (a) `offsetTop` is relative to the offsetParent, which should be the scroll container -- if not, we may need `getBoundingClientRect()` instead. (b) No visual changes to footer padding or structure. (c) No logic changes.
+2. **Top 3 Fixes**: (a) Scoped scrolling prevents ancestor container displacement. (b) Header stays pinned. (c) Footer height remains stable since the outer container is no longer shifted.
 3. **Database Change**: No.
-4. **Verdict**: Go -- CSS-only changes across 2 files.
+4. **Verdict**: Go -- 3 surgical replacements of `scrollIntoView` with scoped `scrollTo`.
+
