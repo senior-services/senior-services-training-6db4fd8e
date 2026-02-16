@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminService } from '@/services/adminService';
+import { assignmentOperations } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/utils/logger';
 import type { EmployeeWithAssignments } from '@/types/employee';
@@ -106,8 +107,16 @@ export const PersonSettingsModal: React.FC<PersonSettingsModalProps> = ({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      if (stagedAdmin !== (person.is_admin || false)) {
+      const adminChanged = stagedAdmin !== (person.is_admin || false);
+      if (adminChanged) {
         await handleToggleAdmin(stagedAdmin);
+        // Fire-and-forget admin status notification
+        assignmentOperations.sendAdminStatusNotification({
+          employee_email: person.email,
+          employee_name: person.full_name || person.email,
+          granted: stagedAdmin,
+          app_url: window.location.origin,
+        }).catch(() => {});
       }
       if (stagedHidden) {
         onHide(person);

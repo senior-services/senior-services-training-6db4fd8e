@@ -890,6 +890,43 @@ export const assignmentOperations = {
       return { data: true, error: null, success: true };
     } catch (error) {
       logger.error('Unexpected error sending notification', error as Error, {
+    employee_email: params.employee_email,
+      });
+      return { data: null, error: 'Failed to send notification', success: false };
+    }
+  },
+
+  /**
+   * Send email notification for admin status change (fire-and-forget safe)
+   */
+  async sendAdminStatusNotification(params: {
+    employee_email: string;
+    employee_name: string;
+    granted: boolean;
+    app_url: string;
+  }): Promise<ApiResult<boolean>> {
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        'send-training-notification',
+        { body: { type: 'admin_status_change', ...params } }
+      );
+
+      if (error) {
+        logger.error('Failed to send admin status notification', undefined, {
+          employee_email: params.employee_email,
+          granted: params.granted,
+          supabaseError: error.message,
+        });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Admin status notification sent', {
+        employee_email: params.employee_email,
+        granted: params.granted,
+      });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error sending admin status notification', error as Error, {
         employee_email: params.employee_email,
       });
       return { data: null, error: 'Failed to send notification', success: false };
