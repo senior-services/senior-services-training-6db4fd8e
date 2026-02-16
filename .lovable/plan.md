@@ -1,60 +1,35 @@
 
 
-## Fix "Continue Training" Button Detection
+## Fix: `acknowledgment_viewing_seconds` Dropped in API Service Layer
 
-### Root Cause Analysis
+### Root Cause
 
-The code paths look correct on paper: the interface has the field, the transform maps it, and the hasStarted logic checks it. There are two possible failure points to fix simultaneously:
+The debug logs confirm `viewingSec: undefined` for all cards. The DB function correctly returns `acknowledgment_viewing_seconds`, but the API service layer in `src/services/api.ts` (lines 686-699) manually constructs the `assignment` object and **only maps specific fields** (`progress_percent`, `completed_at`, etc.). The new `acknowledgment_viewing_seconds` field is silently dropped here and never reaches the dashboard.
 
-1. **Falsy-value bug on line 301 of EmployeeDashboard.tsx**: The expression `assignment?.acknowledgment_viewing_seconds || undefined` will silently convert a value of `0` to `undefined`. While the current DB values are 91 and 66, this is fragile and should use nullish coalescing (`??`) instead of logical OR (`||`).
+### Fix (1 file, 1 line)
 
-2. **Missing debug visibility**: Without a console log, we cannot confirm whether the data is arriving at the card or being lost somewhere in the pipeline.
+**File: `src/services/api.ts` (~line 698)**
 
-3. **Defensive hasStarted logic**: The current check relies on `sanitizedVideo.acknowledgmentViewingSeconds != null` which is correct, but adding an explicit `> 0` guard and a debug log will make the flow transparent.
+Add `acknowledgment_viewing_seconds` to the manually-constructed assignment object:
 
-### Changes
+```typescript
+// Current (line 698)
+completed_at: a.completed_at || null,
 
-**File 1: `src/pages/EmployeeDashboard.tsx` (line 301)**
-
-Replace the falsy-unsafe `||` with nullish coalescing `??`:
-
-```
-// Before
-acknowledgmentViewingSeconds: assignment?.acknowledgment_viewing_seconds || undefined
-
-// After
-acknowledgmentViewingSeconds: assignment?.acknowledgment_viewing_seconds ?? undefined
+// After (add new line after line 698)
+completed_at: a.completed_at || null,
+acknowledgment_viewing_seconds: typeof a.acknowledgment_viewing_seconds === 'number' ? a.acknowledgment_viewing_seconds : null,
 ```
 
-**File 2: `src/components/TrainingCard.tsx` (lines 136-147)**
+This is a type-safe mapping that mirrors the pattern already used for `progress_percent` on line 697.
 
-Add a temporary debug log right before the status calculation, and keep the hasStarted logic explicit:
+### Why the Previous Fixes Didn't Work
 
-```tsx
-const trainingStatus = useOptimizedMemo(() => {
-  const isCompleted = sanitizedVideo.progress === 100;
-  const hasStarted = sanitizedVideo.progress > 0
-    || (sanitizedVideo.acknowledgmentViewingSeconds != null
-        && sanitizedVideo.acknowledgmentViewingSeconds > 0);
-
-  console.log('[Card Debug]', sanitizedVideo.title,
-    'progress:', sanitizedVideo.progress,
-    'viewingSec:', sanitizedVideo.acknowledgmentViewingSeconds,
-    'hasStarted:', hasStarted,
-    'buttonText:', isCompleted ? 'Review' : hasStarted ? 'Continue' : 'Start');
-
-  return {
-    isCompleted,
-    hasStarted,
-    statusText: isCompleted ? 'Completed' : hasStarted ? 'In Progress' : 'Not Started'
-  };
-}, [sanitizedVideo.progress, sanitizedVideo.acknowledgmentViewingSeconds]);
-```
+The `??` fix in EmployeeDashboard and the `hasStarted` logic in TrainingCard are both correct -- they just never receive the data because it's stripped out one layer deeper in the API service.
 
 ### Review
 
-1. **Top 3 Risks**: (a) `?? undefined` is semantically identical for non-zero values but fixes the 0-case. (b) Debug log is temporary -- remove after verification. (c) No logic change to hasStarted, just added visibility.
-2. **Top 3 Fixes**: (a) Nullish coalescing prevents silent data loss. (b) Console log provides immediate verification. (c) No other files or DB changes needed.
+1. **Top 3 Risks**: (a) None -- additive field, existing consumers unaffected. (b) Type-safe guard prevents NaN. (c) No breaking change.
+2. **Top 3 Fixes**: (a) Single line addition surfaces the data. (b) Matches existing code pattern. (c) Completes the pipeline from DB to UI.
 3. **Database Change**: No.
-4. **Verdict**: Go -- two surgical line edits.
-
+4. **Verdict**: Go -- one line addition in the service layer.
