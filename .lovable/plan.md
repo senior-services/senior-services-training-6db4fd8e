@@ -1,77 +1,27 @@
 
 
-## Persist Presentation Timer Progress Across Dialog Sessions
+## Fix: Use `loadResult` Data Instead of Stale State
 
-### Problem
+### Root Cause
 
-When a user meets the minimum viewing time for a presentation, closes the dialog, and reopens it, the timer resets to zero and they must wait again. The database already stores `acknowledgment_viewing_seconds` but it is not fetched or used on dialog mount.
+Line 169 reads `const loadedVideo = initialVideo || video;` but after the dialog closes and reopens:
+1. `resetVideoData()` sets `video` state to `null`
+2. `loadVideoData()` calls `setVideo(newData)` but React hasn't re-rendered yet
+3. So `video` is still `null` when line 169 executes
+4. If `initialVideo` prop is also `undefined`, `loadedVideo` is `null` and the entire timer-restoration block is skipped silently
 
-### Changes
+### Fix
 
-**File 1: `src/services/api.ts` -- line 1092**
+**File: `src/components/VideoPlayerFullscreen.tsx` -- lines 165-177**
 
-Add `acknowledgment_viewing_seconds` to the SELECT query and update the return type:
-
-```tsx
-// Return type changes from:
-Promise<ApiResult<{ progress_percent: number; completed_at: string | null } | null>>
-// To:
-Promise<ApiResult<{ progress_percent: number; completed_at: string | null; acknowledgment_viewing_seconds: number | null } | null>>
-
-// Select changes from:
-.select('progress_percent, completed_at')
-// To:
-.select('progress_percent, completed_at, acknowledgment_viewing_seconds')
-```
-
-**File 2: `src/hooks/useVideoProgress.ts` -- `loadExistingProgress` (line 162)**
-
-Return `acknowledgmentViewingSeconds` from the loaded data:
+Replace the stale-state reference with the video data already returned by `loadVideoData`:
 
 ```tsx
-// In the progressResult.data branch, add to the return:
-return {
-  completedAt: progressData.completed_at || null,
-  progressPercent,
-  acknowledgmentViewingSeconds: progressData.acknowledgment_viewing_seconds || null
-};
-
-// In the "no data" branch:
-return { completedAt: null, progressPercent: 0, acknowledgmentViewingSeconds: null };
-```
-
-**File 3: `src/components/VideoPlayerFullscreen.tsx`**
-
-1. **Initialize effect (lines 154-170)**: Capture the returned `acknowledgmentViewingSeconds` from `loadExistingProgress` and, if it meets the minimum, immediately set `viewingSeconds` and `checkboxEnabled`:
-
-```tsx
-const existingProgress = await loadExistingProgress();
-if (existingProgress?.acknowledgmentViewingSeconds != null
-    && existingProgress.acknowledgmentViewingSeconds >= presentationMinSecondsRef) {
-  setViewingSeconds(existingProgress.acknowledgmentViewingSeconds);
-  setCheckboxEnabled(true);
-}
-```
-
-Note: `presentationMinSeconds` depends on `video` which loads in the same init function, so we will compute the threshold inline using the loaded video data (`loadResult.video`).
-
-2. **Timer effect (line 193)**: Already short-circuits when `checkboxEnabled` is true -- no change needed.
-
-3. **Reset effect (line 217-227)**: No change needed -- it correctly resets on close, so reopening triggers re-init which will restore from DB.
-
-### Sequencing Detail
-
-The init effect already calls `loadVideoData` first (which gives us `video.duration_seconds`) then `loadExistingProgress`. We will compute the minimum seconds threshold using the loaded video data before checking `acknowledgmentViewingSeconds`:
-
-```tsx
-const loadResult = await loadVideoData(videoId, initialVideo);
-// ... error handling ...
-
 if (user?.email) {
   const existingProgress = await loadExistingProgress();
   
-  // Restore timer if presentation time was previously met
-  const loadedVideo = loadResult.video;
+  // Restore timer if presentation time requirement was previously met
+  const loadedVideo = loadResult?.data || initialVideo;
   if (loadedVideo?.content_type === 'presentation' && existingProgress?.acknowledgmentViewingSeconds != null) {
     const minSeconds = loadedVideo.duration_seconds && loadedVideo.duration_seconds >= 60
       ? loadedVideo.duration_seconds : 60;
@@ -83,17 +33,16 @@ if (user?.email) {
 }
 ```
 
-This requires `loadVideoData` to return the loaded video object. If it doesn't currently, we'll access it from the `video` state set by the hook (which is available by the time we process the progress).
+`loadResult` is the resolved value from `loadVideoData` (line 155). Its shape is `{ success: true, data: Video }` on success. Using `loadResult?.data` gives us the freshly-loaded video object without relying on React state timing.
 
-### What the user sees
+### What changes
 
-- First visit: Timer counts down normally, acknowledgment unlocks after minimum time.
-- Close and reopen: Timer shows "Minimum time met" badge immediately, checkbox is enabled, attestation section is in the active (white/full-contrast) state.
-- Already-completed trainings: No change -- `wasEverCompleted` still hides the footer entirely.
+- One line: `initialVideo || video` becomes `loadResult?.data || initialVideo`
 
 ### Review
 
-1. **Top 3 Risks:** (a) `loadVideoData` may not return the video object directly -- need to verify and adjust. (b) Race condition if `loadExistingProgress` resolves before video state is set -- mitigated by using `loadResult` directly. (c) `acknowledgment_viewing_seconds` is only written on final submission, not during the timer -- the timer itself does not persist partial seconds.
-2. **Top 3 Fixes:** (a) Fetch stored viewing seconds from DB. (b) Skip timer when requirement already met. (c) Zero consumer-facing API changes.
+1. **Top 3 Risks:** (a) `loadResult` shape -- verified: `withErrorHandler` always returns `{ success, data }`. (b) `initialVideo` fallback still present as safety net. (c) No other consumers affected.
+2. **Top 3 Fixes:** (a) Eliminates stale-state race condition. (b) Single-line change. (c) No new dependencies.
 3. **Database Change:** No.
-4. **Verdict:** Go -- 3-file change, no schema changes needed.
+4. **Verdict:** Go.
+
