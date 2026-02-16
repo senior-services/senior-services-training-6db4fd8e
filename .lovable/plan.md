@@ -1,31 +1,35 @@
 
 
-## Add Border Below Video Thumbnail on Training Card
+## Fix: Black Border on Training Card
 
-### Overview
+### Problem
 
-Add a 1px horizontal rule using `--border-primary` directly beneath the video thumbnail (the `<header>` element) to visually separate the image from the card content below.
+The inline `style={{ borderColor: 'var(--border-primary)' }}` on the TrainingCard header fails because `--border-primary` stores raw HSL values (e.g., `210 20% 77%`) without the `hsl()` wrapper. The browser treats this as invalid CSS and falls back to black.
 
 ### Change
 
 **File: `src/components/TrainingCard.tsx`** (line 221)
 
-Add a bottom border to the `<header>` element wrapping the thumbnail:
+Replace the inline style with the Tailwind semantic class:
 
 ```tsx
 // Before
-<header className="relative">
+<header className="relative border-b" style={{ borderColor: 'var(--border-primary)' }}>
 
 // After
-<header className="relative border-b" style={{ borderColor: 'var(--border-primary)' }}>
+<header className="relative border-b border-border-primary">
 ```
 
-This places a single `--border-primary` rule directly below the video, cleanly separating thumbnail from badge/title content. No other files need editing.
+### Audit Results
+
+A full codebase scan confirms this is the **only** instance of raw `var(--border-...)` or `var(--input)` used in inline styles. All other border usages (Header, DashboardLayout, Tabs, Dialog, EmployeeList, Sonner, Chart, ComponentsGallery) already use the correct Tailwind classes (`border-border-primary`, `border-border-secondary`).
+
+The Tailwind config (`tailwind.config.ts`) correctly wraps all border tokens in `hsl()`, so the semantic classes work as intended.
 
 ### Review
 
-1. **Top 3 Risks:** None -- purely visual, single-line change.
-2. **Top 3 Fixes:** (a) Clear visual separation between thumbnail and metadata. (b) Uses the centralized `--border-primary` token for consistency. (c) Zero impact on layout or accessibility.
+1. **Top 3 Risks:** None -- single attribute swap, no layout impact.
+2. **Top 3 Fixes:** (a) Correct color rendering. (b) Removes inline style in favor of semantic class. (c) Consistent with all other border usage in the codebase.
 3. **Database Change:** No.
-4. **Verdict:** Go.
+4. **Verdict:** Go -- single-line fix, zero risk.
 
