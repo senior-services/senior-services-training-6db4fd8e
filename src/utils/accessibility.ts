@@ -5,6 +5,7 @@
 
 import { A11Y_CONFIG } from '@/constants';
 import { AriaProps } from '@/types';
+import { formatLong, getDueDateStatus } from '@/utils/date-formatter';
 
 /**
  * Generates unique IDs for accessibility attributes
@@ -407,7 +408,7 @@ export const getTrainingCardAriaLabel = (
   }
   
   if (dueDate) {
-    label += ` Due date: ${new Date(dueDate).toLocaleDateString()}.`;
+    label += ` Due date: ${formatLong(dueDate)}.`;
   }
   
   if (progress === 100) {
@@ -448,16 +449,9 @@ export const getStatusAnnouncement = (
   }
   
   if (isRequired && dueDate) {
-    const due = new Date(dueDate);
-    const today = new Date();
-    const daysUntilDue = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysUntilDue < 0) {
-      announcement += ' This required training is overdue.';
-    } else if (daysUntilDue === 0) {
-      announcement += ' This required training is due today.';
-    } else if (daysUntilDue <= 7) {
-      announcement += ` This required training is due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}.`;
+    const { text, status } = getDueDateStatus(dueDate);
+    if (status === 'overdue' || status === 'today' || status === 'near') {
+      announcement += ` This required training: ${text}.`;
     }
   }
   

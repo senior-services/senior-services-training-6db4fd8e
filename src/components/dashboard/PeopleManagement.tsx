@@ -34,6 +34,7 @@ import { DownloadDataModal } from './DownloadDataModal';
 import { PersonSettingsModal } from './PersonSettingsModal';
 import { logger } from '@/utils/logger';
 import { format, differenceInDays, isPast } from 'date-fns';
+import { formatShort } from '@/utils/date-formatter';
 import { quizOperations } from '@/services/quizService';
 import { createSafeDisplayName } from '@/utils/security';
 import * as XLSX from 'xlsx';
@@ -406,14 +407,14 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
 
           let dueDate = 'N/A';
           if (assignment.due_date) {
-            dueDate = format(new Date(assignment.due_date), 'MMM dd, yyyy');
+            dueDate = formatShort(assignment.due_date);
           }
 
           const completionDateStr = completed
             ? sharedGetCompletionDate(quizAttempt ?? null, assignment.completed_at)
             : null;
           const completionDate = completionDateStr
-            ? format(new Date(completionDateStr), 'MMM dd, yyyy')
+            ? formatShort(completionDateStr)
             : '--';
 
           exportData.push({

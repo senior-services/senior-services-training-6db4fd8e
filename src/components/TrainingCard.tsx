@@ -11,7 +11,7 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/comp
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { Calendar, Clock, Play, AlertCircle, ClipboardList, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, differenceInDays, isPast } from 'date-fns';
+import { getDueDateStatus, dueDateStatusToVariant, formatShort, formatLong } from '@/utils/date-formatter';
 
 // Enhanced utility imports
 import { sanitizeText, createSafeDisplayName } from '@/utils/security';
@@ -143,15 +143,10 @@ export const TrainingCard = memo<TrainingCardProps>(({
     };
   }, [sanitizedVideo.progress]);
 
-  // Calculate due date status with comprehensive logic
+  // Calculate due date status with centralized utility
   const dueDateInfo = useOptimizedMemo(() => {
     if (!sanitizedVideo.dueDate) return null;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const due = new Date(sanitizedVideo.dueDate);
-    due.setHours(0, 0, 0, 0);
-    const daysUntilDue = differenceInDays(due, today);
-    
+
     if (trainingStatus.isCompleted) {
       return {
         variant: 'soft-success' as const,
@@ -161,57 +156,16 @@ export const TrainingCard = memo<TrainingCardProps>(({
         priority: 'high' as const
       };
     }
-    if (isPast(due) && daysUntilDue < 0) {
-      return {
-        variant: 'soft-destructive' as const,
-        className: '',
-        text: 'Overdue',
-        ariaLabel: `Training is overdue by ${Math.abs(daysUntilDue)} days`,
-        priority: 'high' as const
-      };
-    }
-    if (daysUntilDue === 0) {
-      return {
-        variant: 'soft-warning' as const,
-        className: '',
-        text: 'Due Today',
-        ariaLabel: 'Training is due today',
-        priority: 'high' as const
-      };
-    }
-    if (daysUntilDue <= 7) {
-      return {
-        variant: 'soft-primary' as const,
-        className: '',
-        text: `Due in ${daysUntilDue} days`,
-        ariaLabel: `Training is due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`,
-        priority: 'medium' as const
-      };
-    }
-    if (daysUntilDue <= 30) {
-      return {
-        variant: 'soft-primary' as const,
-        className: '',
-        text: `Due in ${daysUntilDue} days`,
-        ariaLabel: `Training is due in ${daysUntilDue} days`,
-        priority: 'low' as const
-      };
-    }
-    
-    // Show formatted date for due dates beyond 30 days
-    const currentYear = new Date().getFullYear();
-    const dueYear = due.getFullYear();
-    const showYear = dueYear !== currentYear;
-    
-    return {
-      variant: 'soft-primary' as const,
-      className: '',
-      text: showYear ? `Due ${format(due, 'MMM d, yyyy')}` : `Due ${format(due, 'MMM d')}`,
-      ariaLabel: showYear 
-        ? `Training is due on ${format(due, 'MMMM d, yyyy')}` 
-        : `Training is due on ${format(due, 'MMMM d')}`,
-      priority: 'low' as const
-    };
+
+    const { text, status } = getDueDateStatus(sanitizedVideo.dueDate);
+    const variant = dueDateStatusToVariant(status);
+    const priority = (status === 'overdue' || status === 'today') ? 'high' as const
+      : status === 'near' ? 'medium' as const : 'low' as const;
+    const ariaLabel = status === 'overdue' ? 'Training is overdue'
+      : status === 'today' ? 'Training is due today'
+      : `Training is due on ${formatLong(sanitizedVideo.dueDate)}`;
+
+    return { variant, className: '', text, ariaLabel, priority };
   }, [sanitizedVideo.dueDate, trainingStatus.isCompleted]);
 
   // Generate comprehensive ARIA labels
@@ -306,14 +260,14 @@ export const TrainingCard = memo<TrainingCardProps>(({
                     <div>
                       <Badge variant={dueDateInfo?.variant || "soft-success"} aria-label={dueDateInfo?.ariaLabel || "Training completed successfully"} role="status" showIcon>
                         {sanitizedVideo.completedAt
-                          ? format(new Date(sanitizedVideo.completedAt), 'MMM d')
+                          ? formatShort(sanitizedVideo.completedAt)
                           : 'Completed'}
                       </Badge>
                     </div>
                   </TooltipTrigger>
                   {sanitizedVideo.completedAt && (
                     <TooltipContent>
-                      Completed: {format(new Date(sanitizedVideo.completedAt), 'MMMM d, yyyy')}
+                      Completed: {formatLong(sanitizedVideo.completedAt)}
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -347,7 +301,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
                   </TooltipTrigger>
                   {sanitizedVideo.dueDate && (
                     <TooltipContent>
-                      Due: {format(new Date(sanitizedVideo.dueDate), 'MMMM d, yyyy')}
+                      Due: {formatLong(sanitizedVideo.dueDate)}
                     </TooltipContent>
                   )}
                 </Tooltip>

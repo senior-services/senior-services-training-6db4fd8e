@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { Edit, Video as VideoIcon, Plus, Play, Settings, MessageSquare } from 'lucide-react';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
-import { format } from 'date-fns';
+import { formatShort } from '@/utils/date-formatter';
 import { isYouTubeUrl, getYouTubeVideoId, isGoogleDriveUrl, getGoogleDriveFileId } from '@/utils/videoUtils';
 import { Video } from '@/types';
 import { VIDEO_CONFIG } from '@/constants';
@@ -271,7 +271,7 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                       {/* Date Added */}
                       <TableCell className="text-left py-2">
                         <span className="text-body text-foreground">
-                          {format(new Date(video.created_at), 'MMM dd, yyyy')}
+                          {formatShort(video.created_at)}
                         </span>
                       </TableCell>
 

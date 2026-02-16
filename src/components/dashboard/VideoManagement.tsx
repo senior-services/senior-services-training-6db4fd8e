@@ -31,7 +31,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { logger, performanceTracker } from '@/utils/logger';
 import { sanitizeText } from '@/utils/security';
 import { detectContentTypeFromUrl } from '@/utils/videoUtils';
-import { format } from 'date-fns';
+import { formatLong } from '@/utils/date-formatter';
 import type { Video } from '@/types';
 
 interface VideoManagementProps {
@@ -413,7 +413,7 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({
     if (!pendingAssignment?.contentData.dueDate) {
       return 'No due date';
     }
-    return format(pendingAssignment.contentData.dueDate, 'MMMM d, yyyy');
+    return formatLong(pendingAssignment.contentData.dueDate);
   };
 
   return <div className="space-y-6">

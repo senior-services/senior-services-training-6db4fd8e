@@ -14,7 +14,7 @@ import { getTooltipText } from '@/utils/tooltipText';
 import { AdminService, AdminUser } from '@/services/adminService';
 import { LoadingSkeleton } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { formatShort } from '@/utils/date-formatter';
 import { logger } from '@/utils/logger';
 import { supabase } from '@/integrations/supabase/client';
 export const AdminManagement: React.FC = () => {
@@ -263,7 +263,7 @@ export const AdminManagement: React.FC = () => {
                       {admin.email}
                     </TableCell>
                     <TableCell className="text-foreground">
-                      {admin.isPending ? 'Pending' : format(new Date(admin.created_at), 'MMM d, yyyy')}
+                      {admin.isPending ? 'Pending' : formatShort(admin.created_at)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end">

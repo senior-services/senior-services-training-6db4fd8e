@@ -22,7 +22,8 @@ import { DueDateSelector, calculateDueDate, type DueDateOption } from "@/compone
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Video, EyeOff } from "lucide-react";
-import { format, isPast } from "date-fns";
+import { isPast } from "date-fns";
+import { formatShort, formatLong } from "@/utils/date-formatter";
 import { cn } from "@/lib/utils";
 import { videoOperations, assignmentOperations, progressOperations } from "@/services/api";
 import { quizOperations } from "@/services/quizService";
@@ -389,7 +390,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       });
 
       // Fire-and-forget: single batched email notification
-      const dueStr = dueDate ? format(dueDate, "MMMM d, yyyy") : "No due date set";
+      const dueStr = dueDate ? formatLong(dueDate) : "No due date set";
       const assignedTitles = [...videosToAssign]
         .map((videoId) => videos.find((v) => v.id === videoId)?.title)
         .filter((t): t is string => Boolean(t));
@@ -507,7 +508,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       const quizAttempt = employeeQuizResults.get(videoId) as QuizAttemptData | undefined;
       const completionDateStr = getCompletionDateHelper(quizAttempt ?? null, progressData?.completed_at);
       if (completionDateStr) {
-        return format(new Date(completionDateStr), "MMM dd, yyyy");
+        return formatShort(completionDateStr);
       }
     }
     if (!assignedVideoIds.has(videoId) && !selectedVideoIds.has(videoId)) return "--";
@@ -515,7 +516,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     // Newly selected but not yet assigned
     if (selectedVideoIds.has(videoId) && !assignedVideoIds.has(videoId)) {
       const deadline = videoDeadlines.get(videoId);
-      return deadline ? `Due ${format(deadline, "MMM dd, yyyy")}` : "--";
+      return deadline ? `Due ${formatShort(deadline)}` : "--";
     }
 
     // For assigned videos, show due date or "N/A" if none set
@@ -524,10 +525,10 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
     const status = getCompletionStatus(videoId);
 
     if (deadline) {
-      const formattedDate = format(deadline, "MMM dd, yyyy");
+      const formattedDate = formatShort(deadline);
       return status === "pending" || status === "overdue" ? `Due ${formattedDate}` : formattedDate;
     } else if (existingDueDate) {
-      const formattedDate = format(new Date(existingDueDate), "MMM dd, yyyy");
+      const formattedDate = formatShort(existingDueDate);
       return status === "pending" || status === "overdue" ? `Due ${formattedDate}` : formattedDate;
     }
     return "N/A";
