@@ -864,7 +864,7 @@ export const assignmentOperations = {
   async sendNotification(params: {
     employee_email: string;
     employee_name: string;
-    training_title: string;
+    training_titles: string[];
     due_date: string;
     app_url: string;
   }): Promise<ApiResult<boolean>> {
@@ -877,7 +877,7 @@ export const assignmentOperations = {
       if (error) {
         logger.error('Failed to send training notification', undefined, {
           employee_email: params.employee_email,
-          training_title: params.training_title,
+          training_titles: params.training_titles,
           supabaseError: error.message,
         });
         return { data: null, error: error.message, success: false };
@@ -885,7 +885,7 @@ export const assignmentOperations = {
 
       logger.info('Training notification sent', {
         employee_email: params.employee_email,
-        training_title: params.training_title,
+        training_titles: params.training_titles,
       });
       return { data: true, error: null, success: true };
     } catch (error) {

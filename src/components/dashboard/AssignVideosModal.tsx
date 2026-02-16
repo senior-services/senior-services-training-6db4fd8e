@@ -388,19 +388,20 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? "s" : ""} assigned to ${employee.full_name || employee.email}`,
       });
 
-      // Fire-and-forget email notifications
+      // Fire-and-forget: single batched email notification
       const dueStr = dueDate ? format(dueDate, "MMMM d, yyyy") : "No due date set";
-      for (const videoId of videosToAssign) {
-        const video = videos.find((v) => v.id === videoId);
-        if (video && employee.email) {
-          assignmentOperations.sendNotification({
-            employee_email: employee.email,
-            employee_name: employee.full_name || employee.email,
-            training_title: video.title,
-            due_date: dueStr,
-            app_url: window.location.origin,
-          });
-        }
+      const assignedTitles = [...videosToAssign]
+        .map((videoId) => videos.find((v) => v.id === videoId)?.title)
+        .filter((t): t is string => Boolean(t));
+
+      if (assignedTitles.length > 0 && employee.email) {
+        assignmentOperations.sendNotification({
+          employee_email: employee.email,
+          employee_name: employee.full_name || employee.email,
+          training_titles: assignedTitles,
+          due_date: dueStr,
+          app_url: window.location.origin,
+        });
       }
 
       onAssignmentComplete(true);

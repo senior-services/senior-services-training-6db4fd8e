@@ -57,10 +57,13 @@ Deno.serve(async (req) => {
     }
 
     // --- Parse body ---
-    const { employee_email, employee_name, training_title, due_date, app_url } =
+    const { employee_email, employee_name, training_title, training_titles, due_date, app_url } =
       await req.json();
 
-    if (!employee_email || !training_title) {
+    // Normalize: accept array or single string for backward compat
+    const titles: string[] = training_titles || (training_title ? [training_title] : []);
+
+    if (!employee_email || titles.length === 0) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         {
@@ -83,6 +86,18 @@ Deno.serve(async (req) => {
     const loginUrl = app_url ? `${app_url}/auth` : "#";
     const displayName = employee_name || employee_email;
     const dueDateDisplay = due_date || "No due date set";
+    const subjectLine = titles.length === 1
+      ? `New Training Assigned: ${titles[0]}`
+      : `${titles.length} New Trainings Assigned`;
+
+    const titlesHtml = titles.map(t =>
+      `<li style="margin:0 0 6px;font-size:15px;color:#1a1a1a;font-weight:600;">${t}</li>`
+    ).join("");
+
+    const assignedLabel = titles.length === 1 ? "Assigned Training" : "Assigned Trainings";
+    const introText = titles.length === 1
+      ? "You have been assigned a new training. Please complete it by the due date."
+      : `You have been assigned ${titles.length} new trainings. Please complete them by the due date.`;
 
     const html = `
 <!DOCTYPE html>
@@ -104,13 +119,13 @@ Deno.serve(async (req) => {
           <td style="padding:32px;">
             <p style="margin:0 0 16px;font-size:16px;color:#1a1a1a;">Hello ${displayName},</p>
             <p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6;">
-              You have been assigned a new training. Please complete it by the due date.
+              ${introText}
             </p>
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:6px;margin-bottom:24px;">
               <tr>
                 <td style="padding:16px 20px;">
-                  <p style="margin:0 0 8px;font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Training</p>
-                  <p style="margin:0;font-size:17px;color:#1a1a1a;font-weight:600;">${training_title}</p>
+                  <p style="margin:0 0 8px;font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">${assignedLabel}</p>
+                  <ul style="margin:0;padding:0 0 0 18px;">${titlesHtml}</ul>
                 </td>
               </tr>
               <tr>
@@ -165,7 +180,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: "Senior Services Training <onboarding@resend.dev>",
         to: [finalRecipient],
-        subject: `New Training Assigned: ${training_title}`,
+        subject: subjectLine,
         html,
       }),
     });
