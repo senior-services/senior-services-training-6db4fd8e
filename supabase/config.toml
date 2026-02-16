@@ -1,1 +1,4 @@
 project_id = "wicbqqoudkaulltsjsvp"
+
+[functions.send-training-notification]
+verify_jwt = false

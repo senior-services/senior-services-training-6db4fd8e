@@ -850,11 +850,49 @@ export const assignmentOperations = {
       return { data: data as VideoAssignment[], error: null, success: true };
     } catch (error) {
       logger.error('Unexpected error batch creating assignments', error as Error, { 
-        count: assignments.length 
+    count: assignments.length 
       });
       return { data: null, error: 'Failed to create assignments', success: false };
     } finally {
       performanceTracker.end(operation);
+    }
+  },
+
+  /**
+   * Send email notification for a training assignment (fire-and-forget safe)
+   */
+  async sendNotification(params: {
+    employee_email: string;
+    employee_name: string;
+    training_title: string;
+    due_date: string;
+    app_url: string;
+  }): Promise<ApiResult<boolean>> {
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        'send-training-notification',
+        { body: params }
+      );
+
+      if (error) {
+        logger.error('Failed to send training notification', undefined, {
+          employee_email: params.employee_email,
+          training_title: params.training_title,
+          supabaseError: error.message,
+        });
+        return { data: null, error: error.message, success: false };
+      }
+
+      logger.info('Training notification sent', {
+        employee_email: params.employee_email,
+        training_title: params.training_title,
+      });
+      return { data: true, error: null, success: true };
+    } catch (error) {
+      logger.error('Unexpected error sending notification', error as Error, {
+        employee_email: params.employee_email,
+      });
+      return { data: null, error: 'Failed to send notification', success: false };
     }
   }
 };

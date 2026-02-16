@@ -388,6 +388,21 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         description: `${videosToAssign.size} training${videosToAssign.size !== 1 ? "s" : ""} assigned to ${employee.full_name || employee.email}`,
       });
 
+      // Fire-and-forget email notifications
+      const dueStr = dueDate ? format(dueDate, "MMMM d, yyyy") : "No due date set";
+      for (const videoId of videosToAssign) {
+        const video = videos.find((v) => v.id === videoId);
+        if (video && employee.email) {
+          assignmentOperations.sendNotification({
+            employee_email: employee.email,
+            employee_name: employee.full_name || employee.email,
+            training_title: video.title,
+            due_date: dueStr,
+            app_url: window.location.origin,
+          });
+        }
+      }
+
       onAssignmentComplete(true);
       await loadVideosAndAssignments(true);
     } catch (error) {
