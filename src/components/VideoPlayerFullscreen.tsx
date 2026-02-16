@@ -273,7 +273,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   useEffect(() => {
     if (!isPresentation && videoReady && !wasEverCompleted) {
       setTimeout(() => {
-        document.getElementById("attestation-section")?.scrollIntoView({ behavior: "smooth" });
+        const el = document.getElementById("attestation-section");
+        if (el && scrollRef.current) {
+          scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+        }
       }, 200);
     }
   }, [videoReady, isPresentation, wasEverCompleted]);
@@ -316,7 +319,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     if (progress >= 99 && quiz && !quizLoading) {
       setQuizStarted(true);
       setTimeout(() => {
-        document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
+        const el = document.getElementById("quiz-section");
+        if (el && scrollRef.current) {
+          scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+        }
       }, 100);
     }
   }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted]);
@@ -411,7 +417,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setCompletedQuizResults([]);
     setQuizAttestationChecked(false);
     setTimeout(() => {
-      document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
+      const el = document.getElementById("quiz-section");
+      if (el && scrollRef.current) {
+        scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+      }
     }, 100);
   }, [wasEverCompleted]);
 
