@@ -1,77 +1,52 @@
 
 
-## Fix the Heartbeat Write -- Stale Closure + Interval Reset Bug
+## Show "Continue Training" for In-Progress Presentations
 
-### Root Cause
+### Problem
 
-The periodic save `useEffect` has `viewingSeconds` in its dependency array. Since the timer increments `viewingSeconds` every 1 second, React tears down and recreates the interval every single second. The interval callback never survives long enough to fire at the 10-second mark. Result: **zero writes ever happen**.
+The heartbeat saves `progress_percent: 0` to the database (by design, to avoid overwriting real progress). This means presentations with accumulated viewing time but no completion still show `progress: 0` in the TrainingCard, so the button reads "Start Training" even though the user has been viewing.
 
-### Fix (single file: `src/components/VideoPlayerFullscreen.tsx`)
+### Solution: Two changes
 
-**A. Add a ref to track the latest `viewingSeconds`:**
+**1. Update the DB function `get_user_video_assignments` to expose `acknowledgment_viewing_seconds`**
 
-After line 109 (`const [viewingSeconds, setViewingSeconds] = useState(0);`), add:
+Add `acknowledgment_viewing_seconds` to the JSON object returned in both UNION branches:
 
-```tsx
-const viewingSecondsRef = useRef(0);
-```
+- Branch 1 (formal assignments): add `'acknowledgment_viewing_seconds', vp.acknowledgment_viewing_seconds`
+- Branch 2 (progress-only): add `'acknowledgment_viewing_seconds', vp2.acknowledgment_viewing_seconds`
 
-Then add a sync effect to keep the ref current:
+This is a non-breaking addition -- existing consumers ignore unknown keys.
 
-```tsx
-useEffect(() => {
-  viewingSecondsRef.current = viewingSeconds;
-}, [viewingSeconds]);
-```
+**2. Pass `acknowledgmentViewingSeconds` through the data pipeline to TrainingCard**
 
-**B. Rewrite the periodic save `useEffect` (lines 232-245):**
+- **`TrainingVideo` interface** (`src/components/TrainingCard.tsx`, line 29): Add optional field `acknowledgmentViewingSeconds?: number`
+- **`transformToTrainingVideo`** (`src/pages/EmployeeDashboard.tsx`, ~line 283): Map `assignment.acknowledgment_viewing_seconds` into the new field
+- **`trainingStatus` memo** (`src/components/TrainingCard.tsx`, line 136-144): Update `hasStarted` to also check `acknowledgmentViewingSeconds > 0`:
+  ```
+  const hasStarted = sanitizedVideo.progress > 0
+    || (sanitizedVideo.acknowledgmentViewingSeconds != null
+        && sanitizedVideo.acknowledgmentViewingSeconds > 0);
+  ```
 
-Remove `viewingSeconds` and `progress` from the dependency array. Use the ref inside the interval callback instead. Change interval to 5 seconds. Add success/error logging.
+### What changes for the user
 
-```tsx
-useEffect(() => {
-  if (!open || !video || video.content_type !== 'presentation' || !user?.email || !videoId) return;
+| State | Button Text |
+|-------|------------|
+| No progress, no viewing seconds | Start Training |
+| Viewing seconds > 0 but not complete | Continue Training |
+| progress > 0 but not complete | Continue Training (unchanged) |
+| Completed | Review Training (unchanged) |
 
-  const saveInterval = setInterval(async () => {
-    const currentSeconds = viewingSecondsRef.current;
-    if (currentSeconds > 0) {
-      console.log('[Timer Sync] Attempting save, seconds:', currentSeconds);
-      const result = await progressOperations.updateByEmail(
-        user.email!, videoId, 0, undefined, undefined, currentSeconds
-      );
-      if (result.success) {
-        console.log('[Timer Sync] Successfully saved seconds:', currentSeconds);
-      } else {
-        console.error('[Timer Sync] Failed to save:', result.error);
-      }
-    }
-  }, 5000);
+### Technical details
 
-  return () => clearInterval(saveInterval);
-}, [open, video, user?.email, videoId]);
-```
-
-Key changes:
-- `viewingSecondsRef.current` instead of `viewingSeconds` state -- no stale closure, no interval reset
-- `progress` argument hardcoded to `0` since we only care about saving `acknowledgment_viewing_seconds`; the DB function uses `COALESCE` so it won't overwrite existing `progress_percent` or `completed_at`
-- Interval changed from 10s to 5s
-- Success and error logging added
-- Dependency array: only `[open, video, user?.email, videoId]` -- stable values that don't change every second
-
-**C. Keep the existing restore logic and debug logs unchanged** -- they are correct and will now have data to read.
-
-### What changes
-
-| Item | Before | After |
-|------|--------|-------|
-| Interval lifetime | Recreated every 1s (never fires) | Stable, fires every 5s |
-| viewingSeconds access | Stale closure (always 0) | Ref (always current) |
-| DB writes during viewing | Zero | Every 5 seconds |
-| Console feedback | None | `[Timer Sync]` logs |
+- **Database migration**: ALTER FUNCTION `get_user_video_assignments` to include the new column in both JSON builders.
+- **TrainingCard.tsx**: Add interface field + update `hasStarted` logic (2 lines).
+- **EmployeeDashboard.tsx**: Pass `acknowledgmentViewingSeconds: assignment?.acknowledgment_viewing_seconds || undefined` in the return object (~line 283).
+- No new dependencies, no styling changes, no new components.
 
 ### Review
 
-1. **Top 3 Risks:** (a) `progress: 0` in the heartbeat -- safe because the DB function uses `COALESCE` and won't overwrite existing higher values. (b) Ref pattern is standard React for intervals. (c) 5-second writes add ~12 writes per minute per user -- acceptable for training app.
-2. **Top 3 Fixes:** (a) Ref eliminates stale closure. (b) Stable dependency array prevents interval thrashing. (c) Explicit logging for immediate verification.
-3. **Database Change:** No.
-4. **Verdict:** Go -- single-file fix.
+1. **Top 3 Risks**: (a) DB function change is additive -- no breaking impact. (b) Null-safe check prevents false positives. (c) No effect on completed training display.
+2. **Top 3 Fixes**: (a) Surfaces real viewing data to the UI. (b) Minimal code change. (c) Works for both videos and presentations.
+3. **Database Change**: Yes -- update `get_user_video_assignments` function to include `acknowledgment_viewing_seconds` in JSON output.
+4. **Verdict**: Go.
