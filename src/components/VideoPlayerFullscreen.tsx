@@ -166,7 +166,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
           const existingProgress = await loadExistingProgress();
           
           // Restore timer if presentation time requirement was previously met
-          const loadedVideo = initialVideo || video;
+          const loadedVideo = ('data' in loadResult ? loadResult.data : null) || initialVideo;
           if (loadedVideo?.content_type === 'presentation' && existingProgress?.acknowledgmentViewingSeconds != null) {
             const minSeconds = loadedVideo.duration_seconds && loadedVideo.duration_seconds >= 60
               ? loadedVideo.duration_seconds : 60;
