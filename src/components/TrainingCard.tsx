@@ -218,7 +218,7 @@ export const TrainingCard = memo<TrainingCardProps>(({
   return <article className={cn('training-card group relative overflow-hidden focus-within:ring-2 focus-within:ring-ring', className)} aria-label={ariaLabels.card} role="article">
       <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-card border-0">
         {/* Video Thumbnail with Enhanced Accessibility */}
-        <header className="relative">
+        <header className="relative border-b" style={{ borderColor: 'var(--border-primary)' }}>
           <button type="button" onClick={handlePlay} aria-label={ariaLabels.playButton} className="block focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-t-lg w-full text-left overflow-hidden">
             <img 
               src={thumbnailCandidates[thumbIndex]} 
