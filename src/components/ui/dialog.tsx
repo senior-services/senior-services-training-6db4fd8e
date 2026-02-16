@@ -42,10 +42,6 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-0 top-0 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
-        <X className="h-5 w-5" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
 ))
@@ -66,13 +62,6 @@ const FullscreenDialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close
-        data-dialog-close
-        className="absolute right-4 top-3.5 h-10 w-10 inline-flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10"
-      >
-        <X className="h-5 w-5" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
 ))
@@ -80,16 +69,25 @@ FullscreenDialogContent.displayName = "FullscreenDialogContent"
 
 const DialogHeader = ({
   className,
+  children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left bg-background px-6 py-4 border-b border-border-secondary flex-shrink-0 sm:rounded-t-lg",
+      "flex items-center justify-between bg-background px-6 py-4 border-b border-border-secondary flex-shrink-0 sm:rounded-t-lg",
       className
     )}
     data-dialog-header
     {...props}
-  />
+  >
+    <div className="flex flex-col space-y-1.5 text-center sm:text-left flex-1 min-w-0">
+      {children}
+    </div>
+    <DialogPrimitive.Close className="flex items-center justify-center h-10 w-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground flex-shrink-0">
+      <X className="h-5 w-5" />
+      <span className="sr-only">Close</span>
+    </DialogPrimitive.Close>
+  </div>
 )
 DialogHeader.displayName = "DialogHeader"
 
