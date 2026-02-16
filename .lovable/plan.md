@@ -1,66 +1,57 @@
 
 
-## Fix: Header Disappears and Footer Breaks When Quiz Loads
+## Fix: Move Attestation Inside Quiz Container for Consistent Spacing
 
-### Root Cause
-
-The `scrollIntoView({ behavior: "smooth" })` calls on lines 276, 319, and 414 are the culprit. Despite the `FullscreenDialogContent` having `overflow-hidden`, `scrollIntoView` can still programmatically scroll **all ancestor scroll containers**. This pushes the fixed header off-screen and disrupts the footer layout.
-
-The flex structure (header/scroll-body/footer) is already correct. The issue is not CSS -- it is the scroll method.
+### Problem
+The attestation section sits **outside** the quiz container (`#quiz-section`) as a separate sibling with `mt-6 max-w-4xl mx-auto`. Meanwhile, the quiz questions use `space-y-6` for inter-question spacing inside `QuizModal`. This structural mismatch causes the attestation to appear detached -- either with excessive spacing or forced to the bottom.
 
 ### Fix (1 file: `src/components/VideoPlayerFullscreen.tsx`)
 
-Replace all three `scrollIntoView` calls with scoped scrolling that only adjusts `scrollRef.current.scrollTop`.
+**Move the attestation block inside the `#quiz-section` container**, directly after `QuizModal`, and match the quiz's `space-y-6` spacing.
 
-**Change 1 -- Line 276 (attestation auto-scroll after video completion):**
+**Lines 569-594 -- Before:**
+```tsx
+<div id="quiz-section" className="mt-8 border-t pt-8 pb-10">
+  <QuizModal ... />
+</div>
 
-```typescript
-// Before
-document.getElementById("attestation-section")?.scrollIntoView({ behavior: "smooth" });
-
-// After
-const el = document.getElementById("attestation-section");
-if (el && scrollRef.current) {
-  scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
-}
+{/* Attestation - below quiz questions */}
+{quiz && (quizStarted || ...) && (
+  <div className="mt-6 max-w-4xl mx-auto">
+    <TrainingAttestation ... />
+  </div>
+)}
 ```
 
-**Change 2 -- Line 319 (quiz auto-scroll after "Start Quiz" click):**
+**After:**
+```tsx
+<div id="quiz-section" className="mt-8 border-t pt-8 pb-10">
+  <QuizModal ... />
 
-```typescript
-// Before
-document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
-
-// After
-const el = document.getElementById("quiz-section");
-if (el && scrollRef.current) {
-  scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
-}
+  {/* Attestation - inline after quiz questions */}
+  {!quizSubmitted && !wasEverCompleted && (
+    <div className="mt-6 max-w-4xl mx-auto">
+      <TrainingAttestation
+        enabled={allQuestionsAnswered}
+        checked={quizAttestationChecked}
+        onCheckedChange={setQuizAttestationChecked}
+        disabledTooltip="Complete the questions above to enable this checkbox."
+      />
+    </div>
+  )}
+</div>
 ```
 
-**Change 3 -- Line 414 (quiz scroll on review mode):**
-
-```typescript
-// Before
-document.getElementById("quiz-section")?.scrollIntoView({ behavior: "smooth" });
-
-// After
-const el = document.getElementById("quiz-section");
-if (el && scrollRef.current) {
-  scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
-}
-```
-
-### Why This Works
-
-- `scrollRef.current.scrollTo()` only scrolls the inner scrollable div (the "bread" middle of the sandwich layout)
-- The header and footer remain fixed because only the scroll container's `scrollTop` changes -- no ancestor containers are affected
-- The `offsetTop` math ensures the target element scrolls to the top of the visible scroll area
+Key changes:
+- The attestation `div` moves **inside** `#quiz-section`, becoming a direct sibling of `QuizModal`
+- The outer conditional `quiz && (quizStarted || quizSubmitted || wasEverCompleted)` is no longer needed because the attestation is already inside the quiz section block which has the same guard
+- `mt-6` matches the `space-y-6` gap between quiz question cards
+- `max-w-4xl mx-auto` matches `QuizModal`'s inner layout
+- The old standalone attestation block (lines 584-594) is removed entirely
 
 ### Review
 
-1. **Top 3 Risks**: (a) `offsetTop` is relative to the offsetParent, which should be the scroll container -- if not, we may need `getBoundingClientRect()` instead. (b) No visual changes to footer padding or structure. (c) No logic changes.
-2. **Top 3 Fixes**: (a) Scoped scrolling prevents ancestor container displacement. (b) Header stays pinned. (c) Footer height remains stable since the outer container is no longer shifted.
+1. **Top 3 Risks**: (a) None -- attestation visibility conditions are preserved. (b) No logic changes, only DOM nesting. (c) `pb-10` on the quiz container still provides footer clearance.
+2. **Top 3 Fixes**: (a) Attestation flows inline with quiz questions. (b) Consistent `mt-6` spacing matches inter-question gap. (c) Single container eliminates structural mismatch.
 3. **Database Change**: No.
-4. **Verdict**: Go -- 3 surgical replacements of `scrollIntoView` with scoped `scrollTo`.
-
+4. **Verdict**: Go -- move one block inside its parent container.
