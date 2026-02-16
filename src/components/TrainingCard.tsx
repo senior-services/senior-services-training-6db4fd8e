@@ -139,6 +139,13 @@ export const TrainingCard = memo<TrainingCardProps>(({
     const hasStarted = sanitizedVideo.progress > 0
       || (sanitizedVideo.acknowledgmentViewingSeconds != null
           && sanitizedVideo.acknowledgmentViewingSeconds > 0);
+
+    console.log('[Card Debug]', sanitizedVideo.title,
+      'progress:', sanitizedVideo.progress,
+      'viewingSec:', sanitizedVideo.acknowledgmentViewingSeconds,
+      'hasStarted:', hasStarted,
+      'buttonText:', isCompleted ? 'Review' : hasStarted ? 'Continue' : 'Start');
+
     return {
       isCompleted,
       hasStarted,
