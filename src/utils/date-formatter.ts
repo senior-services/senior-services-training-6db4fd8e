@@ -28,7 +28,7 @@ export const formatLong = (input: string | Date): string =>
 // Due-date status calculator
 // ---------------------------------------------------------------------------
 
-export type DueDateStatusKey = 'overdue' | 'today' | 'near' | 'far';
+export type DueDateStatusKey = 'overdue' | 'today' | 'tomorrow' | 'near' | 'far';
 
 export interface DueDateStatus {
   text: string;
@@ -50,6 +50,9 @@ export const getDueDateStatus = (dueDate: string | Date): DueDateStatus => {
   if (isToday(due) || daysUntil === 0) {
     return { text: 'Due Today', status: 'today' };
   }
+  if (daysUntil === 1) {
+    return { text: 'Due Tomorrow', status: 'tomorrow' };
+  }
   if (daysUntil < 30) {
     return { text: `Due in ${daysUntil} days`, status: 'near' };
   }
@@ -70,6 +73,7 @@ export const dueDateStatusToVariant = (
     case 'overdue':
       return 'soft-destructive';
     case 'today':
+    case 'tomorrow':
       return 'soft-warning';
     case 'near':
     case 'far':
