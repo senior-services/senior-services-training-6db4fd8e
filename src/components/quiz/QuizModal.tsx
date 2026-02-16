@@ -198,7 +198,7 @@ export function QuizModal({
   if (!quiz) return null;
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div>
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 flex items-center gap-3">
           <h2 className="text-h3">
