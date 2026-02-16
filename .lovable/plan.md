@@ -1,57 +1,31 @@
 
 
-## Fix: Move Attestation Inside Quiz Container for Consistent Spacing
+## Fix: Attestation Pushed to Bottom by QuizModal's `h-full`
 
-### Problem
-The attestation section sits **outside** the quiz container (`#quiz-section`) as a separate sibling with `mt-6 max-w-4xl mx-auto`. Meanwhile, the quiz questions use `space-y-6` for inter-question spacing inside `QuizModal`. This structural mismatch causes the attestation to appear detached -- either with excessive spacing or forced to the bottom.
+### Root Cause
 
-### Fix (1 file: `src/components/VideoPlayerFullscreen.tsx`)
+`QuizModal.tsx` line 201 has `className="h-full overflow-y-auto"` on its root container. The `h-full` stretches the quiz to fill the entire height of `#quiz-section`, which pushes the sibling `TrainingAttestation` block to the very bottom of the scroll area -- creating a large gap between the last question and the acknowledgment.
 
-**Move the attestation block inside the `#quiz-section` container**, directly after `QuizModal`, and match the quiz's `space-y-6` spacing.
+The `overflow-y-auto` is also unnecessary here because scrolling is handled by the parent `DialogScrollArea` in the fullscreen dialog.
 
-**Lines 569-594 -- Before:**
+### Fix (1 file: `src/components/quiz/QuizModal.tsx`)
+
+**Line 201** -- Remove `h-full` and `overflow-y-auto` from the root container:
+
 ```tsx
-<div id="quiz-section" className="mt-8 border-t pt-8 pb-10">
-  <QuizModal ... />
-</div>
+// Before
+<div className="h-full overflow-y-auto">
 
-{/* Attestation - below quiz questions */}
-{quiz && (quizStarted || ...) && (
-  <div className="mt-6 max-w-4xl mx-auto">
-    <TrainingAttestation ... />
-  </div>
-)}
+// After
+<div>
 ```
 
-**After:**
-```tsx
-<div id="quiz-section" className="mt-8 border-t pt-8 pb-10">
-  <QuizModal ... />
-
-  {/* Attestation - inline after quiz questions */}
-  {!quizSubmitted && !wasEverCompleted && (
-    <div className="mt-6 max-w-4xl mx-auto">
-      <TrainingAttestation
-        enabled={allQuestionsAnswered}
-        checked={quizAttestationChecked}
-        onCheckedChange={setQuizAttestationChecked}
-        disabledTooltip="Complete the questions above to enable this checkbox."
-      />
-    </div>
-  )}
-</div>
-```
-
-Key changes:
-- The attestation `div` moves **inside** `#quiz-section`, becoming a direct sibling of `QuizModal`
-- The outer conditional `quiz && (quizStarted || quizSubmitted || wasEverCompleted)` is no longer needed because the attestation is already inside the quiz section block which has the same guard
-- `mt-6` matches the `space-y-6` gap between quiz question cards
-- `max-w-4xl mx-auto` matches `QuizModal`'s inner layout
-- The old standalone attestation block (lines 584-594) is removed entirely
+That is the only change needed. The attestation will then sit naturally after the quiz content with the `mt-6` spacing already applied.
 
 ### Review
 
-1. **Top 3 Risks**: (a) None -- attestation visibility conditions are preserved. (b) No logic changes, only DOM nesting. (c) `pb-10` on the quiz container still provides footer clearance.
-2. **Top 3 Fixes**: (a) Attestation flows inline with quiz questions. (b) Consistent `mt-6` spacing matches inter-question gap. (c) Single container eliminates structural mismatch.
+1. **Top 3 Risks**: (a) `QuizModal` may also render inside a standalone dialog elsewhere -- removing `h-full` should be harmless there too since the dialog's own scroll handles overflow. (b) Removing `overflow-y-auto` is safe because the parent scroll container already manages scrolling. (c) No logic changes.
+2. **Top 3 Fixes**: (a) Removes the single class causing the gap. (b) One-line change with no side effects. (c) Attestation will flow inline with consistent `mt-6` spacing.
 3. **Database Change**: No.
-4. **Verdict**: Go -- move one block inside its parent container.
+4. **Verdict**: Go -- single class removal on line 201.
+
