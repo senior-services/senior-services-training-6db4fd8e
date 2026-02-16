@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
         <!-- Header -->
         <tr>
           <td style="background:#1a365d;padding:24px 32px;text-align:center;">
-            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">Senior Services</h1>
+            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">Senior Services of South Sound</h1>
             <p style="margin:4px 0 0;color:#93c5fd;font-size:13px;">Training Portal</p>
           </td>
         </tr>
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
             </table>
             <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
               <tr>
-                <td style="background:#2563eb;border-radius:6px;">
+                <td style="background:rgb(23,101,161);border-radius:6px;">
                   <a href="${loginUrl}" style="display:inline-block;padding:12px 32px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">
                     Go to Training Portal
                   </a>
