@@ -163,7 +163,18 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         }
 
         if (user?.email) {
-          await loadExistingProgress();
+          const existingProgress = await loadExistingProgress();
+          
+          // Restore timer if presentation time requirement was previously met
+          const loadedVideo = initialVideo || video;
+          if (loadedVideo?.content_type === 'presentation' && existingProgress?.acknowledgmentViewingSeconds != null) {
+            const minSeconds = loadedVideo.duration_seconds && loadedVideo.duration_seconds >= 60
+              ? loadedVideo.duration_seconds : 60;
+            if (existingProgress.acknowledgmentViewingSeconds >= minSeconds) {
+              setViewingSeconds(existingProgress.acknowledgmentViewingSeconds);
+              setCheckboxEnabled(true);
+            }
+          }
         }
       } finally {
         setIsInitializing(false);

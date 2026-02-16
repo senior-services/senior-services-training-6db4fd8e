@@ -1063,7 +1063,7 @@ export const progressOperations = {
   async getByEmailAndVideo(
     email: string,
     videoId: string
-  ): Promise<ApiResult<{ progress_percent: number; completed_at: string | null } | null>> {
+  ): Promise<ApiResult<{ progress_percent: number; completed_at: string | null; acknowledgment_viewing_seconds: number | null } | null>> {
     const operation = 'progress.getByEmailAndVideo';
     performanceTracker.start(operation);
     try {
@@ -1089,7 +1089,7 @@ export const progressOperations = {
 
       const { data, error } = await supabase
         .from('video_progress')
-        .select('progress_percent, completed_at')
+        .select('progress_percent, completed_at, acknowledgment_viewing_seconds')
         .eq('employee_id', employee.id)
         .eq('video_id', videoId)
         .maybeSingle();

@@ -199,11 +199,11 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
           locked: isVideoCompleted
         });
 
-        return { completedAt: progressData.completed_at || null, progressPercent };
+        return { completedAt: progressData.completed_at || null, progressPercent, acknowledgmentViewingSeconds: progressData.acknowledgment_viewing_seconds ?? null };
       } else {
         logger.info('No existing progress found', { userEmail, videoId });
         resetProgress();
-        return { completedAt: null, progressPercent: 0 };
+        return { completedAt: null, progressPercent: 0, acknowledgmentViewingSeconds: null };
       }
     } catch (error) {
       logger.error('Failed to load existing progress', error);
