@@ -1161,7 +1161,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
                     <Card key={questionIndex} className="border-border">
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="form-section-header">Question {questionIndex + 1}</CardTitle>
+                          <CardTitle className="form-section-header mt-0 mb-0">Question {questionIndex + 1}</CardTitle>
                           <Button
                             onClick={() => removeQuestion(questionIndex)}
                             variant="ghost"
