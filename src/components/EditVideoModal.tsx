@@ -1143,8 +1143,8 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
 
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-body font-semibold">
-                      {questions.length} {questions.length === 1 ? "Question" : "Questions"}
+                    <h3 className="text-h4">
+                      {questions.length} {questions.length === 1 ? "Quiz Question" : "Quiz Questions"}
                     </h3>
                     {versionCount > 1 && quiz && <Badge variant="soft-tertiary">v{quiz.version}</Badge>}
                   </div>
@@ -1166,11 +1166,11 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
                     <Card key={questionIndex} className="border-border">
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-body">Question {questionIndex + 1}</CardTitle>
+                          <CardTitle className="text-body font-bold">Question {questionIndex + 1}</CardTitle>
                           <Button
                             onClick={() => removeQuestion(questionIndex)}
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="w-4 h-4" />
