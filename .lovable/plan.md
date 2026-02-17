@@ -1,26 +1,37 @@
 
 
-## Delete Unused EmployeeManagement.tsx and Clean Up References
+## Add Edit Icon to People Management Table Button
 
-### Changes
+### Change (1 file: `src/components/dashboard/PeopleManagement.tsx`)
 
-**1. Delete file:**
-- `src/components/dashboard/EmployeeManagement.tsx`
+**1. Add `Edit` to the lucide-react import (line 23):**
+```tsx
+// Before
+import { UserPlus, Download, EyeOff, Eye, ChevronDown, Settings } from "lucide-react";
 
-**2. Edit `src/utils/componentUpdates.ts`:**
-Remove `'EmployeeManagement'` from 6 arrays in the `COMPONENT_DEPENDENCIES` map:
-- `button` array (line 11)
-- `card` array (line 17)
-- `badge` array (line 20)
-- `loading-spinner` array (line 38)
-- `alert-dialog` array (line 41)
-- `collapsible` array (line 53)
+// After
+import { UserPlus, Download, EyeOff, Eye, ChevronDown, Settings, Edit } from "lucide-react";
+```
 
-**3. No change needed** in `PeopleManagement.tsx` -- the reference there is just a code comment ("ported from EmployeeManagement"), which serves as useful history and has no runtime impact.
+**2. Add the Edit icon inside the button (line 665):**
+```tsx
+// Before
+>
+  Edit
+</Button>
+
+// After
+>
+  <Edit className="w-4 h-4 mr-2" aria-hidden="true" />
+  Edit
+</Button>
+```
+
+This matches the exact pattern used in the Trainings table (`VideoTable.tsx` line 329).
 
 ### Review
-1. **Top 3 Risks**: None -- file is dead code with zero imports.
-2. **Top 3 Fixes**: (a) Removes ~300+ lines of dead code. (b) Cleans up dependency tracker. (c) No runtime impact.
+1. **Top 3 Risks**: None -- single icon addition.
+2. **Top 3 Fixes**: (a) Visual consistency with Trainings table. (b) Improved scannability for admin users.
 3. **Database Change**: No.
-4. **Verdict**: Go -- safe deletion of unused file and string references.
+4. **Verdict**: Go.
 
