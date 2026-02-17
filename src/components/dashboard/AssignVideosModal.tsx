@@ -434,6 +434,9 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
         const assignment = assignmentData.get(videoId);
         if (assignment) {
           promises.push(assignmentOperations.delete(assignment.id));
+        } else {
+          // Progress-only effective assignment -- remove the progress record
+          promises.push(progressOperations.deleteByEmployeeAndVideo(employee.id, videoId));
         }
       }
 

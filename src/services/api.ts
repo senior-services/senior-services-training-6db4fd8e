@@ -991,6 +991,24 @@ export const progressOperations = {
     }
   },
 
+  async deleteByEmployeeAndVideo(employeeId: string, videoId: string): Promise<ApiResult<boolean>> {
+    try {
+      const { error } = await supabase
+        .from('video_progress')
+        .delete()
+        .eq('employee_id', employeeId)
+        .eq('video_id', videoId);
+
+      if (error) {
+        logger.error('Failed to delete progress', undefined, { employeeId, videoId, supabaseError: error.message });
+        return { data: null, error: error.message, success: false };
+      }
+      return { data: true, error: null, success: true };
+    } catch (err) {
+      return { data: null, error: String(err), success: false };
+    }
+  },
+
   async getByEmployee(employeeId: string): Promise<ApiResult<{ video_id: string; progress_percent: number; completed_at: string | null }[]>> {
     const operation = 'progress.getByEmployee';
     performanceTracker.start(operation);
