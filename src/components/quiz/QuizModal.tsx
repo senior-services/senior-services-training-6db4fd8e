@@ -270,12 +270,7 @@ export function QuizModal({
                         const mcHasAnyCorrectSelected = mcSelectedOptionIds.some((id) =>
                           mcCorrectOptionIds.includes(id),
                         );
-                        const mcShouldShowAlsoCorrect =
-                          mcTotalCorrectCount > 1 && mcHasMissedCorrect && mcHasAnyCorrectSelected;
-                        const mcQuestionResults = getQuestionResults(question.id);
-                        const mcHasIncorrectAnswers = mcQuestionResults.some((r) => !r.is_correct);
-                        const mcShouldShowSingleCorrect =
-                          mcTotalCorrectCount === 1 && mcHasIncorrectAnswers && mcHasMissedCorrect;
+                        const mcShowMissedCorrect = isSubmitted && mcHasMissedCorrect;
 
                         return (
                           <>
