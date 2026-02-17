@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SuffixInput } from "@/components/ui/SuffixInput";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Toggle } from "@/components/ui/toggle";
@@ -1059,6 +1060,14 @@ export const ComponentsGallery = ({ userName, userEmail, onLogout }: ComponentsG
                       className="shadow-sm hover:shadow-md transition-shadow"
                     />
                     <p className="form-additional-text">Maximum 500 characters recommended.</p>
+                  </div>
+                  <div>
+                    <div>
+                      <Label htmlFor="suffix-input">Input with Suffix</Label>
+                      <p className="form-helper-text">Appends a unit label inside the field.</p>
+                    </div>
+                    <SuffixInput id="suffix-input" suffix="seconds" placeholder="60" className="max-w-[180px]" />
+                    <p className="form-additional-text">Use for numeric fields that require a unit indicator.</p>
                   </div>
                 </div>
 

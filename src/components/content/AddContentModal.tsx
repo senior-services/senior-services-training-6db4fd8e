@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SuffixInput } from "@/components/ui/SuffixInput";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -331,13 +332,14 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
           {url.trim() && !urlError && contentType === "presentation" && (
             <div>
               <div>
-                <Label htmlFor="min-viewing-time">Viewing Timer (Seconds)</Label>
+                <Label htmlFor="min-viewing-time">Viewing Timer</Label>
                 <p className="form-helper-text">Enter the time required for review.</p>
               </div>
-              <Input
+              <SuffixInput
                 id="min-viewing-time"
                 type="number"
-                className="max-w-[100px]"
+                suffix="seconds"
+                className="max-w-[140px]"
                 value={minViewingTime}
                 onChange={(e) => setMinViewingTime(parseInt(e.target.value) || 0)}
                 onBlur={() => { if (minViewingTime < 60) setMinViewingTime(60); }}
