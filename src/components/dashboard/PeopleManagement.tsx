@@ -670,6 +670,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
                           tooltip="Person settings"
                           onClick={() => setSettingsEmployee(person)}
                           variant="ghost"
+                          size="icon"
                           className="text-muted-foreground hover:text-foreground"
                           ariaLabel={`Settings for ${person.full_name || person.email}`}
                         />
