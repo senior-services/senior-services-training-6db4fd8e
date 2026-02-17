@@ -8,16 +8,16 @@ export const COMPONENT_USAGE_MAP = {
   // UI Components and where they're used
   'button': [
     'AdminDashboard', 'Auth', 'ComponentsGallery', 'EmployeeDashboard', 'Landing', 'VideoPage',
-    'AddEmployeeModal', 'AdminManagement', 'AssignVideosModal', 'EmployeeList', 'EmployeeManagement', 'VideoTable'
+    'AddEmployeeModal', 'AdminManagement', 'AssignVideosModal', 'EmployeeList', 'VideoTable'
   ],
   'dialog': [
     'ComponentsGallery', 'VideoPage', 'AddEmployeeModal', 'AdminManagement', 'AssignVideosModal'
   ],
   'card': [
-    'Auth', 'ComponentsGallery', 'Landing', 'VideoPage', 'AdminManagement', 'DashboardOverview', 'EmployeeManagement', 'VideoTable'
+    'Auth', 'ComponentsGallery', 'Landing', 'VideoPage', 'AdminManagement', 'DashboardOverview', 'VideoTable'
   ],
   'badge': [
-    'ComponentsGallery', 'EmployeeDashboard', 'VideoPage', 'AdminManagement', 'AssignVideosModal', 'DashboardOverview', 'EmployeeList', 'EmployeeManagement', 'VideoTable'
+    'ComponentsGallery', 'EmployeeDashboard', 'VideoPage', 'AdminManagement', 'AssignVideosModal', 'DashboardOverview', 'EmployeeList', 'VideoTable'
   ],
   'table': [
     'ComponentsGallery', 'AdminManagement', 'VideoTable'
@@ -35,10 +35,10 @@ export const COMPONENT_USAGE_MAP = {
     'ComponentsGallery', 'AssignVideosModal'
   ],
   'loading-spinner': [
-    'ComponentsGallery', 'AdminManagement', 'AssignVideosModal', 'EmployeeList', 'EmployeeManagement', 'VideoTable'
+    'ComponentsGallery', 'AdminManagement', 'AssignVideosModal', 'EmployeeList', 'VideoTable'
   ],
   'alert-dialog': [
-    'ComponentsGallery', 'AdminManagement', 'AssignVideosModal', 'EmployeeManagement'
+    'ComponentsGallery', 'AdminManagement', 'AssignVideosModal'
   ],
   'scroll-area': [
     'AssignVideosModal'
@@ -50,7 +50,7 @@ export const COMPONENT_USAGE_MAP = {
     'ComponentsGallery', 'EmployeeDashboard'
   ],
   'collapsible': [
-    'ComponentsGallery', 'EmployeeManagement'
+    'ComponentsGallery'
   ],
   'dropdown-menu': [
     'ComponentsGallery'
