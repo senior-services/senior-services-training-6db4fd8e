@@ -336,7 +336,6 @@ export const VideoTable: React.FC<VideoTableProps> = ({
                               tooltip="Training settings"
                               onClick={() => handleVideoAction("Open settings", video, () => onSettings(video))}
                               variant="ghost"
-                              size="sm"
                               className="text-muted-foreground hover:text-foreground"
                               ariaLabel={`Settings for ${video.title}`}
                             />
