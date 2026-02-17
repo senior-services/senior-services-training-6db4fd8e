@@ -1144,7 +1144,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <h3 className="text-h4">
-                      {questions.length === 1 ? "Quiz Question" : "Quiz Questions"} {questions.length}
+                      {questions.length === 1 ? `Quiz Question (1)` : `Quiz Questions (${questions.length})`}
                     </h3>
                     {versionCount > 1 && quiz && <Badge variant="soft-tertiary">Version {quiz.version}</Badge>}
                   </div>
