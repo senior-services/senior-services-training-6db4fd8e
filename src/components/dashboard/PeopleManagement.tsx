@@ -20,7 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { UserPlus, Download, EyeOff, Eye, ChevronDown, Settings } from "lucide-react";
+import { UserPlus, Download, EyeOff, Eye, ChevronDown, Settings, Edit } from "lucide-react";
 import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { employeeOperations } from "@/services/api";
 import { IconButtonWithTooltip } from "@/components/ui/icon-button-with-tooltip";
@@ -662,6 +662,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
                             })
                           }
                         >
+                          <Edit className="w-4 h-4 mr-2" aria-hidden="true" />
                           Edit
                         </Button>
                         <IconButtonWithTooltip
