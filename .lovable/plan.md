@@ -1,64 +1,54 @@
 
 
-## Create Reusable SuffixInput Component
+## Fix: Unassigning Progress-Only (Effective) Assignments
 
-### Overview
-Create a new `SuffixInput` component that wraps an input with an inline suffix label (e.g., "seconds"), then apply it to the existing Viewing Timer and add it to the Style Guide.
-
-**Note:** The "Viewing Timer" input is located in `AddContentModal.tsx` (not `EditVideoModal.tsx`). The plan updates the correct file.
+### Root Cause
+The `handleUnassign` function only deletes `video_assignments` rows. Trainings that appear as assigned due to a `video_progress` record (but no formal assignment) are skipped, causing the silent no-op.
 
 ### Changes
 
-**1. New file: `src/components/ui/SuffixInput.tsx`**
+**1. `src/services/api.ts` -- Add `deleteByEmployeeAndVideo` to `progressOperations` (~after line 980)**
 
-A forwardRef component that:
-- Accepts all standard `Input` props plus a `suffix` string prop
-- Wraps the existing `Input` in a `relative` container
-- Positions the suffix text `absolute right-3`, vertically centered, with `pointer-events-none`
-- Uses `text-muted-foreground` and `text-sm` for the suffix
-- Adds right padding to the input to prevent text overlap with the suffix
+```typescript
+async deleteByEmployeeAndVideo(employeeId: string, videoId: string): Promise<ApiResult<boolean>> {
+  try {
+    const { error } = await supabase
+      .from('video_progress')
+      .delete()
+      .eq('employee_id', employeeId)
+      .eq('video_id', videoId);
 
-```tsx
-interface SuffixInputProps extends React.ComponentProps<"input"> {
-  suffix: string;
+    if (error) {
+      logger.error('Failed to delete progress', undefined, { employeeId, videoId, supabaseError: error.message });
+      return { data: null, error: error.message, success: false };
+    }
+    return { data: true, error: null, success: true };
+  } catch (err) {
+    return { data: null, error: String(err), success: false };
+  }
 }
 ```
 
-**2. Edit: `src/components/content/AddContentModal.tsx` (lines 337-343)**
+**2. `src/components/dashboard/AssignVideosModal.tsx` -- Update `handleUnassign` (lines 432-438)**
 
-Replace the plain `Input` with `SuffixInput`:
-- Import `SuffixInput` from `@/components/ui/SuffixInput`
-- Remove the `(Seconds)` text from the label (the suffix handles it)
-- Swap `<Input ... />` for `<SuffixInput suffix="seconds" ... />`
+Add an `else` branch to delete the `video_progress` row when no formal assignment exists:
 
-Before:
-```tsx
-<Label htmlFor="min-viewing-time">Viewing Timer (Seconds)</Label>
-...
-<Input id="min-viewing-time" type="number" ... />
+```typescript
+for (const videoId of videosToUnassign) {
+  const assignment = assignmentData.get(videoId);
+  if (assignment) {
+    promises.push(assignmentOperations.delete(assignment.id));
+  } else {
+    // Progress-only effective assignment -- remove the progress record
+    promises.push(progressOperations.deleteByEmployeeAndVideo(employee.id, videoId));
+  }
+}
 ```
 
-After:
-```tsx
-<Label htmlFor="min-viewing-time">Viewing Timer</Label>
-...
-<SuffixInput id="min-viewing-time" type="number" suffix="seconds" ... />
-```
-
-**3. Edit: `src/pages/ComponentsGallery.tsx` (after textarea block, ~line 1062)**
-
-- Import `SuffixInput`
-- Add a new example block below the Textarea section:
-
-```
-Label: "Input with Suffix"
-Helper text: "Appends a unit label inside the field."
-Example: <SuffixInput suffix="seconds" placeholder="60" />
-Additional text: "Use for numeric fields that require a unit indicator."
-```
+Add `progressOperations` to the existing import from `@/services/api`.
 
 ### Review
-1. **Top 3 Risks**: (a) None -- additive component, no existing behavior changes. (b) Suffix overlap on very small widths -- mitigated by `max-w-[100px]` already on the timer input. (c) None.
-2. **Top 3 Fixes**: (a) Cleaner UI with inline unit label. (b) Reusable for future numeric inputs. (c) Removes parenthetical from label text.
+1. **Top 3 Risks**: None -- admin has ALL policy on `video_progress`; only affects explicitly selected items.
+2. **Top 3 Fixes**: (a) Fixes silent no-op for progress-only unassigns. (b) Covers all content types (video, presentation). (c) Follows existing `ApiResult` pattern.
 3. **Database Change**: No.
 4. **Verdict**: Go.
