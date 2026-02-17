@@ -338,7 +338,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
           {url.trim() && !urlError && contentType === "presentation" && (
             <div>
               <div>
-                <Label htmlFor="min-viewing-time">Viewing Time Required</Label>
+                <Label htmlFor="min-viewing-time">Minimum Viewing Time Required</Label>
               </div>
               <SuffixInput
                 id="min-viewing-time"
@@ -348,14 +348,13 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 value={minViewingTime}
                 onChange={(e) => setMinViewingTime(parseInt(e.target.value) || 0)}
                 onBlur={() => {
-                  if (minViewingTime < 60) setMinViewingTime(60);
+                  if (minViewingTime < 1) setMinViewingTime(1);
                 }}
-                min={60}
+                min={1}
                 aria-describedby="min-viewing-time-additional"
               />
               <p id="min-viewing-time-additional" className="form-additional-text">
-                Minimum 60 seconds recommended. Necessary for compliance to ensure review, as progress cannot be tracked
-                for presentation files.
+                60 seconds is recommended to ensure users have sufficient time to process key information.
               </p>
             </div>
           )}
