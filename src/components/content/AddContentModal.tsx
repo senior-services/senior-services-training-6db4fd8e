@@ -45,7 +45,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
   const [url, setUrl] = useState("");
   const [contentType, setContentType] = useState<ContentType>("video");
   const [minViewingTime, setMinViewingTime] = useState<number>(60);
-  
+
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string>("");
   const [titleError, setTitleError] = useState<string>("");
@@ -87,7 +87,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
     const validation = validateUrl(newUrl);
     if (!validation.isValid) {
       setUrlError(validation.errors[0] || "Invalid URL format");
-      
+
       setIsValidatingUrl(false);
       return;
     }
@@ -97,12 +97,12 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
       const urlObj = new URL(newUrl);
       if (urlObj.protocol !== "https:") {
         setUrlError("Only HTTPS URLs are allowed for security");
+        setIsValidatingUrl(false);
+        return;
+      }
+    } catch {
+      setUrlError("Invalid URL format");
       setIsValidatingUrl(false);
-      return;
-    }
-  } catch {
-    setUrlError("Invalid URL format");
-    setIsValidatingUrl(false);
       return;
     }
 
@@ -186,7 +186,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
       // TODO: Re-enable when "Assign to All" feature is restored in the UI
       assignToAll: false,
       dueDate: undefined,
-      duration_seconds: contentType === 'presentation' ? minViewingTime : undefined,
+      duration_seconds: contentType === "presentation" ? minViewingTime : undefined,
     };
 
     onSave(formData);
@@ -292,15 +292,21 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 </p>
               )}
               <p className="form-additional-text">
-                Set YouTube to 'Unlisted' and Google Slides (saved as .ppsx) to 'Anyone with the link' so your team can see it.
+                Set YouTube to 'Unlisted' and Google Slides (saved as .ppsx) to 'Anyone with the link' so your team can
+                see it.
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button type="button" className="inline-flex flex-shrink-0" aria-label="More info about privacy settings">
+                    <button
+                      type="button"
+                      className="inline-flex flex-shrink-0"
+                      aria-label="More info about privacy settings"
+                    >
                       <Info className="h-3.5 w-3.5 text-muted-foreground" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Using 'Unlisted' on YouTube and 'Anyone with the link' on Slides ensures only people with access to this portal can view your content. It will not be searchable on the web.
+                    Using 'Unlisted' on YouTube and 'Anyone with the link' on Slides ensures only people with access to
+                    this portal can view your content. It will not be searchable on the web.
                   </TooltipContent>
                 </Tooltip>
               </p>
@@ -332,8 +338,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
           {url.trim() && !urlError && contentType === "presentation" && (
             <div>
               <div>
-                <Label htmlFor="min-viewing-time">Viewing Timer</Label>
-                <p className="form-helper-text">Enter the time required for review.</p>
+                <Label htmlFor="min-viewing-time">Viewing Time Required</Label>
               </div>
               <SuffixInput
                 id="min-viewing-time"
@@ -342,12 +347,15 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ open, onOpenCh
                 className="max-w-[140px]"
                 value={minViewingTime}
                 onChange={(e) => setMinViewingTime(parseInt(e.target.value) || 0)}
-                onBlur={() => { if (minViewingTime < 60) setMinViewingTime(60); }}
+                onBlur={() => {
+                  if (minViewingTime < 60) setMinViewingTime(60);
+                }}
                 min={60}
                 aria-describedby="min-viewing-time-additional"
               />
               <p id="min-viewing-time-additional" className="form-additional-text">
-                Minimum 60 seconds recommended. Necessary for compliance to ensure review, as progress cannot be tracked for presentation files.
+                Minimum 60 seconds recommended. Necessary for compliance to ensure review, as progress cannot be tracked
+                for presentation files.
               </p>
             </div>
           )}
