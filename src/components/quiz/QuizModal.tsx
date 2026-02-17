@@ -270,17 +270,15 @@ export function QuizModal({
                         const mcHasAnyCorrectSelected = mcSelectedOptionIds.some((id) =>
                           mcCorrectOptionIds.includes(id),
                         );
-                        const mcShowMissedCorrect = isSubmitted && mcHasMissedCorrect;
+                        const mcShouldShowAlsoCorrect =
+                          mcTotalCorrectCount > 1 && mcHasMissedCorrect && mcHasAnyCorrectSelected;
+                        const mcQuestionResults = getQuestionResults(question.id);
+                        const mcHasIncorrectAnswers = mcQuestionResults.some((r) => !r.is_correct);
+                        const mcShouldShowSingleCorrect =
+                          mcTotalCorrectCount === 1 && mcHasIncorrectAnswers && mcHasMissedCorrect;
 
                         return (
                           <>
-                            {isSubmitted && mcShouldShowAlsoCorrect && (
-                              <Banner
-                                variant="attention"
-                                size="compact"
-                                description="Incomplete. You identified some correct answers, but not all of them were selected."
-                              />
-                            )}
                             {question.options && question.options.length > 0 ? (
                               <div className="space-y-3">
                                 {question.options
@@ -356,12 +354,7 @@ export function QuizModal({
                                                 Incorrect
                                               </Badge>
                                             )}
-                                            {isSubmitted && !isSelected && isCorrect && shouldShowAlsoCorrect && (
-                                              <Badge variant="soft-attention" showIcon>
-                                                Also Correct
-                                              </Badge>
-                                            )}
-                                            {isSubmitted && !isSelected && isCorrect && shouldShowSingleCorrect && (
+                                            {isSubmitted && !isSelected && isCorrect && (
                                               <Badge variant="soft-success" showIcon>
                                                 Correct
                                               </Badge>
