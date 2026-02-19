@@ -21,7 +21,7 @@ import { handleError, withErrorHandler } from "@/utils/errorHandler";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 // Enhanced utility imports
-import { sanitizeText, createSafeDisplayName, validateUserRole } from "@/utils/security";
+import { createSafeDisplayName, validateUserRole } from "@/utils/security";
 import { announceToScreenReader, getStatusAnnouncement, formatDurationSeconds } from "@/utils/accessibility";
 import { isLegacyExempt, hasActiveQuizRequirement } from "@/utils/quizHelpers";
 import {
@@ -282,8 +282,8 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
       return {
         id: video.id,
-        title: sanitizeText(video.title || "Untitled Video"),
-        description: sanitizeText(video.description || ""),
+        title: video.title || "Untitled Video",
+        description: video.description || "",
         thumbnail: video.thumbnail_url || "",
         duration: formatSeconds(video.duration_seconds || 0),
         progress: effectiveProgress,

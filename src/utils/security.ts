@@ -70,6 +70,15 @@ export const sanitizeVideoUrl = (url: string): string | null => {
  * Sanitizes user input for search/filter functionality
  * Prevents SQL injection-like attacks in client-side filtering
  */
+/**
+ * Sanitizes user input for database storage - trims and length-limits only.
+ * Does NOT HTML-encode; React's JSX handles XSS prevention natively.
+ */
+export const sanitizeInput = (input: string, maxLength = 200): string => {
+  if (!input || typeof input !== 'string') return '';
+  return input.trim().substring(0, maxLength);
+};
+
 export const sanitizeSearchInput = (input: string): string => {
   if (!input || typeof input !== 'string') return '';
   
@@ -94,16 +103,16 @@ export const validateUserRole = (role: string): 'admin' | 'employee' | null => {
  */
 export const createSafeDisplayName = (fullName: string, email: string): string => {
   if (fullName && typeof fullName === 'string') {
-    const sanitized = sanitizeText(fullName.trim());
-    if (sanitized.length > 0 && sanitized.length <= 50) {
-      return sanitized;
+    const trimmed = fullName.trim();
+    if (trimmed.length > 0 && trimmed.length <= 50) {
+      return trimmed;
     }
   }
   
   // Fallback to email prefix if name is invalid
   if (email && typeof email === 'string') {
     const emailPrefix = email.split('@')[0];
-    return sanitizeText(emailPrefix.substring(0, 20));
+    return emailPrefix.substring(0, 20);
   }
   
   return 'User';

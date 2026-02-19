@@ -36,7 +36,7 @@ import { quizOperations, questionOperations, optionOperations } from "@/services
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "@/utils/logger";
-import { sanitizeText } from "@/utils/security";
+import { sanitizeInput } from "@/utils/security";
 import {
   isYouTubeUrl,
   isGoogleDriveUrl,
@@ -749,14 +749,14 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
     try {
       // Update quiz title
       await quizOperations.update(quizId, {
-        title: sanitizeText(title),
+        title: sanitizeInput(title),
         description: undefined,
       });
 
       for (const [index, questionData] of questions.entries()) {
         const question = await questionOperations.create({
           quiz_id: quizId,
-          question_text: sanitizeText(questionData.question_text),
+          question_text: sanitizeInput(questionData.question_text),
           question_type: questionData.question_type,
           order_index: index,
         });
@@ -766,7 +766,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
           for (const [optionIndex, optionData] of nonEmptyOptions.entries()) {
             await optionOperations.create({
               question_id: question.id,
-              option_text: sanitizeText(optionData.option_text),
+              option_text: sanitizeInput(optionData.option_text),
               is_correct: optionData.is_correct,
               order_index: optionIndex,
             });
@@ -809,7 +809,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
     try {
       // Update quiz basic info (auto-derive title from video)
       await quizOperations.update(quiz.id, {
-        title: sanitizeText(title),
+        title: sanitizeInput(title),
         description: undefined,
       });
 
@@ -829,7 +829,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
         if (questionData.id) {
           // Update existing question
           question = await questionOperations.update(questionData.id, {
-            question_text: sanitizeText(questionData.question_text),
+            question_text: sanitizeInput(questionData.question_text),
             question_type: questionData.question_type,
             order_index: index,
           });
@@ -837,7 +837,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
           // Create new question
           question = await questionOperations.create({
             quiz_id: quiz.id,
-            question_text: sanitizeText(questionData.question_text),
+            question_text: sanitizeInput(questionData.question_text),
             question_type: questionData.question_type,
             order_index: index,
           });
@@ -861,7 +861,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
             if (optionData.id) {
               // Update existing option
               await optionOperations.update(optionData.id, {
-                option_text: sanitizeText(optionData.option_text),
+                option_text: sanitizeInput(optionData.option_text),
                 is_correct: optionData.is_correct,
                 order_index: optionIndex,
               });
@@ -869,7 +869,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
               // Create new option
               await optionOperations.create({
                 question_id: question.id,
-                option_text: sanitizeText(optionData.option_text),
+                option_text: sanitizeInput(optionData.option_text),
                 is_correct: optionData.is_correct,
                 order_index: optionIndex,
               });
@@ -945,7 +945,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
     try {
       // Create the quiz (auto-derive title from video)
       const newQuiz = await quizOperations.create({
-        title: sanitizeText(title),
+        title: sanitizeInput(title),
         description: undefined,
         video_id: video.id,
       });
@@ -954,7 +954,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
       for (const [index, questionData] of questions.entries()) {
         const question = await questionOperations.create({
           quiz_id: newQuiz.id,
-          question_text: sanitizeText(questionData.question_text),
+          question_text: sanitizeInput(questionData.question_text),
           question_type: questionData.question_type,
           order_index: index,
         });
@@ -966,7 +966,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
           for (const [optionIndex, optionData] of nonEmptyOptions.entries()) {
             await optionOperations.create({
               question_id: question.id,
-              option_text: sanitizeText(optionData.option_text),
+              option_text: sanitizeInput(optionData.option_text),
               is_correct: optionData.is_correct,
               order_index: optionIndex,
             });

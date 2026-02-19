@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { getDueDateStatus, dueDateStatusToVariant, formatShort, formatLong } from '@/utils/date-formatter';
 
 // Enhanced utility imports
-import { sanitizeText, createSafeDisplayName } from '@/utils/security';
+import { createSafeDisplayName } from '@/utils/security';
 import { getTrainingCardAriaLabel, getStatusAnnouncement, handleKeyPress, announceToScreenReader } from '@/utils/accessibility';
 import { useOptimizedCallback, useOptimizedMemo } from '@/utils/performance';
 import { isYouTubeUrl, isGoogleDriveUrl, getYouTubeVideoId, getGoogleDriveFileId } from '@/utils/videoUtils';
@@ -85,8 +85,8 @@ export const TrainingCard = memo<TrainingCardProps>(({
   // Sanitize basic fields
   const sanitizedVideo = useMemo(() => ({
     ...video,
-    title: sanitizeText(video.title || 'Untitled Video'),
-    description: sanitizeText(video.description || ''),
+    title: video.title || 'Untitled Video',
+    description: video.description || '',
   }), [video]);
 
   // Build robust thumbnail candidate list with comprehensive fallbacks

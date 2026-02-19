@@ -29,7 +29,7 @@ import {
 import { videoOperations, employeeOperations, assignmentOperations } from "@/services/api";
 import { supabase } from "@/integrations/supabase/client";
 import { logger, performanceTracker } from "@/utils/logger";
-import { sanitizeText } from "@/utils/security";
+import { sanitizeInput } from "@/utils/security";
 import { detectContentTypeFromUrl } from "@/utils/videoUtils";
 import { formatLong } from "@/utils/date-formatter";
 import type { Video } from "@/types";
@@ -167,8 +167,8 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({ userEmail, onV
 
     // Sanitize input data
     const sanitizedData = {
-      title: sanitizeText(contentData.title || "Untitled Content"),
-      description: contentData.description ? sanitizeText(contentData.description) : null,
+      title: sanitizeInput(contentData.title || "Untitled Content"),
+      description: contentData.description ? sanitizeInput(contentData.description, 1000) : null,
       video_url: contentData.url?.trim() || null,
       video_file_name: null,
       type: "Required" as const,
@@ -204,8 +204,8 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({ userEmail, onV
 
       // Sanitize input data
       const sanitizedData = {
-        title: sanitizeText(contentData.title || "Untitled Content"),
-        description: contentData.description ? sanitizeText(contentData.description) : null,
+        title: sanitizeInput(contentData.title || "Untitled Content"),
+        description: contentData.description ? sanitizeInput(contentData.description, 1000) : null,
         video_url: contentData.url?.trim() || null,
         video_file_name: null,
         type: "Required" as const,
@@ -318,8 +318,8 @@ export const VideoManagement: React.FC<VideoManagementProps> = ({ userEmail, onV
     // Find the video to get its URL
     const video = videos.find((v) => v.id === videoId) || hiddenVideos.find((v) => v.id === videoId);
     const sanitizedUpdates = {
-      title: sanitizeText(updates.title),
-      description: updates.description ? sanitizeText(updates.description) : null,
+      title: sanitizeInput(updates.title),
+      description: updates.description ? sanitizeInput(updates.description, 1000) : null,
       // Auto-detect content type from URL when available
       ...(video?.video_url && {
         content_type: detectContentTypeFromUrl(video.video_url) || video.content_type || "video",
