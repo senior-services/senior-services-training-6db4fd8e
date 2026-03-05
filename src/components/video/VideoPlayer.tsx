@@ -160,13 +160,6 @@ export function VideoPlayer({
                 
                 const YTGlobal: any = (window as any).YT;
                 ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
-                  playerVars: {
-                    rel: 0,
-                    enablejsapi: 1,
-                    origin: window.location.origin,
-                    loop: 0,
-                    modestbranding: 1,
-                  },
                   events: {
                     onReady: (e: any) => {
                       ytPlayerReadyRef.current = true;
