@@ -118,7 +118,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   // Custom hooks for data management
   const { video, quiz, videoLoading: vLoading, quizLoading, loadVideoData, resetVideoData } = useVideoData();
-  const { progress, isCompleted, wasEverCompleted, furthestWatchedSeconds, updateFurthestWatched, updateProgress, resetProgress, loadExistingProgress, markComplete } =
+  const { progress, isCompleted, wasEverCompleted, furthestWatchedSeconds, lastPositionSeconds, updateFurthestWatched, updateLastPosition, updateProgress, resetProgress, loadExistingProgress, markComplete } =
     useVideoProgress({
       videoId,
       userEmail: user?.email || null,
@@ -547,6 +547,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 onComplete={handleVideoEnded}
                 furthestWatchedSeconds={furthestWatchedSeconds}
                 onFurthestUpdate={updateFurthestWatched}
+                initialSeekSeconds={lastPositionSeconds}
+                onLastPositionUpdate={updateLastPosition}
               />
             )}
           </div>
