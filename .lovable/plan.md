@@ -1,45 +1,37 @@
 
 
-## Quiz Question Deletion Rules & Banner Updates
+## Revert Banner & Add Inline Warning
 
 ### Changes — `src/components/EditVideoModal.tsx`
 
-**1. Trash icon visibility (lines 1179–1186)**
-
-Conditionally render the delete button: hide it when `hasAssignments && questions.length === 1`.
+**1. Revert versioning banner (lines 1152–1156)** back to static `"attention"` variant with original message only:
 
 ```tsx
-{!(hasAssignments && questions.length === 1) && (
-  <Button onClick={() => removeQuestion(questionIndex)} ...>
-    <Trash2 ... />
-  </Button>
-)}
+<Banner variant="attention" title="Versioning Notice">
+  This training is already assigned. Editing the quiz will create a new version for future employees.
+  Completed trainings won't be affected.
+</Banner>
 ```
 
-No changes needed for unassigned trainings — all questions (including the last) remain deletable as-is.
+**2. Add compact inline warning banner (after line 1190, inside the Card after the title/trash row)**
 
-**2. Versioning banner (lines 1151–1156)**
-
-Update the banner to dynamically change variant and message when assigned with only 1 question remaining:
+When `hasAssignments && questions.length === 1`, render a compact warning banner below the "Question 1" title:
 
 ```tsx
-{hasAssignments && quiz && (
-  <Banner
-    variant={questions.length === 1 ? "warning" : "attention"}
-    title="Versioning Notice"
-  >
-    This training is already assigned. Editing the quiz will create a new version for future employees.
-    Completed trainings won't be affected.
-    {questions.length === 1 && ' A minimum of one question is required.'}
+{hasAssignments && questions.length === 1 && (
+  <Banner variant="warning" size="compact">
+    A minimum of one question is required for assigned trainings.
   </Banner>
 )}
 ```
+
+Trash icon logic remains unchanged.
 
 ### Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/EditVideoModal.tsx` | Conditional trash icon visibility + dynamic banner variant/message |
+| `src/components/EditVideoModal.tsx` | Revert banner to static attention + add inline compact warning inside question card |
 
 ### Database Change
 **No.**
