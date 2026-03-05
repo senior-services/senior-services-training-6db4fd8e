@@ -46,10 +46,14 @@ export function VideoPlayer({
   // Late-seek: if initialSeekSeconds arrives after player is already ready
   useEffect(() => {
     if (initialSeekSeconds > 0) {
-      if (ytPlayerReadyRef.current && ytPlayerRef.current?.seekTo) {
-        ytPlayerRef.current.seekTo(initialSeekSeconds, true);
-      } else if (html5ReadyRef.current && videoRef.current) {
-        videoRef.current.currentTime = initialSeekSeconds;
+      try {
+        if (ytPlayerReadyRef.current && ytPlayerRef.current?.seekTo && ytPlayerRef.current?.getIframe?.()) {
+          ytPlayerRef.current.seekTo(initialSeekSeconds, true);
+        } else if (html5ReadyRef.current && videoRef.current) {
+          videoRef.current.currentTime = initialSeekSeconds;
+        }
+      } catch (e) {
+        logger.warn('Late-seek skipped — YT player not fully ready', e);
       }
     }
   }, [initialSeekSeconds]);
