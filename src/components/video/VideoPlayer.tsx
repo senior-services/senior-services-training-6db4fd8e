@@ -141,7 +141,7 @@ export function VideoPlayer({
         return (
           <iframe 
             id={`yt-player-${id}`}
-            src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&origin=${window.location.origin}&loop=0&rel=0`}
+            src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&origin=${window.location.origin}&loop=0&rel=0&modestbranding=1`}
             title={video.title}
             aria-label={`YouTube video player for ${video.title}`}
             className="w-full h-full"
@@ -161,6 +161,7 @@ export function VideoPlayer({
                     enablejsapi: 1,
                     origin: window.location.origin,
                     loop: 0,
+                    modestbranding: 1,
                   },
                   events: {
                     onReady: (e: any) => {
