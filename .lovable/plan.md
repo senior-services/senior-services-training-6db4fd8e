@@ -1,27 +1,33 @@
 
 
-## Remove All Temporary Debug Logs
+## Add `rel=0` to YouTube Player Parameters
 
-Four files, six log sites to strip:
+### Problem
+The iframe `src` URL already includes `rel=0`, but when the YouTube IFrame API's `YT.Player` constructor takes over the iframe (line 158), it does not pass `playerVars`. The API may override the original URL parameters, causing the "More videos" panel to appear when a video ends.
 
-### `src/hooks/useVideoProgress.ts`
-- **Lines 246–254**: Remove the `[RESUME-DEBUG] loadExistingProgress DB result` log block.
-- **Line 273**: Remove the `[RESUME-DEBUG] loadExistingProgress returning` log.
+### Fix — `src/components/video/VideoPlayer.tsx`
 
-### `src/components/VideoPlayerFullscreen.tsx`
-- **Lines 547–553**: Remove the `{console.log('[RESUME-DEBUG] VideoPlayerFullscreen rendering...')}` JSX expression (and the enclosing `<>` fragment wrapper if it only exists for the log).
+**Line 158**: Add `playerVars` to the `YT.Player` constructor:
 
-### `src/components/video/VideoPlayer.tsx`
-- **Lines 40–45**: Remove the `[RESUME-DEBUG] VideoPlayer render` log.
-- **Lines 56, 59**: Remove the two `[RESUME-DEBUG] Late seek` logs inside the useEffect (keep the seek logic).
-- **Lines 171–174**: Remove the `[RESUME-DEBUG] YouTube onReady` log.
-- **Line 177**: Remove the `[RESUME-DEBUG] YouTube seekTo called` log.
-- **Lines 299–302**: Remove the `[RESUME-DEBUG] HTML5 onLoadedMetadata` log.
-- **Line 305**: Remove the `[RESUME-DEBUG] HTML5 currentTime set to` log.
+```typescript
+ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
+  playerVars: {
+    rel: 0,
+    enablejsapi: 1,
+    origin: window.location.origin,
+    loop: 0,
+  },
+  events: {
+    // ... existing event handlers unchanged
+```
 
-### `src/components/TrainingCard.tsx`
-- **Lines 143–147**: Remove the `[Card Debug]` log.
+This ensures `rel=0` is respected by the IFrame API regardless of what was in the original `src` URL.
 
 ### Database Change
 **No.**
+
+### Files Changed
+| File | Change |
+|------|--------|
+| `src/components/video/VideoPlayer.tsx` | Add `playerVars` with `rel: 0` to `YT.Player` constructor |
 
