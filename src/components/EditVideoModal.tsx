@@ -111,6 +111,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
   const [hasAssignments, setHasAssignments] = useState(false);
   const [versionCount, setVersionCount] = useState(0);
   const [versionConfirmDialogOpen, setVersionConfirmDialogOpen] = useState(false);
+  const [saveQuizConfirmDialogOpen, setSaveQuizConfirmDialogOpen] = useState(false);
   const [versionAttemptCount, setVersionAttemptCount] = useState(0);
   const [isDownloadingVersions, setIsDownloadingVersions] = useState(false);
 
@@ -397,6 +398,13 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
       }
     }
 
+    // First-time quiz save on unassigned training: show confirmation
+    const isCreatingNewQuizForSave = !quiz && questions.length > 0;
+    if (isCreatingNewQuizForSave && !hasAssignments) {
+      setSaveQuizConfirmDialogOpen(true);
+      return;
+    }
+
     await performSave(false);
   };
 
@@ -573,6 +581,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
     setHasAssignments(false);
     setVersionCount(0);
     setVersionConfirmDialogOpen(false);
+    setSaveQuizConfirmDialogOpen(false);
     setIsDownloadingVersions(false);
     onOpenChange(false);
   };
@@ -1552,6 +1561,22 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleVersionConfirm}>Create New Version</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Save Quiz Confirmation Dialog (first-time, unassigned) */}
+      <AlertDialog open={saveQuizConfirmDialogOpen} onOpenChange={setSaveQuizConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Save Quiz?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your quiz will be saved. You may continue making changes until this training is assigned to employees. Once assigned, any future edits will automatically be saved as a new version to ensure accurate completion records.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setSaveQuizConfirmDialogOpen(false); performSave(false); }}>Save Quiz</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
