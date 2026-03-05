@@ -506,7 +506,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     @apply py-2 px-3;
   }
   .banner-size-compact-constrained {
-    @apply py-2 px-3 w-fit max-w-md;
+    @apply py-2 px-3 w-fit max-w-md whitespace-nowrap;
   }
 
   /* ── Master Template: Sheet ── */
