@@ -328,7 +328,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted]);
 
   const handleVideoEnded = useCallback(() => {
-    const finalProgress = quiz ? 99 : 100;
+    const finalProgress = 99;
     updateProgress(finalProgress);
     // Show transient success badge for videos
     if (!isPresentation) {

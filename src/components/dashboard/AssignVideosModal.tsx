@@ -224,7 +224,7 @@ export const AssignVideosModal: React.FC<AssignVideosModalProps> = ({
       const completed = new Set<string>();
 
       progressMap.forEach((progress, videoId) => {
-        const videoCompleted = !!(progress.progress_percent === 100 || progress.completed_at);
+        const videoCompleted = !!progress.completed_at;
         const quizCreatedAt = quizMap.get(videoId);
         const exempt = sharedIsLegacyExempt(progress.completed_at, quizCreatedAt);
         const hasQuiz = hasActiveQuizRequirement(quizCreatedAt, progress.completed_at);

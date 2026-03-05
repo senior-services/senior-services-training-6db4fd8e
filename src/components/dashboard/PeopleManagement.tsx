@@ -314,7 +314,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
 
     const isAssignmentCompleted = (assignment: EmployeeAssignmentWithProgress) => {
       const quizAttempt = employeeQuizzes.get(personId)?.get(assignment.video_id);
-      const videoCompleted = assignment.progress_percent === 100 || assignment.completed_at;
+      const videoCompleted = !!assignment.completed_at;
       if (assignment.hasQuiz) return videoCompleted && quizAttempt;
       return videoCompleted;
     };
@@ -445,7 +445,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
             const quizAttempt = quizData?.get(assignment.video_id) as QuizAttemptData | undefined;
             const quizCreatedAt = quizCreationDates.get(assignment.video_id);
             const exempt = sharedIsLegacyExempt(assignment.completed_at, quizCreatedAt);
-            const videoCompleted = !!(assignment.progress_percent === 100 || assignment.completed_at);
+            const videoCompleted = !!assignment.completed_at;
             const completed = isTrainingCompleted(videoCompleted, assignment.hasQuiz, !!quizAttempt, exempt);
 
             let status: string = STATUS_LABELS.pending;
