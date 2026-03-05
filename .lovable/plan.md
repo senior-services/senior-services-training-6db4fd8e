@@ -1,27 +1,24 @@
 
 
-## Add `rel=0` to YouTube Player Parameters
+## Add `modestbranding=1` to YouTube Player Parameters
 
-### Problem
-The iframe `src` URL already includes `rel=0`, but when the YouTube IFrame API's `YT.Player` constructor takes over the iframe (line 158), it does not pass `playerVars`. The API may override the original URL parameters, causing the "More videos" panel to appear when a video ends.
+Single-line addition to the existing `playerVars` object.
 
-### Fix — `src/components/video/VideoPlayer.tsx`
+### Change — `src/components/video/VideoPlayer.tsx`
 
-**Line 158**: Add `playerVars` to the `YT.Player` constructor:
+**Line 163**: Add `modestbranding: 1` after `loop: 0` in the `playerVars` block:
 
 ```typescript
-ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
-  playerVars: {
-    rel: 0,
-    enablejsapi: 1,
-    origin: window.location.origin,
-    loop: 0,
-  },
-  events: {
-    // ... existing event handlers unchanged
+playerVars: {
+  rel: 0,
+  enablejsapi: 1,
+  origin: window.location.origin,
+  loop: 0,
+  modestbranding: 1,
+},
 ```
 
-This ensures `rel=0` is respected by the IFrame API regardless of what was in the original `src` URL.
+Also update the iframe `src` URL (if `modestbranding` is not already in the query string) for consistency.
 
 ### Database Change
 **No.**
@@ -29,5 +26,5 @@ This ensures `rel=0` is respected by the IFrame API regardless of what was in th
 ### Files Changed
 | File | Change |
 |------|--------|
-| `src/components/video/VideoPlayer.tsx` | Add `playerVars` with `rel: 0` to `YT.Player` constructor |
+| `src/components/video/VideoPlayer.tsx` | Add `modestbranding: 1` to `playerVars` |
 
