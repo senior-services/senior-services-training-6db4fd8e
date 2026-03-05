@@ -1,42 +1,43 @@
 
 
-## Fix: X Button Should Trigger Same Confirmation as Cancel
+## Quiz Results Badge & Styling Updates
 
-### Problem
-The X button in `DialogHeader` (line 86 of `dialog.tsx`) uses `DialogPrimitive.Close`, which immediately closes the dialog, bypassing the confirmation flow that the Cancel button uses.
+### Changes in `src/components/quiz/QuizModal.tsx` (3 question type sections)
 
-### Approach
-Intercept the close in `handleDialogOpenChange` within `VideoPlayerFullscreen.tsx`. When the dialog tries to close (i.e., `open === false`) and the training is incomplete, prevent the close and instead open the appropriate confirmation dialog. This catches the X button, overlay click, and Escape key — all of which trigger `onOpenChange(false)`.
-
-### Changes
-
-**1. `src/components/VideoPlayerFullscreen.tsx`** — Update `handleDialogOpenChange` (lines 459-464):
-
-```typescript
-const handleDialogOpenChange = useCallback(
-  (newOpen: boolean) => {
-    if (!newOpen && !wasEverCompleted && !quizSubmitted) {
-      // Intercept close — show the appropriate confirmation dialog
-      if (quizStarted) {
-        setShowCancelConfirmation(true);
-      } else {
-        setCancelDialogOpen(true);
-      }
-      return; // Don't close
-    }
-    onOpenChange(newOpen);
-  },
-  [onOpenChange, wasEverCompleted, quizSubmitted, quizStarted],
-);
+**1. User's incorrect selection** — 3 locations (lines 352-355, 432-435, 504-507):
+- Change `showIcon` to false and manually add an `X` icon from lucide-react
+- Change label from "Incorrect" to "Your Answer"
+```tsx
+<Badge variant="destructive">
+  <X className="w-3 h-3 mr-1" />
+  Your Answer
+</Badge>
 ```
 
-This reuses the existing `AlertDialog` instances already rendered in the footer, so no UI duplication is needed. The X button, overlay click, and Escape key will all show the same confirmation as Cancel.
+**2. Missed correct answer badge** — 3 locations (lines 357-360, 437-440, 509-512):
+- Change variant from `soft-success` to `hollow-success`
+- Change label from "Correct" to "Correct Answer"
+```tsx
+<Badge variant="hollow-success" showIcon>
+  Correct Answer
+</Badge>
+```
+
+**3. Missed correct answer row styling** — Add `else if (!isSelected && isCorrect)` branch in all 3 `optionClassName` blocks (after the destructive branch, ~lines 314, 410, 489):
+```typescript
+} else if (!isSelected && isCorrect) {
+  optionClassName += " text-success bg-success/10 border-success/20 rounded-md p-3 border";
+}
+```
+
+### Import
+Add `X` to the lucide-react import in QuizModal.tsx.
 
 ### Files Changed
 
 | File | Change |
 |------|--------|
-| `VideoPlayerFullscreen.tsx` | Gate `handleDialogOpenChange` to show confirmation when incomplete |
+| `src/components/quiz/QuizModal.tsx` | Badge updates (icon, label, variant) + row styling for missed correct answers |
 
-No database or schema changes.
+No database, CSS, or Badge component changes needed. The `hollow-success` variant and `showIcon` for success (Check icon) already exist.
 
