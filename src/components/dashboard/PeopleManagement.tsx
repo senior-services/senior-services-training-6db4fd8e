@@ -353,6 +353,83 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
 
   // === Export pipeline (ported from EmployeeManagement) ===
 
+  /**
+   * Self-contained data fetch for the export pipeline.
+   * Mirrors loadPeople logic but returns data instead of setting state,
+   * eliminating race conditions when the user clicks Download mid-load.
+   */
+  const loadFreshPeopleData = useCallback(async (): Promise<{
+    people: (EmployeeWithAssignments & { is_admin?: boolean })[];
+    videos: Map<string, any[]>;
+    quizzes: Map<string, Map<string, any>>;
+  }> => {
+    const data = await employeeOperations.getAll();
+    if (!data.success || !data.data) {
+      return { people: [], videos: new Map(), quizzes: new Map() };
+    }
+
+    const transformed = data.data.map((employee) => ({
+      id: employee.id,
+      email: employee.email,
+      full_name: createSafeDisplayName(employee.name || "", employee.email || ""),
+      is_admin: (employee as any).is_admin || false,
+      created_at: employee.created_at || new Date().toISOString(),
+      updated_at: employee.updated_at || new Date().toISOString(),
+      assignments: employee.assignments || [],
+    }));
+
+    const { data: quizzesData } = await supabase
+      .from("quizzes")
+      .select("video_id, created_at, version")
+      .is("archived_at", null);
+    const quizCreationDates = new Map<string, string>();
+    quizzesData?.forEach((quiz) => {
+      quizCreationDates.set(quiz.video_id, quiz.created_at);
+    });
+
+    const videoMap = new Map<string, any[]>();
+    const quizMap = new Map<string, Map<string, any>>();
+
+    for (const person of transformed) {
+      if (person.assignments && Array.isArray(person.assignments)) {
+        const assignmentsWithQuizInfo = person.assignments.map((assignment: any) => ({
+          ...assignment,
+          hasQuiz: hasActiveQuizRequirement(quizCreationDates.get(assignment.video_id), assignment.completed_at),
+        }));
+        videoMap.set(person.id, assignmentsWithQuizInfo);
+      } else {
+        videoMap.set(person.id, []);
+      }
+
+      if (person.email) {
+        try {
+          const quizAttempts = await quizOperations.getUserAttempts(person.email);
+          const videoQuizMap = new Map();
+          for (const attempt of quizAttempts) {
+            if (attempt.quiz?.video_id) {
+              const existing = videoQuizMap.get(attempt.quiz.video_id);
+              if (!existing || new Date(existing.completed_at) < new Date(attempt.completed_at)) {
+                videoQuizMap.set(attempt.quiz.video_id, {
+                  score: attempt.score,
+                  total_questions: attempt.total_questions,
+                  completed_at: attempt.completed_at,
+                  quiz_version: attempt.quiz?.version || 1,
+                });
+              }
+            }
+          }
+          quizMap.set(person.id, videoQuizMap);
+        } catch (error) {
+          quizMap.set(person.id, new Map());
+        }
+      } else {
+        quizMap.set(person.id, new Map());
+      }
+    }
+
+    return { people: transformed, videos: videoMap, quizzes: quizMap };
+  }, []);
+
   const loadHiddenPeopleQuizData = useCallback(async (): Promise<{
     videos: Map<string, any[]>;
     quizzes: Map<string, Map<string, any>>;
@@ -502,15 +579,17 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
     async (includeHidden: boolean = false) => {
       setIsExporting(true);
       try {
-        let allPeople = [...people];
-        let allVideos = new Map(employeeVideos);
-        let allQuizzes = new Map(employeeQuizzes);
+        // Fresh fetch — no race condition with component state
+        const freshData = await loadFreshPeopleData();
+        let allPeople = freshData.people;
+        let allVideos = freshData.videos;
+        let allQuizzes = freshData.quizzes;
 
         if (includeHidden && hiddenPeople.length > 0) {
           const hiddenData = await loadHiddenPeopleQuizData();
-          const existingIds = new Set(people.map((p) => p.id));
+          const existingIds = new Set(allPeople.map((p) => p.id));
           const uniqueHidden = hiddenPeople.filter((p) => !existingIds.has(p.id));
-          allPeople = [...people, ...uniqueHidden];
+          allPeople = [...allPeople, ...uniqueHidden];
           hiddenData.videos.forEach((value, key) => allVideos.set(key, value));
           hiddenData.quizzes.forEach((value, key) => allQuizzes.set(key, value));
         }
@@ -561,7 +640,7 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({ userEmail })
         setIsExporting(false);
       }
     },
-    [people, hiddenPeople, employeeVideos, employeeQuizzes, loadHiddenPeopleQuizData, processEmployeesForExport, toast],
+    [hiddenPeople, loadFreshPeopleData, loadHiddenPeopleQuizData, processEmployeesForExport, toast],
   );
 
   const handleDownloadClick = useCallback(() => {
