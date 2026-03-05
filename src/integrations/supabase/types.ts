@@ -140,6 +140,48 @@ export type Database = {
           },
         ]
       }
+      quiz_draft_responses: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          quiz_id: string
+          responses: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          quiz_id: string
+          responses?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          quiz_id?: string
+          responses?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_draft_responses_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_draft_responses_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_question_options: {
         Row: {
           created_at: string
@@ -515,6 +557,10 @@ export type Database = {
         Args: { p_admin_user_id: string; p_quiz_id: string }
         Returns: string
       }
+      delete_quiz_draft: {
+        Args: { p_email: string; p_quiz_id: string }
+        Returns: undefined
+      }
       get_all_employee_assignments: {
         Args: never
         Returns: {
@@ -564,6 +610,10 @@ export type Database = {
           employee_id: string
           is_admin: boolean
         }[]
+      }
+      get_quiz_draft: {
+        Args: { p_email: string; p_quiz_id: string }
+        Returns: Json
       }
       get_safe_quiz_options: {
         Args: { p_question_id: string }
@@ -657,6 +707,10 @@ export type Database = {
             }
             Returns: undefined
           }
+      upsert_quiz_draft: {
+        Args: { p_email: string; p_quiz_id: string; p_responses: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "employee"

@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { QuizWithQuestions, QuizSubmissionData, QuizResponse } from "@/types/quiz";
+import { QuizWithQuestions, QuizSubmissionData, QuizResponse, QuizDraftResponse } from "@/types/quiz";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +17,8 @@ interface QuizModalProps {
   onSubmit: (responses: QuizSubmissionData[]) => void;
   onCancel: () => void;
   onResponsesChange?: (responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => void;
+  onDraftSave?: (drafts: QuizDraftResponse[]) => void;
+  initialDraftResponses?: QuizDraftResponse[] | null;
   quizResults?: QuizResponse[];
   isSubmitted?: boolean;
   correctOptions?: Record<string, string[]>;
@@ -39,13 +41,15 @@ export function QuizModal({
   onSubmit,
   onCancel,
   onResponsesChange,
+  onDraftSave,
+  initialDraftResponses,
   quizResults,
   isSubmitted,
   correctOptions = {},
   storedScore,
   storedTotalQuestions,
 }: QuizModalProps) {
-  // Initialize responses with saved quiz results when viewing completed quiz
+  // Initialize responses with saved quiz results when viewing completed quiz, or from draft
   const initializeResponses = () => {
     if (isSubmitted && quizResults) {
       const initialResponses: Record<string, ExtendedQuizResponse> = {};
@@ -65,13 +69,11 @@ export function QuizModal({
       Object.entries(responsesByQuestion).forEach(([questionId, results]) => {
         const question = quiz.questions.find((q) => q.id === questionId);
         if (question?.question_type === "multiple_choice") {
-          // Always use array format for multiple choice questions
           initialResponses[questionId] = {
             question_id: questionId,
             selected_option_ids: results.map((r) => r.selected_option_id).filter(Boolean) as string[],
           };
         } else {
-          // Single selection or text answer for other question types
           const result = results[0];
           initialResponses[questionId] = {
             question_id: questionId,
@@ -83,6 +85,21 @@ export function QuizModal({
 
       return initialResponses;
     }
+
+    // Initialize from draft responses if available
+    if (initialDraftResponses && initialDraftResponses.length > 0) {
+      const initialResponses: Record<string, ExtendedQuizResponse> = {};
+      initialDraftResponses.forEach((draft) => {
+        initialResponses[draft.question_id] = {
+          question_id: draft.question_id,
+          selected_option_id: draft.selected_option_id,
+          selected_option_ids: draft.selected_option_ids,
+          text_answer: draft.text_answer,
+        };
+      });
+      return initialResponses;
+    }
+
     return {};
   };
 
@@ -104,7 +121,14 @@ export function QuizModal({
     };
     setResponses(newResponses);
 
-    // Convert to QuizSubmissionData format for parent callback
+    // Save draft
+    const draftResponses: QuizDraftResponse[] = Object.values(newResponses).map((r) => ({
+      question_id: r.question_id,
+      selected_option_id: r.selected_option_id,
+      selected_option_ids: r.selected_option_ids,
+      text_answer: r.text_answer,
+    }));
+    onDraftSave?.(draftResponses);
     const responseArray: QuizSubmissionData[] = [];
     quiz.questions.forEach((question) => {
       const response = newResponses[question.id];

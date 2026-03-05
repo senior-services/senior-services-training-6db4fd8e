@@ -28,7 +28,7 @@ import { progressOperations } from "@/services/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { QuizSubmissionData, QuizResponse, QuizWithQuestions } from "@/types/quiz";
+import type { QuizSubmissionData, QuizResponse, QuizWithQuestions, QuizDraftResponse } from "@/types/quiz";
 import type { Video, TrainingContent } from "@/types";
 import { logger } from "@/utils/logger";
 import { QuizModal } from "@/components/quiz/QuizModal";
@@ -100,10 +100,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const [videoAttestationChecked, setVideoAttestationChecked] = useState(false);
   const [showVideoCompletedBadge, setShowVideoCompletedBadge] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [draftResponses, setDraftResponses] = useState<QuizDraftResponse[] | null>(null);
 
   // Refs
   const scrollRef = useRef<HTMLDivElement>(null);
   const badgeTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const draftSaveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Presentation compliance states
   const [viewingSeconds, setViewingSeconds] = useState(0);
@@ -316,19 +318,27 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     loadCompletedQuizResults();
   }, [wasEverCompleted, user?.email, videoId]);
 
-  // Auto-start quiz when reopening at 99%+ with quiz
+  // Auto-start quiz when reopening at 99%+ with quiz, and load draft
   useEffect(() => {
     if (!open || quizStarted || wasEverCompleted) return;
     if (progress >= 99 && quiz && !quizLoading) {
-      setQuizStarted(true);
-      setTimeout(() => {
-        const el = document.getElementById("quiz-section");
-        if (el && scrollRef.current) {
-          scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+      // Load draft before starting quiz
+      const loadDraft = async () => {
+        if (user?.email) {
+          const draft = await quizOperations.getDraft(user.email, quiz.id);
+          setDraftResponses(draft);
         }
-      }, 100);
+        setQuizStarted(true);
+        setTimeout(() => {
+          const el = document.getElementById("quiz-section");
+          if (el && scrollRef.current) {
+            scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
+          }
+        }, 100);
+      };
+      loadDraft();
     }
-  }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted]);
+  }, [open, progress, quiz, quizLoading, quizStarted, wasEverCompleted, user?.email]);
 
   const handleVideoEnded = useCallback(() => {
     const finalProgress = 99;
@@ -383,6 +393,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     }
     try {
       const attemptId = await quizOperations.submitQuiz(user.email, quiz.id, quizResponses);
+      // Delete draft after successful submission
+      await quizOperations.deleteDraft(user.email, quiz.id);
       const [attempts, correctOpts] = await Promise.all([
         quizOperations.getUserAttempts(user.email),
         quizOperations.getCorrectOptionsForQuiz(quiz.id),
@@ -409,8 +421,13 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   // Attestation state for quiz flow
   const [quizAttestationChecked, setQuizAttestationChecked] = useState(false);
 
-  const handleStartQuiz = useCallback(() => {
+  const handleStartQuiz = useCallback(async () => {
     if (wasEverCompleted) return;
+    // Load draft before starting
+    if (user?.email && quiz) {
+      const draft = await quizOperations.getDraft(user.email, quiz.id);
+      setDraftResponses(draft);
+    }
     setQuizStarted(true);
     setQuizResponses([]);
     setAllQuestionsAnswered(false);
@@ -425,7 +442,16 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         scrollRef.current.scrollTo({ top: el.offsetTop - scrollRef.current.offsetTop, behavior: "smooth" });
       }
     }, 100);
-  }, [wasEverCompleted]);
+  }, [wasEverCompleted, user?.email, quiz]);
+
+  // Debounced draft save handler
+  const handleDraftSave = useCallback((drafts: QuizDraftResponse[]) => {
+    if (!user?.email || !quiz) return;
+    if (draftSaveTimeoutRef.current) clearTimeout(draftSaveTimeoutRef.current);
+    draftSaveTimeoutRef.current = setTimeout(() => {
+      quizOperations.saveDraft(user.email!, quiz.id, drafts);
+    }, 2000);
+  }, [user?.email, quiz]);
 
   const handleQuizResponsesChange = useCallback(
     (responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => {
@@ -448,6 +474,20 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   const handleConfirmedCancel = useCallback(async () => {
     setShowCancelConfirmation(false);
+    // Flush draft save immediately before closing
+    if (draftSaveTimeoutRef.current) {
+      clearTimeout(draftSaveTimeoutRef.current);
+      draftSaveTimeoutRef.current = undefined;
+    }
+    // Save current quiz responses as draft if any exist
+    if (user?.email && quiz && quizResponses.length > 0) {
+      const drafts: QuizDraftResponse[] = quizResponses
+        .filter(r => r.selected_option_id || r.text_answer?.trim())
+        .map(r => ({ question_id: r.question_id, selected_option_id: r.selected_option_id, text_answer: r.text_answer }));
+      if (drafts.length > 0) {
+        await quizOperations.saveDraft(user.email, quiz.id, drafts);
+      }
+    }
     setQuizStarted(false);
     setQuizResponses([]);
     setAllQuestionsAnswered(false);
@@ -456,9 +496,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setQuizResults([]);
     setCompletedQuizResults([]);
     setQuizAttestationChecked(false);
+    setDraftResponses(null);
     await flushLastPosition();
     onOpenChange(false);
-  }, [onOpenChange, flushLastPosition]);
+  }, [onOpenChange, flushLastPosition, user?.email, quiz, quizResponses]);
 
   const handleDialogOpenChange = useCallback(
     (newOpen: boolean) => {
@@ -588,6 +629,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 onSubmit={handleQuizSubmit}
                 onCancel={() => {}}
                 onResponsesChange={handleQuizResponsesChange}
+                onDraftSave={handleDraftSave}
+                initialDraftResponses={!wasEverCompleted && !quizSubmitted ? draftResponses : null}
                 quizResults={wasEverCompleted ? completedQuizResults : quizResults}
                 isSubmitted={wasEverCompleted || quizSubmitted}
                 correctOptions={correctOptions}
@@ -640,23 +683,17 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            {hasQuizChanges ? "Discard unsaved progress?" : "Exit training?"}
-                          </AlertDialogTitle>
+                          <AlertDialogTitle>Exit training?</AlertDialogTitle>
                         </AlertDialogHeader>
                         <div>
                           <AlertDialogDescription>
-                            {hasQuizChanges
-                              ? "If you leave now, your answers won't be saved and your training will remain incomplete."
-                              : "You haven't submitted the acknowledgement yet and your training will remain incomplete."}
+                            Your training will remain incomplete but your quiz progress will be saved. You can resume where you left off.
                           </AlertDialogDescription>
                         </div>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>
-                            {hasQuizChanges ? "Continue Editing" : "Return to Quiz"}
-                          </AlertDialogCancel>
+                          <AlertDialogCancel>Return to Quiz</AlertDialogCancel>
                           <AlertDialogAction onClick={handleConfirmedCancel}>
-                            {hasQuizChanges ? "Discard & Exit Training" : "Exit Training"}
+                            Exit Training
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

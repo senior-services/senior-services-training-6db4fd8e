@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Quiz, QuizQuestion, QuizQuestionOption, QuizWithQuestions, QuizSubmissionData, QuizAttemptWithDetails } from "@/types/quiz";
+import { Quiz, QuizQuestion, QuizQuestionOption, QuizWithQuestions, QuizSubmissionData, QuizAttemptWithDetails, QuizDraftResponse } from "@/types/quiz";
 import { logger } from "@/utils/logger";
 
 // Cache user role to avoid repeated database calls
@@ -561,7 +561,54 @@ export const quizOperations = {
       logger.error('Error fetching all quiz attempts:', error);
       throw error;
     }
-  }
+  },
+  // --- Quiz Draft Operations ---
+
+  // Save draft quiz responses (debounced calls should happen at the caller level)
+  async saveDraft(email: string, quizId: string, responses: QuizDraftResponse[]): Promise<void> {
+    try {
+      const { error } = await supabase.rpc('upsert_quiz_draft', {
+        p_email: email,
+        p_quiz_id: quizId,
+        p_responses: responses as any
+      });
+      if (error) throw error;
+      logger.debug('Quiz draft saved', { quizId });
+    } catch (error) {
+      logger.error('Error saving quiz draft:', error);
+      // Don't throw - draft saving is non-critical
+    }
+  },
+
+  // Get saved draft quiz responses
+  async getDraft(email: string, quizId: string): Promise<QuizDraftResponse[] | null> {
+    try {
+      const { data, error } = await supabase.rpc('get_quiz_draft', {
+        p_email: email,
+        p_quiz_id: quizId
+      });
+      if (error) throw error;
+      if (!data || (Array.isArray(data) && data.length === 0)) return null;
+      return data as unknown as QuizDraftResponse[];
+    } catch (error) {
+      logger.error('Error getting quiz draft:', error);
+      return null;
+    }
+  },
+
+  // Delete draft after successful quiz submission
+  async deleteDraft(email: string, quizId: string): Promise<void> {
+    try {
+      const { error } = await supabase.rpc('delete_quiz_draft', {
+        p_email: email,
+        p_quiz_id: quizId
+      });
+      if (error) throw error;
+      logger.debug('Quiz draft deleted', { quizId });
+    } catch (error) {
+      logger.error('Error deleting quiz draft:', error);
+    }
+  },
 };
 
 export const questionOperations = {

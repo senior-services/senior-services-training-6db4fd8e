@@ -75,6 +75,13 @@ export interface QuizWithQuestions extends Quiz {
   questions: QuizQuestion[];
 }
 
+export interface QuizDraftResponse {
+  question_id: string;
+  selected_option_id?: string;
+  selected_option_ids?: string[];
+  text_answer?: string;
+}
+
 export interface QuizAttemptWithDetails extends QuizAttempt {
   quiz: Quiz;
   responses: QuizResponse[];
