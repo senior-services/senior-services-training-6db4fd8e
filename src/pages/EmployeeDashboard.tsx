@@ -252,7 +252,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       undefined;
 
       // Quiz-aware completion logic (aligned with admin dashboard)
-      const videoMarkedComplete = assignment?.completed_at || assignment?.progress_percent === 100;
+      const videoMarkedComplete = !!assignment?.completed_at;
       const quizInfo = videoIdsWithQuizzes.get(video.id);
       const quizCreatedAt = quizInfo?.createdAt;
       // Use shared helper for legacy exemption check
