@@ -473,7 +473,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
 
   /* ── Master Template: Banner ── */
   .banner-base {
-    @apply relative w-full rounded-lg border transition-shadow duration-300;
+    @apply relative w-full rounded-lg border;
   }
   .banner-default {
     @apply bg-background text-foreground;
@@ -500,7 +500,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
     @apply bg-attention/10 text-attention border-attention/20;
   }
   .banner-size-default {
-    @apply p-4 shadow-card hover:shadow-lg;
+    @apply p-4;
   }
   .banner-size-compact {
     @apply py-2 px-3;
