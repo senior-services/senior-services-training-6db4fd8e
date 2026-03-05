@@ -1149,10 +1149,9 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
               <TabsContent value="quiz" className="space-y-6 mt-4">
                 {/* Attention banner for assigned trainings */}
                 {hasAssignments && quiz && (
-                  <Banner variant={questions.length === 1 ? "warning" : "attention"} title="Versioning Notice">
+                  <Banner variant="attention" title="Versioning Notice">
                     This training is already assigned. Editing the quiz will create a new version for future employees.
                     Completed trainings won't be affected.
-                    {questions.length === 1 && ' A minimum of one question is required.'}
                   </Banner>
                 )}
 
@@ -1188,6 +1187,11 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
                             </Button>
                           )}
                         </div>
+                        {hasAssignments && questions.length === 1 && (
+                          <Banner variant="warning" size="compact">
+                            A minimum of one question is required for assigned trainings.
+                          </Banner>
+                        )}
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
