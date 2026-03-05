@@ -1,55 +1,34 @@
 
 
-## Resume Video from Last Position
+## Fix: Resume Position Not Persisting on Dialog Close
 
-### Problem
-When a user closes and reopens a training video, it starts from the beginning instead of resuming from where they left off.
+### Root Causes Identified
+
+**Issue 1: `resetProgress()` clears everything on dialog close.** In the `useEffect` at line 140, when `open` becomes `false`, `resetProgress()` is called which zeros out `lastPositionRef.current` and `furthestWatchedRef.current`. This happens *before* any final write to the database, so the last position is lost.
+
+**Issue 2: No immediate write on dialog close.** The debounced progress writes may be pending when the user closes the dialog, but `resetProgress()` calls `clearTimeout(progressUpdateTimeoutRef.current)`, cancelling the pending write. There is no "flush on close" logic.
+
+**Issue 3: Misleading cancel dialog message.** Line 696 says "Your progress will not be saved" which is inaccurate — video progress (position, furthest point) IS saved. Only the completion status remains incomplete.
 
 ### Changes
 
-**1. Database migration** — Add `last_position_seconds` column to `video_progress`:
-```sql
-ALTER TABLE video_progress ADD COLUMN last_position_seconds integer DEFAULT 0;
-```
+**1. `src/hooks/useVideoProgress.ts`**
+- Add a `flushLastPosition` callback that immediately writes the current `lastPositionRef.current` and `furthestWatchedRef.current` to the database (bypassing the debounce). This should be called before `resetProgress`.
+- Expose `flushLastPosition` in the return value.
 
-**2. Update RPC function** `update_video_progress_by_email` — Add `p_last_position_seconds` parameter. Store it directly (no GREATEST guard — we want the actual last position):
-```sql
-last_position_seconds = COALESCE(EXCLUDED.last_position_seconds, video_progress.last_position_seconds)
-```
-
-**3. `src/services/api.ts`**
-- `updateByEmail`: Add `lastPositionSeconds` parameter, pass as `p_last_position_seconds` to RPC
-- `getByEmailAndVideo`: Add `last_position_seconds` to the select query and return type
-
-**4. `src/hooks/useVideoProgress.ts`**
-- Track `lastPositionSeconds` state and ref
-- `loadExistingProgress`: Restore `last_position_seconds` from DB and return it
-- `updateProgressToDatabase`: Send `lastPositionRef.current` alongside other fields
-- Expose `updateLastPosition(seconds)` callback that updates the ref (called from VideoPlayer on each tick)
-- Expose `lastPositionSeconds` in return value
-
-**5. `src/components/video/VideoPlayer.tsx`**
-- Add `initialSeekSeconds` prop
-- Add `onLastPositionUpdate` prop
-- YouTube: In `onReady`, call `e.target.seekTo(initialSeekSeconds, true)` if > 0
-- YouTube polling: Call `onLastPositionUpdate(current)` on each tick
-- HTML5: Set `videoEl.currentTime = initialSeekSeconds` on `loadedmetadata`; call `onLastPositionUpdate` on `timeupdate`
-
-**6. `src/components/content/ContentPlayer.tsx`** — Pass through `initialSeekSeconds` and `onLastPositionUpdate`
-
-**7. `src/components/VideoPlayerFullscreen.tsx`** — After `loadExistingProgress`, store the returned `lastPositionSeconds` and pass it as `initialSeekSeconds` to `ContentPlayer`
+**2. `src/components/VideoPlayerFullscreen.tsx`**
+- In the `useEffect` that handles `!open` (line 140-153), call `flushLastPosition()` before `resetProgress()` so the last position is persisted before state is cleared.
+- In `handleConfirmedCancel` (line 446), call `flushLastPosition()` before `onOpenChange(false)`.
+- In `handleDialogOpenChange` (line 459), when the dialog is closing via X/overlay and we confirm exit, ensure `flushLastPosition()` fires.
+- Update the cancel dialog description at line 694-696: change the `!contentDone` message from "Your progress will not be saved and your training will remain incomplete." to "Your training will remain incomplete but your video progress will be saved. You can resume where you left off."
 
 ### Files Changed
 
 | File | Change |
 |------|--------|
-| DB migration | Add `last_position_seconds` column; update RPC function |
-| `src/services/api.ts` | Add param to `updateByEmail`; add field to `getByEmailAndVideo` |
-| `src/hooks/useVideoProgress.ts` | Track and persist last position; expose in return |
-| `src/components/video/VideoPlayer.tsx` | Accept `initialSeekSeconds` + `onLastPositionUpdate`; seek on load |
-| `src/components/content/ContentPlayer.tsx` | Pass through new props |
-| `src/components/VideoPlayerFullscreen.tsx` | Wire last position from hook through to player |
+| `src/hooks/useVideoProgress.ts` | Add `flushLastPosition` method that writes current refs to DB immediately |
+| `src/components/VideoPlayerFullscreen.tsx` | Call `flushLastPosition()` before `resetProgress()` on close; update cancel dialog message text |
 
 ### Database Change
-**Yes** — New column `last_position_seconds` on `video_progress` and updated RPC function signature.
+**No** — The schema and RPC function already support `last_position_seconds`. The issue is purely client-side timing.
 
