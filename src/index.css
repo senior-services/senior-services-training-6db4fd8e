@@ -271,25 +271,25 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   }
   /* Hollow */
   .badge-hollow-primary {
-    @apply border-primary text-primary bg-background;
+    @apply border-primary text-primary bg-transparent;
   }
   .badge-hollow-secondary {
-    @apply border-secondary text-secondary bg-background;
+    @apply border-secondary text-secondary bg-transparent;
   }
   .badge-hollow-tertiary {
-    @apply border-muted-foreground text-muted-foreground bg-background;
+    @apply border-muted-foreground text-muted-foreground bg-transparent;
   }
   .badge-hollow-destructive {
-    @apply border-destructive text-destructive bg-background;
+    @apply border-destructive text-destructive bg-transparent;
   }
   .badge-hollow-success {
-    @apply border-success text-success bg-background;
+    @apply border-success text-success bg-transparent;
   }
   .badge-hollow-warning {
-    @apply border-warning text-warning bg-background;
+    @apply border-warning text-warning bg-transparent;
   }
   .badge-hollow-attention {
-    @apply border-attention text-attention bg-background;
+    @apply border-attention text-attention bg-transparent;
   }
   /* Ghost */
   .badge-ghost-primary {
