@@ -118,7 +118,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   // Custom hooks for data management
   const { video, quiz, videoLoading: vLoading, quizLoading, loadVideoData, resetVideoData } = useVideoData();
-  const { progress, isCompleted, wasEverCompleted, furthestWatchedSeconds, lastPositionSeconds, updateFurthestWatched, updateLastPosition, updateProgress, resetProgress, loadExistingProgress, markComplete } =
+  const { progress, isCompleted, wasEverCompleted, furthestWatchedSeconds, lastPositionSeconds, updateFurthestWatched, updateLastPosition, updateProgress, resetProgress, flushLastPosition, loadExistingProgress, markComplete } =
     useVideoProgress({
       videoId,
       userEmail: user?.email || null,
@@ -140,6 +140,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   useEffect(() => {
     const initializeVideo = async () => {
       if (!open || !videoId) {
+        // Flush position to DB before resetting state
+        await flushLastPosition();
         resetVideoData();
         resetProgress();
         setQuizStarted(false);
@@ -193,6 +195,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     loadVideoData,
     resetVideoData,
     resetProgress,
+    flushLastPosition,
     loadExistingProgress,
     toast,
     initialVideo,
@@ -443,7 +446,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setShowCancelConfirmation(true);
   }, [quizSubmitted]);
 
-  const handleConfirmedCancel = useCallback(() => {
+  const handleConfirmedCancel = useCallback(async () => {
     setShowCancelConfirmation(false);
     setQuizStarted(false);
     setQuizResponses([]);
@@ -453,8 +456,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     setQuizResults([]);
     setCompletedQuizResults([]);
     setQuizAttestationChecked(false);
+    await flushLastPosition();
     onOpenChange(false);
-  }, [onOpenChange]);
+  }, [onOpenChange, flushLastPosition]);
 
   const handleDialogOpenChange = useCallback(
     (newOpen: boolean) => {
@@ -693,7 +697,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               const cancelTitle = "Exit training?";
               const cancelDescription = contentDone
                 ? "You haven't submitted the acknowledgement yet and your training will remain incomplete."
-                : "Your progress will not be saved and your training will remain incomplete.";
+                : "Your training will remain incomplete but your video progress will be saved. You can resume where you left off.";
 
               return (
                 <div className="flex w-full items-center justify-between gap-4">
@@ -734,8 +738,9 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                         <AlertDialogFooter>
                           <AlertDialogCancel>Return to Training</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => {
+                            onClick={async () => {
                               setCancelDialogOpen(false);
+                              await flushLastPosition();
                               onOpenChange(false);
                             }}
                           >

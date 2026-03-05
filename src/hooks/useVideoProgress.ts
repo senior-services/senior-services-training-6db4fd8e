@@ -178,6 +178,22 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
     return await updateProgressToDatabase(100, true);
   }, [updateProgressToDatabase, onProgressUpdate, videoId, userEmail]);
 
+  const flushLastPosition = useCallback(async () => {
+    if (!userEmail || !videoId) return;
+    // Cancel any pending debounced write
+    if (progressUpdateTimeoutRef.current) {
+      clearTimeout(progressUpdateTimeoutRef.current);
+      progressUpdateTimeoutRef.current = undefined;
+    }
+    const posToSave = lastPositionRef.current;
+    const furthestToSave = furthestWatchedRef.current;
+    if (posToSave <= 0 && furthestToSave <= 0) return;
+    logger.info('Flushing last position before close', { videoId, posToSave, furthestToSave });
+    await progressOperations.updateByEmail(
+      userEmail, videoId, progress, undefined, undefined, undefined, furthestToSave, posToSave
+    );
+  }, [userEmail, videoId, progress]);
+
   const resetProgress = useCallback(() => {
     setIsLocked(false);
     setProgress(0);
@@ -262,6 +278,7 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
     updateLastPosition,
     updateProgress,
     markComplete,
+    flushLastPosition,
     resetProgress,
     loadExistingProgress
   };
