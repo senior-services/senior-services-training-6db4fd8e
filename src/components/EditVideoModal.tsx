@@ -360,6 +360,9 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
   const handleSave = async () => {
     if (!video) return;
 
+    // DEBUG: Log all values relevant to Save Quiz confirmation
+    console.log('[handleSave] quiz:', quiz, '| questions.length:', questions.length, '| hasAssignments:', hasAssignments);
+
     // Enable validation display and cleanup/validate questions before saving
     setShowQuizValidation(true);
 
@@ -386,6 +389,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
 
     // Version check: if quiz exists and has been changed, check for attempts
     if (quiz && hasQuizChanges()) {
+      console.log('[handleSave] Entering version check block');
       try {
         const { attemptCount } = await quizOperations.checkUsage(quiz.id);
         if (attemptCount > 0) {
@@ -400,6 +404,7 @@ export const EditVideoModal = ({ open, onOpenChange, video, onSave, onDelete, on
 
     // First-time quiz save on unassigned training: show confirmation
     const isCreatingNewQuizForSave = !quiz && questions.length > 0;
+    console.log('[handleSave] isCreatingNewQuizForSave:', isCreatingNewQuizForSave, '| !hasAssignments:', !hasAssignments, '| shouldShowDialog:', isCreatingNewQuizForSave && !hasAssignments);
     if (isCreatingNewQuizForSave && !hasAssignments) {
       setSaveQuizConfirmDialogOpen(true);
       return;
