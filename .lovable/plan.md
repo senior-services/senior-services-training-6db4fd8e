@@ -1,37 +1,63 @@
 
 
-## Revert Banner & Add Inline Warning
+## Add Constrained Compact Banners to Style Guide & Apply to EditVideoModal
 
-### Changes — `src/components/EditVideoModal.tsx`
+### Changes
 
-**1. Revert versioning banner (lines 1152–1156)** back to static `"attention"` variant with original message only:
+**1. `src/index.css` — Add new semantic class**
 
-```tsx
-<Banner variant="attention" title="Versioning Notice">
-  This training is already assigned. Editing the quiz will create a new version for future employees.
-  Completed trainings won't be affected.
-</Banner>
+Add a `.banner-size-compact-constrained` class (or `.banner-compact-constrained`) that combines the compact sizing with a `max-width` constraint (e.g., `max-w-md` or `max-w-lg`) and `w-fit` so the banner only takes the width of its content rather than stretching full-width.
+
+```css
+.banner-size-compact-constrained {
+  @apply py-2 px-3 w-fit max-w-md;
+}
 ```
 
-**2. Add compact inline warning banner (after line 1190, inside the Card after the title/trash row)**
+**2. `src/components/ui/banner.tsx` — Add `constrained` size variant**
 
-When `hasAssignments && questions.length === 1`, render a compact warning banner below the "Question 1" title:
+Add a new size variant `"compact-constrained"` to the `bannerVariants` CVA config:
 
-```tsx
-{hasAssignments && questions.length === 1 && (
-  <Banner variant="warning" size="compact">
-    A minimum of one question is required for assigned trainings.
-  </Banner>
-)}
+```ts
+size: {
+  default: "banner-size-default",
+  compact: "banner-size-compact",
+  "compact-constrained": "banner-size-compact-constrained",
+},
 ```
 
-Trash icon logic remains unchanged.
+**3. `src/pages/ComponentsGallery.tsx` — Add new section after line 1296**
+
+Insert a new "Inline Banners (Compact, Constrained)" section directly below the existing compact section, before the closing `</div>` on line 1297:
+
+```tsx
+<Separator className="my-6" />
+
+<h4 className="text-body-sm font-medium text-muted-foreground">Inline Banners (Compact, Constrained)</h4>
+
+<Banner variant="information" size="compact-constrained" description="This field is optional." />
+<Banner variant="success" size="compact-constrained" description="All answers saved." />
+<Banner variant="warning" size="compact-constrained" description="Changes will take effect immediately." />
+<Banner variant="error" size="compact-constrained" description="Please fix the errors above." />
+<Banner variant="attention" size="compact-constrained" description="Review pending items before submitting." />
+```
+
+**4. `src/components/EditVideoModal.tsx` — Update inline warning (line 1191)**
+
+Change `size="compact"` to `size="compact-constrained"`:
+
+```tsx
+<Banner variant="warning" size="compact-constrained">
+```
 
 ### Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/EditVideoModal.tsx` | Revert banner to static attention + add inline compact warning inside question card |
+| `src/index.css` | Add `.banner-size-compact-constrained` class |
+| `src/components/ui/banner.tsx` | Add `"compact-constrained"` size variant |
+| `src/pages/ComponentsGallery.tsx` | Add constrained compact banner examples section |
+| `src/components/EditVideoModal.tsx` | Use `compact-constrained` size on inline warning |
 
 ### Database Change
 **No.**
