@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, XCircle } from "lucide-react"; // CheckCircle/XCircle kept for true/false inline icons only
+import { CheckCircle, XCircle, X } from "lucide-react"; // CheckCircle/XCircle kept for true/false inline icons only
 import { OptionList, OptionRow } from "@/components/ui/option-list";
 import { Banner } from "@/components/ui/banner";
 
@@ -312,6 +312,9 @@ export function QuizModal({
                                       } else if (isSelected && !isSelectedCorrect) {
                                         optionClassName +=
                                           " text-destructive bg-destructive/10 border-destructive/20 rounded-md p-3 border";
+                                      } else if (!isSelected && isCorrect) {
+                                        optionClassName +=
+                                          " text-success bg-success/10 border-success/20 rounded-md p-3 border";
                                       }
                                     }
 
@@ -350,13 +353,14 @@ export function QuizModal({
                                               </Badge>
                                             )}
                                             {isSubmitted && isSelected && !isSelectedCorrect && (
-                                              <Badge variant="destructive" showIcon>
-                                                Incorrect
+                                              <Badge variant="destructive">
+                                                <X className="w-3 h-3 mr-1" />
+                                                Your Answer
                                               </Badge>
                                             )}
                                             {isSubmitted && !isSelected && isCorrect && (
-                                              <Badge variant="soft-success" showIcon>
-                                                Correct
+                                              <Badge variant="hollow-success" showIcon>
+                                                Correct Answer
                                               </Badge>
                                             )}
                                           </div>
@@ -408,6 +412,9 @@ export function QuizModal({
                                   } else if (isSelected && !isSelectedCorrect) {
                                     optionClassName +=
                                       " text-destructive bg-destructive/10 border-destructive/20 rounded-md p-3 border";
+                                  } else if (!isSelected && isCorrect) {
+                                    optionClassName +=
+                                      " text-success bg-success/10 border-success/20 rounded-md p-3 border";
                                   }
                                 }
 
@@ -430,13 +437,14 @@ export function QuizModal({
                                           </Badge>
                                         )}
                                         {isSubmitted && isSelected && !isSelectedCorrect && (
-                                          <Badge variant="destructive" showIcon>
-                                            Incorrect
+                                          <Badge variant="destructive">
+                                            <X className="w-3 h-3 mr-1" />
+                                            Your Answer
                                           </Badge>
                                         )}
                                         {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                          <Badge variant="soft-success" showIcon>
-                                            Correct
+                                          <Badge variant="hollow-success" showIcon>
+                                            Correct Answer
                                           </Badge>
                                         )}
                                       </div>
@@ -487,6 +495,9 @@ export function QuizModal({
                                   } else if (isSelected && !isSelectedCorrect) {
                                     optionClassName +=
                                       " text-destructive bg-destructive/10 border-destructive/20 rounded-md p-3 border";
+                                  } else if (!isSelected && isCorrect) {
+                                    optionClassName +=
+                                      " text-success bg-success/10 border-success/20 rounded-md p-3 border";
                                   }
                                 }
 
@@ -502,13 +513,14 @@ export function QuizModal({
                                           </Badge>
                                         )}
                                         {isSubmitted && isSelected && !isSelectedCorrect && (
-                                          <Badge variant="destructive" showIcon>
-                                            Incorrect
+                                          <Badge variant="destructive">
+                                            <X className="w-3 h-3 mr-1" />
+                                            Your Answer
                                           </Badge>
                                         )}
                                         {isSubmitted && !isSelected && isCorrect && userAnsweredIncorrectly && (
-                                          <Badge variant="soft-success" showIcon>
-                                            Correct
+                                          <Badge variant="hollow-success" showIcon>
+                                            Correct Answer
                                           </Badge>
                                         )}
                                       </div>
