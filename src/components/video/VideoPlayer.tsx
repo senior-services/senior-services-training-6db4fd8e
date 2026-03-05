@@ -37,12 +37,6 @@ export function VideoPlayer({
   const ytPlayerReadyRef = useRef<boolean>(false);
   const html5ReadyRef = useRef<boolean>(false);
 
-  // Debug: log initialSeekSeconds on every render
-  console.log('[RESUME-DEBUG] VideoPlayer render:', {
-    videoId: video?.id,
-    initialSeekSeconds,
-    videoUrl: video?.video_url?.substring(0, 50),
-  });
 
   // Keep furthestRef in sync with prop
   useEffect(() => {
@@ -53,10 +47,8 @@ export function VideoPlayer({
   useEffect(() => {
     if (initialSeekSeconds > 0) {
       if (ytPlayerReadyRef.current && ytPlayerRef.current?.seekTo) {
-        console.log('[RESUME-DEBUG] Late seek (YouTube):', initialSeekSeconds);
         ytPlayerRef.current.seekTo(initialSeekSeconds, true);
       } else if (html5ReadyRef.current && videoRef.current) {
-        console.log('[RESUME-DEBUG] Late seek (HTML5):', initialSeekSeconds);
         videoRef.current.currentTime = initialSeekSeconds;
       }
     }
@@ -167,14 +159,8 @@ export function VideoPlayer({
                   events: {
                     onReady: (e: any) => {
                       ytPlayerReadyRef.current = true;
-                      // Seek to saved position on load
-                      console.log('[RESUME-DEBUG] YouTube onReady:', {
-                        initialSeekSeconds,
-                        willSeek: initialSeekSeconds > 0,
-                      });
                       if (initialSeekSeconds > 0) {
                         e.target.seekTo(initialSeekSeconds, true);
-                        console.log('[RESUME-DEBUG] YouTube seekTo called:', initialSeekSeconds);
                       }
                       
                       ytProgressIntervalRef.current = setInterval(() => {
@@ -296,13 +282,8 @@ export function VideoPlayer({
         onEnded={handleVideoEnded}
         onLoadedMetadata={(e) => {
           html5ReadyRef.current = true;
-          console.log('[RESUME-DEBUG] HTML5 onLoadedMetadata:', {
-            initialSeekSeconds,
-            willSeek: initialSeekSeconds > 0,
-          });
           if (initialSeekSeconds > 0) {
             e.currentTarget.currentTime = initialSeekSeconds;
-            console.log('[RESUME-DEBUG] HTML5 currentTime set to:', initialSeekSeconds);
           }
         }}
       >

@@ -243,15 +243,6 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
         const storedFurthest = progressData.furthest_watched_seconds || 0;
         const storedLastPosition = progressData.last_position_seconds || 0;
         
-        console.log('[RESUME-DEBUG] loadExistingProgress DB result:', {
-          videoId,
-          userEmail,
-          last_position_seconds: progressData.last_position_seconds,
-          furthest_watched_seconds: progressData.furthest_watched_seconds,
-          progress_percent: progressPercent,
-          storedLastPosition,
-          storedFurthest,
-        });
         
         setProgress(progressPercent);
         setIsCompleted(isVideoCompleted);
@@ -270,7 +261,6 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
           lastPositionSeconds: storedLastPosition
         });
 
-        console.log('[RESUME-DEBUG] loadExistingProgress returning lastPositionSeconds:', storedLastPosition);
         return { completedAt: progressData.completed_at || null, progressPercent, acknowledgmentViewingSeconds: progressData.acknowledgment_viewing_seconds ?? null, lastPositionSeconds: storedLastPosition };
       } else {
         logger.info('No existing progress found', { userEmail, videoId });
