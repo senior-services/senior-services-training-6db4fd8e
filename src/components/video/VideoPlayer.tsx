@@ -35,6 +35,13 @@ export function VideoPlayer({
   const completionTriggeredRef = useRef<boolean>(false);
   const furthestRef = useRef<number>(furthestWatchedSeconds);
 
+  // Debug: log initialSeekSeconds on every render
+  console.log('[RESUME-DEBUG] VideoPlayer render:', {
+    videoId: video?.id,
+    initialSeekSeconds,
+    videoUrl: video?.video_url?.substring(0, 50),
+  });
+
   // Keep furthestRef in sync with prop
   useEffect(() => {
     furthestRef.current = Math.max(furthestRef.current, furthestWatchedSeconds);
@@ -145,8 +152,13 @@ export function VideoPlayer({
                   events: {
                     onReady: (e: any) => {
                       // Seek to saved position on load
+                      console.log('[RESUME-DEBUG] YouTube onReady:', {
+                        initialSeekSeconds,
+                        willSeek: initialSeekSeconds > 0,
+                      });
                       if (initialSeekSeconds > 0) {
                         e.target.seekTo(initialSeekSeconds, true);
+                        console.log('[RESUME-DEBUG] YouTube seekTo called:', initialSeekSeconds);
                       }
                       
                       ytProgressIntervalRef.current = setInterval(() => {
@@ -267,8 +279,13 @@ export function VideoPlayer({
         onSeeking={handleSeeking}
         onEnded={handleVideoEnded}
         onLoadedMetadata={(e) => {
+          console.log('[RESUME-DEBUG] HTML5 onLoadedMetadata:', {
+            initialSeekSeconds,
+            willSeek: initialSeekSeconds > 0,
+          });
           if (initialSeekSeconds > 0) {
             e.currentTarget.currentTime = initialSeekSeconds;
+            console.log('[RESUME-DEBUG] HTML5 currentTime set to:', initialSeekSeconds);
           }
         }}
       >
