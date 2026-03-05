@@ -34,6 +34,8 @@ export function VideoPlayer({
   const ytProgressIntervalRef = useRef<NodeJS.Timeout>();
   const completionTriggeredRef = useRef<boolean>(false);
   const furthestRef = useRef<number>(furthestWatchedSeconds);
+  const ytPlayerReadyRef = useRef<boolean>(false);
+  const html5ReadyRef = useRef<boolean>(false);
 
   // Debug: log initialSeekSeconds on every render
   console.log('[RESUME-DEBUG] VideoPlayer render:', {
@@ -46,6 +48,19 @@ export function VideoPlayer({
   useEffect(() => {
     furthestRef.current = Math.max(furthestRef.current, furthestWatchedSeconds);
   }, [furthestWatchedSeconds]);
+
+  // Late-seek: if initialSeekSeconds arrives after player is already ready
+  useEffect(() => {
+    if (initialSeekSeconds > 0) {
+      if (ytPlayerReadyRef.current && ytPlayerRef.current?.seekTo) {
+        console.log('[RESUME-DEBUG] Late seek (YouTube):', initialSeekSeconds);
+        ytPlayerRef.current.seekTo(initialSeekSeconds, true);
+      } else if (html5ReadyRef.current && videoRef.current) {
+        console.log('[RESUME-DEBUG] Late seek (HTML5):', initialSeekSeconds);
+        videoRef.current.currentTime = initialSeekSeconds;
+      }
+    }
+  }, [initialSeekSeconds]);
 
   // Ensure YouTube IFrame API is loaded
   const ensureYouTubeAPI = useCallback((): Promise<void> => {
@@ -151,6 +166,7 @@ export function VideoPlayer({
                 ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
                   events: {
                     onReady: (e: any) => {
+                      ytPlayerReadyRef.current = true;
                       // Seek to saved position on load
                       console.log('[RESUME-DEBUG] YouTube onReady:', {
                         initialSeekSeconds,
@@ -279,6 +295,7 @@ export function VideoPlayer({
         onSeeking={handleSeeking}
         onEnded={handleVideoEnded}
         onLoadedMetadata={(e) => {
+          html5ReadyRef.current = true;
           console.log('[RESUME-DEBUG] HTML5 onLoadedMetadata:', {
             initialSeekSeconds,
             willSeek: initialSeekSeconds > 0,
