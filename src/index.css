@@ -426,7 +426,7 @@ All colors are HSL and follow brand guidelines from southsoundseniors.org
   }
 
   .bg-gradient-hero {
-    background: linear-gradient(135deg, hsl(0, 75%, 36%), hsl(0, 52%, 50%));
+    background: linear-gradient(135deg, hsl(206, 75%, 36%), hsl(205, 52%, 63%));
   }
 
   .status-overdue {
