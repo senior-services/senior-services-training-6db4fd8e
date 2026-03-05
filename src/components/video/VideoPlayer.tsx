@@ -57,7 +57,7 @@ export function VideoPlayer({
     if (!videoEl.duration || videoEl.currentTime < 0) return;
     
     // Update furthest watched
-    if (videoEl.currentTime <= furthestRef.current + 1) {
+    if (videoEl.currentTime <= furthestRef.current + (videoEl.playbackRate * 2)) {
       const newFurthest = Math.max(furthestRef.current, videoEl.currentTime);
       if (newFurthest > furthestRef.current) {
         furthestRef.current = newFurthest;
@@ -72,7 +72,7 @@ export function VideoPlayer({
   // HTML5 seeking enforcement
   const handleSeeking = useCallback((event: React.SyntheticEvent<HTMLVideoElement>) => {
     const videoEl = event.currentTarget;
-    if (videoEl.currentTime > furthestRef.current + 1) {
+    if (videoEl.currentTime > furthestRef.current + (videoEl.playbackRate * 2)) {
       videoEl.currentTime = furthestRef.current;
     }
   }, []);
@@ -143,7 +143,8 @@ export function VideoPlayer({
                         
                         if (duration > 0) {
                           // Anti-skip enforcement: if user jumped beyond furthest + 2s buffer, snap back
-                          if (current > furthestRef.current + 2) {
+                          const playbackRate = e.target.getPlaybackRate ? e.target.getPlaybackRate() : 1;
+                          if (current > furthestRef.current + (playbackRate * 2)) {
                             e.target.seekTo(furthestRef.current, true);
                             return;
                           }
