@@ -543,6 +543,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
             role="application"
           >
             {trainingContent && (
+              <>
+              {console.log('[RESUME-DEBUG] VideoPlayerFullscreen rendering ContentPlayer:', {
+                videoId,
+                lastPositionSeconds,
+                initialSeekSeconds: lastPositionSeconds,
+                open,
+                isInitializing,
+              })}
               <ContentPlayer
                 content={trainingContent}
                 loading={vLoading}
@@ -554,6 +562,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
                 initialSeekSeconds={lastPositionSeconds}
                 onLastPositionUpdate={updateLastPosition}
               />
+              </>
             )}
           </div>
 
