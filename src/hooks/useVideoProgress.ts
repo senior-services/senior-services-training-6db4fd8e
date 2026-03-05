@@ -16,7 +16,9 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
   const [wasEverCompleted, setWasEverCompleted] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [furthestWatchedSeconds, setFurthestWatchedSeconds] = useState(0);
+  const [lastPositionSeconds, setLastPositionSeconds] = useState(0);
   const furthestWatchedRef = useRef(0);
+  const lastPositionRef = useRef(0);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
   const updateProgressToDatabase = useCallback(async (
@@ -59,7 +61,8 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
           hasQuiz,
           forceComplete,
           hasAcknowledgment: !!acknowledgmentData,
-          furthestWatchedSeconds: furthestWatchedRef.current
+          furthestWatchedSeconds: furthestWatchedRef.current,
+          lastPositionSeconds: lastPositionRef.current
         });
 
         const result = await progressOperations.updateByEmail(
@@ -69,7 +72,8 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
           completedAt,
           acknowledgmentData?.acknowledgedAt,
           acknowledgmentData?.viewingSeconds,
-          furthestWatchedRef.current
+          furthestWatchedRef.current,
+          lastPositionRef.current
         );
 
         if (!result.success) {
@@ -113,6 +117,10 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
       furthestWatchedRef.current = newFurthest;
       setFurthestWatchedSeconds(newFurthest);
     }
+  }, []);
+
+  const updateLastPosition = useCallback((seconds: number) => {
+    lastPositionRef.current = Math.floor(seconds);
   }, []);
 
   const updateProgress = useCallback((progressPercent: number) => {
@@ -176,7 +184,9 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
     setIsCompleted(false);
     setWasEverCompleted(false);
     setFurthestWatchedSeconds(0);
+    setLastPositionSeconds(0);
     furthestWatchedRef.current = 0;
+    lastPositionRef.current = 0;
     if (progressUpdateTimeoutRef.current) {
       clearTimeout(progressUpdateTimeoutRef.current);
     }
@@ -211,26 +221,30 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
         const progressPercent = progressData.progress_percent;
         const isVideoCompleted = !!progressData.completed_at;
         const storedFurthest = progressData.furthest_watched_seconds || 0;
+        const storedLastPosition = progressData.last_position_seconds || 0;
         
         setProgress(progressPercent);
         setIsCompleted(isVideoCompleted);
         setWasEverCompleted(isVideoCompleted);
         setIsLocked(isVideoCompleted);
         setFurthestWatchedSeconds(storedFurthest);
+        setLastPositionSeconds(storedLastPosition);
         furthestWatchedRef.current = storedFurthest;
+        lastPositionRef.current = storedLastPosition;
         
         logger.videoEvent('progress_restored', videoId, {
           progress: progressPercent,
           completed: isVideoCompleted,
           locked: isVideoCompleted,
-          furthestWatchedSeconds: storedFurthest
+          furthestWatchedSeconds: storedFurthest,
+          lastPositionSeconds: storedLastPosition
         });
 
-        return { completedAt: progressData.completed_at || null, progressPercent, acknowledgmentViewingSeconds: progressData.acknowledgment_viewing_seconds ?? null };
+        return { completedAt: progressData.completed_at || null, progressPercent, acknowledgmentViewingSeconds: progressData.acknowledgment_viewing_seconds ?? null, lastPositionSeconds: storedLastPosition };
       } else {
         logger.info('No existing progress found', { userEmail, videoId });
         resetProgress();
-        return { completedAt: null, progressPercent: 0, acknowledgmentViewingSeconds: null };
+        return { completedAt: null, progressPercent: 0, acknowledgmentViewingSeconds: null, lastPositionSeconds: 0 };
       }
     } catch (error) {
       logger.error('Failed to load existing progress', error);
@@ -243,7 +257,9 @@ export function useVideoProgress({ videoId, userEmail, onProgressUpdate, hasQuiz
     isCompleted,
     wasEverCompleted,
     furthestWatchedSeconds,
+    lastPositionSeconds,
     updateFurthestWatched,
+    updateLastPosition,
     updateProgress,
     markComplete,
     resetProgress,

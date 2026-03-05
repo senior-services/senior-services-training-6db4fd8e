@@ -13,6 +13,8 @@ interface VideoPlayerProps {
   onVideoEnded: () => void;
   furthestWatchedSeconds?: number;
   onFurthestUpdate?: (seconds: number) => void;
+  initialSeekSeconds?: number;
+  onLastPositionUpdate?: (seconds: number) => void;
 }
 
 export function VideoPlayer({ 
@@ -22,7 +24,9 @@ export function VideoPlayer({
   onProgressUpdate, 
   onVideoEnded,
   furthestWatchedSeconds = 0,
-  onFurthestUpdate
+  onFurthestUpdate,
+  initialSeekSeconds = 0,
+  onLastPositionUpdate
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout>();
@@ -65,9 +69,12 @@ export function VideoPlayer({
       }
     }
     
+    // Report current position for resume
+    onLastPositionUpdate?.(videoEl.currentTime);
+    
     const progressPercent = Math.min(100, Math.max(0, Math.floor((videoEl.currentTime / videoEl.duration) * 100)));
     onProgressUpdate(progressPercent);
-  }, [onProgressUpdate, onFurthestUpdate]);
+  }, [onProgressUpdate, onFurthestUpdate, onLastPositionUpdate]);
 
   // HTML5 seeking enforcement
   const handleSeeking = useCallback((event: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -137,12 +144,17 @@ export function VideoPlayer({
                 ytPlayerRef.current = new YTGlobal.Player(`yt-player-${id}`, {
                   events: {
                     onReady: (e: any) => {
+                      // Seek to saved position on load
+                      if (initialSeekSeconds > 0) {
+                        e.target.seekTo(initialSeekSeconds, true);
+                      }
+                      
                       ytProgressIntervalRef.current = setInterval(() => {
                         const current = e.target.getCurrentTime ? e.target.getCurrentTime() : 0;
                         const duration = e.target.getDuration ? e.target.getDuration() : (video.duration_seconds || 0);
                         
                         if (duration > 0) {
-                          // Anti-skip enforcement: if user jumped beyond furthest + 2s buffer, snap back
+                          // Anti-skip enforcement: if user jumped beyond furthest + buffer, snap back
                           const playbackRate = e.target.getPlaybackRate ? e.target.getPlaybackRate() : 1;
                           if (current > furthestRef.current + (playbackRate * 2)) {
                             e.target.seekTo(furthestRef.current, true);
@@ -154,6 +166,9 @@ export function VideoPlayer({
                             furthestRef.current = Math.floor(current);
                             onFurthestUpdate?.(furthestRef.current);
                           }
+                          
+                          // Report current position for resume
+                          onLastPositionUpdate?.(current);
                           
                           const progressPercent = Math.min(100, Math.floor((current / duration) * 100));
                           onProgressUpdate(progressPercent);
@@ -251,12 +266,17 @@ export function VideoPlayer({
         onTimeUpdate={handleVideoProgress}
         onSeeking={handleSeeking}
         onEnded={handleVideoEnded}
+        onLoadedMetadata={(e) => {
+          if (initialSeekSeconds > 0) {
+            e.currentTarget.currentTime = initialSeekSeconds;
+          }
+        }}
       >
         {src && <source src={src} type="video/mp4" />}
         Your browser does not support the video tag.
       </video>
     );
-  }, [video, onProgressUpdate, progress, handleVideoProgress, handleSeeking, handleVideoEnded, onVideoEnded, ensureYouTubeAPI, onFurthestUpdate]);
+  }, [video, onProgressUpdate, progress, handleVideoProgress, handleSeeking, handleVideoEnded, onVideoEnded, ensureYouTubeAPI, onFurthestUpdate, onLastPositionUpdate, initialSeekSeconds]);
 
   if (loading) {
     return (

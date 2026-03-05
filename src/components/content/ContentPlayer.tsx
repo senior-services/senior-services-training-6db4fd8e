@@ -11,6 +11,8 @@ interface ContentPlayerProps {
   progress?: number;
   furthestWatchedSeconds?: number;
   onFurthestUpdate?: (seconds: number) => void;
+  initialSeekSeconds?: number;
+  onLastPositionUpdate?: (seconds: number) => void;
 }
 
 export const ContentPlayer: React.FC<ContentPlayerProps> = ({
@@ -21,6 +23,8 @@ export const ContentPlayer: React.FC<ContentPlayerProps> = ({
   progress = 0,
   furthestWatchedSeconds = 0,
   onFurthestUpdate,
+  initialSeekSeconds = 0,
+  onLastPositionUpdate,
 }) => {
   // Default to video if content_type is not specified (backward compatibility)
   const contentType = content.content_type || 'video';
@@ -54,6 +58,8 @@ export const ContentPlayer: React.FC<ContentPlayerProps> = ({
       onVideoEnded={onComplete || (() => {})}
       furthestWatchedSeconds={furthestWatchedSeconds}
       onFurthestUpdate={onFurthestUpdate}
+      initialSeekSeconds={initialSeekSeconds}
+      onLastPositionUpdate={onLastPositionUpdate}
     />
   );
 };
