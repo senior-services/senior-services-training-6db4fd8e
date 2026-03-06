@@ -463,7 +463,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     draftSaveTimeoutRef.current = setTimeout(() => {
       quizOperations.saveDraft(user.email!, quiz.id, draftsWithAttestation);
     }, 2000);
-  }, [user?.email, quiz]);
+  }, [user?.email, quiz, quizAttestationChecked]);
 
   const handleQuizResponsesChange = useCallback(
     (responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => {
