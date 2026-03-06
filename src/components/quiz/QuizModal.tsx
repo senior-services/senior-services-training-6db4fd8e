@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QuizWithQuestions, QuizSubmissionData, QuizResponse, QuizDraftResponse } from "@/types/quiz";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -105,7 +105,50 @@ export function QuizModal({
 
   const [responses, setResponses] = useState<Record<string, ExtendedQuizResponse>>(initializeResponses);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [attestationChecked, setAttestationChecked] = useState(isSubmitted ? true : false);
+  const [attestationChecked, setAttestationChecked] = useState(
+    isSubmitted ? true : (initialDraftResponses?.[0]?.attestation_checked ?? false)
+  );
+  const hasFiredInitialRef = useRef(false);
+
+  // Fire onResponsesChange on mount when drafts are loaded so parent gets allQuestionsAnswered
+  useEffect(() => {
+    if (hasFiredInitialRef.current || isSubmitted || !initialDraftResponses?.length || !quiz?.questions?.length) return;
+    hasFiredInitialRef.current = true;
+
+    const allAnswered = quiz.questions.every((question) => {
+      const draft = initialDraftResponses.find(d => d.question_id === question.id);
+      if (!draft) return false;
+      if (question.question_type === "multiple_choice") {
+        return draft.selected_option_ids && draft.selected_option_ids.length > 0;
+      } else if (question.question_type === "single_answer" || question.question_type === "true_false") {
+        return !!draft.selected_option_id;
+      }
+      return !!draft.text_answer?.trim();
+    });
+
+    const responseArray: QuizSubmissionData[] = [];
+    quiz.questions.forEach((question) => {
+      const draft = initialDraftResponses.find(d => d.question_id === question.id);
+      if (draft) {
+        if (question.question_type === "multiple_choice" && draft.selected_option_ids) {
+          draft.selected_option_ids.forEach((optionId) => {
+            responseArray.push({ question_id: question.id, selected_option_id: optionId });
+          });
+        } else {
+          responseArray.push({
+            question_id: question.id,
+            selected_option_id: draft.selected_option_id,
+            text_answer: draft.text_answer,
+          });
+        }
+      } else {
+        responseArray.push({ question_id: question.id });
+      }
+    });
+
+    const draftAttestation = initialDraftResponses[0]?.attestation_checked ?? false;
+    onResponsesChange?.(responseArray, allAnswered, draftAttestation);
+  }, [initialDraftResponses, isSubmitted, quiz, onResponsesChange]);
 
   const handleResponseChange = (questionId: string, response: Partial<ExtendedQuizResponse>) => {
     // Don't allow changes if quiz is submitted

@@ -80,6 +80,7 @@ export interface QuizDraftResponse {
   selected_option_id?: string;
   selected_option_ids?: string[];
   text_answer?: string;
+  attestation_checked?: boolean;
 }
 
 export interface QuizAttemptWithDetails extends QuizAttempt {

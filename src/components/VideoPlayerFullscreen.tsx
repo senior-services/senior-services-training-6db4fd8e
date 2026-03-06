@@ -327,6 +327,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
         if (user?.email) {
           const draft = await quizOperations.getDraft(user.email, quiz.id);
           setDraftResponses(draft);
+          // Restore attestation state from draft
+          if (draft && draft.length > 0 && draft[0].attestation_checked) {
+            setQuizAttestationChecked(true);
+          }
         }
         setQuizStarted(true);
         setTimeout(() => {
@@ -427,6 +431,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     if (user?.email && quiz) {
       const draft = await quizOperations.getDraft(user.email, quiz.id);
       setDraftResponses(draft);
+      // Restore attestation state from draft
+      if (draft && draft.length > 0 && draft[0].attestation_checked) {
+        setQuizAttestationChecked(true);
+      }
     }
     setQuizStarted(true);
     setQuizResponses([]);
@@ -448,10 +456,14 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
   const handleDraftSave = useCallback((drafts: QuizDraftResponse[]) => {
     if (!user?.email || !quiz) return;
     if (draftSaveTimeoutRef.current) clearTimeout(draftSaveTimeoutRef.current);
+    // Piggyback attestation state onto first draft entry
+    const draftsWithAttestation = drafts.length > 0
+      ? [{ ...drafts[0], attestation_checked: quizAttestationChecked }, ...drafts.slice(1)]
+      : drafts;
     draftSaveTimeoutRef.current = setTimeout(() => {
-      quizOperations.saveDraft(user.email!, quiz.id, drafts);
+      quizOperations.saveDraft(user.email!, quiz.id, draftsWithAttestation);
     }, 2000);
-  }, [user?.email, quiz]);
+  }, [user?.email, quiz, quizAttestationChecked]);
 
   const handleQuizResponsesChange = useCallback(
     (responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => {
@@ -483,7 +495,12 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
     if (user?.email && quiz && quizResponses.length > 0) {
       const drafts: QuizDraftResponse[] = quizResponses
         .filter(r => r.selected_option_id || r.text_answer?.trim())
-        .map(r => ({ question_id: r.question_id, selected_option_id: r.selected_option_id, text_answer: r.text_answer }));
+        .map((r, i) => ({
+          question_id: r.question_id,
+          selected_option_id: r.selected_option_id,
+          text_answer: r.text_answer,
+          ...(i === 0 ? { attestation_checked: quizAttestationChecked } : {}),
+        }));
       if (drafts.length > 0) {
         await quizOperations.saveDraft(user.email, quiz.id, drafts);
       }
