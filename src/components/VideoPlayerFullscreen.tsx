@@ -659,9 +659,10 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               />
 
               {/* Attestation - inline after quiz questions */}
-              {!quizSubmitted && !wasEverCompleted && (
+              {!quizSubmitted && !wasEverCompleted && (() => {
+                console.log('[VPF render] TrainingAttestation enabled:', allQuestionsAnswered, 'checked:', quizAttestationChecked);
+                return (
                 <div className="mt-6 max-w-4xl mx-auto">
-                  {console.log('[VPF render] TrainingAttestation enabled:', allQuestionsAnswered, 'checked:', quizAttestationChecked)}
                   <TrainingAttestation
                     enabled={allQuestionsAnswered}
                     checked={quizAttestationChecked}
