@@ -326,6 +326,8 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
       const loadDraft = async () => {
         if (user?.email) {
           const draft = await quizOperations.getDraft(user.email, quiz.id);
+          console.log('[VPF auto-start] loaded draft:', draft);
+          console.log('[VPF auto-start] attestation_checked:', draft?.[0]?.attestation_checked);
           setDraftResponses(draft);
           // Restore attestation state from draft
           if (draft && draft.length > 0 && draft[0].attestation_checked) {
@@ -467,6 +469,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
 
   const handleQuizResponsesChange = useCallback(
     (responses: QuizSubmissionData[], allAnswered: boolean, attestationChecked: boolean) => {
+      console.log('[VPF handleQuizResponsesChange] allAnswered:', allAnswered, 'attestationChecked:', attestationChecked);
       setQuizResponses(responses);
       setAllQuestionsAnswered(allAnswered);
       setQuizAttestationChecked(attestationChecked);
@@ -658,6 +661,7 @@ export const VideoPlayerFullscreen: React.FC<VideoPlayerFullscreenProps> = ({
               {/* Attestation - inline after quiz questions */}
               {!quizSubmitted && !wasEverCompleted && (
                 <div className="mt-6 max-w-4xl mx-auto">
+                  {console.log('[VPF render] TrainingAttestation enabled:', allQuestionsAnswered, 'checked:', quizAttestationChecked)}
                   <TrainingAttestation
                     enabled={allQuestionsAnswered}
                     checked={quizAttestationChecked}
